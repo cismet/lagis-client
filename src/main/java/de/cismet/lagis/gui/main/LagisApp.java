@@ -18,6 +18,7 @@ import Sirius.navigator.plugin.interfaces.PluginProperties;
 import Sirius.navigator.plugin.interfaces.PluginSupport;
 import Sirius.navigator.plugin.interfaces.PluginUI;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.vividsolutions.jts.geom.Geometry;
 import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.features.Feature;
@@ -143,7 +144,11 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.auth.DefaultUserNameStore;
 import org.jdesktop.swingx.auth.LoginService;
 import org.jdom.Element;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.servlet.Context;
+import org.mortbay.jetty.servlet.ServletHolder;
 import org.netbeans.api.wizard.WizardDisplayer;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -2366,7 +2371,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         Iterator it = copiedFeatures.iterator();
         boolean cutting = false;
         while (it.hasNext()) {
-            Feature clipboardFlaeche = (Feature) it.next();                
+            Feature clipboardFlaeche = (Feature) it.next();
             PureNewFeature newFeature = new PureNewFeature((Geometry) clipboardFlaeche.getGeometry().clone());
             newFeature.setCanBeSelected(true);
             newFeature.setEditable(true);
@@ -2643,6 +2648,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
 
     public void masterConfigure(Element parent) {
         try {
+            //ToDo if it fails all fail better place in the single try catch
             Element prefs = parent.getChild("glassfishSetup");
             Element urls = parent.getChild("urls");
             Element login = parent.getChild("login").getChild("standalone");
@@ -2681,6 +2687,14 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
                 System.setProperty("org.omg.CORBA.ORBInitialPort", prefs.getChildText("orbPort"));
             } catch (Exception ex) {
                 log.warn("Fehler beim lesen des Glassfish Ports", ex);
+            }
+            try {
+                Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
+                final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
+                log.debug("Crossover: Crossover port: " + crossoverServerPort);
+                initCrossoverServer(Integer.parseInt(crossoverServerPort));
+            } catch (Exception ex) {
+                log.warn("Crossover: Error while starting Server", ex);
             }
 //            try {
 //                log.debug("Userdomain: " + login.getAttribute("userdomainname").getValue());
@@ -2847,6 +2861,41 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
 
     public String getWidgetName() {
         return WIDGET_NAME;
+    }
+
+    private void initCrossoverServer(int crossoverServerPort) {
+        final int defaultServerPort = 8888;
+        boolean defaultServerPortUsed = false;
+        try {
+            if (crossoverServerPort < 0 || crossoverServerPort > 65535) {
+                log.warn("Crossover: Invalid Crossover serverport: " + crossoverServerPort + ". Going to use default port: " + defaultServerPort);
+                defaultServerPortUsed = true;
+                initCrossoverServerImpl(defaultServerPort);
+            } else {
+                initCrossoverServerImpl(crossoverServerPort);
+            }
+        } catch (Exception ex) {
+            log.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort);
+            if (!defaultServerPortUsed) {
+                log.debug("Crossover: Trying to create server with defaultPort: " + defaultServerPort);
+                defaultServerPortUsed = true;
+                try {
+                    initCrossoverServerImpl(defaultServerPort);
+                    log.debug("Crossover: Server started at port: "+defaultServerPort);
+                } catch (Exception ex1) {
+                    log.error("Crossover: Failed to initialize Crossover server on defaultport: " + defaultServerPort + ". No Server is started");
+                }
+            }
+        }
+    }
+
+    private void initCrossoverServerImpl(int crossoverServerPort) throws Exception {
+        ServletHolder sh = new ServletHolder(ServletContainer.class);
+        sh.setInitParameter("com.sun.jersey.config.property.packages", "de.cismet.lagis.broker");
+        Server server = new Server(crossoverServerPort);
+        Context context = new Context(server, "/", Context.SESSIONS);
+        context.addServlet(sh, "/*");
+        server.start();
     }
 
     class ImageSelection implements Transferable {
