@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
+import org.geotools.geometry.jts.LiteShape;
 import org.openide.util.Exceptions;
 
 /**
