@@ -16,6 +16,7 @@ import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.layout.SugiyamaLayout;
 import de.cismet.lagis.layout.model.HistoryPanelEdge;
 import de.cismet.lagis.layout.model.HistoryPanelModel;
+import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.LagisServerBean.HistoryLevel;
 import de.cismet.lagisEE.bean.LagisServerBean.HistoryType;
@@ -23,6 +24,8 @@ import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
 import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
+import de.cismet.tools.configuration.Configurable;
+import de.cismet.tools.configuration.NoWriteError;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import org.apache.log4j.Logger;
 
+import org.jdom.Element;
 import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
@@ -46,8 +50,7 @@ import org.netbeans.api.visual.widget.BirdViewController;
  *
  * @author mbrill
  */
-public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeListener {
-
+public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeListener, Configurable {
 
     //-------------------------------------------------------------------------
     //          Attributes
@@ -60,8 +63,8 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
     private HistoryLevel level;
     private HistoryType type;
     private int depth;
-
     private BirdViewController birdViewController;
+    private BackgroundUpdateThread<Flurstueck> updateThread;
 
     /** Creates new form HistoryPanel */
     public NewHistoryPanel() {
@@ -90,8 +93,20 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
 
         sceneLayout = LayoutFactory.createSceneGraphLayout(graphScene, layout);
 
-        birdViewController = graphScene.createBirdView ();
+        birdViewController = graphScene.createBirdView();
         satellitePanel.setVisible(overViewCHB.isSelected());
+
+        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+
+            @Override
+            protected void update() {
+                
+                updateGraph();
+            }
+        };
+
+        updateThread.setPriority(Thread.NORM_PRIORITY);
+        updateThread.start();
     }
 
     /** This method is called from within the constructor to
@@ -311,13 +326,12 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
 }//GEN-LAST:event_overViewCHBActionPerformed
 
     private void magnifyerCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_magnifyerCHBActionPerformed
-        if(magnifyerCHB.isSelected()) {
+        if (magnifyerCHB.isSelected()) {
             birdViewController.show();
         } else {
             birdViewController.hide();
         }
 }//GEN-LAST:event_magnifyerCHBActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel creationDateInfoLabel;
     private javax.swing.JLabel creationDateLabel;
@@ -343,7 +357,6 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
     //-------------------------------------------------------------------------
     //          Überschriebene Methoden
     //-------------------------------------------------------------------------
-
     /**
      * <code>clearComponent</code> empties the sceneGraph datastructure and therefor
      * removes any graph representation from the visible component.
@@ -389,20 +402,20 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
         log.error("Unsupported operation called : setComponentEditable");
     }
 
-
     /**
      * Method implements the FlurstueckChangeListener Interface. If a new Flurstueck
      * is selected in LagIS it updates the graph representation.
      *
      * @param newFlurstueck The new Flurstueck selected by the user
      */
+    @Override
     public void flurstueckChanged(Flurstueck newFlurstueck) {
 
         if (newFlurstueck != null) {
             if (!holdHistoryCHB.isSelected()) {
                 graphScene.setVisible(false);
                 currentFlurstueck = newFlurstueck;
-                updateGraph();
+                updateThread.notifyThread(newFlurstueck);
                 LagisBroker.getInstance().flurstueckChangeFinished(this);
             }
         } else {
@@ -414,7 +427,6 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
     //-------------------------------------------------------------------------
     //          KlassenMethoden
     //-------------------------------------------------------------------------
-
     /**
      * This method is intended to be used when there is no LagIS system available
      * giving the information which Flurstueck is currently set. It asks the
@@ -563,7 +575,6 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
 
         depth = (Integer) depthSP.getValue();
     }
-
 
     //-------------------------------------------------------------------------
     //          Getter & Setter - Beans compliance
@@ -734,5 +745,18 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
 
     public void setSceneLayout(SceneLayout sceneLayout) {
         this.sceneLayout = sceneLayout;
+    }
+
+    @Override
+    public void configure(org.jdom.Element parent) {
+    }
+
+    @Override
+    public org.jdom.Element getConfiguration() throws NoWriteError {
+        return null;
+    }
+
+    @Override
+    public void masterConfigure(Element arg0) {
     }
 }

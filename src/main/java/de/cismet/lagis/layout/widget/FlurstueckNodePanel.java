@@ -22,6 +22,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -50,12 +51,12 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
 
     private static final String ICON_UNKNOWN = "default";
 
-    private static final String ICON_CONTRACTS = "/resource/contract.png";
-    private static final String ICON_RIGHT = "/resource/recht.png";
-    private static final String ICON_LOAD = "/resource/belastung.png";
-    private static final String ICON_DMS = "/resource/dms_default.png";
+    private static final String ICON_CONTRACTS = "/de/cismet/lagis/ressource/history/contract.png";
+    private static final String ICON_RIGHT = "/de/cismet/lagis/ressource/history/recht.png";
+    private static final String ICON_LOAD = "/de/cismet/lagis/ressource/history/belastung.png";
+    private static final String ICON_DMS = "/de/cismet/lagis/ressource/history/dms_default.png";
 
-    private ResourceBundle icon_bundle = ResourceBundle.getBundle("resource/icon");
+    private ResourceBundle icon_bundle = ResourceBundle.getBundle("de/cismet/lagis/ressource/history/icon", new Locale("de", "DE"));
 
     private PureCoolPanel coolPanel;
     private JPanel titlePanel;

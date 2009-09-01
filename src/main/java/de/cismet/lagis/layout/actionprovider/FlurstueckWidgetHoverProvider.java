@@ -20,6 +20,7 @@ public class FlurstueckWidgetHoverProvider implements TwoStateHoverProvider {
      * Method is called when the mouse cursor exits a FlurstueckHistoryWidget
      * @param w Widget wich was pointed on
      */
+    @Override
     public void unsetHovering(Widget w) {
         System.out.println("Hovering finished" + w);
     }
@@ -28,6 +29,7 @@ public class FlurstueckWidgetHoverProvider implements TwoStateHoverProvider {
      * Method is called when the mouse cursor enters a FlurstueckHistoryWidget
      * @param w Widget which is pointed on 
      */
+    @Override
     public void setHovering(Widget w) {
         System.out.println("Hovering Widget" + w);
     }

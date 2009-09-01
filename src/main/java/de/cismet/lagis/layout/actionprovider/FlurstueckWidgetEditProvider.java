@@ -26,6 +26,7 @@ public class FlurstueckWidgetEditProvider implements EditProvider {
      *
      * @param w The Widget which was double clicked
      */
+    @Override
     public void edit(Widget w) {
         if(w instanceof FlurstueckHistoryWidget) {
             FlurstueckHistoryWidget fhw = (FlurstueckHistoryWidget) w;
@@ -33,7 +34,7 @@ public class FlurstueckWidgetEditProvider implements EditProvider {
             FlurstueckSchluessel key = fhw.getFlurstueck().getFlurstueckSchluessel();
 
 
-            LagisBroker.getInstance().loadFlurstueck(key);
+//            LagisBroker.getInstance().loadFlurstueck(key);
         }
     }
 }

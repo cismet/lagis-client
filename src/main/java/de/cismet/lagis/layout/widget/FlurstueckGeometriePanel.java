@@ -62,7 +62,7 @@ public class FlurstueckGeometriePanel extends JPanel {
      */
     public FlurstueckGeometriePanel(Flurstueck flurstueck) {
 
-        ConfigurationManager confM = new ConfigurationManager();
+        ConfigurationManager confM =  new ConfigurationManager();
         confM.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
         confM.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
         confM.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);

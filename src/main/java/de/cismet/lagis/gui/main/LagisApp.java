@@ -46,6 +46,7 @@ import de.cismet.lagis.gui.panels.DMSPanel;
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 import de.cismet.lagis.gui.panels.InformationPanel;
 import de.cismet.lagis.gui.panels.NKFOverviewPanel;
+import de.cismet.lagis.gui.panels.NewHistoryPanel;
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.Widget;
@@ -148,7 +149,7 @@ import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.netbeans.api.wizard.WizardDisplayer;
-import org.openide.util.Exceptions;
+
 
 /**
  *
@@ -169,7 +170,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private NKFOverviewPanel pNKFOverview;
     private DMSPanel pDMS;
     private KartenPanel pKarte;
-    private HistoryPanel pHistory;
+    private NewHistoryPanel pHistory;
     private NKFPanel pNKF;
     private ReBePanel pRechteDetail;
     private VertraegePanel pVertraege;
@@ -470,6 +471,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 menuItem.setIcon(form.getIcon());
                 menuItem.addActionListener(new ActionListener() {
 
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         log.debug("showOrHideView:" + formView);
                         showOrHideView(formView);
@@ -556,6 +558,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             log.info("Konstruktion des LaGIS Objektes erfolgreich");
             Runtime.getRuntime().addShutdownHook(new Thread() {
 
+                @Override
                 public void run() {
                     log.debug("ShutdownHook gestartet");
                     cleanUp();
@@ -574,6 +577,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             updateThread = new BackgroundUpdateThread<Flurstueck>() {
 
+                @Override
                 protected void update() {
                     try {
                         if (isUpdateAvailable()) {
@@ -649,6 +653,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     }
                 }
 
+                @Override
                 protected void cleanup() {
                 }
             };
@@ -699,6 +704,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         }
     }
 
+    @Override
     public void setVisible(boolean visible) {
         if (isPlugin) {
             log.debug("Plugin setVisible ignoriert: " + visible);
@@ -721,6 +727,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         final JXLoginPane login = new JXLoginPane(wa, null, usernames) {
 
+            @Override
             protected Image createLoginBanner() {
                 return getBannerImage();
             }
@@ -740,12 +747,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         d.addComponentListener(new ComponentAdapter() {
 
+            @Override
             public void componentHidden(ComponentEvent e) {
                 handleLoginStatus(d.getStatus(), usernames, login);
             }
         });
         d.addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosed(WindowEvent e) {
                 handleLoginStatus(d.getStatus(), usernames, login);
             }
@@ -799,6 +808,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         JMenuItem jmi = new JMenuItem(t);
         jmi.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 mapComponent.gotoBoundingBoxWithHistory(mapComponent.getBoundingBoxFromScale(d));
             }
@@ -820,6 +830,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         } catch (final Throwable t) {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
+                @Override
                 public void run() {
                     log.warn("Fehler in validateTree()", t);
                     validateTree();
@@ -894,6 +905,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         menuItem.setIcon(ressort.getWidgetIcon());
                         menuItem.addActionListener(new ActionListener() {
 
+                            @Override
                             public void actionPerformed(ActionEvent e) {
                                 showOrHideView(ressortView);
                             }
@@ -943,7 +955,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         pKarte = new KartenPanel();
         pNKF = new NKFPanel();
         pRechteDetail = new ReBePanel();
-        pHistory = new HistoryPanel();
+        pHistory = new NewHistoryPanel();
         configManager.addConfigurable(pHistory);
         configManager.configure(pHistory);
         pInfromation = new InformationPanel();
@@ -1109,9 +1121,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         KeyStroke showLayoutKeyStroke = KeyStroke.getKeyStroke('D', InputEvent.CTRL_MASK);
         Action showLayoutAction = new AbstractAction() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 java.awt.EventQueue.invokeLater(new Runnable() {
 
+                    @Override
                     public void run() {
                         DeveloperUtil.createWindowLayoutFrame("Momentanes Layout", rootWindow).setVisible(true);
                     }
@@ -1912,9 +1926,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private void mniClippboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniClippboardActionPerformed
         Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 SwingUtilities.invokeLater(new Runnable() {
 
+                    @Override
                     public void run() {
                         clipboarder.setLocationRelativeTo(LagisApp.this);
                         clipboarder.setVisible(true);
@@ -1924,6 +1940,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(imgSel, null);
                 SwingUtilities.invokeLater(new Runnable() {
 
+                    @Override
                     public void run() {
                         clipboarder.dispose();
                     }
@@ -1942,10 +1959,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         JFileChooser fc = new JFileChooser(LAGIS_CONFIGURATION_FOLDER);
         fc.setFileFilter(new FileFilter() {
 
+            @Override
             public boolean accept(File f) {
                 return f.getName().toLowerCase().endsWith(".layout");
             }
 
+            @Override
             public String getDescription() {
                 return "Layout";
             }
@@ -2004,6 +2023,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 log.warn("Datei exitstiert nicht --> default layout (init)");
                 SwingUtilities.invokeLater(new Runnable() {
 
+                    @Override
                     public void run() {
                         //UGLY WINNING --> Gefixed durch IDW Version 1.5
                         //setupDefaultLayout();
@@ -2028,10 +2048,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         JFileChooser fc = new JFileChooser(LAGIS_CONFIGURATION_FOLDER);
         fc.setFileFilter(new FileFilter() {
 
+            @Override
             public boolean accept(File f) {
                 return f.getName().toLowerCase().endsWith(".layout");
             }
 
+            @Override
             public String getDescription() {
                 return "Layout";
             }
@@ -2387,6 +2409,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 try {
 
@@ -2493,14 +2516,17 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     private static final int ICON_SIZE = 8;
     private static final Icon VIEW_ICON = new Icon() {
 
+        @Override
         public int getIconHeight() {
             return ICON_SIZE;
         }
 
+        @Override
         public int getIconWidth() {
             return ICON_SIZE;
         }
 
+        @Override
         public void paintIcon(Component c, Graphics g, int x, int y) {
             Color oldColor = g.getColor();
 
@@ -2519,17 +2545,20 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
      *
      */
     // HistoryModelListener
+    @Override
     public void backStatusChanged() {
         //throw new UnsupportedOperationException("Not supported yet.");
         mniBack.setEnabled(mapComponent.isBackPossible());
 
     }
 
+    @Override
     public void forwardStatusChanged() {
         // throw new UnsupportedOperationException("Not supported yet.");
         mniForward.setEnabled(mapComponent.isForwardPossible());
     }
 
+    @Override
     public void historyChanged() {
         log.debug("HistoryChanged");
         //throw new UnsupportedOperationException("Not supported yet.");
@@ -2557,6 +2586,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
                     final int pos = backPos.size() - 1 - index;
                     item.addActionListener(new ActionListener() {
 
+                        @Override
                         public void actionPerformed(ActionEvent e) {
                             for (int i = 0; i < pos; ++i) {
                                 mapComponent.back(false);
@@ -2581,6 +2611,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
                     final int pos = forwPos.size() - 1 - index;
                     item.addActionListener(new ActionListener() {
 
+                        @Override
                         public void actionPerformed(ActionEvent e) {
                             for (int i = 0; i < pos; ++i) {
                                 mapComponent.forward(false);
@@ -2602,6 +2633,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    @Override
     public void historyActionPerformed() {
         //throw new UnsupportedOperationException("Not supported yet.");
         log.info("historyActionPerformed");
@@ -2619,6 +2651,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     private Dimension windowSize = null;
     private Point windowLocation = null;
 
+    @Override
     public void configure(Element parent) {
         Element prefs = parent.getChild("cismapPluginUIPreferences");
         try {
@@ -2646,6 +2679,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
     //TODO optimize
 
+    @Override
     public void masterConfigure(Element parent) {
         try {
             //ToDo if it fails all fail better place in the single try catch
@@ -2767,6 +2801,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    @Override
     public Element getConfiguration() throws NoWriteError {
         Element ret = new Element("cismapPluginUIPreferences");
         Element window = new Element("window");
@@ -2786,6 +2821,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
 
     // awt.Window
+    @Override
     public void dispose() {
         setVisible(false);
         log.info("Dispose(): Lagis wird heruntergefahren");
@@ -2801,6 +2837,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     private BackgroundUpdateThread<Flurstueck> updateThread;
     private Flurstueck currentFlurstueck;
 
+    @Override
     public void flurstueckChanged(final Flurstueck newFlurstueck) {
         //mapComponent
         currentFlurstueck = newFlurstueck;
@@ -2835,6 +2872,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
 //        refresherThread.start();
     }
 
+    @Override
     public void setComponentEditable(boolean isEditable) {
         btnReloadFlurstueck.setEnabled(!isEditable);
         mniRefresh.setEnabled(!isEditable);
@@ -2848,6 +2886,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    @Override
     public synchronized void clearComponent() {
         //TODO ugly geknaupt
         if (LagisBroker.getInstance().isUnkownFlurstueck()) {
@@ -2855,10 +2894,12 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    @Override
     public void refresh(Object refreshObject) {
     }
     private static final String WIDGET_NAME = "Lagis Mainframe";
 
+    @Override
     public String getWidgetName() {
         return WIDGET_NAME;
     }
@@ -2907,16 +2948,19 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
 
         // Returns supported flavors
+        @Override
         public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[]{DataFlavor.imageFlavor};
         }
 
         // Returns true if flavor is supported
+        @Override
         public boolean isDataFlavorSupported(DataFlavor flavor) {
             return DataFlavor.imageFlavor.equals(flavor);
         }
 
         // Returns image
+        @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
             if (!DataFlavor.imageFlavor.equals(flavor)) {
                 throw new UnsupportedFlavorException(flavor);
@@ -2964,6 +3008,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
 
     //TODO use
+    @Override
     public Icon getWidgetIcon() {
         return null;
     }
@@ -2974,18 +3019,23 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
 //        this.setTitle("LagIS [" + userString + "]");
 //    //LagisBroker.getInstance().get;
 //    }
+    @Override
     public void windowOpened(WindowEvent e) {
     }
 
+    @Override
     public void windowIconified(WindowEvent e) {
     }
 
+    @Override
     public void windowDeiconified(WindowEvent e) {
     }
 
+    @Override
     public void windowDeactivated(WindowEvent e) {
     }
 
+    @Override
     public void windowClosing(WindowEvent e) {
         log.debug("windowClosing():");
         log.debug("windowClosing(): Checke ob noch eine Sperre vorhanden ist.");
@@ -3032,9 +3082,11 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         configManager.writeConfiguration();
     }
 
+    @Override
     public void windowClosed(WindowEvent e) {
     }
 
+    @Override
     public void windowActivated(WindowEvent e) {
     }
 
@@ -3077,6 +3129,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
             }
         }
 
+        @Override
         public boolean authenticate(String name, char[] password, String server) throws Exception {
             log.debug("Authentication:");
             System.setProperty("sun.rmi.transport.connectionTimeout", "15");
@@ -3161,13 +3214,16 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
             }
         }
 
+        @Override
         public void configure(Element parent) {
         }
 
+        @Override
         public Element getConfiguration() throws NoWriteError {
             return null;
         }
 
+        @Override
         public void masterConfigure(Element parent) {
             Element login = parent.getChild("login").getChild("standalone");
             Element userDep = parent.getChild("userDependingConfigurationProperties");
@@ -3253,30 +3309,36 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
 
     //Navigator Methods
+    @Override
     public Iterator getUIs() {
         LinkedList ll = new LinkedList();
         ll.add(this);
         return ll.iterator();
     }
 
+    @Override
     public PluginProperties getProperties() {
         return null;
     }
 
+    @Override
     public Iterator getMethods() {
         LinkedList ll = new LinkedList();
         return ll.iterator();
     }
 
+    @Override
     public PluginUI getUI(String id) {
         return this;
 
     }
 
+    @Override
     public PluginMethod getMethod(String id) {
         return null;
     }
 
+    @Override
     public void setActive(boolean active) {
         log.debug("setActive:" + active);
         if (!active) {
@@ -3287,65 +3349,81 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
     //FloatingPluginUI
 
+    @Override
     public void shown() {
     }
 
+    @Override
     public void resized() {
     }
 
+    @Override
     public void moved() {
     }
 
+    @Override
     public void hidden() {
     }
 
+    @Override
     public Collection getMenus() {
         return menues;
     }
 
+    @Override
     public String getId() {
         return "lagis";
     }
 
+    @Override
     public JComponent getComponent() {
         return panAll;
     }
 
+    @Override
     public Collection getButtons() {
         return Arrays.asList(this.toolbar.getComponents());
     }
 
+    @Override
     public void floatingStopped() {
     }
 
+    @Override
     public void floatingStarted() {
     }
     // Validation
     private final ArrayList<ValidationStateChangedListener> validationListeners = new ArrayList<ValidationStateChangedListener>();
     private String validationMessage = "Die Komponente ist valide";
 
+    @Override
     public String getValidationMessage() {
         return validationMessage;
     }
 
+    @Override
     public int getStatus() {
         return Validatable.VALID;
     }
 
+    @Override
     public void fireValidationStateChanged(Object validatedObject) {
         for (ValidationStateChangedListener listener : validationListeners) {
             listener.validationStateChanged(null);
         }
     }
 
+    @Override
     public void removeValidationStateChangedListener(ValidationStateChangedListener l) {
         validationListeners.remove(l);
     }
 
+    @Override
     public void addValidationStateChangedListener(ValidationStateChangedListener l) {
         validationListeners.add(l);
     }
 
+    @Override
     public void showAssistent(Component parent) {
     }
 
@@ -3354,10 +3432,12 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         pFlurstueckChooser.setStatusIcon(icoUnknownFlurstueck);
     }
 
+    @Override
     public boolean isWidgetReadOnly() {
         return false;
     }
 
+    @Override
     public void featureSelectionChanged(Collection<Feature> features) {
         log.debug("FeatureSelectionChanged LagisApp: ");
         if (LagisBroker.getInstance().isInEditMode() && features != null && features.size() > 0) {
@@ -3377,6 +3457,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    @Override
     public void stateChanged(ChangeEvent e) {
     }
 }
