@@ -4,6 +4,7 @@
  */
 package de.cismet.lagis.layout.model;
 
+import de.cismet.lagis.layout.actionprovider.FlurstueckSelectProvider;
 import de.cismet.lagis.layout.actionprovider.FlurstueckWidgetEditProvider;
 import de.cismet.lagis.layout.actionprovider.FlurstueckWidgetHoverProvider;
 import de.cismet.lagis.layout.widget.AbstractFlurstueckNodePanel;
@@ -46,8 +47,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     private boolean backgroundSet = false;
     private LayerWidget nodeLayer;
     private LayerWidget connectionLayer;
-    private final WidgetAction hoverAction =
-            ActionFactory.createHoverAction(new FlurstueckWidgetHoverProvider());
+    private final WidgetAction selectAction;
     private final WidgetAction editAction = ActionFactory.createEditAction(new FlurstueckWidgetEditProvider());
     Logger log;
 
@@ -79,7 +79,8 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 //        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
         getActions().addAction(ActionFactory.createPanAction());
 
-        getActions().addAction(hoverAction);
+
+        selectAction = ActionFactory.createSelectAction(new FlurstueckSelectProvider(this));
 
     }
 
@@ -111,8 +112,14 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
         FlurstueckHistoryWidget nodeWidget = new FlurstueckHistoryWidget(this, nodePanel);
 
-        nodeWidget.getActions().addAction(editAction);
+        WidgetAction hoverAction = ActionFactory.createHoverAction(
+                new FlurstueckWidgetHoverProvider(this, nodeWidget));
+        getActions().addAction(hoverAction);
 
+        nodeWidget.getActions().addAction(selectAction);
+        nodeWidget.getActions().addAction(editAction);
+        nodeWidget.getActions().addAction(hoverAction);
+        
         nodeLayer.addChild(nodeWidget);
         nodeWidget.revalidate();
 

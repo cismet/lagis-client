@@ -28,6 +28,7 @@ import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -45,6 +46,7 @@ import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.BirdViewController;
+import org.netbeans.api.visual.widget.Widget;
 
 /**
  *
@@ -100,7 +102,7 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
 
             @Override
             protected void update() {
-                
+
                 updateGraph();
             }
         };

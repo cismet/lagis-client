@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.graph.layout.UniversalGraph;
@@ -31,16 +32,13 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     private int hgap = 30;
     private Integer vgap = null;
     private int maximumVSize;
-
     private double dummySizeVertical = 50.0;
     private double dummySizeHorizontal = 50.0;
-
     private HashMap<N, SugiyamaNode<N>> nodeMapping;
     private HashMap<E, SugiyamaEdge<E>> edgeMapping;
     private HashMap<SugiyamaEdge<E>, ArrayList<SugiyamaNode<N>>> dummyMapping;
     private HashMap<E, SugiyamaEdge<E>> longEdgeMapping;
     private ArrayList<SugiyamaEdge<E>> cycleEdges;
-    
     private static int dfsTime = 0;
     private int iterations = 10;
     private boolean horizontal = false;
@@ -49,7 +47,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
         white, grey, black
     }
-
     // Statistics
     private long graphCreationTime;
     private long layerAssignmentCompleteTime;
@@ -194,11 +191,9 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         dfsTime = 0;
     }
 
-
     //==========================================================================
     //      Sugiyama algorithm part
     //==========================================================================
-
     // ---------------------------------------------------
     //      Normalisation
     // ---------------------------------------------------
@@ -215,7 +210,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         // Since the current problem does not need to deal with cycled graphs, this method
         // will be implemented if I have time
     }
-
 
     // ---------------------------------------------------
     //      Initial construction of datastructure and Layer assignment
@@ -502,13 +496,14 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
         // maximum size for a widget was calculated, set the gaps between layers
         // according to the maximal vertical size of a widget
-        if(vgap == null) {
-            if(maxY > 60.0 && maxY < 200)
-                this.vgap = (int) (maxY + maxY/2.0);
-            else if(maxY > 200)
+        if (vgap == null) {
+            if (maxY > 60.0 && maxY < 200) {
+                this.vgap = (int) (maxY + maxY / 2.0);
+            } else if (maxY > 200) {
                 this.vgap = (int) (maxY + 100.0);
-            else
+            } else {
                 this.vgap = (int) (maxY + 30.0);
+            }
         }
         this.maximumVSize = (int) maxY;
 
@@ -593,7 +588,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         HashMap<SugiyamaNode<N>, Integer> nodeToNewLayer =
                 new HashMap<SugiyamaNode<N>, Integer>();
 
-        
+
         for (int i = 0; i < layers.get(0).size(); i++) {
             int newLayer = optimize(layers.get(0).get(i), nodeToNewLayer);
             if (newLayer != 0) {
@@ -651,7 +646,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     // ---------------------------------------------------
     //      Dummy Node insertion
     // ---------------------------------------------------
-
     /**
      * In order to perform the crossing minimizaton step of the Sugiyama Algorithm,
      * a Graph has to be "proper" in the therms of Sugiyama. A proper directed
@@ -734,7 +728,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     // ---------------------------------------------------
     //      Crossing minimization
     // ---------------------------------------------------
-    
     /**
      * <code>minimizeCrossings</code> implements the crossing reduction algorithm
      * proposed by Kozo Sugiyama.
@@ -973,7 +966,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     // ---------------------------------------------------
     //      Node Alignment
     // ---------------------------------------------------
-
     /**
      *
      * @param initialX
@@ -1490,6 +1482,55 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
     }
 
+    private void fitGraphToViewport() {
+
+        int noLayers = layers.size();
+
+        int minX = Integer.MAX_VALUE;
+        int minY = layers.get(0).get(0).yCoordinate;
+
+        int maxX = Integer.MIN_VALUE;
+
+        int lastLayerSize = layers.get(noLayers-1).size();
+        int maxY = layers.get(noLayers-1).get(lastLayerSize).yCoordinate;
+
+        for (int i = 0; i < layers.size(); i++) {
+            SugiyamaNode n = layers.get(i).get(0);
+            
+            if(n.xCoordinate < minX) 
+                minX = n.xCoordinate;
+        }
+
+        for (int i = 0; i < layers.size(); i++) {
+            int layerSize = layers.get(i).size();
+            SugiyamaNode n = layers.get(i).get(layerSize);
+
+            if(n.xCoordinate > maxX)
+                maxX = n.xCoordinate;
+        }
+
+        Rectangle graphRectangle = new Rectangle(minX, minY, maxX - minX, maxY - minY);
+        Rectangle viewArea = scene.getView().getBounds();
+
+        if(graphRectangle.height < viewArea.height && graphRectangle.width < viewArea.width) {
+
+        } else if(graphRectangle.height < viewArea.height) {
+
+        } else if (graphRectangle.width < viewArea.width) {
+
+        } else {
+            int xOffset = graphRectangle.x - 20;
+
+            List<Widget> children = scene.getChildren();
+            for (int i = 0; i < children.size(); i++) {
+                Widget w = children.get(i);
+                Point currentLocation = w.getPreferredLocation();
+                w.setPreferredLocation(new Point(currentLocation.x - xOffset,
+                        currentLocation.y));
+            }
+        }
+    }
+
     /**
      *
      */
@@ -1501,6 +1542,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
          * @param o2
          * @return
          */
+        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode && o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Kann " + o1.getClass() + " und " +
@@ -1840,6 +1882,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      */
     private class TopologyComparator implements Comparator {
 
+        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode) || !(o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Can not compare " + o1.getClass() +
@@ -1859,6 +1902,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
     private class BarycenterComparator implements Comparator {
 
+        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode) || !(o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Can not compare " + o1.getClass() +
@@ -1909,7 +1953,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
                 calculateMatrix();
 
-            // calculate baryCenters for each Node
+                // calculate baryCenters for each Node
 //                calculateBarycenters();
             }
         }

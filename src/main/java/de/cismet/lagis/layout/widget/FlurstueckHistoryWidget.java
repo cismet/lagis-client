@@ -5,6 +5,7 @@
 package de.cismet.lagis.layout.widget;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
+import java.awt.Rectangle;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.ComponentWidget;
 import org.netbeans.api.visual.widget.Scene;
@@ -34,5 +35,10 @@ public class FlurstueckHistoryWidget extends ComponentWidget {
 
     public Flurstueck getFlurstueck() {
         return nodePanel.getFlurstueck();
+    }
+
+    public void setSelected(boolean selection) {
+        nodePanel.setSelected(selection);
+        nodePanel.repaint();
     }
 }

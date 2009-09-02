@@ -54,7 +54,8 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
     private JPanel spinner;
     private JComponent panTitle,  panMap,  panInter,  panContent;
     private Rectangle mapBounds;
-
+    private boolean selected = false;
+    
     /**
      * Kontruktor des CoolPanels mit einer Puffergroesse. Diese wird dazu verwendet,
      * um um Punktgeometrien eine BoundingBox der Groesse dieses Puffers zu erstellen.
@@ -234,12 +235,23 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
 //            }
 
             // Drop Shadow rendern
-            ShadowRenderer renderer = new ShadowRenderer(shadowLength, shadowIntensity, shadowColor);
+            ShadowRenderer renderer;
+            
+            if(selected) {
+                Color selShadowColor = Color.BLUE.brighter();
+                renderer = new ShadowRenderer(shadowLength, shadowIntensity, selShadowColor);
+                
+            } else {
+                renderer = new ShadowRenderer(shadowLength, shadowIntensity, shadowColor);
+            }
+
             BufferedImage shadow = renderer.createShadow(box);
+            
 
             // Fertige Box und ihren Schatten zeichnen.
             cacheImage = new BufferedImage(shadow.getWidth(), shadow.getHeight(), IMAGE_TYPE);
             Graphics2D cg = cacheImage.createGraphics();
+
             cg.drawImage(shadow, 0, 0, null);
             cg.drawImage(box, 0, 0, null);
             cg.setComposite(AlphaComposite.SrcOver.derive(glossyOpacity));
@@ -305,6 +317,11 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
     public void setSpinner(JPanel spinner) {
         this.spinner = spinner;
     }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
 
     /** This method is called from within the constructor to
      * initialize the form.

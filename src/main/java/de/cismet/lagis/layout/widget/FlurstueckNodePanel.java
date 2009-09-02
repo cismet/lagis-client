@@ -455,4 +455,9 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
         mapPanel.setPreferredSize(new Dimension(100, 100));
         mainPanel.add(mapPanel, BorderLayout.CENTER);
     }
+
+    @Override
+    public void setSelected(boolean selection) {
+        coolPanel.setSelected(selection);
+    }
 }

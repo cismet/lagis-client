@@ -92,4 +92,9 @@ public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
         g2d.drawImage(image, 0, 0, this);
 
     }
+
+    @Override
+    public void setSelected(boolean selection) {
+
+    }
 }

@@ -21,9 +21,11 @@ public class FlurstueckWidgetHoverProvider implements TwoStateHoverProvider {
     private Rectangle preferredBounds;
     private GraphScene scene;
 
-    public FlurstueckWidgetHoverProvider(GraphScene scene) {
+    public FlurstueckWidgetHoverProvider(GraphScene scene, Widget w) {
         super();
         this.scene = scene;
+        preferredBounds = w.getPreferredBounds();
+
     }
 
     /**
@@ -33,6 +35,7 @@ public class FlurstueckWidgetHoverProvider implements TwoStateHoverProvider {
     @Override
     public void unsetHovering(Widget w) {
         scene.getSceneAnimator().animatePreferredBounds(w, preferredBounds);
+
     }
 
     /**
@@ -41,10 +44,11 @@ public class FlurstueckWidgetHoverProvider implements TwoStateHoverProvider {
      */
     @Override
     public void setHovering(Widget w) {
-        preferredBounds = w.getBounds();
         Rectangle newBounds = new Rectangle(preferredBounds.x -10, preferredBounds.y -10,
-                preferredBounds.width + 10, preferredBounds.height + 10);
+                preferredBounds.width + 20, preferredBounds.height + 20);
+
         scene.getSceneAnimator().animatePreferredBounds(w, newBounds);
+        
     }
 
 }
