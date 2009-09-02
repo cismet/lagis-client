@@ -4,6 +4,7 @@
  */
 package de.cismet.lagis.layout.widget;
 
+import com.jhlabs.composite.ColorComposite;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import de.cismet.lagis.broker.LagisBroker;
@@ -11,6 +12,7 @@ import de.cismet.lagis.interfaces.DoneDelegate;
 import de.cismet.lagis.thread.ExtendedSwingWorker;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 import de.cismet.lagisEE.entity.core.Flurstueck;
+import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
 import de.cismet.tools.configuration.ConfigurationManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,14 +21,18 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import org.geotools.geometry.jts.LiteShape;
+import org.jdesktop.swingx.image.GaussianBlurFilter;
 import org.openide.util.Exceptions;
 
 /**
@@ -39,15 +45,11 @@ public class FlurstueckGeometriePanel extends JPanel {
 
     private Flurstueck flurstueck;
     private static WFSRetrieverFactory retrieverFactory = WFSRetrieverFactory.getInstance();
-
     private GeometryPanel geomPanel;
     private JPanel legendPanel;
     private JPanel innerPanel;
-
     private Geometry flurstueckGeometry;
-
     private FlurstueckGeometriePanel instance;
-
     private static final String LAGIS_CONFIGURATION_CLASSPATH = "/de/cismet/lagis/configuration/";
     private static final String LAGIS_LOCAL_CONFIGURATION_FOLDER = ".lagis";
     private static final String LAGIS_CONFIGURATION_FILE = "defaultLagisProperties.xml";
@@ -62,7 +64,7 @@ public class FlurstueckGeometriePanel extends JPanel {
      */
     public FlurstueckGeometriePanel(Flurstueck flurstueck) {
 
-        ConfigurationManager confM =  new ConfigurationManager();
+        ConfigurationManager confM = new ConfigurationManager();
         confM.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
         confM.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
         confM.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
@@ -97,6 +99,7 @@ public class FlurstueckGeometriePanel extends JPanel {
 
         instance = this;
         drawGeometry();
+
     }
 
     /**
@@ -117,8 +120,7 @@ public class FlurstueckGeometriePanel extends JPanel {
      * This method fills the legend panel with content. This content is a representation
      * of all departments working with the specific Flurstueck
      */
-    private void setLegend() {
-//        Set<Verwaltungsbereich> vb = flurstueck.getVerwaltungsbereiche();
+    private void getVerwaltungsGeometrien() {
     }
 
     /**
@@ -135,53 +137,115 @@ public class FlurstueckGeometriePanel extends JPanel {
         @Override
         public void paintComponent(Graphics g) {
 
+            Graphics2D g2d = (Graphics2D) g;
+            AffineTransform trans = new AffineTransform();
+            Envelope flurstueckEnvelope = null;
+            int height = getHeight();
+            int width = getWidth();
+            double dilation = 0.0;
+            double envelopeHeight = 0.0;
+            double envelopeWidth = 0.0;
+
+
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON);
+
+
             if (flurstueckGeometry != null) {
-                
-                Graphics2D g2d = (Graphics2D) g;
 
-                Envelope flurstueckEnvelope = flurstueckGeometry.getEnvelopeInternal();
-                double envelopeHeight = flurstueckEnvelope.getHeight();
-                double envelopeWidth = flurstueckEnvelope.getWidth();
+                Paint oldPaint = g2d.getPaint();
 
-                int height = getHeight();
-                int width = getWidth();
+                flurstueckEnvelope = flurstueckGeometry.getEnvelopeInternal();
 
-                double dilation = 0.0;
+                envelopeHeight = flurstueckEnvelope.getHeight();
+                envelopeWidth = flurstueckEnvelope.getWidth();
 
                 if (height > width) {
-                    if(envelopeHeight < envelopeWidth)
+                    if (envelopeHeight < envelopeWidth) {
                         dilation = (width - 10) / envelopeHeight;
-                    else
+                    } else {
                         dilation = (width - 10) / envelopeWidth;
-                    
-                } else {
-                    if(envelopeHeight < envelopeWidth)
-                        dilation = (height - 10) / envelopeWidth;
-                    else
-                        dilation = (height - 10) / envelopeHeight;
-                }
-                
+                    }
 
-                AffineTransform trans = new AffineTransform();
+                } else {
+                    if (envelopeHeight < envelopeWidth) {
+                        dilation = (height - 10) / envelopeWidth;
+                    } else {
+                        dilation = (height - 10) / envelopeHeight;
+                    }
+                }
+
                 AffineTransform shapeTrans = new AffineTransform();
 
                 LiteShape liteShape = new LiteShape(flurstueckGeometry, shapeTrans, false);
 
-                trans.translate(width/2 - (envelopeWidth * dilation)/2,
-                        height/2 + (envelopeHeight * dilation)/2);
+                trans.translate(width / 2 - (envelopeWidth * dilation) / 2,
+                        height / 2 + (envelopeHeight * dilation) / 2);
                 trans.scale(dilation, -dilation);
                 trans.translate(-flurstueckEnvelope.getMinX(), -flurstueckEnvelope.getMinY());
 
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-
-                Shape transformedShape =trans.createTransformedShape(liteShape);
+                Shape transformedShape = trans.createTransformedShape(liteShape);
 
                 g2d.setPaint(Color.BLACK);
                 g2d.draw(transformedShape);
                 Color bg = new Color(0.6f, 0.6f, 0.6f, 0.6f);
                 g2d.setPaint(bg);
                 g2d.fill(transformedShape);
+
+                g2d.setPaint(oldPaint);
+            }
+
+            if (flurstueck.getVerwaltungsbereiche().size() > 0) {
+            // TODO : rendering other features : ReBe, Dienststellen ... 
+//                if (flurstueckEnvelope != null) {
+//
+//                    Set<Verwaltungsbereich> vb = flurstueck.getVerwaltungsbereiche();
+//                    for (Verwaltungsbereich verwaltungsbereich : vb) {
+//
+//                        Paint filling = verwaltungsbereich.getFillingPaint();
+//                        Geometry geom = verwaltungsbereich.getGeometry();
+//
+//                        LiteShape verwaltungsLiteShape = new LiteShape(geom, null, false);
+//
+//                        if (verwaltungsLiteShape != null) {
+//
+//                            AffineTransform verwaltungsTrans = new AffineTransform();
+//
+//                            verwaltungsTrans.translate(width / 2 - (envelopeWidth * dilation) / 2,
+//                                    height / 2 + (envelopeHeight * dilation) / 2);
+//                            verwaltungsTrans.scale(dilation, -dilation);
+//                            verwaltungsTrans.translate(-flurstueckEnvelope.getMinX(), -flurstueckEnvelope.getMinY());
+//
+//
+//                            Shape transformedVerwaltungsShape =
+//                                    verwaltungsTrans.createTransformedShape(verwaltungsLiteShape);
+//
+//                            g2d.setPaint(Color.BLACK);
+//                            g2d.draw(transformedVerwaltungsShape);
+//                            g2d.setPaint(filling);
+//                            g2d.fill(transformedVerwaltungsShape);
+//                        }
+//                    }
+//                } else {
+//                }
+            } else if (flurstueckEnvelope == null) {
+
+                BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
+                        BufferedImage.TYPE_INT_ARGB);
+
+                Graphics2D shadowGraphics = shadow.createGraphics();
+                shadowGraphics.setColor(Color.BLACK);
+                shadowGraphics.setComposite(new ColorComposite(0.5f));
+                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 2);
+                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 9);
+
+                GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
+                shadow = blurFilter.filter(shadow, null);
+
+                g2d.setPaint(Color.BLACK);
+                g2d.drawImage(shadow, 0, 0, this);
+                g2d.drawString("Es wurde keine", 20, height / 2 - 6);
+                g2d.drawString("Geometrie gefunden", 9, height / 2 + 6);
 
             }
         }
@@ -216,7 +280,7 @@ public class FlurstueckGeometriePanel extends JPanel {
                     flurstueckGeometry = null;
                     instance.repaint();
                     System.out.println("Worker had Errors:" + worker.getErrorMessage());
-                // TODO - proper logging
+                    // TODO - proper logging
                 }
 
             } catch (InterruptedException ex) {
