@@ -33,8 +33,7 @@ public class FlurstueckWidgetEditProvider implements EditProvider {
 
             FlurstueckSchluessel key = fhw.getFlurstueck().getFlurstueckSchluessel();
 
-
-//            LagisBroker.getInstance().loadFlurstueck(key);
+            LagisBroker.getInstance().loadFlurstueck(key);
         }
     }
 }
