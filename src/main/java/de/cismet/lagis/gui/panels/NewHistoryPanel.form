@@ -154,6 +154,9 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Historie halten"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="holdHistoryCHBActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="renderingLabel">
               <Properties>
@@ -307,10 +310,12 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
-                      <Component id="satellitePanel" alignment="1" min="-2" pref="182" max="-2" attributes="0"/>
-                      <Component id="graphPane" alignment="1" pref="378" max="32767" attributes="0"/>
+                      <Component id="graphPane" alignment="1" pref="390" max="32767" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <EmptySpace pref="208" max="32767" attributes="0"/>
+                          <Component id="satellitePanel" min="-2" pref="182" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>

@@ -157,6 +157,11 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
         });
 
         holdHistoryCHB.setText("Historie halten");
+        holdHistoryCHB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                holdHistoryCHBActionPerformed(evt);
+            }
+        });
 
         renderingLabel.setText("Darstellung :");
 
@@ -313,10 +318,11 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
         graphPanelLayout.setVerticalGroup(
             graphPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, graphPanelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(graphPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(satellitePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(graphPane, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE))
+                    .addComponent(graphPane, javax.swing.GroupLayout.DEFAULT_SIZE, 390, Short.MAX_VALUE)
+                    .addGroup(graphPanelLayout.createSequentialGroup()
+                        .addContainerGap(208, Short.MAX_VALUE)
+                        .addComponent(satellitePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 182, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -334,6 +340,19 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
             birdViewController.hide();
         }
 }//GEN-LAST:event_magnifyerCHBActionPerformed
+
+    private void holdHistoryCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_holdHistoryCHBActionPerformed
+        if(holdHistoryCHB.isSelected()) {
+            depthChoserCB.setEnabled(false);
+            flurstueckChoserCB.setEnabled(false);
+            depthSP.setEnabled(false);
+        } else {
+            depthChoserCB.setEnabled(true);
+            flurstueckChoserCB.setEnabled(true);
+            depthSP.setEnabled(true);
+        }
+    }//GEN-LAST:event_holdHistoryCHBActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel creationDateInfoLabel;
     private javax.swing.JLabel creationDateLabel;
