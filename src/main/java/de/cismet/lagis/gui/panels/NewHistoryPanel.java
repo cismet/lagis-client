@@ -524,9 +524,10 @@ public class NewHistoryPanel extends AbstractWidget implements FlurstueckChangeL
                             log.debug("adding edge " + edge);
                         }
 
-                        sceneLayout.invokeLayout();
+                        
                     }
 
+                    sceneLayout.invokeLayout();
                     graphScene.validate();
 
 
