@@ -14,6 +14,7 @@ import de.cismet.lagisEE.bean.LagisServerBean.HistoryLevel;
 import de.cismet.lagisEE.bean.LagisServerBean.HistoryType;
 import de.cismet.lagisEE.bean.LagisServerLocal;
 import de.cismet.lagisEE.bean.LagisServerRemote;
+import de.cismet.lagisEE.crossover.entity.WfsFlurstuecke;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.Kosten;
@@ -858,6 +859,19 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
             bookNutzungenForFlurstueck(key,username);
         }
     }
+
+    @Override
+    public Set<FlurstueckSchluessel> getFlurstueckSchluesselForWFSFlurstueck(Set<WfsFlurstuecke> wfsFlurstueck) throws ActionNotSuccessfulException {
+        try {
+            return lagisEJBServerStub.getFlurstueckSchluesselForWFSFlurstueck(wfsFlurstueck);
+        } catch (EJBException ex) {
+            log.debug("Exception ist eine EJBException");
+            handleEJBException(ex);
+            return getFlurstueckSchluesselForWFSFlurstueck(wfsFlurstueck);
+        }
+    }
+
+
 
     class EJBConnector extends SwingWorker<LagisServerRemote, Void> {
 
