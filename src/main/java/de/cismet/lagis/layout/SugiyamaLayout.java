@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import org.apache.log4j.Logger;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.graph.layout.UniversalGraph;
@@ -25,6 +26,7 @@ import org.netbeans.api.visual.widget.Widget;
  */
 public class SugiyamaLayout<N, E> extends GraphLayout {
 
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private UniversalGraph<N, E> graph;
     private GraphScene<N, E> scene;
     private final ArrayList<ArrayList<SugiyamaNode<N>>> layers;
@@ -83,65 +85,65 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      */
     @Override
     protected void performGraphLayout(UniversalGraph graph) {
+        log.info("Performing Graph Layout");
 
         timeAll = System.currentTimeMillis();
         clear();
         this.graph = graph;
         this.scene = (GraphScene<N, E>) graph.getScene();
 
-        // TODO : rem timecheck
-        graphCreationTime = System.currentTimeMillis();
+
+//        graphCreationTime = System.currentTimeMillis();
         buildDatastructure(graph);
-        graphCreationTime = System.currentTimeMillis() - graphCreationTime;
+//        graphCreationTime = System.currentTimeMillis() - graphCreationTime;
 
-        // TODO : rem timecheck
-        layerAssignmentCompleteTime = System.currentTimeMillis();
+//        layerAssignmentCompleteTime = System.currentTimeMillis();
         assignLayers();
-        layerAssignmentCompleteTime = System.currentTimeMillis() - layerAssignmentCompleteTime;
+//        layerAssignmentCompleteTime = System.currentTimeMillis() - layerAssignmentCompleteTime;
 
-        // TODO : rem timecheck
-        insertDummyTime = System.currentTimeMillis();
+//        insertDummyTime = System.currentTimeMillis();
         dummyMapping = insertDummies();
-        insertDummyTime = System.currentTimeMillis() - insertDummyTime;
+//        insertDummyTime = System.currentTimeMillis() - insertDummyTime;
 
-        crossingMinimzationTime = System.currentTimeMillis();
+//        crossingMinimzationTime = System.currentTimeMillis();
         minimizeCrossings();
-        crossingMinimzationTime = System.currentTimeMillis() - crossingMinimzationTime;
+//        crossingMinimzationTime = System.currentTimeMillis() - crossingMinimzationTime;
 
-        // TODO : rem timecheck
-        assignCoordinatesTime = System.currentTimeMillis();
+//        assignCoordinatesTime = System.currentTimeMillis();
         assignCoordinates(50, false);
-        assignCoordinatesTime = System.currentTimeMillis() - assignCoordinatesTime;
+//        assignCoordinatesTime = System.currentTimeMillis() - assignCoordinatesTime;
 
+//
+//        timeAll = System.currentTimeMillis() - timeAll;
+//
 
-        timeAll = System.currentTimeMillis() - timeAll;
+//        System.out.println("Layout statistcs");
+//        System.out.println("=======================");
+//        System.out.println("Build datastructure time : " + graphCreationTime + " msec");
+//        System.out.println("Layer assignment time    : " + layerAssignmentCompleteTime + " msec");
+//        System.out.println("   DFS time              : " + dfsCalcTime + " nano sec");
+//        System.out.println("   Layer assignment      : " + assignNodesToLayerTime + " msec");
+//        System.out.println("   Optimization          : " + optimizeLayerTime + " msec");
+//        System.out.println("Assign coordinates time  : " + assignCoordinatesTime + " msec");
+//        System.out.println("Has long edges           : " + longEdgeMapping.size());
+//        System.out.println("Insert dummy time        : " + insertDummyTime + " msec");
+//        System.out.println("Time for crossing minimization : " + crossingMinimzationTime + " msec");
+//        System.out.println("Time over all : " + timeAll + " msec");
+//        System.out.println("Dummy nodes on layers : ");
+//        int layer = 0;
+//        int dummies = 0;
+//        for (ArrayList<SugiyamaNode<N>> arrayList : layers) {
+//            System.out.print("Layer " + layer++ + " : ");
+//            for (SugiyamaNode<N> sugiyamaNode : arrayList) {
+//                if (sugiyamaNode.dummy) {
+//                    dummies++;
+//                }
+//            }
+//            System.out.println(dummies);
+//            dummies = 0;
+//        }
 
-        // TODO Remove sout
-        System.out.println("Layout statistcs");
-        System.out.println("=======================");
-        System.out.println("Build datastructure time : " + graphCreationTime + " msec");
-        System.out.println("Layer assignment time    : " + layerAssignmentCompleteTime + " msec");
-        System.out.println("   DFS time              : " + dfsCalcTime + " nano sec");
-        System.out.println("   Layer assignment      : " + assignNodesToLayerTime + " msec");
-        System.out.println("   Optimization          : " + optimizeLayerTime + " msec");
-        System.out.println("Assign coordinates time  : " + assignCoordinatesTime + " msec");
-        System.out.println("Has long edges           : " + longEdgeMapping.size());
-        System.out.println("Insert dummy time        : " + insertDummyTime + " msec");
-        System.out.println("Time for crossing minimization : " + crossingMinimzationTime + " msec");
-        System.out.println("Time over all : " + timeAll + " msec");
-        System.out.println("Dummy nodes on layers : ");
-        int layer = 0;
-        int dummies = 0;
-        for (ArrayList<SugiyamaNode<N>> arrayList : layers) {
-            System.out.print("Layer " + layer++ + " : ");
-            for (SugiyamaNode<N> sugiyamaNode : arrayList) {
-                if (sugiyamaNode.dummy) {
-                    dummies++;
-                }
-            }
-            System.out.println(dummies);
-            dummies = 0;
-        }
+        log.info("Graph Layout done");
     }
 
     /**
@@ -247,24 +249,23 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         }
 
         // Step 2 : perform Depth-first search of the graph
-        // TODO : rem timecheck
-        dfsCalcTime = System.nanoTime();
+
+//        dfsCalcTime = System.nanoTime();
         dfs();
-        dfsCalcTime = System.nanoTime() - dfsCalcTime;
+//        dfsCalcTime = System.nanoTime() - dfsCalcTime;
 
         // Step 3 : calculate topological Sorting by dfs algorithm
         ArrayList<SugiyamaNode<N>> topSort = sortTopologically();
+
         // Step 4 : Sort nodes to layers according to topological sorting
-        // TODO : rem timecheck
-        assignNodesToLayerTime = System.currentTimeMillis();
+//        assignNodesToLayerTime = System.currentTimeMillis();
         assignLayerToNodes(topSort);
-        assignNodesToLayerTime = System.currentTimeMillis() - assignNodesToLayerTime;
+//        assignNodesToLayerTime = System.currentTimeMillis() - assignNodesToLayerTime;
 
         // Step 5 : Optimize node position concerning edge length
-        // TODO : rem timecheck
-        optimizeLayerTime = System.currentTimeMillis();
+//        optimizeLayerTime = System.currentTimeMillis();
         optimizeNodeLayer();
-        optimizeLayerTime = System.currentTimeMillis() - optimizeLayerTime;
+//        optimizeLayerTime = System.currentTimeMillis() - optimizeLayerTime;
 
     }
 
@@ -1126,9 +1127,9 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             }
         }
 
-        scene.validate();
-        scene.repaint();
-        scene.revalidate();
+//        scene.validate();
+//        scene.repaint();
+//        scene.revalidate();
     }
 
     private void downAssignment() {
@@ -1619,9 +1620,9 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
                             sugiyamaNode.getYCoordinate()));
                 }
 
-// These two lines of code are a hack. Since the first and last
-//controlpoint is not recognized by the free router, I add them
-// twice
+                // These two lines of code are a hack. Since the first and last
+                //controlpoint is not recognized by the free router, I add them
+                // twice
                 controlPoints.add(controlPoints.get(controlPoints.size() - 1));
                 controlPoints.add(0, controlPoints.get(0));
 
