@@ -38,7 +38,7 @@ public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
 
     public PseudoFlurstueckPanel(Flurstueck flurstueck, int width, int height) {
         super(flurstueck);
-
+        setDoubleBuffered(false);
         setPreferredSize(new Dimension(width, height));
 
         shapeWidth = width - 4;

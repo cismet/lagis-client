@@ -39,6 +39,11 @@ public class FlurstueckHistoryWidget extends ComponentWidget {
 
     public void setSelected(boolean selection) {
         nodePanel.setSelected(selection);
-        nodePanel.repaint();
     }
+
+    public AbstractFlurstueckNodePanel getNodePanel() {
+        return nodePanel;
+    }
+
+    
 }

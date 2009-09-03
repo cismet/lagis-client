@@ -6,7 +6,6 @@
 package de.cismet.lagis.layout.widget;
 
 import java.awt.Graphics;
-import javax.swing.JComponent;
 import javax.swing.JToolTip;
 
 /**

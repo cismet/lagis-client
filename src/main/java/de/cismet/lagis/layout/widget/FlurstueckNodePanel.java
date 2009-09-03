@@ -28,6 +28,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
+import org.apache.log4j.Logger;
 
 /**
  * The FlurstueckNodePanel is the main JComponent to display information about a
@@ -48,6 +50,8 @@ import javax.swing.JSeparator;
  * @author mbrill
  */
 public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
+
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
     private static final String ICON_UNKNOWN = "default";
 
@@ -458,6 +462,21 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
 
     @Override
     public void setSelected(boolean selection) {
+        log.debug("Selection of node is " + selection);
         coolPanel.setSelected(selection);
+
+        Runnable painter = new Runnable() {
+
+            @Override
+            public void run() {
+                FlurstueckNodePanel.this.getParent().getParent().repaint();
+            }
+        };
+
+        if(SwingUtilities.isEventDispatchThread()) {
+            painter.run();
+        } else {
+            SwingUtilities.invokeLater(painter);
+        }
     }
 }

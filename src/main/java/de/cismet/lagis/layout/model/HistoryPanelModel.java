@@ -47,6 +47,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     private boolean backgroundSet = false;
     private LayerWidget nodeLayer;
     private LayerWidget connectionLayer;
+//    private LayerWidget overlayLayer;
     private final WidgetAction selectAction;
     private final WidgetAction editAction = ActionFactory.createEditAction(new FlurstueckWidgetEditProvider());
     Logger log;
@@ -72,9 +73,11 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
         nodeLayer = new LayerWidget(this);
         connectionLayer = new LayerWidget(this);
+//        overlayLayer = new LayerWidget(this);
 
         addChild(nodeLayer);
         addChild(connectionLayer);
+//        addChild(overlayLayer);
 
 //        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
         getActions().addAction(ActionFactory.createPanAction());
@@ -112,13 +115,13 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
         FlurstueckHistoryWidget nodeWidget = new FlurstueckHistoryWidget(this, nodePanel);
 
-        WidgetAction hoverAction = ActionFactory.createHoverAction(
-                new FlurstueckWidgetHoverProvider(this, nodeWidget));
-        getActions().addAction(hoverAction);
+//        WidgetAction hoverAction = ActionFactory.createHoverAction(
+//                new FlurstueckWidgetHoverProvider(this, nodeWidget));
+//        getActions().addAction(hoverAction);
 
         nodeWidget.getActions().addAction(selectAction);
         nodeWidget.getActions().addAction(editAction);
-        nodeWidget.getActions().addAction(hoverAction);
+//        nodeWidget.getActions().addAction(hoverAction);
         
         nodeLayer.addChild(nodeWidget);
         nodeWidget.revalidate();
@@ -208,6 +211,15 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
             log.warn("Edge " + edge + " : Target Anchor null");
         }
 
+        
 
     }
+
+    public LayerWidget getNodeLayer() {
+        return nodeLayer;
+    }
+
+//    public LayerWidget getOverlayLayer() {
+//        return overlayLayer;
+//    }
 }

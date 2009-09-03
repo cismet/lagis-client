@@ -148,7 +148,7 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
      */
     @Override
     protected void paintComponent(Graphics g) {
-        //        log.info("CoolPanel: paintComponent()");
+//        log.info("CoolPanel: paintComponent() "+g.getClipBounds());
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         if (cacheImage == null) {
