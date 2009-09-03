@@ -47,7 +47,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     private boolean backgroundSet = false;
     private LayerWidget nodeLayer;
     private LayerWidget connectionLayer;
-//    private LayerWidget overlayLayer;
+    private FlurstueckSelectProvider selectProvider;
     private final WidgetAction selectAction;
     private final WidgetAction editAction = ActionFactory.createEditAction(new FlurstueckWidgetEditProvider());
     Logger log;
@@ -82,8 +82,8 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 //        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
         getActions().addAction(ActionFactory.createPanAction());
 
-
-        selectAction = ActionFactory.createSelectAction(new FlurstueckSelectProvider(this));
+        selectProvider = new FlurstueckSelectProvider(this);
+        selectAction = ActionFactory.createSelectAction(selectProvider);
 
     }
 
@@ -219,7 +219,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         return nodeLayer;
     }
 
-//    public LayerWidget getOverlayLayer() {
-//        return overlayLayer;
-//    }
+    public FlurstueckSelectProvider getSelectProvider() {
+        return selectProvider;
+    }
 }
