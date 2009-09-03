@@ -2864,7 +2864,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
 
     private void initCrossoverServer(int crossoverServerPort) {
-        final int defaultServerPort = 8888;
+        final int defaultServerPort = 19000;
         boolean defaultServerPortUsed = false;
         try {
             if (crossoverServerPort < 0 || crossoverServerPort > 65535) {
