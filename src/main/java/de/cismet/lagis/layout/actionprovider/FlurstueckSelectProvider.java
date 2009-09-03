@@ -5,10 +5,11 @@
 package de.cismet.lagis.layout.actionprovider;
 
 import de.cismet.lagis.layout.model.HistoryPanelModel;
-import de.cismet.lagis.layout.widget.CoolBorder;
 import de.cismet.lagis.layout.widget.FlurstueckHistoryWidget;
 import java.awt.Color;
 import java.awt.Point;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.netbeans.api.visual.action.SelectProvider;
@@ -23,9 +24,11 @@ public class FlurstueckSelectProvider implements SelectProvider {
 
     private HistoryPanelModel scene;
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    private PropertyChangeSupport propChangeSupport;
 
     public FlurstueckSelectProvider(HistoryPanelModel scene) {
         this.scene = scene;
+        propChangeSupport = new PropertyChangeSupport(this);
     }
 
     @Override
@@ -64,7 +67,8 @@ public class FlurstueckSelectProvider implements SelectProvider {
 //            fhw.setBorder(new CoolBorder(6, Color.BLUE));
             fhw.setBorder(BorderFactory.createLineBorder(6, Color.BLUE));
 
-
+            propChangeSupport.firePropertyChange("flurstueck_selected",
+                    null, fhw.getFlurstueck());
 //            FlurstueckSelectionOverlayWidget overlay = new FlurstueckSelectionOverlayWidget(scene);
 //            overlay.setPreferredLocation(fhw.getLocation());
 //            overlay.setPreferredBounds(fhw.getBounds());
@@ -75,4 +79,9 @@ public class FlurstueckSelectProvider implements SelectProvider {
         log.debug("Selection done");
 
     }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propChangeSupport.addPropertyChangeListener(listener);
+    }
+
 }
