@@ -8,6 +8,7 @@
  */
 package de.cismet.lagis.broker;
 
+import de.cismet.ee.EJBAccessor;
 import de.cismet.lagis.gui.panels.EJBReconnectorPanel;
 import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
 import de.cismet.lagisEE.bean.LagisServerBean.HistoryLevel;
@@ -75,6 +76,8 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
     private static EJBConnector EJBConnectorWorker;
     private static JFrame dialogOwner;
     private static InitialContext ic;
+    private static String server="localhost";
+    private static String orbPort="3700";
 
     /** Creates a new instance of EJBroker */
     private EJBroker() {
@@ -84,15 +87,13 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
 //            System.setProperty("java.naming.factory.initial", "com.sun.enterprise.naming.SerialInitContextFactory");
 //            System.setProperty("org.omg.CORBA.ORBInitialHost", "192.168.100.150");
 //            System.setProperty("org.omg.CORBA.ORBInitialPort", "3700");
-            ic = new InitialContext();
-
-            log.debug("Initial Kontext komplett");
-            lagisEJBServerStub = (LagisServerRemote) ic.lookup("de.cismet.lagisEE.bean.LagisServerRemote");
-            log.debug("Lookup des LagisEJB erfolgreich");
+            //c = new InitialContext();
+            //log.debug("Initial Kontext komplett");
+            //log.debug("Lookup des LagisEJB erfolgreich");
+            lagisEJBServerStub = EJBAccessor.createEJBAccessor(getServer(), getOrbPort(), LagisServerRemote.class).getEjbInterface();
         } catch (Throwable ex) {
             log.fatal("Fehler beim Verbinden mit Glassfish.\nFehler beim initialisieren/lookup des EJBs", ex);
             brokenConnectionDialog.setVisible(true);
-
         }
     }
 
@@ -925,4 +926,22 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
             brokenConnectionOptionPane.setMessage("Es konnte keine Verbindung zum LagiS Server hergestellt werden.\n Was Möchten Sie tun ?");
         }
     }
+
+    public static String getOrbPort() {
+        return orbPort;
+    }
+
+    public static void setOrbPort(String orbPort) {
+        EJBroker.orbPort = orbPort;
+    }
+
+    public static String getServer() {
+        return server;
+    }
+
+    public static void setServer(String server) {
+        EJBroker.server = server;
+    }
+
+    
 }

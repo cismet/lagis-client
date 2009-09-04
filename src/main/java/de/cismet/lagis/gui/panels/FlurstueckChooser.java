@@ -1458,6 +1458,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 }
                 
                 Geometry result = worker.get();
+                LagisBroker.getInstance().setCurrentWFSGeometry(result);
                 if(worker.hadErrors()){
                     log.debug("Es gab Fehler: "+worker.getErrorMessage());
                     btnAction.setToolTipText(worker.getErrorMessage());
@@ -1536,12 +1537,15 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         }
                     }else {
                         log.debug("result == null (Bedingung nicht erfüllt) --> keine Geometrie vorhanden");
+                        LagisBroker.getInstance().setCurrentWFSGeometry(null);
                     }
                 } else {
                     log.debug("FlurstueckKey == null  oder keine FlurstueckSchluesselInstantz(done)");
+                    LagisBroker.getInstance().setCurrentWFSGeometry(null);
                 }
             }catch(final Exception ex){
                 log.error("Fehler beim abrufen der WFS Geometrie (done)",ex);
+                LagisBroker.getInstance().setCurrentWFSGeometry(null);
             }
             log.debug("FlurstueckChangeFinished WFSRetriever (done)");
             LagisBroker.getInstance().flurstueckChangeFinished(FlurstueckChooser.this);

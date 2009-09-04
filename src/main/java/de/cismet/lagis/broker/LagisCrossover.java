@@ -54,12 +54,8 @@ public class LagisCrossover {
             if(key != null){                
                 log.debug("found a key on server: "+key);
                 LagisBroker.getInstance().loadFlurstueck(key);
-                 LagisBroker.getInstance().getParentComponent().toFront();
-                 LagisBroker.getInstance().getParentComponent().setVisible(true);
-//                LagisBroker.getInstance().getParentComponent().setAlwaysOnTop(true);
-//                LagisBroker.getInstance().getParentComponent().toFront();
-//                LagisBroker.getInstance().getParentComponent().requestFocus();
-//                LagisBroker.getInstance().getParentComponent().setAlwaysOnTop(false);
+                //ToDo does not work under unix (native,other vm's)
+                LagisBroker.getInstance().getParentComponent().toFront();
             } else {
                 log.debug("Change of Flurstueck not possible no such key: "+key);
                 return "<html>Test</html>";

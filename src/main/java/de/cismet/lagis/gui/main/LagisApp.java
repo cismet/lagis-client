@@ -17,6 +17,7 @@ import Sirius.navigator.plugin.interfaces.PluginMethod;
 import Sirius.navigator.plugin.interfaces.PluginProperties;
 import Sirius.navigator.plugin.interfaces.PluginSupport;
 import Sirius.navigator.plugin.interfaces.PluginUI;
+import bean.KassenzeichenFacadeRemote;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.vividsolutions.jts.geom.Geometry;
@@ -32,6 +33,7 @@ import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 import de.cismet.cismap.commons.interaction.CismapBroker;
 import de.cismet.cismap.commons.wfsforms.AbstractWFSForm;
 import de.cismet.cismap.commons.wfsforms.WFSFormFactory;
+import de.cismet.ee.EJBAccessor;
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.config.UserDependingConfigurationManager;
@@ -46,6 +48,7 @@ import de.cismet.lagis.gui.panels.DMSPanel;
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 import de.cismet.lagis.gui.panels.InformationPanel;
 import de.cismet.lagis.gui.panels.NKFOverviewPanel;
+import de.cismet.lagis.gui.panels.VerdisCrossoverPanel;
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.Widget;
@@ -57,6 +60,7 @@ import de.cismet.lagis.validation.ValidationStateChangedListener;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.wizard.ContinuationWizard;
 import de.cismet.lagisEE.entity.core.Flurstueck;
+import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.tools.StaticDecimalTools;
 
@@ -65,6 +69,7 @@ import de.cismet.tools.configuration.NoWriteError;
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
+import entity.KassenzeichenEntity;
 import java.applet.AppletContext;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -105,6 +110,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
+import javax.naming.NamingException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -248,6 +254,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private Object clipboard = null;
     private boolean clipboardPasted = true; //wegen des ersten mals
     private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
+    private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     //FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel() {
 
@@ -292,6 +299,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     /** Creates new form Lagis */
     public LagisApp(PluginContext context) {
+//        final String serverPort = "amy";
+//        System.out.println("server: " + serverPort);
+//        final String iiopPort = "61744";
+//        System.out.println("IIOP Port: " + iiopPort);
+//        try {
+//            final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(serverPort, iiopPort, KassenzeichenFacadeRemote.class).getEjbInterface();
+//        } catch (NamingException ex) {
+//            Exceptions.printStackTrace(ex);
+//        }
         this.context = context;
         try {
             EJBroker.setMainframe(this);
@@ -1265,6 +1281,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         btnReloadFlurstueck = new javax.swing.JButton();
         btnOpenWizard = new javax.swing.JButton();
         btnAktenzeichenSuche = new javax.swing.JButton();
+        btnVerdisCrossover = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
         panAll = new javax.swing.JPanel();
         panMain = new javax.swing.JPanel();
@@ -1453,6 +1470,20 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
         });
         toolbar.add(btnAktenzeichenSuche);
+
+        btnVerdisCrossover.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/verdis.png"))); // NOI18N
+        btnVerdisCrossover.setToolTipText("Kassenzeichen in VerdIS öffnen.");
+        btnVerdisCrossover.setBorderPainted(false);
+        btnVerdisCrossover.setFocusable(false);
+        btnVerdisCrossover.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnVerdisCrossover.setPreferredSize(new java.awt.Dimension(23, 23));
+        btnVerdisCrossover.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnVerdisCrossover.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVerdisCrossoverActionPerformed(evt);
+            }
+        });
+        toolbar.add(btnVerdisCrossover);
 
         jSeparator2.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jSeparator2.setMaximumSize(new java.awt.Dimension(2, 32767));
@@ -2381,6 +2412,47 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     }
 }//GEN-LAST:event_cmdPasteFlaecheActionPerformed
 
+private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerdisCrossoverActionPerformed
+    try {
+        final FlurstueckSchluessel currentKey = LagisBroker.getInstance().getInstance().getCurrentFlurstueckSchluessel();
+        if (currentKey != null) {
+            final Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
+            if (flurstueckGeom != null) {
+                log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " + flurstueckGeom);
+                final KassenzeichenFacadeRemote verdisServer = LagisBroker.getInstance().getVerdisServer();
+                if (verdisServer != null) {
+                    final Set<KassenzeichenEntity> kassenzeichen = verdisServer.getIntersectingKassenzeichen(flurstueckGeom);
+                    if (kassenzeichen != null && kassenzeichen.size() > 0) {
+                        log.debug("Crossover: Anzahl Kassenzeichen: " + kassenzeichen.size());
+                        final JDialog dialog = new JDialog(this, "", true);
+                        dialog.add(new VerdisCrossoverPanel(LagisBroker.getInstance().getVerdisCrossoverPort(), kassenzeichen));
+                        dialog.pack();
+                        dialog.setIconImage(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/verdis.png")).getImage());
+                        dialog.setTitle("Kassenzeichen in VerdIS öffnen.");
+                        dialog.setLocationRelativeTo(this);
+                        dialog.setVisible(true);
+                    } else {
+                        log.info("Crossover: Keine geschnittenen Kassenzeichen gefunden.");
+                        //ToDo Meldung an benutzer
+                        }
+                } else {
+                    log.warn("Crossover: Kann die Kassenzeichen nicht bestimmen, weil die Verbindung zum server nicht richtig konfiguriert ist.");
+                    log.warn("Crossover: lagisCrossover=" + verdisServer);
+                }
+            } else {
+                //ToDo user message !
+                log.warn("Crossover: Keine Geometrie vorhanden zum bestimmen der Kassenzeichen");
+            }
+        } else {
+            //ToDo user message !
+            log.warn("Crossover: Kein Flurstück ausgewählt kann Lagis Kassenzeichen nicht bestimmen");
+        }
+    } catch (Exception ex) {
+        log.error("Crossover: Fehler im VerdIS Crossover", ex);
+        //ToDo Meldung an Benutzer
+        }
+}//GEN-LAST:event_btnVerdisCrossoverActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -2431,6 +2503,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JButton btnOpenWizard;
     private javax.swing.JButton btnReloadFlurstueck;
     private javax.swing.JButton btnSwitchInEditmode;
+    private javax.swing.JButton btnVerdisCrossover;
     private javax.swing.JButton cmdCopyFlaeche;
     private javax.swing.JButton cmdPasteFlaeche;
     private javax.swing.JButton cmdPrint;
@@ -2678,13 +2751,15 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
             }
             try {
                 log.debug("Glassfishhost: " + prefs.getChildText("host"));
-                System.setProperty("org.omg.CORBA.ORBInitialHost", prefs.getChildText("host"));
+                //System.setProperty("org.omg.CORBA.ORBInitialHost", prefs.getChildText("host"));
+                EJBroker.setServer(prefs.getChildText("host"));
             } catch (Exception ex) {
                 log.warn("Fehler beim lesen des Glassfish Hosts", ex);
             }
             try {
                 log.debug("Glassfisport: " + prefs.getChildText("orbPort"));
-                System.setProperty("org.omg.CORBA.ORBInitialPort", prefs.getChildText("orbPort"));
+                //System.setProperty("org.omg.CORBA.ORBInitialPort", prefs.getChildText("orbPort"));
+                EJBroker.setOrbPort(prefs.getChildText("orbPort"));
             } catch (Exception ex) {
                 log.warn("Fehler beim lesen des Glassfish Ports", ex);
             }
@@ -2695,6 +2770,19 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
                 initCrossoverServer(Integer.parseInt(crossoverServerPort));
             } catch (Exception ex) {
                 log.warn("Crossover: Error while starting Server", ex);
+            }
+            try {
+                Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
+                final String verdisHost = crossoverPrefs.getChild("VerdisConfiguration").getChildText("Host");
+                log.debug("Crossover: verdisHost: " + verdisHost);
+                final String verdisORBPort = crossoverPrefs.getChild("VerdisConfiguration").getChildText("ORBPort");
+                log.debug("Crossover: verdisORBPort: " + verdisORBPort);
+                LagisBroker.getInstance().setVerdisCrossoverPort(Integer.parseInt(crossoverPrefs.getChild("VerdisConfiguration").getChildText("VerdisCrossoverPort")));
+                log.debug("Crossover: verdisCrossoverPort: " + LagisBroker.getInstance().getVerdisCrossoverPort());
+                final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(verdisHost, verdisORBPort, KassenzeichenFacadeRemote.class).getEjbInterface();
+                LagisBroker.getInstance().setVerdisServer(verdisServer);
+            } catch (Exception ex) {
+                log.warn("Crossover: Error beim setzen des verdis servers", ex);
             }
 //            try {
 //                log.debug("Userdomain: " + login.getAttribute("userdomainname").getValue());
@@ -2855,6 +2943,10 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    public EJBAccessor<KassenzeichenFacadeRemote> getVerdisCrossoverAccessor() {
+        return verdisCrossoverAccessor;
+    }
+
     public void refresh(Object refreshObject) {
     }
     private static final String WIDGET_NAME = "Lagis Mainframe";
@@ -2881,7 +2973,7 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
                 defaultServerPortUsed = true;
                 try {
                     initCrossoverServerImpl(defaultServerPort);
-                    log.debug("Crossover: Server started at port: "+defaultServerPort);
+                    log.debug("Crossover: Server started at port: " + defaultServerPort);
                 } catch (Exception ex1) {
                     log.error("Crossover: Failed to initialize Crossover server on defaultport: " + defaultServerPort + ". No Server is started");
                 }
