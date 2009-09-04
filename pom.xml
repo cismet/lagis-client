@@ -28,40 +28,12 @@
                 <groupId>jdom</groupId>
              </exclusion>
           </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.cids.plugin</groupId>
-            <artifactId>LagisEEServer-ejb</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
+        </dependency>             
         <dependency>
             <groupId>de.cismet.todo</groupId>
             <artifactId>wizard</artifactId>
             <version>unknown</version>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>javaee</artifactId>
-            <version>unknown</version>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>appserv-rt</artifactId>
-            <version>unknown</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>appserv-ext</artifactId>
-            <version>unknown</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>appserv-deployment-client</artifactId>
-            <version>unknown</version>
-            <scope>runtime</scope>
-        </dependency>
+        </dependency>        
         <dependency>
             <groupId>de.cismet.todo</groupId>
             <artifactId>grappa</artifactId>
@@ -109,8 +81,19 @@
             <artifactId>jaxen</artifactId>
             <version>1.1.1</version>
         </dependency>
+         <dependency>
+            <groupId>de.cismet.cids.plugin</groupId>
+            <artifactId>LagisEEServer-ejb</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.cids.plugin</groupId>
+            <artifactId>VerdisEEServer-ejb</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
+
 
 
 
