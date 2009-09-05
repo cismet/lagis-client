@@ -2414,39 +2414,15 @@ private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//G
 
 private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerdisCrossoverActionPerformed
     try {
-        final FlurstueckSchluessel currentKey = LagisBroker.getInstance().getInstance().getCurrentFlurstueckSchluessel();
-        if (currentKey != null) {
-            final Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
-            if (flurstueckGeom != null) {
-                log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " + flurstueckGeom);
-                final KassenzeichenFacadeRemote verdisServer = LagisBroker.getInstance().getVerdisServer();
-                if (verdisServer != null) {
-                    final Set<KassenzeichenEntity> kassenzeichen = verdisServer.getIntersectingKassenzeichen(flurstueckGeom);
-                    if (kassenzeichen != null && kassenzeichen.size() > 0) {
-                        log.debug("Crossover: Anzahl Kassenzeichen: " + kassenzeichen.size());
-                        final JDialog dialog = new JDialog(this, "", true);
-                        dialog.add(new VerdisCrossoverPanel(LagisBroker.getInstance().getVerdisCrossoverPort(), kassenzeichen));
-                        dialog.pack();
-                        dialog.setIconImage(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/verdis.png")).getImage());
-                        dialog.setTitle("Kassenzeichen in VerdIS öffnen.");
-                        dialog.setLocationRelativeTo(this);
-                        dialog.setVisible(true);
-                    } else {
-                        log.info("Crossover: Keine geschnittenen Kassenzeichen gefunden.");
-                        //ToDo Meldung an benutzer
-                        }
-                } else {
-                    log.warn("Crossover: Kann die Kassenzeichen nicht bestimmen, weil die Verbindung zum server nicht richtig konfiguriert ist.");
-                    log.warn("Crossover: lagisCrossover=" + verdisServer);
-                }
-            } else {
-                //ToDo user message !
-                log.warn("Crossover: Keine Geometrie vorhanden zum bestimmen der Kassenzeichen");
-            }
-        } else {
-            //ToDo user message !
-            log.warn("Crossover: Kein Flurstück ausgewählt kann Lagis Kassenzeichen nicht bestimmen");
-        }
+        final JDialog dialog = new JDialog(this, "", true);
+        final VerdisCrossoverPanel vcp = new VerdisCrossoverPanel(LagisBroker.getInstance().getVerdisCrossoverPort());
+        dialog.add(vcp);
+        dialog.setSize(300,200);
+        dialog.setIconImage(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/verdis.png")).getImage());
+        dialog.setTitle("Kassenzeichen in VerdIS öffnen.");
+        dialog.setLocationRelativeTo(this);
+        vcp.startSearch();
+        dialog.setVisible(true);
     } catch (Exception ex) {
         log.error("Crossover: Fehler im VerdIS Crossover", ex);
         //ToDo Meldung an Benutzer
