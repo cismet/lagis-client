@@ -426,6 +426,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 this.context.getEnvironment().getProgressObserver().setProgress(200, "Initialisieren der graphischen Oberfläche...");
             }
             initComponents();
+            //ToDo enable again
+            btnVerdisCrossover.setEnabled(false);
             initCismetCommonsComponents();
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                 btnOpenWizard.setEnabled(true);
