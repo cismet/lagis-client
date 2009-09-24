@@ -6,6 +6,7 @@ package de.cismet.lagis.layout.actionprovider;
 
 import de.cismet.lagis.layout.model.HistoryPanelModel;
 import de.cismet.lagis.layout.widget.FlurstueckHistoryWidget;
+import de.cismet.lagis.layout.widget.HighlightWidget;
 import java.awt.Color;
 import java.awt.Point;
 import java.beans.PropertyChangeListener;
@@ -44,38 +45,39 @@ public class FlurstueckSelectProvider implements SelectProvider {
     @Override
     public void select(Widget widget, Point localLocation, boolean invertSelection) {
 
-        log.debug("Flurstueck selected");
-        Iterator<Widget> it = scene.getChildren().iterator();
-        while (it.hasNext()) {
-            Widget layer = it.next();
-            Iterator<Widget> ot = layer.getChildren().iterator();
-            while (ot.hasNext()) {
-                Widget w = ot.next();
-                if (w instanceof FlurstueckHistoryWidget) {
-                    FlurstueckHistoryWidget fhw = (FlurstueckHistoryWidget) w;
+        
+//        Iterator<Widget> it = scene.getChildren().iterator();
+//        while (it.hasNext()) {
+//            Widget layer = it.next();
+//            Iterator<Widget> ot = layer.getChildren().iterator();
+//            while (ot.hasNext()) {
+//                Widget w = ot.next();
+//                if (w instanceof FlurstueckHistoryWidget) {
+//                    FlurstueckHistoryWidget fhw = (FlurstueckHistoryWidget) w;
+//
+//                    fhw.setBorder(BorderFactory.createEmptyBorder());
+//                }
+//            }
+//        }
 
-                    fhw.setBorder(BorderFactory.createEmptyBorder());
-                }
-            }
-        }
-
-//        scene.getOverlayLayer().removeChildren();
+        scene.getHighlightLayer().removeChildren();
 
         if (widget instanceof FlurstueckHistoryWidget) {
-            log.debug("Is FlurstueckHistoryWidget");
+            log.debug("Flurstueck selected");
             FlurstueckHistoryWidget fhw = (FlurstueckHistoryWidget) widget;
-//            fhw.setBorder(new CoolBorder(6, Color.BLUE));
-            fhw.setBorder(BorderFactory.createLineBorder(6, Color.BLUE));
+//            fhw.setBorder(BorderFactory.createLineBorder(6, Color.BLUE));
 
             propChangeSupport.firePropertyChange("flurstueck_selected",
                     null, fhw.getFlurstueck());
-//            FlurstueckSelectionOverlayWidget overlay = new FlurstueckSelectionOverlayWidget(scene);
-//            overlay.setPreferredLocation(fhw.getLocation());
-//            overlay.setPreferredBounds(fhw.getBounds());
-//            overlay.bringToFront();
-//            scene.getOverlayLayer().addChild(overlay);
+
+            HighlightWidget hw = new HighlightWidget(scene, fhw);
+            
+            scene.getHighlightLayer().addChild(hw);
+            
+
         }
 
+        scene.revalidate(true);
         log.debug("Selection done");
 
     }

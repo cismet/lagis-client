@@ -44,7 +44,7 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
     public float borderWidth,  shadowIntensity,  titlePanelOpacity,  titleLinesOpacity,  interPanelOpacity,  interLinesOpacity,  blurredMapOpacity,  cutOutMapOpacity,  glossyOpacity;
     @InjectedResource()
     public Color shadowColor,  colorBorder,  colorMapBorder,  colorTitle,  colorInter,  colorDarkLine,  colorBrightLine,  colorGlossy,  gradientColorTop,  gradientColorBottom;
-    private static final int IMAGE_TYPE = BufferedImage.TYPE_4BYTE_ABGR;
+    private static final int IMAGE_TYPE = BufferedImage.TYPE_INT_ARGB;
     private boolean noTitlePanel,  mustBlur;
     private double geoBuffer;
     private int lastX,  lastWidth,  panelWidth;
@@ -64,6 +64,7 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
     public PureCoolPanel(double geoBuffer) {
         this();
         this.geoBuffer = geoBuffer;
+        
     }
 
     /**
@@ -71,6 +72,8 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
      * verwendet werden kann.
      */
     public PureCoolPanel() {
+
+        this.setOpaque(false);
         // FUSE initialisieren
         FuseLoader.load();
 
@@ -345,17 +348,21 @@ public class PureCoolPanel extends JPanel implements ComponentListener {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    @Override
     public void componentResized(ComponentEvent arg0) {
         cacheImage = null;
         repaint();
     }
 
+    @Override
     public void componentMoved(ComponentEvent arg0) {
     }
 
+    @Override
     public void componentShown(ComponentEvent arg0) {
     }
 
+    @Override
     public void componentHidden(ComponentEvent arg0) {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
