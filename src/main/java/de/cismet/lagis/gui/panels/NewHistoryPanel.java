@@ -30,12 +30,16 @@ import de.cismet.tools.configuration.NoWriteError;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -51,6 +55,7 @@ import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.BirdViewController;
+import org.netbeans.api.visual.widget.Widget;
 
 /**
  *
@@ -514,9 +519,16 @@ public class NewHistoryPanel extends AbstractWidget
 
                     getHistorySettings();
 
-                    Set<FlurstueckHistorie> history = EJBroker.getInstance().
-                            getHistoryEntries(currentFlurstueck.getFlurstueckSchluessel(),
-                            level, type, depth);
+                    Set<FlurstueckHistorie> history;
+
+                    if(level.equals(HistoryLevel.CUSTOM) && depth == 0) {
+                        history = new HashSet<FlurstueckHistorie>();
+                        
+                    } else {
+                        history = EJBroker.getInstance().
+                                getHistoryEntries(currentFlurstueck.getFlurstueckSchluessel(),
+                                level, type, depth);
+                    }
 
 
                     log.debug("History entries : " + history.size());
@@ -574,6 +586,56 @@ public class NewHistoryPanel extends AbstractWidget
         graphScene.revalidate(true);
         view.repaint();
         
+        
+    }
+
+    /**
+     * In order to display the graph centered relative to the users view, rather 
+     * then left aligned as it comes from the layout algorithm, this method
+     * does just this. 
+     * 
+     * To get the area which has to be displayed, the widgets are evaluated for
+     * their bounds and then the scene is scrolled, but not scaled to the 
+     * rectangle calculated.
+     */
+    private void centerGraphInView() {
+
+        log.info("Bringing Graph to viewCenter");
+
+
+//        Rectangle2D totalBounds = new Rectangle(0,0,1,1).getBounds2D();
+//
+//
+//        // loop creates a union over all bounds in the scene (FlurstueckWidgets)
+//        for (Flurstueck flurstueck : graphScene.getNodes()) {
+//
+//            Widget w = graphScene.findWidget(flurstueck);
+//            Rectangle bounds = w.getBounds();
+//
+//
+//            if(bounds != null) {
+//
+//                Rectangle2D bounds2D = bounds.getBounds2D();
+//                totalBounds = totalBounds.createUnion(bounds2D);
+//
+//            } else {
+//                log.warn("bounds of widget " +
+//                        flurstueck.getFlurstueckSchluessel().toString() +
+//                        "is null.");
+//            }
+//        }
+//
+//        Rectangle2D flurstueckBounds = graphScene.findWidget(currentFlurstueck).getBounds().getBounds2D();
+//        Rectangle viewBounds = view.getBounds();
+//        Point center = new Point((int)totalBounds.getCenterX(),(int)totalBounds.getMinY());
+//        Point centerInScene = graphScene.convertSceneToView(center);
+//
+//        view.scrollRectToVisible(viewBounds);
+
+//        view.scrollRectToVisible(new Rectangle(center.x - viewBounds.width / 2, center.y -
+//                viewBounds.height / 2, viewBounds.width, viewBounds.height));
+
+
     }
 
     /**
