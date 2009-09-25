@@ -6,13 +6,13 @@ package de.cismet.lagis.layout.model;
 
 import de.cismet.lagis.layout.actionprovider.FlurstueckSelectProvider;
 import de.cismet.lagis.layout.actionprovider.FlurstueckWidgetEditProvider;
-import de.cismet.lagis.layout.actionprovider.FlurstueckWidgetHoverProvider;
 import de.cismet.lagis.layout.widget.AbstractFlurstueckNodePanel;
 import de.cismet.lagis.layout.widget.CurvedConnectionWidget;
 import de.cismet.lagis.layout.widget.FlurstueckHistoryWidget;
 import de.cismet.lagis.layout.widget.FlurstueckNodePanel;
 import de.cismet.lagis.layout.widget.PseudoFlurstueckPanel;
 import de.cismet.lagisEE.entity.core.Flurstueck;
+import java.awt.Color;
 import org.apache.log4j.Logger;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -47,6 +47,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     private boolean backgroundSet = false;
     private LayerWidget nodeLayer;
     private LayerWidget connectionLayer;
+    private LayerWidget highlightLayer;
     private FlurstueckSelectProvider selectProvider;
     private final WidgetAction selectAction;
     private final WidgetAction editAction = ActionFactory.createEditAction(new FlurstueckWidgetEditProvider());
@@ -71,19 +72,30 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
         log = Logger.getLogger(this.getClass());
 
+        setBackground(Color.WHITE);
+
         nodeLayer = new LayerWidget(this);
+        nodeLayer.setBackground(Color.WHITE);
         connectionLayer = new LayerWidget(this);
-//        overlayLayer = new LayerWidget(this);
+        connectionLayer.setBackground(Color.WHITE);
+        highlightLayer = new LayerWidget(this);
+        highlightLayer.setBackground(Color.WHITE);
 
         addChild(nodeLayer);
         addChild(connectionLayer);
-//        addChild(overlayLayer);
+        addChild(highlightLayer);
 
-//        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
+        highlightLayer.bringToBack();
+
+        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
         getActions().addAction(ActionFactory.createPanAction());
 
         selectProvider = new FlurstueckSelectProvider(this);
         selectAction = ActionFactory.createSelectAction(selectProvider);
+
+        getActions().addAction(selectAction);
+
+        this.revalidate(true);
 
     }
 
@@ -100,6 +112,10 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     @Override
     protected Widget attachNodeWidget(Flurstueck node) {
 
+        if(highlightLayer.getChildren().size() != 0) {
+            highlightLayer.removeChildren();
+        }
+
         AbstractFlurstueckNodePanel nodePanel = null;
 
         if (node.getFlurstueckSchluessel().getKeyString().contains("pseudo")) {
@@ -107,10 +123,10 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         } else {
             nodePanel = new FlurstueckNodePanel(node);
 
-            if (!backgroundSet) {
-                setBackground(nodePanel.getBackground());
-                backgroundSet = true;
-            }
+//            if (!backgroundSet) {
+//                setBackground(nodePanel.getBackground());
+//                backgroundSet = true;
+//            }
         }
 
         FlurstueckHistoryWidget nodeWidget = new FlurstueckHistoryWidget(this, nodePanel);
@@ -124,7 +140,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 //        nodeWidget.getActions().addAction(hoverAction);
         
         nodeLayer.addChild(nodeWidget);
-        nodeWidget.revalidate();
+//        nodeWidget.revalidate();
 
         return nodeWidget;
     }
@@ -222,4 +238,10 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     public FlurstueckSelectProvider getSelectProvider() {
         return selectProvider;
     }
+
+    public LayerWidget getHighlightLayer() {
+        return highlightLayer;
+    }
+
+
 }

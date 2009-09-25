@@ -28,6 +28,7 @@ import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -70,6 +71,8 @@ public class NewHistoryPanel extends AbstractWidget
     private HistoryType type;
     private int depth;
     private BirdViewController birdViewController;
+    private JComponent view;
+
     private BackgroundUpdateThread<Flurstueck> updateThread;
     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
@@ -88,8 +91,9 @@ public class NewHistoryPanel extends AbstractWidget
 
         scrollPane = new JScrollPane();
 
-        JComponent view = graphScene.createView();
+        view = graphScene.createView();
         view.setDoubleBuffered(false);
+        view.setBackground(Color.WHITE);
 
         JComponent satellite = graphScene.createSatelliteView();
         satellite.setPreferredSize(new Dimension(250, 250));
@@ -283,6 +287,8 @@ public class NewHistoryPanel extends AbstractWidget
         );
 
         add(historyControlPanel, java.awt.BorderLayout.SOUTH);
+
+        graphPane.setBackground(new java.awt.Color(254, 254, 254));
 
         legendOverviewMainPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         legendOverviewMainPanel.setMaximumSize(new java.awt.Dimension(245, 32767));
@@ -552,6 +558,7 @@ public class NewHistoryPanel extends AbstractWidget
                     graphScene.validate();
 
 
+
                 } else {
                     log.warn("currentFlurstueck : " + currentFlurstueck);
                 }
@@ -563,8 +570,10 @@ public class NewHistoryPanel extends AbstractWidget
             }
         }
 
-        graphScene.revalidate();
         graphScene.setVisible(true);
+        graphScene.revalidate(true);
+        view.repaint();
+        
     }
 
     /**
