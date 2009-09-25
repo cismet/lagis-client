@@ -28,7 +28,7 @@ public class HighlightWidget extends Widget {
     int addSize = 20;
     Point prefLocation;
 //    Color highlightColor = new Color(133, 218, 221, 255);
-    Color highlightColor = new Color(0, 0, 255, 100);
+    Color highlightColor = new Color(5, 5, 255, 80);
 
 
     public HighlightWidget(Scene scene, Widget foregroundWidget) {
