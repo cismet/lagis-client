@@ -6,12 +6,13 @@ package de.cismet.lagis.broker;
 
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
-import de.cismet.lagisEE.util.Key;
-import java.util.Set;
+import java.net.URL;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
  *
@@ -20,7 +21,7 @@ import javax.ws.rs.QueryParam;
 @Path("/lagis/")
 public class LagisCrossover {
 
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LagisCrossover.class);
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LagisCrossover.class);        
 
     public LagisCrossover() {
     }
@@ -53,6 +54,8 @@ public class LagisCrossover {
             if(key != null){                
                 log.debug("found a key on server: "+key);
                 LagisBroker.getInstance().loadFlurstueck(key);
+                //ToDo does not work under unix (native,other vm's)
+                LagisBroker.getInstance().getParentComponent().toFront();
             } else {
                 log.debug("Change of Flurstueck not possible no such key: "+key);
                 return "<html>Test</html>";
@@ -70,4 +73,7 @@ public class LagisCrossover {
         log.debug("Crossover: testmethod");
         return "<html>Test</html>";
     }
+
+
+   
 }

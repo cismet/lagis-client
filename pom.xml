@@ -1,62 +1,42 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <groupId>de.cismet.maven</groupId>
-        <artifactId>cismetParent</artifactId>
+        <groupId>de.cismet.cids</groupId>
+        <artifactId>cids-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <groupId>de.cismet.cids.plugin</groupId>
-    <artifactId>LagisClient</artifactId>
-    <packaging>jar</packaging>
+
+    <groupId>de.cismet.lagis</groupId>
+    <artifactId>lagis-client</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>LagisClient</name>
-    <url>http://maven.apache.org</url>
+    <packaging>jar</packaging>
+
+    <name>LagIS Client</name>
+    <description>!!! description pending !!!</description>
+
     <dependencies>
         <dependency>
-            <groupId>de.cismet.cids</groupId>
-            <artifactId>cidsNavigator</artifactId>
+            <groupId>de.cismet.cids.navigator</groupId>
+            <artifactId>cids-navigator</artifactId>
             <version>1.0-SNAPSHOT</version>
-          <exclusions>
-            <exclusion>
-              <artifactId>groovy-all</artifactId>
-              <groupId>groovy</groupId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.cids.plugin</groupId>
-            <artifactId>LagisEEServer-ejb</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>groovy-all</artifactId>
+                    <groupId>groovy</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jdom</artifactId>
+                    <groupId>jdom</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>de.cismet.todo</groupId>
             <artifactId>wizard</artifactId>
             <version>unknown</version>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>javaee</artifactId>
-            <version>unknown</version>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>appserv-rt</artifactId>
-            <version>unknown</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>appserv-ext</artifactId>
-            <version>unknown</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>appserv-deployment-client</artifactId>
-            <version>unknown</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>de.cismet.todo</groupId>
@@ -74,8 +54,8 @@
             <version>RELEASE67</version>
         </dependency>
         <dependency>
-            <groupId>de.cismet.configuration</groupId>
-            <artifactId>LagisConfiguration</artifactId>
+            <groupId>de.cismet.lagis</groupId>
+            <artifactId>lagis-configuration</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
@@ -90,11 +70,43 @@
             <artifactId>jersey-server</artifactId>
             <version>1.1.1-ea</version>
         </dependency>
-      <dependency>
-        <groupId>org.codehaus.groovy</groupId>
-        <artifactId>groovy</artifactId>
-        <version>1.7-beta-1</version>
-      </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>1.7-beta-1</version>
+        </dependency>
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.lagis</groupId>
+            <artifactId>lagis-ee-server-ejb</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.verdis</groupId>
+            <artifactId>verdis-ee-server-ejb</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.lagis.plugin</groupId>
+            <artifactId>mi-pa-ressort-erweiterung</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.lagis.plugin</groupId>
+            <artifactId>ressort-erweiterung-baum</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-visual</artifactId>
@@ -105,13 +117,14 @@
             <artifactId>gt-main</artifactId>
             <version>2.6-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>0.7</version>
-        </dependency>
     </dependencies>
+    <build>
+        <finalName>LagisClient</finalName>
+    </build>
 </project>
+
+
+
 
 
 

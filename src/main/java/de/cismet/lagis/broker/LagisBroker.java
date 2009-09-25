@@ -8,6 +8,7 @@
  */
 package de.cismet.lagis.broker;
 
+import bean.KassenzeichenFacadeRemote;
 import com.vividsolutions.jts.geom.Geometry;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -77,7 +78,7 @@ import org.jdom.Element;
  * @author Puhl
  */
 public class LagisBroker implements FlurstueckChangeObserver, Configurable {
-
+   
     HighlighterFactory highlighterFac = new HighlighterFactory();
     private static LagisBroker broker = null;
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LagisBroker.class);
@@ -147,6 +148,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /** Creates a new instance of LagisBroker */
     private StatusBar statusBar;
     private ExecutorService execService = null;
+    private int verdisCrossoverPort=-1;
+    private KassenzeichenFacadeRemote verdisServer;
+    private Geometry currentWFSGeometry;
 
     private LagisBroker() {
         execService = Executors.newCachedThreadPool();
@@ -1158,7 +1162,23 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         }
     }
 
-    public void configure(Element parent) {
+    public void configure(final Element parent) {
+    }
+
+    public void setVerdisServer(final KassenzeichenFacadeRemote verdisServer) {
+        this.verdisServer = verdisServer;
+    }
+
+    public KassenzeichenFacadeRemote getVerdisServer() {
+        return verdisServer;
+    }
+
+    public void setCurrentWFSGeometry(final Geometry geom) {
+        this.currentWFSGeometry = geom;
+    }
+
+    public Geometry getCurrentWFSGeometry() {
+        return currentWFSGeometry;
     }
 
     class MailAuthenticator extends Authenticator {
@@ -1256,4 +1276,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             log.fatal("Fehler beim starten eines Swingworkers", ex);
         }
     }
+       
+     public void setVerdisCrossoverPort(int port) {
+        this.verdisCrossoverPort = port;
+    }
+
+    public int getVerdisCrossoverPort() {
+        return verdisCrossoverPort;
+    }
+
+
 }
