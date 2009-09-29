@@ -13,6 +13,9 @@ import de.cismet.lagisEE.entity.core.Vertrag;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.FlowLayout;
@@ -22,6 +25,8 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -29,6 +34,7 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
+import javax.swing.text.DateFormatter;
 import org.apache.log4j.Logger;
 
 /**
@@ -52,13 +58,14 @@ import org.apache.log4j.Logger;
 public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    private final SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
 
     private static final String ICON_UNKNOWN = "default";
 
-    private static final String ICON_CONTRACTS = "/de/cismet/lagis/ressource/history/contract.png";
-    private static final String ICON_RIGHT = "/de/cismet/lagis/ressource/history/recht.png";
-    private static final String ICON_LOAD = "/de/cismet/lagis/ressource/history/belastung.png";
-    private static final String ICON_DMS = "/de/cismet/lagis/ressource/history/dms_default.png";
+    private static final String ICON_CONTRACTS = "icon_contracts";
+    private static final String ICON_RIGHT = "icon_right";
+    private static final String ICON_LOAD = "icon_load";
+    private static final String ICON_DMS = "icon_dms";
 
     private ResourceBundle icon_bundle = ResourceBundle.getBundle("de/cismet/lagis/ressource/history/icon", new Locale("de", "DE"));
 
@@ -321,19 +328,21 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
         boolean artifactSet = false;
 
         if(flurstueck.getDokumente().size() != 0) {
-            JLabel iconLabel = new JLabel(new ImageIcon(getClass().getResource(ICON_DMS)));
+            ImageIcon icon = new ImageIcon(getClass().getResource(icon_bundle.getString(ICON_DMS)));
+            JLabel iconLabel = new JLabel(icon);
             innerFooterPanel.add(iconLabel);
 
             String tooltipText = "<html>";
 
             for (DmsUrl dmsUrl : flurstueck.getDokumente()) {
-                tooltipText += "<b>";
-                tooltipText += dmsUrl.getName();
-                tooltipText += "</b> : <br />";
+                
+                tooltipText += "<b>Name</b>: " + dmsUrl.getName();
+                tooltipText += "<br />";
 
                 UrlBase urlBase = dmsUrl.getUrl().getUrlBase();
+                String objectName = dmsUrl.getUrl().getObjektname();
 
-                tooltipText += "\\" + urlBase.getServer() + urlBase.getPfad() + "<br /><br />";
+                tooltipText += "<b>Serverpfad</b>: \\" + urlBase.getServer() + urlBase.getPfad() + objectName + "<br /><br />";
 
             }
 
@@ -346,7 +355,8 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
 
         if(flurstueck.getVertraege().size() != 0) {
 
-            JLabel iconLabel = new JLabel(new ImageIcon(getClass().getResource(ICON_CONTRACTS)));
+            ImageIcon icon = new ImageIcon(getClass().getResource(icon_bundle.getString(ICON_CONTRACTS)));
+            JLabel iconLabel = new JLabel(icon);
             innerFooterPanel.add(iconLabel);
 
             String tooltipText = "<html>";
@@ -396,15 +406,85 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             }
 
             if(hasRight) {
-                JLabel iconLabel = new JLabel(new ImageIcon(getClass().getResource(ICON_RIGHT)));
+                ImageIcon icon = new ImageIcon(getClass().getResource(icon_bundle.getString(ICON_RIGHT)));
+                JLabel iconLabel = new JLabel(icon);
                 innerFooterPanel.add(iconLabel);
                 artifactSet = true;
+
+                String tooltipText = "<html>";
+
+                for (ReBe reBe : rebe) {
+                    if(reBe.isRecht()) {
+                        String art = reBe.getReBeArt().getBezeichnung();
+                        String nummer = reBe.getNummer();
+                        String bemerkung = reBe.getBemerkung();
+                        String beschreibung = reBe.getBeschreibung();
+                        
+                        tooltipText +="<b>" + art + " Nummer " + nummer + "</b>" + "<br>";
+
+                        if(beschreibung != null) {
+                            tooltipText += "<b>Beschreibung:</b> " + beschreibung + "<br>";
+                        }
+
+                        if(bemerkung != null)
+                            tooltipText += "Bemerkung: <br>" + bemerkung + "<br>";
+
+                        if(reBe.getDatumEintragung() != null) {
+                            String startDate = formatter.format(reBe.getDatumEintragung());
+                            tooltipText += "Datum Eintragung: " + startDate + "<br>";
+                        }
+
+                        if(reBe.getDatumLoeschung() != null) {
+                            String endDate = formatter.format(reBe.getDatumLoeschung());
+                            tooltipText += "Datum Löschung: " + endDate + "<br>" ;
+                        }
+                        tooltipText += "<br>";
+                    }
+                }
+
+                tooltipText += "</html>";
+                iconLabel.setToolTipText(tooltipText);
             }
 
             if(hasLoad) {
-                JLabel iconLabel = new JLabel(new ImageIcon(getClass().getResource(ICON_LOAD)));
+                ImageIcon icon = new ImageIcon(getClass().getResource(icon_bundle.getString(ICON_LOAD)));
+                JLabel iconLabel = new JLabel(icon);
                 innerFooterPanel.add(iconLabel);
                 artifactSet = true;
+
+                String tooltipText = "<html>";
+
+                for (ReBe reBe : rebe) {
+                    if(!reBe.isRecht()) {
+                        String art = reBe.getReBeArt().getBezeichnung();
+                        String nummer = reBe.getNummer();
+                        String bemerkung = reBe.getBemerkung();
+                        String beschreibung = reBe.getBeschreibung();
+
+                        tooltipText +="<b>" + art + " Nummer " + nummer + "</b>" + "<br>";
+
+                        if(beschreibung != null) {
+                            tooltipText += "<b>Beschreibung:</b> " + beschreibung + "<br>";
+                        }
+
+                        if(bemerkung != null)
+                            tooltipText += "<b>Bemerkung:</b> <br>" + bemerkung + "<br>";
+
+                        if(reBe.getDatumEintragung() != null) {
+                            String startDate = formatter.format(reBe.getDatumEintragung());
+                            tooltipText += "<b>Datum Eintragung:</b> " + startDate + "<br>";
+                        }
+
+                        if(reBe.getDatumLoeschung() != null) {
+                            String endDate = formatter.format(reBe.getDatumLoeschung());
+                            tooltipText += "<b>Datum Löschung:</b> " + endDate + "<br>" ;
+                        }
+                        tooltipText += "<br>";
+                    }
+                }
+
+                tooltipText += "</html>";
+                iconLabel.setToolTipText(tooltipText);
             }
         }
 
