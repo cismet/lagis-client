@@ -767,9 +767,9 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      *          <td>1</td>
      *      </tr>
      * </table>
-     * 
+     *
      * From this representation a number of operations can be performed to get
-     * additional information helping in crossing minimization. For further information 
+     * additional information helping in crossing minimization. For further information
      * refer to {@link TwoLayerIncidenceMatrix}.
      * </p>
      * <p>
@@ -785,44 +785,46 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      */
     private void minimizeCrossings() {
 
-        ArrayList<TwoLayerIncidenceMatrix> matrixRep =
-                new ArrayList<TwoLayerIncidenceMatrix>();
+        if (layers.size() > 1) {
+            ArrayList<TwoLayerIncidenceMatrix> matrixRep =
+                    new ArrayList<TwoLayerIncidenceMatrix>();
 
-        int numberOfCrossings = 0;
+            int numberOfCrossings = 0;
 
-        // build the matrix representation of the given graph
-        for (int i = 0; i < layers.size() - 1; i++) {
-            matrixRep.add(new TwoLayerIncidenceMatrix(layers.get(i),
-                    layers.get(i + 1)));
-        }
+            // build the matrix representation of the given graph
+            for (int i = 0; i < layers.size() - 1; i++) {
+                matrixRep.add(new TwoLayerIncidenceMatrix(layers.get(i),
+                        layers.get(i + 1)));
+            }
 
-        // calculate initial overall number of crossings
+            // calculate initial overall number of crossings
 //        for (TwoLayerIncidenceMatrix matrix : matrixRep) {
 //            numberOfCrossings += matrix.calculateNumberOfCrossings();
 //        }
 
-        for (int i = 0; i < iterations; i++) {
-            crossingMinimizationPhase1Down(matrixRep, 0);
+            for (int i = 0; i < iterations; i++) {
+                crossingMinimizationPhase1Down(matrixRep, 0);
 
-            crossingMinimizationPhase2Down(matrixRep);
+                crossingMinimizationPhase2Down(matrixRep);
 
-            crossingMinimizationPhase2Up(matrixRep);
+                crossingMinimizationPhase2Up(matrixRep);
 
-            crossingMinimizationPhase1Up(matrixRep, layers.size() - 2);
+                crossingMinimizationPhase1Up(matrixRep, layers.size() - 2);
 
-            crossingMinimizationPhase1Down(matrixRep, 0);
+                crossingMinimizationPhase1Down(matrixRep, 0);
 
-        }
+            }
 
 
-        // set the layers to the calculated ordering
-        layers.set(0, matrixRep.get(0).getLayer1());
+            // set the layers to the calculated ordering
+            layers.set(0, matrixRep.get(0).getLayer1());
 
-        int finalCrossings = 0;
+            int finalCrossings = 0;
 
-        for (int i = 0; i < matrixRep.size(); i++) {
-            layers.set(i + 1, matrixRep.get(i).getLayer2());
-            finalCrossings += matrixRep.get(i).calculateNumberOfCrossings();
+            for (int i = 0; i < matrixRep.size(); i++) {
+                layers.set(i + 1, matrixRep.get(i).getLayer2());
+                finalCrossings += matrixRep.get(i).calculateNumberOfCrossings();
+            }
         }
 
 //        System.out.println("Crossings : " + finalCrossings);
@@ -1492,33 +1494,32 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
         int maxX = Integer.MIN_VALUE;
 
-        int lastLayerSize = layers.get(noLayers-1).size();
-        int maxY = layers.get(noLayers-1).get(lastLayerSize).yCoordinate;
+        int lastLayerSize = layers.get(noLayers - 1).size();
+        int maxY = layers.get(noLayers - 1).get(lastLayerSize).yCoordinate;
 
         for (int i = 0; i < layers.size(); i++) {
             SugiyamaNode n = layers.get(i).get(0);
-            
-            if(n.xCoordinate < minX) 
+
+            if (n.xCoordinate < minX) {
                 minX = n.xCoordinate;
+            }
         }
 
         for (int i = 0; i < layers.size(); i++) {
             int layerSize = layers.get(i).size();
             SugiyamaNode n = layers.get(i).get(layerSize);
 
-            if(n.xCoordinate > maxX)
+            if (n.xCoordinate > maxX) {
                 maxX = n.xCoordinate;
+            }
         }
 
         Rectangle graphRectangle = new Rectangle(minX, minY, maxX - minX, maxY - minY);
         Rectangle viewArea = scene.getView().getBounds();
 
-        if(graphRectangle.height < viewArea.height && graphRectangle.width < viewArea.width) {
-
-        } else if(graphRectangle.height < viewArea.height) {
-
+        if (graphRectangle.height < viewArea.height && graphRectangle.width < viewArea.width) {
+        } else if (graphRectangle.height < viewArea.height) {
         } else if (graphRectangle.width < viewArea.width) {
-
         } else {
             int xOffset = graphRectangle.x - 20;
 
