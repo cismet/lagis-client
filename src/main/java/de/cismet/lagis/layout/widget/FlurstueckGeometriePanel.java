@@ -193,10 +193,32 @@ public class FlurstueckGeometriePanel extends JPanel {
                 g2d.fill(transformedShape);
 
                 g2d.setPaint(oldPaint);
+            } else {
+
+                BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
+                        BufferedImage.TYPE_INT_ARGB);
+
+                Graphics2D shadowGraphics = shadow.createGraphics();
+                shadowGraphics.setColor(Color.BLACK);
+                shadowGraphics.setComposite(new ColorComposite(0.5f));
+                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 2);
+                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 9);
+
+                GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
+                shadow = blurFilter.filter(shadow, null);
+
+                g2d.setPaint(Color.BLACK);
+                g2d.drawImage(shadow, 0, 0, this);
+                g2d.drawString("Es wurde keine", 20, height / 2 - 6);
+                g2d.drawString("Geometrie gefunden", 9, height / 2 + 6);
+
+                shadowGraphics.dispose();
+                shadow.flush();
+
             }
 
             if (flurstueck.getVerwaltungsbereiche().size() > 0) {
-            // TODO : rendering other features : ReBe, Dienststellen ... 
+            // TODO : rendering other features : ReBe, Dienststellen ...
 //                if (flurstueckEnvelope != null) {
 //
 //                    Set<Verwaltungsbereich> vb = flurstueck.getVerwaltungsbereiche();
@@ -225,29 +247,32 @@ public class FlurstueckGeometriePanel extends JPanel {
 //                            g2d.setPaint(filling);
 //                            g2d.fill(transformedVerwaltungsShape);
 //                        }
-//                    }
+                    }
 //                } else {
 //                }
-            } else if (flurstueckEnvelope == null) {
-
-                BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
-                        BufferedImage.TYPE_INT_ARGB);
-
-                Graphics2D shadowGraphics = shadow.createGraphics();
-                shadowGraphics.setColor(Color.BLACK);
-                shadowGraphics.setComposite(new ColorComposite(0.5f));
-                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 2);
-                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 9);
-
-                GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
-                shadow = blurFilter.filter(shadow, null);
-
-                g2d.setPaint(Color.BLACK);
-                g2d.drawImage(shadow, 0, 0, this);
-                g2d.drawString("Es wurde keine", 20, height / 2 - 6);
-                g2d.drawString("Geometrie gefunden", 9, height / 2 + 6);
-
-            }
+//            } else if (flurstueckEnvelope == null) {
+//
+//                BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
+//                        BufferedImage.TYPE_INT_ARGB);
+//
+//                Graphics2D shadowGraphics = shadow.createGraphics();
+//                shadowGraphics.setColor(Color.BLACK);
+//                shadowGraphics.setComposite(new ColorComposite(0.5f));
+//                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 2);
+//                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 9);
+//
+//                GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
+//                shadow = blurFilter.filter(shadow, null);
+//
+//                g2d.setPaint(Color.BLACK);
+//                g2d.drawImage(shadow, 0, 0, this);
+//                g2d.drawString("Es wurde keine", 20, height / 2 - 6);
+//                g2d.drawString("Geometrie gefunden", 9, height / 2 + 6);
+//
+//                shadowGraphics.dispose();
+//                shadow.flush();
+//
+//            }
         }
     }
 
