@@ -30,9 +30,6 @@ import de.cismet.tools.configuration.NoWriteError;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
@@ -55,7 +52,6 @@ import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.BirdViewController;
-import org.netbeans.api.visual.widget.Widget;
 
 /**
  *
@@ -343,6 +339,7 @@ public class NewHistoryPanel extends AbstractWidget
 
     private void overViewCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overViewCHBActionPerformed
         legendOverviewMainPanel.setVisible(overViewCHB.isSelected());
+        graphScene.revalidate();
 }//GEN-LAST:event_overViewCHBActionPerformed
 
     private void magnifyerCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_magnifyerCHBActionPerformed
@@ -537,6 +534,8 @@ public class NewHistoryPanel extends AbstractWidget
                         if (graphScene.findStoredObject(currentFlurstueck) == null) {
                             graphScene.addNode(currentFlurstueck);
                             log.debug("adding node " + currentFlurstueck);
+                        } else {
+                            log.debug("current flurstueck already in graph");
                         }
                     }
 
@@ -585,7 +584,7 @@ public class NewHistoryPanel extends AbstractWidget
         graphScene.setVisible(true);
         graphScene.revalidate(true);
         view.repaint();
-        
+        graphScene.shiftViewToContentBounds();
         
     }
 
