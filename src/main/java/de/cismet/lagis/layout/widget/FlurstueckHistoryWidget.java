@@ -30,6 +30,7 @@ public class FlurstueckHistoryWidget extends ComponentWidget {
         setLayout(LayoutFactory.createVerticalFlowLayout());
 
         this.nodePanel = nodePanel;
+        setOpaque(false);
 
     }
 

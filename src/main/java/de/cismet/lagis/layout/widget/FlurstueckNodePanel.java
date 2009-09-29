@@ -84,6 +84,7 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
     public FlurstueckNodePanel(Flurstueck flurstueck) {
         super(flurstueck);
 
+        setOpaque(false);
         setLayout(new BorderLayout());
 
         coolPanel = new PureCoolPanel();

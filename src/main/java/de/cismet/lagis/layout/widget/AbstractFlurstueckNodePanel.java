@@ -31,6 +31,7 @@ public abstract class AbstractFlurstueckNodePanel extends JPanel {
         this.flurstueck = flurstueck;
 
         setDoubleBuffered(false);
+        setOpaque(false);
     }
 
     /**
