@@ -13,6 +13,8 @@ import de.cismet.lagis.layout.widget.FlurstueckNodePanel;
 import de.cismet.lagis.layout.widget.PseudoFlurstueckPanel;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import org.apache.log4j.Logger;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -39,11 +41,9 @@ import org.netbeans.api.visual.widget.Widget;
  */
 public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> {
 
-
     //--------------------------------------------------------------------------
     //      Attributes
     //--------------------------------------------------------------------------
-
     private boolean backgroundSet = false;
     private LayerWidget nodeLayer;
     private LayerWidget connectionLayer;
@@ -75,11 +75,11 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         setBackground(Color.WHITE);
 
         nodeLayer = new LayerWidget(this);
-        nodeLayer.setBackground(Color.WHITE);
+//        nodeLayer.setBackground(Color.WHITE);
         connectionLayer = new LayerWidget(this);
-        connectionLayer.setBackground(Color.WHITE);
+//        connectionLayer.setBackground(Color.WHITE);
         highlightLayer = new LayerWidget(this);
-        highlightLayer.setBackground(Color.WHITE);
+//        highlightLayer.setBackground(Color.WHITE);
 
         addChild(nodeLayer);
         addChild(connectionLayer);
@@ -87,7 +87,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
         highlightLayer.bringToBack();
 
-        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
+//        getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.1));
         getActions().addAction(ActionFactory.createPanAction());
 
         selectProvider = new FlurstueckSelectProvider(this);
@@ -112,7 +112,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     @Override
     protected Widget attachNodeWidget(Flurstueck node) {
 
-        if(highlightLayer.getChildren().size() != 0) {
+        if (highlightLayer.getChildren().size() != 0) {
             highlightLayer.removeChildren();
         }
 
@@ -138,7 +138,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         nodeWidget.getActions().addAction(selectAction);
         nodeWidget.getActions().addAction(editAction);
 //        nodeWidget.getActions().addAction(hoverAction);
-        
+
         nodeLayer.addChild(nodeWidget);
 //        nodeWidget.revalidate();
 
@@ -227,7 +227,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
             log.warn("Edge " + edge + " : Target Anchor null");
         }
 
-        
+
 
     }
 
@@ -243,5 +243,31 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         return highlightLayer;
     }
 
+    public void shiftViewToContentBounds() {
 
+        log.info("calculating total bounds for scene");
+        log.info("There are " + nodeLayer.getChildren().size() + " nodes");
+        Rectangle2D totalBounds = new Rectangle().getBounds2D();
+
+        for (Widget widget : nodeLayer.getChildren()) {
+            totalBounds = totalBounds.createUnion(widget.getPreferredBounds().getBounds2D());
+        }
+
+        log.info("Total scene content bounds:" + totalBounds);
+
+        // hang out the scene LayerWidgets
+//        removeChild(connectionLayer);
+//        removeChild(nodeLayer);
+//        removeChild(highlightLayer);
+//
+//        connectionLayer.setPreferredBounds(totalBounds.getBounds());
+//        nodeLayer.setPreferredBounds(totalBounds.getBounds());
+//        highlightLayer.setPreferredBounds(totalBounds.getBounds());
+//
+//        addChild(nodeLayer);
+//        addChild(connectionLayer);
+//        addChild(highlightLayer);
+
+
+    }
 }
