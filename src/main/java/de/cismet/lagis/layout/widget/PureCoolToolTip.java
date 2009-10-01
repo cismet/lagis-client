@@ -15,13 +15,15 @@ import javax.swing.JToolTip;
  */
 public class PureCoolToolTip extends JToolTip {
 
-    private Color backgroundColor = new Color(0, 0, 0, 80);
+    private Color backgroundColor = new Color(0, 0, 0, 0);
 
     public PureCoolToolTip(final ImageIcon icon) {
 
         setForeground(Color.WHITE);
         setBackground(backgroundColor);
         setUI(new PureCoolToolTipUI(icon));
+        setOpaque(false);
     }
 
 }
+

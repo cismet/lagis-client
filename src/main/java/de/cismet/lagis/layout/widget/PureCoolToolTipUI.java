@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
-import javax.swing.plaf.ToolTipUI;
+import javax.swing.plaf.ComponentUI;
 
 /**
  * <p>
@@ -38,21 +38,22 @@ return tip;
  *
  * @author mbrill
  */
-public class PureCoolToolTipUI extends ToolTipUI {
+public class PureCoolToolTipUI extends ComponentUI {
 
     private Color backgroundColor = new Color(0, 0, 0, 80);
     private Color colorGlossy = new Color(255, 255, 255, 255);
     private Image tooltipIcon = null;
     private int height = 5;
     private int width = 5;
-    int textStartY = 20;
+    int textOffsetY = 25;
     int textOffset = 3;
+    int iconOffset = 5;
 
     public PureCoolToolTipUI(final ImageIcon tooltipIcon) {
         if (tooltipIcon != null) {
             this.tooltipIcon = tooltipIcon.getImage();
         }
-        
+
     }
 
     @Override
@@ -74,7 +75,7 @@ public class PureCoolToolTipUI extends ToolTipUI {
 
         if (tooltipIcon != null) {
 
-            textHeight += tooltipIcon.getHeight(c) + textStartY;
+            textHeight += tooltipIcon.getHeight(c) + textOffsetY + iconOffset;
 
             for (int i = 0; i < splitTipText.length; i++) {
 
@@ -130,7 +131,7 @@ public class PureCoolToolTipUI extends ToolTipUI {
                 textHeight += metricsHeight + 3;
             }
 
-            g.drawImage(tooltipIcon, width - tooltipIcon.getWidth(c) - 5, 5, c);
+            g.drawImage(tooltipIcon, width - tooltipIcon.getWidth(c), iconOffset, c);
 
         } else {
             textHeight += 3;
@@ -159,7 +160,7 @@ public class PureCoolToolTipUI extends ToolTipUI {
                 }
             }
         }
-
+        width += 5;
         height = textHeight;
     }
 
@@ -178,8 +179,8 @@ public class PureCoolToolTipUI extends ToolTipUI {
         }
 
         if (tooltipIcon != null) {
-            height = textStartY + tooltipIcon.getHeight(c);
-            width = tooltipIcon.getWidth(c);
+            height = textOffsetY + tooltipIcon.getHeight(c) + iconOffset;
+//            width = tooltipIcon.getWidth(c);
         }
 
         for (int i = 0; i < splitTipText.length; i++) {
@@ -213,6 +214,16 @@ public class PureCoolToolTipUI extends ToolTipUI {
         width += 5;
 
         return new Dimension(width, height);
+    }
+
+    @Override
+    public void update(Graphics g, JComponent c) {
+
+//        g.clearRect(0, 0, c.getWidth(), c.getHeight());
+        g.setColor(backgroundColor);
+        g.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
+
+        paint(g, c);
     }
 }
 
