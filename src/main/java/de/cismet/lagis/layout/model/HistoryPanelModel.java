@@ -193,6 +193,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         Anchor sourceAnchor = AnchorFactory.createDirectionalAnchor(sourceNodeWidget,
                 AnchorFactory.DirectionalAnchorKind.VERTICAL);
 
+
         edgeWidget.setSourceAnchor(sourceAnchor);
         if (sourceAnchor == null) {
             log.warn("Edge " + edge + " : Source Anchor null");
@@ -220,7 +221,9 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         if (targetNodeWidget == null) {
             log.warn("Edge " + edge + " : targetNodeWidget null");
         }
-        Anchor targetAnchor = AnchorFactory.createRectangularAnchor(targetNodeWidget, false);
+        
+        Anchor targetAnchor = AnchorFactory.createDirectionalAnchor(targetNodeWidget,
+                AnchorFactory.DirectionalAnchorKind.VERTICAL);
 
         edgeWidget.setTargetAnchor(targetAnchor);
         if (targetAnchor == null) {
