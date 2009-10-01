@@ -11,8 +11,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-import org.apache.log4j.Logger;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.graph.layout.UniversalGraph;
@@ -26,12 +24,11 @@ import org.netbeans.api.visual.widget.Widget;
  */
 public class SugiyamaLayout<N, E> extends GraphLayout {
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private UniversalGraph<N, E> graph;
     private GraphScene<N, E> scene;
     private final ArrayList<ArrayList<SugiyamaNode<N>>> layers;
     private final int topOffset = 20;
-    private int hgap = 30;
+    private int hgap = 10;
     private Integer vgap = null;
     private int maximumVSize;
     private double dummySizeVertical = 50.0;
@@ -85,65 +82,53 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      */
     @Override
     protected void performGraphLayout(UniversalGraph graph) {
-        log.info("Performing Graph Layout");
 
         timeAll = System.currentTimeMillis();
         clear();
         this.graph = graph;
         this.scene = (GraphScene<N, E>) graph.getScene();
 
-
-//        graphCreationTime = System.currentTimeMillis();
+        // TODO : rem timecheck
+        graphCreationTime = System.currentTimeMillis();
         buildDatastructure(graph);
-//        graphCreationTime = System.currentTimeMillis() - graphCreationTime;
+        graphCreationTime = System.currentTimeMillis() - graphCreationTime;
 
-//        layerAssignmentCompleteTime = System.currentTimeMillis();
+        // TODO : rem timecheck
+        layerAssignmentCompleteTime = System.currentTimeMillis();
         assignLayers();
-//        layerAssignmentCompleteTime = System.currentTimeMillis() - layerAssignmentCompleteTime;
+        layerAssignmentCompleteTime = System.currentTimeMillis() - layerAssignmentCompleteTime;
 
-//        insertDummyTime = System.currentTimeMillis();
+        // TODO : rem timecheck
+        insertDummyTime = System.currentTimeMillis();
         dummyMapping = insertDummies();
-//        insertDummyTime = System.currentTimeMillis() - insertDummyTime;
+        insertDummyTime = System.currentTimeMillis() - insertDummyTime;
 
-//        crossingMinimzationTime = System.currentTimeMillis();
+        crossingMinimzationTime = System.currentTimeMillis();
         minimizeCrossings();
-//        crossingMinimzationTime = System.currentTimeMillis() - crossingMinimzationTime;
+        crossingMinimzationTime = System.currentTimeMillis() - crossingMinimzationTime;
 
-//        assignCoordinatesTime = System.currentTimeMillis();
-        assignCoordinates(50, false);
-//        assignCoordinatesTime = System.currentTimeMillis() - assignCoordinatesTime;
+        // TODO : rem timecheck
+        assignCoordinatesTime = System.currentTimeMillis();
+        assignCoordinates(50);
+        assignCoordinatesTime = System.currentTimeMillis() - assignCoordinatesTime;
 
-//
-//        timeAll = System.currentTimeMillis() - timeAll;
-//
 
-//        System.out.println("Layout statistcs");
-//        System.out.println("=======================");
-//        System.out.println("Build datastructure time : " + graphCreationTime + " msec");
-//        System.out.println("Layer assignment time    : " + layerAssignmentCompleteTime + " msec");
-//        System.out.println("   DFS time              : " + dfsCalcTime + " nano sec");
-//        System.out.println("   Layer assignment      : " + assignNodesToLayerTime + " msec");
-//        System.out.println("   Optimization          : " + optimizeLayerTime + " msec");
-//        System.out.println("Assign coordinates time  : " + assignCoordinatesTime + " msec");
-//        System.out.println("Has long edges           : " + longEdgeMapping.size());
-//        System.out.println("Insert dummy time        : " + insertDummyTime + " msec");
-//        System.out.println("Time for crossing minimization : " + crossingMinimzationTime + " msec");
-//        System.out.println("Time over all : " + timeAll + " msec");
-//        System.out.println("Dummy nodes on layers : ");
-//        int layer = 0;
-//        int dummies = 0;
-//        for (ArrayList<SugiyamaNode<N>> arrayList : layers) {
-//            System.out.print("Layer " + layer++ + " : ");
-//            for (SugiyamaNode<N> sugiyamaNode : arrayList) {
-//                if (sugiyamaNode.dummy) {
-//                    dummies++;
-//                }
-//            }
-//            System.out.println(dummies);
-//            dummies = 0;
-//        }
+        timeAll = System.currentTimeMillis() - timeAll;
 
-        log.info("Graph Layout done");
+        // TODO Remove sout
+        System.out.println("Layout statistcs");
+        System.out.println("=======================");
+        System.out.println("Build datastructure time : " + graphCreationTime + " msec");
+        System.out.println("Layer assignment time    : " + layerAssignmentCompleteTime + " msec");
+        System.out.println("   DFS time              : " + dfsCalcTime + " nano sec");
+        System.out.println("   Layer assignment      : " + assignNodesToLayerTime + " msec");
+        System.out.println("   Optimization          : " + optimizeLayerTime + " msec");
+        System.out.println("Assign coordinates time  : " + assignCoordinatesTime + " msec");
+        System.out.println("Has long edges           : " + longEdgeMapping.size());
+        System.out.println("Insert dummy time        : " + insertDummyTime + " msec");
+        System.out.println("Time for crossing minimization : " + crossingMinimzationTime + " msec");
+        System.out.println("Time over all : " + timeAll + " msec");
+
     }
 
     /**
@@ -249,23 +234,24 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         }
 
         // Step 2 : perform Depth-first search of the graph
-
-//        dfsCalcTime = System.nanoTime();
+        // TODO : rem timecheck
+        dfsCalcTime = System.nanoTime();
         dfs();
-//        dfsCalcTime = System.nanoTime() - dfsCalcTime;
+        dfsCalcTime = System.nanoTime() - dfsCalcTime;
 
         // Step 3 : calculate topological Sorting by dfs algorithm
         ArrayList<SugiyamaNode<N>> topSort = sortTopologically();
-
         // Step 4 : Sort nodes to layers according to topological sorting
-//        assignNodesToLayerTime = System.currentTimeMillis();
+        // TODO : rem timecheck
+        assignNodesToLayerTime = System.currentTimeMillis();
         assignLayerToNodes(topSort);
-//        assignNodesToLayerTime = System.currentTimeMillis() - assignNodesToLayerTime;
+        assignNodesToLayerTime = System.currentTimeMillis() - assignNodesToLayerTime;
 
         // Step 5 : Optimize node position concerning edge length
-//        optimizeLayerTime = System.currentTimeMillis();
+        // TODO : rem timecheck
+        optimizeLayerTime = System.currentTimeMillis();
         optimizeNodeLayer();
-//        optimizeLayerTime = System.currentTimeMillis() - optimizeLayerTime;
+        optimizeLayerTime = System.currentTimeMillis() - optimizeLayerTime;
 
     }
 
@@ -476,14 +462,12 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             Widget w = scene.findWidget(node.getValue());
             Rectangle rec = w.getPreferredBounds();
             if (rec != null) {
-                node.setHSize(rec.getHeight());
-                node.setVSize(rec.getWidth());
-                System.out.println(node.getValue().toString() + " bounds : " +
-                        rec.getHeight() + " " + rec.getWidth());
+                node.setHSize(rec.getWidth());
+                node.setVSize(rec.getHeight());
             } else {
                 rec = w.getBounds();
-                node.setHSize(rec.getHeight());
-                node.setVSize(rec.getWidth());
+                node.setHSize(rec.getWidth());
+                node.setVSize(rec.getHeight());
             }
 
             if (node.getHSize() > maxX) {
@@ -767,9 +751,9 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      *          <td>1</td>
      *      </tr>
      * </table>
-     *
+     * 
      * From this representation a number of operations can be performed to get
-     * additional information helping in crossing minimization. For further information
+     * additional information helping in crossing minimization. For further information 
      * refer to {@link TwoLayerIncidenceMatrix}.
      * </p>
      * <p>
@@ -785,46 +769,44 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      */
     private void minimizeCrossings() {
 
-        if (layers.size() > 1) {
-            ArrayList<TwoLayerIncidenceMatrix> matrixRep =
-                    new ArrayList<TwoLayerIncidenceMatrix>();
+        ArrayList<TwoLayerIncidenceMatrix> matrixRep =
+                new ArrayList<TwoLayerIncidenceMatrix>();
 
-            int numberOfCrossings = 0;
+        int numberOfCrossings = 0;
 
-            // build the matrix representation of the given graph
-            for (int i = 0; i < layers.size() - 1; i++) {
-                matrixRep.add(new TwoLayerIncidenceMatrix(layers.get(i),
-                        layers.get(i + 1)));
-            }
+        // build the matrix representation of the given graph
+        for (int i = 0; i < layers.size() - 1; i++) {
+            matrixRep.add(new TwoLayerIncidenceMatrix(layers.get(i),
+                    layers.get(i + 1)));
+        }
 
-            // calculate initial overall number of crossings
+        // calculate initial overall number of crossings
 //        for (TwoLayerIncidenceMatrix matrix : matrixRep) {
 //            numberOfCrossings += matrix.calculateNumberOfCrossings();
 //        }
 
-            for (int i = 0; i < iterations; i++) {
-                crossingMinimizationPhase1Down(matrixRep, 0);
+        for (int i = 0; i < iterations; i++) {
+            crossingMinimizationPhase1Down(matrixRep, 0);
 
-                crossingMinimizationPhase2Down(matrixRep);
+            crossingMinimizationPhase2Down(matrixRep);
 
-                crossingMinimizationPhase2Up(matrixRep);
+            crossingMinimizationPhase2Up(matrixRep);
 
-                crossingMinimizationPhase1Up(matrixRep, layers.size() - 2);
+            crossingMinimizationPhase1Up(matrixRep, layers.size() - 2);
 
-                crossingMinimizationPhase1Down(matrixRep, 0);
+            crossingMinimizationPhase1Down(matrixRep, 0);
 
-            }
+        }
 
 
-            // set the layers to the calculated ordering
-            layers.set(0, matrixRep.get(0).getLayer1());
+        // set the layers to the calculated ordering
+        layers.set(0, matrixRep.get(0).getLayer1());
 
-            int finalCrossings = 0;
+        int finalCrossings = 0;
 
-            for (int i = 0; i < matrixRep.size(); i++) {
-                layers.set(i + 1, matrixRep.get(i).getLayer2());
-                finalCrossings += matrixRep.get(i).calculateNumberOfCrossings();
-            }
+        for (int i = 0; i < matrixRep.size(); i++) {
+            layers.set(i + 1, matrixRep.get(i).getLayer2());
+            finalCrossings += matrixRep.get(i).calculateNumberOfCrossings();
         }
 
 //        System.out.println("Crossings : " + finalCrossings);
@@ -974,7 +956,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      * @param initialX
      * @param horizontal
      */
-    private void assignCoordinates(int initialX, boolean horizontal) {
+    private void assignCoordinates(int initialX) {
 
         // priority layout method by Sugiyama
         // initial position of vertices on layer Li :
@@ -982,54 +964,31 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         // Yik = vgap * i;
         // the X coordinate must be constrained with the size of predeceeding nodes
 
-        this.horizontal = horizontal;
 
         // initialize the layout by assigning fix y values and an initial x value
+        int l = 0;
         for (ArrayList<SugiyamaNode<N>> layer : layers) {
 
             int filled = initialX;
 
+            System.err.println("Layer " + l);
             for (SugiyamaNode<N> node : layer) {
 
-                if (horizontal) {
-                    node.setYCoordinate(filled);
-                    node.setXCoordinate(vgap * node.getLayer());
-                } else {
-                    node.setYCoordinate(vgap * node.getLayer() + topOffset);
-                    node.setXCoordinate(filled);
-                }
+                // init virtual first layout
+                node.setYCoordinate(vgap * node.getLayer() + topOffset);
+                node.setXCoordinate(filled);
 
-                if (node.getValue() != null) {
-                    Widget w = scene.findWidget(node.getValue());
+                filled += hgap + (int) node.getHSize();
+                System.err.println("h: " + node.getHSize() + " v: " + node.getVSize() + " filled: " + filled + " dummy: " + node.isDummy());
 
-                    if (horizontal) {
-                        w.setPreferredLocation(new Point(node.getYCoordinate(),
-                                filled));
-                        node.setVSize(Math.ceil(w.getBounds().getHeight()));
-                        filled += hgap + (int) node.getVSize();
-                    } else {
-                        w.setPreferredLocation(new Point(filled,
-                                node.getYCoordinate()));
-                        node.setHSize(Math.ceil(w.getBounds().getWidth()));
-                        filled += hgap + (int) node.getHSize();
-                    }
-
-
-
-                } else {
-                    if (horizontal) {
-                        filled += hgap + (int) node.getVSize();
-                    } else {
-                        filled += hgap + (int) node.getHSize();
-                    }
-                }
             }
+
+            l++;
         }
 
         downAssignment();
         upAssignment();
-//        downAssignment();
-//        upAssignment();
+        downAssignment();
 
 
         // set newly calculated coordinates as preferredLocation values of widgets
@@ -1129,14 +1088,29 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             }
         }
 
-//        scene.validate();
-//        scene.repaint();
-//        scene.revalidate();
+        scene.revalidate();
     }
 
+    /**
+     *  This methods performs the steps of the sugiyama horizontal coordinate assignment
+     *  during top-down-traversion of the graph. This is assigning priorities from
+     *  the predecessors and shifting each node of the layer considered as close as
+     *  possible to their barycenter.
+     *  In the first place, the nodes on the focussed layer are assigned priorities.
+     *  After that, the ideal position for each node is calculated in priority order.
+     *  In the next step, the algorithm checks wether the constraint "only shift
+     *  nodes with lower priority" is violated if the node is shifted to its optimum.
+     *  If so, the first high prio node in the way of the shift is a barrier, that
+     *  may not be stepped over. Adittionally, no node left or right, depending on the
+     *  shift direction, from that barrier may be shifted.
+     *  Then the algorithm tries to make as much room as needed by pushing all nodes
+     *  with lower priority together. After doing this, the max position for
+     *  the node to be shifted can be evaluated. 
+     */
     private void downAssignment() {
 
         for (int i = 1; i < layers.size(); i++) {
+
             ArrayList<SugiyamaNode<N>> layer = layers.get(i);
 
             assignPriorities(layer, false);
@@ -1145,6 +1119,8 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             ArrayList<SugiyamaNode> prioOrder = new ArrayList<SugiyamaNode>(layer);
             Collections.sort(prioOrder, new PriorityComparator());
 
+            // work down the list of sorted nodes, calculate Barycenters and ensure
+            // constraints
             for (int j = 0; j < prioOrder.size(); j++) {
 
                 // calculate optimal position for a node
@@ -1168,94 +1144,196 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
                 // regarding node sizes and desired gap. This is the new position
                 // of the node
 
-                // step 1 : check wether there is a node with higher priority
-                // right to the current node. If so, the position may not be moved
+                // step 1 : check wether there is a node with higher priority in the
+                // way of the movement. If so, the position may not be moved over this node
                 // and its X position is a maximum for the position of the current node.
-                int nodesBetween = 0;
+
                 int indexOfHighPrioNode = -1;
-                double nextNodeSize = 0;
+                double nodePrio = node.getOrderingPriority();
 
-                for (int k = layer.indexOf(node) + 1; k < layer.size(); k++) {
+                if (optimum != node.getXCoordinate()) { // if the node needn't be shifted step over
+                    if (optimum < node.getXCoordinate()) { // move node to the left
 
-                    // only nodes with lower priority can be shifted
-                    if (node.getOrderingPriority() < layer.get(k).getOrderingPriority()) {
-                        indexOfHighPrioNode = k;
-                        break;
-                    }
-                    nodesBetween++;
-                }
+                        for (int k = 0; k < j; k++) { // only iterate until the node considered
+                            if (prioOrder.get(k).getOrderingPriority() >= nodePrio) {
+                                indexOfHighPrioNode = k;
+                                break;
+                            }
+                        }
 
-                // since the order of node on a layer must not be changed,
-                // any node between the current and a possible maximum position
-                // must stay on a relative position to these two nodes.
-                // this means, that if there are nodes in between, the maximum
-                // X position for the current node is decreased further.
+                    } else {    // move node to the right
 
-                if (indexOfHighPrioNode > -1) {
-
-                    maxPosition = layer.get(indexOfHighPrioNode).getXCoordinate();
-                    maxPosition -= hgap;
-                    maxPosition -= node.getHSize();
-
-                    if (nodesBetween == 0) {
-
-                        // there must be enough room between the current node
-                        // and the limitation node to regard all nodes which lie
-                        // in between
-
-                        int currentNodeIndex = layer.indexOf(node);
-
-                        for (int k = 1; k <= nodesBetween; k++) {
-                            maxPosition -= layer.get(currentNodeIndex + k).getHSize();
-                            maxPosition -= hgap;
+                        for (int k = j + 1; k < prioOrder.size(); k++) { // only iterate from the node considered
+                            if (prioOrder.get(k).getOrderingPriority() >= nodePrio) {
+                                indexOfHighPrioNode = k;
+                                break;
+                            }
                         }
                     }
 
-                    nextNodeSize = layer.get(indexOfHighPrioNode).getHSize();
-                } else {
-                    // if there is no limitating node, the current node can
-                    // be put anywhere
-                    maxPosition = Integer.MAX_VALUE;
-                }
+                    // the node needs to be shifted, calculate max position.
+                    if (indexOfHighPrioNode == -1) { // the only restriction is the overall size of the nodes left/right to the current node
 
+                        if (optimum < node.getXCoordinate()) { // move left
 
+                            int max = optimum;
 
-                if (maxPosition < optimum) {
-                    node.setXCoordinate(maxPosition);
+                            // the optimum can be reached in any case by shifting all nodes to the left
+                            // no matter wether the coordinate of any node becomes negative
 
-                } else {
-                    node.setXCoordinate(optimum);
-                }
+                            node.setXCoordinate(optimum);
 
-                // shift all nodes right of the current and left of the
-                // limitating node to a new Position where they don't overlap
+                            // make enough room to make it possible to shift the
+                            // current node to its optimum
+                            for (int k = j - 1; k >= 0; k--) {
+                                SugiyamaNode current = layer.get(k);
 
-                int offset = node.getXCoordinate() + (int) node.getHSize() + hgap;
-                if (indexOfHighPrioNode > -1) {
-                    for (int k = layer.indexOf(node) + 1;
-                            k < indexOfHighPrioNode; k++) {
+                                int currentXCoordinate = current.getXCoordinate();
+                                int currentNodeSize = (int) current.getHSize() + hgap;
+                                int maxCurrentXCoordinate = max - currentNodeSize;
+                                if (currentXCoordinate < maxCurrentXCoordinate) {
+                                    break;  // consider all nodes in order and all constraints fulfilled
+                                } else {
+                                    current.setXCoordinate(maxCurrentXCoordinate);
+                                    max -= currentNodeSize + hgap;
+                                }
+                            }
 
-                        SugiyamaNode<N> temp = layer.get(k);
-                        temp.setXCoordinate(offset);
-                        offset += temp.getHSize() + hgap;
+                        } else if (optimum > node.getXCoordinate()) { // move right
+
+                            int max = optimum + (int) node.getHSize() + hgap;
+
+                            // the optimum can be reached in any case by shifting nodes to the right
+
+                            node.setXCoordinate(optimum);
+
+                            // make enough room to make it possible to shift the
+                            // current node to its optimum
+                            for (int k = j + 1; k < layer.size(); k++) {
+                                SugiyamaNode current = layer.get(k);
+
+                                int currentXCoordinate = current.getXCoordinate();
+                                int currentNodeSize = (int) current.getHSize() + hgap;
+
+                                if (currentXCoordinate >= max) {
+                                    break;  // consider all nodes in order and all constraints fulfilled
+                                } else {
+                                    current.setXCoordinate(max);
+                                    max += currentNodeSize + hgap;
+                                }
+                            }
+                        }
+
+                    } else { // there is a node with higher or equal priority than the current one in moving direction.
+
+                        /* try to move the movable nodes as close to the barrier
+                         * as possible in order to get the optimum position free.
+                         * therefor evaluate wether it is possible to reach optimum.
+                         * If it is not, push the nodes as much as possible together.
+                         * If it is, move only the nodes neccessary
+                         */
+
+                        // case 1: move left
+                        if (optimum < node.getXCoordinate()) {
+
+                            // check how much room the nodes need
+                            int minSpaceNeeded = hgap;
+                            for (int k = indexOfHighPrioNode; k < j; k++) {
+                                SugiyamaNode n = layer.get(k);
+                                minSpaceNeeded += (int) n.getHSize() + hgap;
+                            }
+
+                            // check wether optimum can be reached
+                            SugiyamaNode highPrioNode = layer.get(indexOfHighPrioNode);
+                            int maxPositionLeft = highPrioNode.getXCoordinate() +
+                                    (int) highPrioNode.getHSize() + hgap;
+
+                            if (optimum > maxPositionLeft + minSpaceNeeded) { // the optimum can be reached
+
+                                // since optimum can be reached, shift node to optimum
+                                node.setXCoordinate(optimum);
+
+                                // push nodes together as far as neccessary
+                                int position = optimum - hgap;
+                                for (int k = j - 1; k > indexOfHighPrioNode; k--) {
+                                    SugiyamaNode n = layer.get(k);
+
+                                    if (n.getXCoordinate() + (int) n.getHSize() <= position) {
+                                        break; // consider all nodes in order and contraints fulfilled
+                                    } else {
+
+                                        position -= (int) n.getHSize();
+                                        n.setXCoordinate(position);
+                                        position -= hgap;
+                                    }
+                                }
+
+                            } else if (optimum > maxPositionLeft) { // the optimum cannot be reached
+
+                                // simply push nodes together as much as possible
+                                int position = maxPositionLeft;
+                                for (int k = indexOfHighPrioNode + 1; k < j; k++) {
+                                    SugiyamaNode n = layer.get(k);
+                                    n.setXCoordinate(position);
+
+                                    position += (int) n.getHSize() + hgap;
+                                }
+
+                                // position is the next free coordinate closest to optimum
+                                node.setXCoordinate(position);
+                            }
+                        } else if (optimum > node.getXCoordinate()) { // case 2: move right
+
+                            // check how much room the nodes need
+                            int spaceNeeded = hgap;
+                            for (int k = indexOfHighPrioNode; k > j; k--) {
+                                SugiyamaNode n = layer.get(k);
+                                spaceNeeded += (int) n.getHSize() + hgap;
+                            }
+
+                            // check wether optimum can be reached
+                            SugiyamaNode highPrioNode = layer.get(indexOfHighPrioNode);
+                            int maxPositionRight = highPrioNode.getXCoordinate();
+
+                            if (optimum < maxPositionRight - spaceNeeded) { // optimum can be reached
+
+                                // push nodes as much together as needed
+                                int position = optimum + (int) node.getHSize() + hgap;
+                                for (int k = j + 1; k < indexOfHighPrioNode; k++) {
+
+                                    SugiyamaNode n = layer.get(k);
+
+                                    if (n.getXCoordinate() > position) {
+                                        break; // concider all nodes in order and all constaints fulfilled
+                                    } else {
+                                        n.setXCoordinate(position);
+                                        position += n.getHSize() + hgap;
+                                    }
+                                }
+                            } else if (optimum > maxPositionRight - spaceNeeded) { // optimum can not be reached
+
+                                // push nodes as much together as possible
+                                int position = maxPositionRight;
+                                for (int k = indexOfHighPrioNode - 1; k > j; k--) {
+                                    SugiyamaNode n = layer.get(k);
+                                    position -= n.getHSize();
+                                    n.setXCoordinate(position);
+                                    position -= hgap;
+                                }
+
+                                position -= node.getHSize();
+                                node.setXCoordinate(position);
+                            }
+                        }
                     }
-                } else {
-                    for (int k = layer.indexOf(node) + 1;
-                            k < layer.size(); k++) {
-
-                        SugiyamaNode<N> temp = layer.get(k);
-                        temp.setXCoordinate(offset);
-                        offset += temp.getHSize() + hgap;
-                    }
                 }
-
             }
-            ensureNoOverlapping(layer);
         }
     }
 
     private void upAssignment() {
-        for (int i = layers.size() - 1; i >= 0; i--) {
+        for (int i = layers.size() - 2; i >= 0; i--) {
+
             ArrayList<SugiyamaNode<N>> layer = layers.get(i);
 
             assignPriorities(layer, true);
@@ -1264,15 +1342,18 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             ArrayList<SugiyamaNode> prioOrder = new ArrayList<SugiyamaNode>(layer);
             Collections.sort(prioOrder, new PriorityComparator());
 
+            // work down the list of sorted nodes, calculate Barycenters and ensure
+            // constraints
             for (int j = 0; j < prioOrder.size(); j++) {
+
                 // calculate optimal position for a node
                 SugiyamaNode<N> node = prioOrder.get(j);
                 int optimum = 0;
                 int maxPosition = 0;
 
                 if (node.getSuccessorList().size() != 0) {
-                    for (SugiyamaNode<N> succ : node.getSuccessorList()) {
-                        optimum += succ.getXCoordinate() + (int) succ.getHSize() / 2;
+                    for (SugiyamaNode<N> pred : node.getSuccessorList()) {
+                        optimum += pred.getXCoordinate() + (int) pred.getHSize() / 2;
                     }
 
                     optimum = optimum / node.getSuccessorList().size();
@@ -1286,109 +1367,315 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
                 // regarding node sizes and desired gap. This is the new position
                 // of the node
 
-                // step 1 : check wether there is a node with higher priority
-                // right to the current node. If so, the position may not be moved
+                // step 1 : check wether there is a node with higher priority in the
+                // way of the movement. If so, the position may not be moved over this node
                 // and its X position is a maximum for the position of the current node.
-                int nodesBetween = 0;
+
                 int indexOfHighPrioNode = -1;
-                double nextNodeSize = 0;
-                for (int k = layer.indexOf(node) + 1; k < layer.size(); k++) {
+                double nodePrio = node.getOrderingPriority();
 
-                    // only nodes with lower priority can be shifted
-                    if (node.getOrderingPriority() < layer.get(k).getOrderingPriority()) {
-                        indexOfHighPrioNode = k;
-                        break;
-                    }
-                    nodesBetween++;
-                }
+                if (optimum != node.getXCoordinate()) { // if the node needn't be shifted step over
+                    if (optimum < node.getXCoordinate()) { // move node to the left
 
-                // since the order of node on a layer must not be changed,
-                // any node between the current and a possible maximum position
-                // must stay on a relative position to these two nodes.
-                // this means, that if there are nodes in between, the maximum
-                // X position for the current node is decreased further.
+                        for (int k = 0; k < j; k++) { // only iterate until the node considered
+                            if (prioOrder.get(k).getOrderingPriority() >= nodePrio) {
+                                indexOfHighPrioNode = k;
+                                break;
+                            }
+                        }
 
-                if (indexOfHighPrioNode > -1) {
+                    } else {    // move node to the right
 
-                    maxPosition = layer.get(indexOfHighPrioNode).getXCoordinate();
-                    maxPosition -= hgap;
-                    maxPosition -= node.getHSize();
-
-                    if (nodesBetween == 0) {
-
-                        // there must be enough room between the current node
-                        // and the limitation node to regard all nodes which lie
-                        // in between
-
-                        int currentNodeIndex = layer.indexOf(node);
-
-                        for (int k = 1; k <= nodesBetween; k++) {
-                            maxPosition -= layer.get(currentNodeIndex + k).getHSize();
-                            maxPosition -= hgap;
+                        for (int k = j + 1; k < prioOrder.size(); k++) { // only iterate from the node considered
+                            if (prioOrder.get(k).getOrderingPriority() > nodePrio) {
+                                indexOfHighPrioNode = k;
+                                break;
+                            }
                         }
                     }
 
-                    nextNodeSize = layer.get(indexOfHighPrioNode).getHSize();
+                    // the node needs to be shifted, calculate max position.
+                    if (indexOfHighPrioNode == -1) { // the only restriction is the overall size of the nodes left/right to the current node
 
-                } else {
+                        if (optimum < node.getXCoordinate()) { // move left
 
-                    // if there is no limitating node, the current node can
-                    // be put anywhere
-                    maxPosition = Integer.MAX_VALUE;
-                }
+                            int max = optimum;
 
+                            // the optimum can be reached in any case by shifting all nodes to the left
+                            // no matter wether the coordinate of any node becomes negative
 
+                            node.setXCoordinate(optimum);
 
-                if (maxPosition < optimum) {
-                    node.setXCoordinate(maxPosition);
+                            // make enough room to make it possible to shift the
+                            // current node to its optimum
+                            for (int k = j - 1; k >= 0; k--) {
+                                SugiyamaNode current = layer.get(k);
 
-                } else {
-                    node.setXCoordinate(optimum);
-                }
+                                int currentXCoordinate = current.getXCoordinate();
+                                int currentNodeSize = (int) current.getHSize() + hgap;
+                                int maxCurrentXCoordinate = max - currentNodeSize;
+                                if (currentXCoordinate < maxCurrentXCoordinate) {
+                                    break;  // consider all nodes in order and all constraints fulfilled
+                                } else {
+                                    current.setXCoordinate(maxCurrentXCoordinate);
+                                    max -= currentNodeSize + hgap;
+                                }
+                            }
 
-                // shift all nodes right of the current and left of the
-                // limitating node to a new Position where they don't overlap
+                        } else if (optimum > node.getXCoordinate()) { // move right
 
-                int offset = node.getXCoordinate() + (int) node.getHSize() + hgap;
-                if (indexOfHighPrioNode > -1) {
-                    for (int k = layer.indexOf(node) + 1;
-                            k < indexOfHighPrioNode; k++) {
+                            int max = optimum + (int) node.getHSize() + hgap;
 
-                        SugiyamaNode<N> temp = layer.get(k);
-                        temp.setXCoordinate(offset);
-                        offset += temp.getHSize() + hgap;
-                    }
-                } else {
-                    for (int k = layer.indexOf(node) + 1;
-                            k < layer.size(); k++) {
+                            // the optimum can be reached in any case by shifting nodes to the right
 
-                        SugiyamaNode<N> temp = layer.get(k);
-                        temp.setXCoordinate(offset);
-                        offset += temp.getHSize() + hgap;
+                            node.setXCoordinate(optimum);
+
+                            // make enough room to make it possible to shift the
+                            // current node to its optimum
+                            for (int k = j + 1; k < layer.size(); k++) {
+                                SugiyamaNode current = layer.get(k);
+
+                                int currentXCoordinate = current.getXCoordinate();
+                                int currentNodeSize = (int) current.getHSize() + hgap;
+
+                                if (currentXCoordinate >= max) {
+                                    break;  // consider all nodes in order and all constraints fulfilled
+                                } else {
+                                    current.setXCoordinate(max);
+                                    max += currentNodeSize + hgap;
+                                }
+                            }
+                        }
+
+                    } else { // there is a node with higher or equal priority than the current one in moving direction.
+
+                        /* try to move the movable nodes as close to the barrier
+                         * as possible in order to get the optimum position free.
+                         * therefor evaluate wether it is possible to reach optimum.
+                         * If it is not, push the nodes as much as possible together.
+                         * If it is, move only the nodes neccessary
+                         */
+
+                        // case 1: move left
+                        if (optimum < node.getXCoordinate()) {
+
+                            // check how much room the nodes need
+                            int minSpaceNeeded = hgap;
+                            for (int k = indexOfHighPrioNode; k < j; k++) {
+                                SugiyamaNode n = layer.get(k);
+                                minSpaceNeeded += (int) n.getHSize() + hgap;
+                            }
+
+                            // check wether optimum can be reached
+                            SugiyamaNode highPrioNode = layer.get(indexOfHighPrioNode);
+                            int maxPositionLeft = highPrioNode.getXCoordinate() +
+                                    (int) highPrioNode.getHSize() + hgap;
+
+                            if (optimum > maxPositionLeft + minSpaceNeeded) { // the optimum can be reached
+
+                                // since optimum can be reached, shift node to optimum
+                                node.setXCoordinate(optimum);
+
+                                // push nodes together as far as neccessary
+                                int position = optimum - hgap;
+                                for (int k = j - 1; k > indexOfHighPrioNode; k--) {
+                                    SugiyamaNode n = layer.get(k);
+
+                                    if (n.getXCoordinate() + (int) n.getHSize() <= position) {
+                                        break; // consider all nodes in order and contraints fulfilled
+                                    } else {
+
+                                        position -= (int) n.getHSize();
+                                        n.setXCoordinate(position);
+                                        position -= hgap;
+                                    }
+                                }
+
+                            } else if (optimum > maxPositionLeft) { // the optimum cannot be reached
+
+                                // simply push nodes together as much as possible
+                                int position = maxPositionLeft;
+                                for (int k = indexOfHighPrioNode + 1; k < j; k++) {
+                                    SugiyamaNode n = layer.get(k);
+                                    n.setXCoordinate(position);
+
+                                    position += (int) n.getHSize() + hgap;
+                                }
+
+                                // position is the next free coordinate closest to optimum
+                                node.setXCoordinate(position);
+                            }
+                        } else if (optimum > node.getXCoordinate()) { // case 2: move right
+
+                            // check how much room the nodes need
+                            int spaceNeeded = hgap;
+                            for (int k = indexOfHighPrioNode; k > j; k--) {
+                                SugiyamaNode n = layer.get(k);
+                                spaceNeeded += (int) n.getHSize() + hgap;
+                            }
+
+                            // check wether optimum can be reached
+                            SugiyamaNode highPrioNode = layer.get(indexOfHighPrioNode);
+                            int maxPositionRight = highPrioNode.getXCoordinate();
+
+                            if (optimum < maxPositionRight - spaceNeeded) { // optimum can be reached
+
+                                // push nodes as much together as needed
+                                int position = optimum + (int) node.getHSize() + hgap;
+                                for (int k = j + 1; k < indexOfHighPrioNode; k++) {
+
+                                    SugiyamaNode n = layer.get(k);
+
+                                    if (n.getXCoordinate() > position) {
+                                        break; // concider all nodes in order and all constaints fulfilled
+                                    } else {
+                                        n.setXCoordinate(position);
+                                        position += n.getHSize() + hgap;
+                                    }
+                                }
+                            } else if (optimum > maxPositionRight - spaceNeeded) { // optimum can not be reached
+
+                                // push nodes as much together as possible
+                                int position = maxPositionRight;
+                                for (int k = indexOfHighPrioNode - 1; k > j; k--) {
+                                    SugiyamaNode n = layer.get(k);
+                                    position -= n.getHSize();
+                                    n.setXCoordinate(position);
+                                    position -= hgap;
+                                }
+
+                                position -= node.getHSize();
+                                node.setXCoordinate(position);
+                            }
+                        }
                     }
                 }
             }
-            ensureNoOverlapping(layer);
         }
     }
 
+//    private void upAssignment() {
+//        for (int i = layers.size() - 1; i >= 0; i--) {
+//            ArrayList<SugiyamaNode<N>> layer = layers.get(i);
+//
+//            assignPriorities(layer, true);
+//
+//            // create a list of nodes in layer i sorted by priority
+//            ArrayList<SugiyamaNode> prioOrder = new ArrayList<SugiyamaNode>(layer);
+//            Collections.sort(prioOrder, new PriorityComparator());
+//
+//            for (int j = 0; j < prioOrder.size(); j++) {
+//                // calculate optimal position for a node
+//                SugiyamaNode<N> node = prioOrder.get(j);
+//                int optimum = 0;
+//                int maxPosition = 0;
+//
+//                if (node.getSuccessorList().size() != 0) {
+//                    for (SugiyamaNode<N> succ : node.getSuccessorList()) {
+//                        optimum += succ.getXCoordinate() + (int) succ.getHSize() / 2;
+//                    }
+//
+//                    optimum = optimum / node.getSuccessorList().size();
+//                    optimum -= (int) node.getHSize() / 2;
+//
+//                } else {
+//                    optimum = node.getXCoordinate();
+//                }
+//
+//                // determine the closest position to the optimum that can be achieved
+//                // regarding node sizes and desired gap. This is the new position
+//                // of the node
+//
+//                // step 1 : check wether there is a node with higher priority
+//                // right to the current node. If so, the position may not be moved
+//                // and its X position is a maximum for the position of the current node.
+//                int nodesBetween = 0;
+//                int indexOfHighPrioNode = -1;
+//                double nextNodeSize = 0;
+//                for (int k = layer.indexOf(node) + 1; k < layer.size(); k++) {
+//
+//                    // only nodes with lower priority can be shifted
+//                    if (node.getOrderingPriority() < layer.get(k).getOrderingPriority()) {
+//                        indexOfHighPrioNode = k;
+//                        break;
+//                    }
+//                    nodesBetween++;
+//                }
+//
+//                // since the order of node on a layer must not be changed,
+//                // any node between the current and a possible maximum position
+//                // must stay on a relative position to these two nodes.
+//                // this means, that if there are nodes in between, the maximum
+//                // X position for the current node is decreased further.
+//
+//                if (indexOfHighPrioNode > -1) {
+//
+//                    maxPosition = layer.get(indexOfHighPrioNode).getXCoordinate();
+//                    maxPosition -= hgap;
+//                    maxPosition -= node.getHSize();
+//
+//                    if (nodesBetween == 0) {
+//
+//                        // there must be enough room between the current node
+//                        // and the limitation node to regard all nodes which lie
+//                        // in between
+//
+//                        int currentNodeIndex = layer.indexOf(node);
+//
+//                        for (int k = 1; k <= nodesBetween; k++) {
+//                            maxPosition -= layer.get(currentNodeIndex + k).getHSize();
+//                            maxPosition -= hgap;
+//                        }
+//                    }
+//
+//                    nextNodeSize = layer.get(indexOfHighPrioNode).getHSize();
+//
+//                } else {
+//
+//                    // if there is no limitating node, the current node can
+//                    // be put anywhere
+//                    maxPosition = Integer.MAX_VALUE;
+//                }
+//
+//
+//
+//                if (maxPosition < optimum) {
+//                    node.setXCoordinate(maxPosition);
+//
+//                } else {
+//                    node.setXCoordinate(optimum);
+//                }
+//
+//                // shift all nodes right of the current and left of the
+//                // limitating node to a new Position where they don't overlap
+//
+//                int offset = node.getXCoordinate() + (int) node.getHSize() + hgap;
+//                if (indexOfHighPrioNode > -1) {
+//                    for (int k = layer.indexOf(node) + 1;
+//                            k < indexOfHighPrioNode; k++) {
+//
+//                        SugiyamaNode<N> temp = layer.get(k);
+//                        temp.setXCoordinate(offset);
+//                        offset += temp.getHSize() + hgap;
+//                    }
+//                } else {
+//                    for (int k = layer.indexOf(node) + 1;
+//                            k < layer.size(); k++) {
+//
+//                        SugiyamaNode<N> temp = layer.get(k);
+//                        temp.setXCoordinate(offset);
+//                        offset += temp.getHSize() + hgap;
+//                    }
+//                }
+//            }
+//            ensureNoOverlapping(layer);
+//        }
+//    }
     private void assignPriorities(ArrayList<SugiyamaNode<N>> layer, boolean up) {
 
         // assign priorities for each vertex on layer i
         // prioritiy is infinite if node is dummy, indegree else
 
-//        for (int i = 0; i < layer.size(); i++) {
-//            SugiyamaNode<N> temp = layer.get(i);
-//            if(temp.isDummy()) {
-//
-//                temp.setOrderingPriority(Integer.MAX_VALUE);
-//
-//            } else {
-//                temp.setOrderingPriority(temp.getPredecessorList().size() +
-//                        temp.getSuccessorList().size());
-//            }
-//
-//        }
 
         if (up) {
             for (int j = 0; j < layer.size(); j++) {
@@ -1479,58 +1766,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             first = second;
 
         }
-
-
-
-
-    }
-
-    private void fitGraphToViewport() {
-
-        int noLayers = layers.size();
-
-        int minX = Integer.MAX_VALUE;
-        int minY = layers.get(0).get(0).yCoordinate;
-
-        int maxX = Integer.MIN_VALUE;
-
-        int lastLayerSize = layers.get(noLayers - 1).size();
-        int maxY = layers.get(noLayers - 1).get(lastLayerSize).yCoordinate;
-
-        for (int i = 0; i < layers.size(); i++) {
-            SugiyamaNode n = layers.get(i).get(0);
-
-            if (n.xCoordinate < minX) {
-                minX = n.xCoordinate;
-            }
-        }
-
-        for (int i = 0; i < layers.size(); i++) {
-            int layerSize = layers.get(i).size();
-            SugiyamaNode n = layers.get(i).get(layerSize);
-
-            if (n.xCoordinate > maxX) {
-                maxX = n.xCoordinate;
-            }
-        }
-
-        Rectangle graphRectangle = new Rectangle(minX, minY, maxX - minX, maxY - minY);
-        Rectangle viewArea = scene.getView().getBounds();
-
-        if (graphRectangle.height < viewArea.height && graphRectangle.width < viewArea.width) {
-        } else if (graphRectangle.height < viewArea.height) {
-        } else if (graphRectangle.width < viewArea.width) {
-        } else {
-            int xOffset = graphRectangle.x - 20;
-
-            List<Widget> children = scene.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                Widget w = children.get(i);
-                Point currentLocation = w.getPreferredLocation();
-                w.setPreferredLocation(new Point(currentLocation.x - xOffset,
-                        currentLocation.y));
-            }
-        }
     }
 
     /**
@@ -1557,89 +1792,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             return node2.getOrderingPriority() - node1.getOrderingPriority();
 
         }
-    }
-
-    /**
-     *
-     */
-    private void assignCoordinates2() {
-
-        // Using a heuristic found in
-        // "Fast and Simple Horizontal Coordinate Assignment"
-        //          by Ulrik Brandes and Boris Köpf
-        //       Department of Computer & Information Science,
-        // University of Konstanz, Box D 188, 78457 Konstanz, Germany
-        // {Ulrik.Brandes|Boris.Koepf}@uni-konstanz.de
-        // not yet implemented !!!!
-
-        /*
-         * Simple layout which puts nodes in a left alignment for each layer
-         */
-
-
-        for (ArrayList<SugiyamaNode<N>> arrayList : layers) {
-
-            // how much is a layer already filled
-            int fillFactor = 5;
-
-            for (SugiyamaNode<N> sugiyamaNode : arrayList) {
-
-                int yCoordinate = sugiyamaNode.getLayer() * this.vgap;
-
-                if (sugiyamaNode.getValue() != null) {
-                    Widget w = scene.findWidget(sugiyamaNode.getValue());
-
-                    // calculate widget location from layer, widgetSize and gap
-                    // between layers and nodes
-
-                    w.setPreferredLocation(new Point(fillFactor, yCoordinate));
-                }
-
-                sugiyamaNode.setYCoordinate(yCoordinate);
-                sugiyamaNode.setXCoordinate(fillFactor);
-
-                fillFactor +=
-                        hgap + sugiyamaNode.getHSize();
-            }
-
-        }
-
-        // Add a control point trail to each long edge, so that these Edges
-        // follow the positions of the Dummy Nodes that replaced the edge previously
-        for (Object key : longEdgeMapping.keySet()) {
-            Widget w = scene.findWidget(edgeMapping.get(key).getValue());
-
-            if (w instanceof ConnectionWidget) {
-                ConnectionWidget cw = (ConnectionWidget) w;
-                ArrayList<Point> controlPoints = new ArrayList<Point>();
-                ArrayList<SugiyamaNode<N>> dummyTrail =
-                        dummyMapping.get(longEdgeMapping.get(key));
-
-                for (SugiyamaNode<N> sugiyamaNode : dummyTrail) {
-
-                    controlPoints.add(new Point(sugiyamaNode.getXCoordinate() + 20,
-                            sugiyamaNode.getYCoordinate()));
-                }
-
-                // These two lines of code are a hack. Since the first and last
-                //controlpoint is not recognized by the free router, I add them
-                // twice
-                controlPoints.add(controlPoints.get(controlPoints.size() - 1));
-                controlPoints.add(0, controlPoints.get(0));
-
-                cw.setRouter(RouterFactory.createFreeRouter());
-                cw.setControlPoints(controlPoints, false);
-                System.out.println(controlPoints.size() + " controlpoints added for " +
-                        edgeMapping.get(key).getFrom().toString() + " -> " +
-                        edgeMapping.get(key).getTo().toString());
-                cw.setLineColor(Color.RED);
-            }
-
-        }
-
-        scene.validate();
-        scene.repaint();
-        scene.revalidate();
     }
 
 //==========================================================================
@@ -1884,7 +2036,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      */
     private class TopologyComparator implements Comparator {
 
-        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode) || !(o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Can not compare " + o1.getClass() +
@@ -1904,7 +2055,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
     private class BarycenterComparator implements Comparator {
 
-        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode) || !(o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Can not compare " + o1.getClass() +
