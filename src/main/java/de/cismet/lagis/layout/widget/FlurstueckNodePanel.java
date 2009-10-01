@@ -390,27 +390,24 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             String tooltipText = "<html>";
 
             for (Vertrag vertrag : flurstueck.getVertraege()) {
-                tooltipText += "<p>";
-
+                
                 String aktenZeichen = vertrag.getAktenzeichen();
 
                 if (aktenZeichen != null && !aktenZeichen.isEmpty()) {
-                    tooltipText += "Aktenzeichen: " + vertrag.getAktenzeichen() + " <br />";
+                    tooltipText += "<b>Aktenzeichen:</b> " + vertrag.getAktenzeichen() + " <br />";
                 }
 
                 String partner = vertrag.getVertragspartner();
 
                 if (partner != null && !partner.isEmpty()) {
-                    tooltipText += "Vertragspartner:  <br />" + vertrag.getVertragspartner() + "<br />";
+                    tooltipText += "<b>Vertragspartner:</b>  <br />" + vertrag.getVertragspartner() + "<br />";
                 }
 
                 String bemerkung = vertrag.getBemerkung();
 
                 if (bemerkung != null && !bemerkung.isEmpty()) {
-                    tooltipText += "Bemerkung:  <br />" + vertrag.getBemerkung() + "<br />";
+                    tooltipText += "<b>Bemerkung:</b>  <br />" + vertrag.getBemerkung() + "<br />";
                 }
-
-                tooltipText += "</p>";
             }
 
             tooltipText += "</html>";
@@ -461,21 +458,21 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
                         tooltipText += "<b>" + art + " Nummer " + nummer + "</b>" + "<br>";
 
                         if (beschreibung != null && !beschreibung.equals("")) {
-                            tooltipText += "<b>Beschreibung:</b> " + beschreibung + "<br>";
+                            tooltipText += "<b>Art des Rechts:</b> " + beschreibung + "<br>";
                         }
 
                         if (bemerkung != null && !bemerkung.equals("")) {
-                            tooltipText += "Bemerkung: <br>" + bemerkung + "<br>";
+                            tooltipText += "<b>Bemerkung:</b> <br>" + bemerkung + "<br>";
                         }
 
                         if (reBe.getDatumEintragung() != null) {
                             String startDate = formatter.format(reBe.getDatumEintragung());
-                            tooltipText += "Datum Eintragung: " + startDate + "<br>";
+                            tooltipText += "<b>Datum Eintragung:</b> " + startDate + "<br>";
                         }
 
                         if (reBe.getDatumLoeschung() != null) {
                             String endDate = formatter.format(reBe.getDatumLoeschung());
-                            tooltipText += "Datum Löschung: " + endDate + "<br>";
+                            tooltipText += "<b>Datum Löschung:</b> " + endDate + "<br>";
                         }
                         tooltipText += "<br>";
                     }
@@ -513,7 +510,7 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
                         tooltipText += "<b>" + art + " Nummer " + nummer + "</b>" + "<br>";
 
                         if (beschreibung != null && !beschreibung.equals("")) {
-                            tooltipText += "<b>Beschreibung:</b> " + beschreibung + "<br>";
+                            tooltipText += "<b>Art des Rechts:</b> " + beschreibung + "<br>";
                         }
 
                         if (bemerkung != null && !bemerkung.equals("")) {
