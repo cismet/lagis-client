@@ -201,8 +201,8 @@ public class FlurstueckGeometriePanel extends JPanel {
                 Graphics2D shadowGraphics = shadow.createGraphics();
                 shadowGraphics.setColor(Color.BLACK);
                 shadowGraphics.setComposite(new ColorComposite(0.5f));
-                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 2);
-                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 9);
+                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 4);
+                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 8);
 
                 GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
                 shadow = blurFilter.filter(shadow, null);
