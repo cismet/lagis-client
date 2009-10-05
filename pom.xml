@@ -18,9 +18,9 @@
     <description>!!! description pending !!!</description>
 
     <dependencies>
-        <dependency>
-            <groupId>de.cismet.cids.navigator</groupId>
-            <artifactId>cids-navigator</artifactId>
+         <dependency>
+            <groupId>de.cismet.cids.navigator.plugin</groupId>
+            <artifactId>tim-easy</artifactId>
             <version>1.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>

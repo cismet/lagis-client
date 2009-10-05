@@ -78,6 +78,7 @@ import org.jdom.Element;
  * @author Puhl
  */
 public class LagisBroker implements FlurstueckChangeObserver, Configurable {
+
    
     HighlighterFactory highlighterFac = new HighlighterFactory();
     private static LagisBroker broker = null;
@@ -151,6 +152,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private int verdisCrossoverPort=-1;
     private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
+    private double kassenzeichenBuffer=-0.5;
 
     private LagisBroker() {
         execService = Executors.newCachedThreadPool();
@@ -1286,4 +1288,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     }
 
 
+    public  void setKassenzeichenBuffer(double kassenzeichenBuffer) {
+        this.kassenzeichenBuffer=kassenzeichenBuffer;
+    }
+
+    public double getKassenzeichenBuffer() {
+        return kassenzeichenBuffer;
+    }        
 }

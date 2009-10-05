@@ -425,9 +425,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             if (context != null && context.getEnvironment() != null && this.context.getEnvironment().isProgressObservable()) {
                 this.context.getEnvironment().getProgressObserver().setProgress(200, "Initialisieren der graphischen Oberfläche...");
             }
-            initComponents();
-            //ToDo enable again
-            btnVerdisCrossover.setEnabled(false);
+            initComponents();            
             initCismetCommonsComponents();
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                 btnOpenWizard.setEnabled(true);
@@ -2419,7 +2417,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         final JDialog dialog = new JDialog(this, "", true);
         final VerdisCrossoverPanel vcp = new VerdisCrossoverPanel(LagisBroker.getInstance().getVerdisCrossoverPort());
         dialog.add(vcp);
-        dialog.setSize(300,200);
+        dialog.pack();
         dialog.setIconImage(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/verdis.png")).getImage());
         dialog.setTitle("Kassenzeichen in VerdIS öffnen.");
         dialog.setLocationRelativeTo(this);
@@ -2761,6 +2759,13 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 LagisBroker.getInstance().setVerdisServer(verdisServer);
             } catch (Exception ex) {
                 log.warn("Crossover: Error beim setzen des verdis servers", ex);
+            }
+            try{
+                Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
+                final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText("KassenzeichenBuffer"));
+                LagisBroker.getInstance().setKassenzeichenBuffer(kassenzeichenBuffer);
+            } catch(Exception ex){
+                log.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage",ex);
             }
 //            try {
 //                log.debug("Userdomain: " + login.getAttribute("userdomainname").getValue());
