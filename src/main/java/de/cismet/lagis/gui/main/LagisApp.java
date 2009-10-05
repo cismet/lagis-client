@@ -255,6 +255,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private boolean clipboardPasted = true; //wegen des ersten mals
     private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
     private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
+
+    
     //FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel() {
 
@@ -3317,6 +3319,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
             usernames.addUserName((login.getUserName()));
             usernames.saveUserNames();
             //Added for RM Plugin functionalty 22.07.2007 Sebastian Puhl
+            LagisBroker.getInstance().setLoggedIn(true);
             log.debug("Login erfolgreich");
             new LagisApp();
             //loginWasSuccessful = true;
@@ -3454,5 +3457,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
 
     public void stateChanged(ChangeEvent e) {
     }
+
+    
 }
 

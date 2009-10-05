@@ -79,7 +79,7 @@ import org.jdom.Element;
  */
 public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
-   
+   private boolean loggedIn = false;
     HighlighterFactory highlighterFac = new HighlighterFactory();
     private static LagisBroker broker = null;
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LagisBroker.class);
@@ -1294,5 +1294,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
     public double getKassenzeichenBuffer() {
         return kassenzeichenBuffer;
-    }        
+    }
+
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        this.loggedIn = loggedIn;
+    }
 }

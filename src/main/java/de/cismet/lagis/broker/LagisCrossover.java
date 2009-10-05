@@ -36,6 +36,7 @@ public class LagisCrossover {
             @QueryParam("flur") int flur,
             @QueryParam("zaehler") int zaehler,
             @QueryParam("nenner") int nenner) {
+        if (LagisBroker.getInstance().isLoggedIn()) {
         try {
             log.debug("Crossover: Rest Method load flurstueck called with params: " + gemarkung + " " + flur + " " + zaehler + "/" + nenner);
             FlurstueckSchluessel key = new FlurstueckSchluessel();
@@ -62,8 +63,14 @@ public class LagisCrossover {
             }
         } catch (Exception ex) {
             log.error("Failure during loadFlurstueck: ", ex);
+             return "<html>Fehler beim laden des Kassenzeichens: " + ex.getMessage() + "</html>";
+            }
+            return "<html>Gehe zu Flurstueck: </html>";
+        } else {
+            final String notLoggedIn = "Flurstück kann nicht geladen werden. Benutzer ist noch nicht eingeloggt.";
+            log.debug(notLoggedIn);
+            return "<html>" + notLoggedIn + "</html>";
         }
-        return "<html>Test</html>";
     }
 
     @GET
