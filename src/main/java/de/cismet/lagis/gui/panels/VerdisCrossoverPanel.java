@@ -32,6 +32,8 @@ import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -42,7 +44,7 @@ import org.jdesktop.swingx.JXTable;
  *
  * @author spuhl
  */
-public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseListener {
+public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseListener,ListSelectionListener {
 
     //ToDo defaults für Panel ?
     private static final Logger log = org.apache.log4j.Logger.getLogger(VerdisCrossoverPanel.class);
@@ -71,6 +73,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         tblKassenzeichen.setModel(tableModel);
         tblKassenzeichen.addMouseListener(this);
         tblKassenzeichen.addMouseListener(new PopupListener());
+        tblKassenzeichen.getSelectionModel().addListSelectionListener(this);
         this.verdisCrossoverPort = verdisCrossoverPort;
         pgbProgress.setIndeterminate(true);
         //this.add(panContentProgress, BorderLayout.CENTER);
@@ -97,6 +100,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
         panControl = new javax.swing.JPanel();
         btnClose = new javax.swing.JButton();
+        btnLoadSelectedKassenzeichen = new javax.swing.JButton();
         panAll = new javax.swing.JPanel();
         panContentProgress = new javax.swing.JPanel();
         pgbProgress = new javax.swing.JProgressBar();
@@ -104,6 +108,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         jLabel2 = new javax.swing.JLabel();
         panContentMessage = new javax.swing.JPanel();
         lblMessage = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         panContent = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblKassenzeichen = new JXTable();
@@ -120,22 +125,38 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
             }
         });
 
+        btnLoadSelectedKassenzeichen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/postion.png"))); // NOI18N
+        btnLoadSelectedKassenzeichen.setText(org.openide.util.NbBundle.getMessage(VerdisCrossoverPanel.class, "VerdisCrossoverPanel.btnLoadSelectedKassenzeichen.text")); // NOI18N
+        btnLoadSelectedKassenzeichen.setToolTipText(org.openide.util.NbBundle.getMessage(VerdisCrossoverPanel.class, "VerdisCrossoverPanel.btnLoadSelectedKassenzeichen.toolTipText")); // NOI18N
+        btnLoadSelectedKassenzeichen.setEnabled(false);
+        btnLoadSelectedKassenzeichen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadSelectedKassenzeichenActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panControlLayout = new javax.swing.GroupLayout(panControl);
         panControl.setLayout(panControlLayout);
         panControlLayout.setHorizontalGroup(
             panControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panControlLayout.createSequentialGroup()
-                .addContainerGap(408, Short.MAX_VALUE)
-                .addComponent(btnClose, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(378, Short.MAX_VALUE)
+                .addComponent(btnLoadSelectedKassenzeichen)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnClose)
                 .addContainerGap())
         );
         panControlLayout.setVerticalGroup(
             panControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panControlLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btnClose)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addGroup(panControlLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnClose)
+                    .addComponent(btnLoadSelectedKassenzeichen))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        panControlLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnClose, btnLoadSelectedKassenzeichen});
 
         panAll.setPreferredSize(new java.awt.Dimension(400, 251));
         panAll.setLayout(new java.awt.CardLayout());
@@ -162,7 +183,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         panContentProgressLayout.setVerticalGroup(
             panContentProgressLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panContentProgressLayout.createSequentialGroup()
-                .addContainerGap(48, Short.MAX_VALUE)
+                .addContainerGap(49, Short.MAX_VALUE)
                 .addGroup(panContentProgressLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panContentProgressLayout.createSequentialGroup()
                         .addComponent(jLabel2)
@@ -179,20 +200,27 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
         lblMessage.setText(org.openide.util.NbBundle.getMessage(VerdisCrossoverPanel.class, "VerdisCrossoverPanel.lblMessage.text")); // NOI18N
 
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/warn.png"))); // NOI18N
+        jLabel3.setText(org.openide.util.NbBundle.getMessage(VerdisCrossoverPanel.class, "VerdisCrossoverPanel.jLabel3.text")); // NOI18N
+
         javax.swing.GroupLayout panContentMessageLayout = new javax.swing.GroupLayout(panContentMessage);
         panContentMessage.setLayout(panContentMessageLayout);
         panContentMessageLayout.setHorizontalGroup(
             panContentMessageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panContentMessageLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblMessage, javax.swing.GroupLayout.DEFAULT_SIZE, 476, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panContentMessageLayout.createSequentialGroup()
+                .addContainerGap(28, Short.MAX_VALUE)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lblMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         panContentMessageLayout.setVerticalGroup(
             panContentMessageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panContentMessageLayout.createSequentialGroup()
-                .addContainerGap(56, Short.MAX_VALUE)
-                .addComponent(lblMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(49, Short.MAX_VALUE)
+                .addGroup(panContentMessageLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -224,7 +252,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
             panContentLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panContentLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 103, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -240,7 +268,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(panAll, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                .addComponent(panAll, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panControl, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -249,10 +277,17 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
         closeDialog();
 }//GEN-LAST:event_btnCloseActionPerformed
+
+    private void btnLoadSelectedKassenzeichenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadSelectedKassenzeichenActionPerformed
+       loadSelectedKassenzeichen();
+    }//GEN-LAST:event_btnLoadSelectedKassenzeichenActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClose;
+    private javax.swing.JButton btnLoadSelectedKassenzeichen;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblMessage;
     private javax.swing.JPanel panAll;
@@ -279,7 +314,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
             public void actionPerformed(ActionEvent e) {
                 log.debug("action performed");
-                switchToSelectedKassenzeichen();
+                loadSelectedKassenzeichen();
             }
         });
         switchToKassenzeichenPopup.add(switchToKassenZeichenItem);
@@ -320,7 +355,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         final Object source = e.getSource();
         if (source instanceof JXTable) {
             if (e.getClickCount() > 1) {
-                switchToSelectedKassenzeichen();
+                loadSelectedKassenzeichen();
             } else {
                 log.debug("Crossover: Kein Multiclick");
             }
@@ -352,7 +387,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                             try {
                                 get();
                             } catch (Exception ex) {
-                                log.error("Fehler beim öffnen des Kassenzeichens");
+                                log.error("Fehler beim öffnen des Kassenzeichens",ex);
                                 //ToDo message to user;
                                 }
                         }
@@ -383,7 +418,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
     public void mouseReleased(MouseEvent e) {
     }
 
-    private void switchToSelectedKassenzeichen() {
+    private void loadSelectedKassenzeichen() {
         try {
             final int selectedRow = tblKassenzeichen.getSelectedRow();
             if (selectedRow != -1) {
@@ -402,7 +437,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                 log.debug("Crossover: Keine Tabellenzeile selektiert.");
             }
         } catch (Exception ex) {
-            log.error("Fehler beim wechseln zu selektiertem Kasssenzeichen", ex);
+            log.error("Fehler beim laden des selektierten Kasssenzeichens", ex);
         }
     }
 
@@ -543,4 +578,14 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
             //((JDialog) getParent().getParent().getParent().getParent()).repaint();
         }
     }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+       if(tblKassenzeichen.getSelectedRowCount() >0){
+                btnLoadSelectedKassenzeichen.setEnabled(true);
+            }else {
+                btnLoadSelectedKassenzeichen.setEnabled(false);
+            }
+    }
+
 }

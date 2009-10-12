@@ -19,7 +19,9 @@ import Sirius.navigator.plugin.interfaces.PluginSupport;
 import Sirius.navigator.plugin.interfaces.PluginUI;
 import bean.KassenzeichenFacadeRemote;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
+import com.sun.jersey.api.container.ContainerFactory;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 import com.vividsolutions.jts.geom.Geometry;
 import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.features.Feature;
@@ -36,6 +38,7 @@ import de.cismet.cismap.commons.wfsforms.WFSFormFactory;
 import de.cismet.ee.EJBAccessor;
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
+import de.cismet.lagis.broker.LagisCrossover;
 import de.cismet.lagis.config.UserDependingConfigurationManager;
 import de.cismet.lagis.gui.panels.AktenzeichenSearch;
 import de.cismet.lagis.gui.panels.HistoryPanel;
@@ -60,7 +63,6 @@ import de.cismet.lagis.validation.ValidationStateChangedListener;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.wizard.ContinuationWizard;
 import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.tools.StaticDecimalTools;
 
@@ -69,7 +71,6 @@ import de.cismet.tools.configuration.NoWriteError;
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
-import entity.KassenzeichenEntity;
 import java.applet.AppletContext;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -97,6 +98,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,7 +112,6 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
-import javax.naming.NamingException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -150,11 +151,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.auth.DefaultUserNameStore;
 import org.jdesktop.swingx.auth.LoginService;
 import org.jdom.Element;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.Context;
-import org.mortbay.jetty.servlet.ServletHolder;
 import org.netbeans.api.wizard.WizardDisplayer;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -255,8 +252,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private boolean clipboardPasted = true; //wegen des ersten mals
     private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
     private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
-
-    
     //FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel() {
 
@@ -427,7 +422,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             if (context != null && context.getEnvironment() != null && this.context.getEnvironment().isProgressObservable()) {
                 this.context.getEnvironment().getProgressObserver().setProgress(200, "Initialisieren der graphischen Oberfläche...");
             }
-            initComponents();            
+            initComponents();
             initCismetCommonsComponents();
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                 btnOpenWizard.setEnabled(true);
@@ -2434,7 +2429,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[]) {        
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
@@ -2762,12 +2757,12 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
             } catch (Exception ex) {
                 log.warn("Crossover: Error beim setzen des verdis servers", ex);
             }
-            try{
+            try {
                 Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText("KassenzeichenBuffer"));
                 LagisBroker.getInstance().setKassenzeichenBuffer(kassenzeichenBuffer);
-            } catch(Exception ex){
-                log.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage",ex);
+            } catch (Exception ex) {
+                log.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
             }
 //            try {
 //                log.debug("Userdomain: " + login.getAttribute("userdomainname").getValue());
@@ -2961,17 +2956,17 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                     log.debug("Crossover: Server started at port: " + defaultServerPort);
                 } catch (Exception ex1) {
                     log.error("Crossover: Failed to initialize Crossover server on defaultport: " + defaultServerPort + ". No Server is started");
+                    btnVerdisCrossover.setEnabled(false);
                 }
             }
         }
     }
 
-    private void initCrossoverServerImpl(int crossoverServerPort) throws Exception {
-        ServletHolder sh = new ServletHolder(ServletContainer.class);
-        sh.setInitParameter("com.sun.jersey.config.property.packages", "de.cismet.lagis.broker");
-        Server server = new Server(crossoverServerPort);
-        Context context = new Context(server, "/", Context.SESSIONS);
-        context.addServlet(sh, "/*");
+    private void initCrossoverServerImpl(int crossoverServerPort) throws Exception {        
+        HttpHandler handler = ContainerFactory.createContainer(HttpHandler.class,LagisCrossover.class);        
+        HttpServer server = HttpServer.create(new InetSocketAddress(crossoverServerPort), 0);
+        server.createContext("/",handler);
+        server.setExecutor(null);        
         server.start();
     }
 
@@ -3457,7 +3452,5 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
 
     public void stateChanged(ChangeEvent e) {
     }
-
-    
 }
 

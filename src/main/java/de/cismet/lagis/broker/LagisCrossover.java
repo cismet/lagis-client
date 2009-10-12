@@ -6,13 +6,12 @@ package de.cismet.lagis.broker;
 
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
-import java.net.URL;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 /**
  *
@@ -26,6 +25,9 @@ public class LagisCrossover {
     public LagisCrossover() {
     }
 
+
+    @Context private UriInfo context;
+
     //ToDo crossover secure from access of not localhost clients
     //example query http://localhost:9000/lagis/loadFlurstueck?gemarkung=Barmen&flur=1&zaehler=100&nenner=0
     @GET
@@ -36,6 +38,16 @@ public class LagisCrossover {
             @QueryParam("flur") int flur,
             @QueryParam("zaehler") int zaehler,
             @QueryParam("nenner") int nenner) {
+        try{
+           final String host = context.getBaseUri().getHost();
+           if(!host.equals("localhost")&&!host.equals("127.0.0.1")){
+                log.info("Keine Request von remote rechnern möglich: "+host);
+                return "<html>Es können nur Requests vom lokalen Rechner abgesetzt werden. Es kann nicht zum gewünschten Flurstück gewechselt werden</html>";
+           }
+        }catch(Exception ex){
+            log.error("Fehler beim bestimmen des Hosts Request nicht möglich");
+            return "<html>Der Host konnte nicht bestimmt werden. Es kann nicht zum gewünschten Flurstück gewechselt werden</html>";
+        }
         if (LagisBroker.getInstance().isLoggedIn()) {
         try {
             log.debug("Crossover: Rest Method load flurstueck called with params: " + gemarkung + " " + flur + " " + zaehler + "/" + nenner);
