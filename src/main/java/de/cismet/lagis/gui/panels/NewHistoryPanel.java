@@ -203,6 +203,11 @@ public class NewHistoryPanel extends AbstractWidget
         graphDepthPanel.setLayout(new java.awt.GridBagLayout());
 
         flurstueckChoserCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Alle Flurstücke", "Nur Nachfolger", "Nur Vorgänger" }));
+        flurstueckChoserCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                flurstueckChoserCBActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -212,12 +217,22 @@ public class NewHistoryPanel extends AbstractWidget
         graphDepthPanel.add(flurstueckChoserCB, gridBagConstraints);
 
         depthChoserCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Direkte Vorgänger/Nachfolger", "Vollständig", "Begrenzte Tiefe" }));
+        depthChoserCB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                depthChoserCBActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         graphDepthPanel.add(depthChoserCB, gridBagConstraints);
 
         depthSP.setModel(new javax.swing.SpinnerNumberModel());
+        depthSP.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                depthSPStateChanged(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         graphDepthPanel.add(depthSP, gridBagConstraints);
@@ -361,6 +376,21 @@ public class NewHistoryPanel extends AbstractWidget
             depthSP.setEnabled(true);
         }
     }//GEN-LAST:event_holdHistoryCHBActionPerformed
+
+    private void depthChoserCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_depthChoserCBActionPerformed
+        if(currentFlurstueck != null)
+            updateThread.notifyThread(currentFlurstueck);
+    }//GEN-LAST:event_depthChoserCBActionPerformed
+
+    private void flurstueckChoserCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flurstueckChoserCBActionPerformed
+        if(currentFlurstueck != null)
+            updateThread.notifyThread(currentFlurstueck);
+    }//GEN-LAST:event_flurstueckChoserCBActionPerformed
+
+    private void depthSPStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_depthSPStateChanged
+        if(currentFlurstueck != null && ((String)depthChoserCB.getSelectedItem()).equals("Begrenzte Tiefe"))
+            updateThread.notifyThread(currentFlurstueck);
+    }//GEN-LAST:event_depthSPStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel creationDateInfoLabel;
