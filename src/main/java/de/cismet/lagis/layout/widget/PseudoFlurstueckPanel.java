@@ -93,8 +93,4 @@ public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
 
     }
 
-    @Override
-    public void setSelected(boolean selection) {
-
-    }
 }

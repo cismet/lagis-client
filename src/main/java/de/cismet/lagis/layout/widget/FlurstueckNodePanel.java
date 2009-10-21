@@ -589,24 +589,4 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
         mapPanel.setPreferredSize(new Dimension(100, 100));
         mainPanel.add(mapPanel, BorderLayout.CENTER);
     }
-
-    @Override
-    public void setSelected(boolean selection) {
-        log.debug("Selection of node is " + selection);
-        coolPanel.setSelected(selection);
-
-        Runnable painter = new Runnable() {
-
-            @Override
-            public void run() {
-                FlurstueckNodePanel.this.getParent().getParent().repaint();
-            }
-        };
-
-        if (SwingUtilities.isEventDispatchThread()) {
-            painter.run();
-        } else {
-            SwingUtilities.invokeLater(painter);
-        }
-    }
 }

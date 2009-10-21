@@ -42,7 +42,4 @@ public abstract class AbstractFlurstueckNodePanel extends JPanel {
         return flurstueck;
     }
 
-
-    public abstract void setSelected(boolean selection);
-
 }
