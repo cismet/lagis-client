@@ -13,9 +13,6 @@ import de.cismet.lagisEE.entity.core.Vertrag;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.text.FieldPosition;
-import java.text.ParsePosition;
-import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.FlowLayout;
@@ -34,7 +31,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
-import javax.swing.text.DateFormatter;
 import org.apache.log4j.Logger;
 
 /**
@@ -99,8 +95,9 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             @Override
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
-                JToolTip tip = new PureCoolToolTip(new ImageIcon(getClass().
-                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
+                JToolTip tip = new PureCoolToolTip();
+//                new ImageIcon(getClass().
+//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -340,8 +337,9 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             @Override
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
-                JToolTip tip = new PureCoolToolTip(new ImageIcon(getClass().
-                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
+                JToolTip tip = new PureCoolToolTip();
+//                        new ImageIcon(getClass().
+//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -378,8 +376,9 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             @Override
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
-                JToolTip tip = new PureCoolToolTip(new ImageIcon(getClass().
-                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
+                JToolTip tip = new PureCoolToolTip();
+//                new ImageIcon(getClass().
+//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -437,8 +436,9 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             @Override
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
-                JToolTip tip = new PureCoolToolTip(new ImageIcon(getClass().
-                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
+                JToolTip tip = new PureCoolToolTip();
+//                        new ImageIcon(getClass().
+//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -489,8 +489,9 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             @Override
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
-                JToolTip tip = new PureCoolToolTip(new ImageIcon(getClass().
-                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
+                JToolTip tip = new PureCoolToolTip();
+//                new ImageIcon(getClass().
+//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
