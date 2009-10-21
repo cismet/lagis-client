@@ -4,17 +4,23 @@
  */
 package de.cismet.lagis.layout.widget;
 
+import com.jhlabs.composite.ColorComposite;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JToolTip;
-import javax.swing.SwingUtilities;
-import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.ToolTipUI;
+import org.jdesktop.swingx.image.GaussianBlurFilter;
 
 /**
  * <p>
@@ -38,192 +44,113 @@ return tip;
  *
  * @author mbrill
  */
-public class PureCoolToolTipUI extends ComponentUI {
+public class PureCoolToolTipUI extends ToolTipUI {
 
-    private Color backgroundColor = new Color(0, 0, 0, 80);
-    private Color colorGlossy = new Color(255, 255, 255, 255);
-    private Image tooltipIcon = null;
-    private int height = 5;
-    private int width = 5;
-    int textOffsetY = 25;
-    int textOffset = 3;
-    int iconOffset = 5;
+    private JToolTip tip;
+    private Color backgroundColor = new Color(0, 0, 0, 120);
+    private Color clearColor = new Color(0, 0, 0, 255);
+    private ImageIcon tooltipIcon = null;
+    private int textOffsetY = 25;
+    private int textOffsetBottom = 6;
+    private int offsetTop = 10;
+
+    private int iconOffsetTop = 8;
+    private int iconOffsetRight = 8;
+    private JLabel offscreenLabel;
 
     public PureCoolToolTipUI(final ImageIcon tooltipIcon) {
         if (tooltipIcon != null) {
-            this.tooltipIcon = tooltipIcon.getImage();
+            this.tooltipIcon = tooltipIcon;
+            offsetTop += tooltipIcon.getIconHeight() + iconOffsetTop;
         }
+
+        offscreenLabel = new JLabel();
+        offscreenLabel.setForeground(Color.WHITE);
+        offscreenLabel.setOpaque(false);
 
     }
 
     @Override
     public void paint(final Graphics g, final JComponent c) {
 
+        if (c instanceof JToolTip) {
+            tip = (JToolTip) c;
 
-        String tipText = ((JToolTip) c).getTipText();
-        final FontMetrics metrics = c.getFontMetrics(c.getFont());
-        int metricsHeight = metrics.getHeight();
-        int textHeight = 0;
+            offscreenLabel.setText(tip.getTipText());
 
-        if (tipText == null) {
-            tipText = "";
+
+            offscreenLabel.setBorder(BorderFactory.createEmptyBorder(offsetTop,
+                    textOffsetY, textOffsetBottom, textOffsetY));
+
+            JPanel pan = new JPanel();
+            pan.setBackground(clearColor);
+            pan.setForeground(clearColor);
+            pan.setOpaque(false);
+            pan.setLayout(new BorderLayout());
+            pan.add(offscreenLabel, BorderLayout.CENTER);
+            pan.setSize(offscreenLabel.getPreferredSize());
+            pan.doLayout();
+
+            offscreenLabel.paint(g);
         }
-
-        String[] splitTipText = tipText.split("<\\s*/?\\s*br\\s*/?\\s*>");
-
-        g.setColor(c.getForeground());
-
-        if (tooltipIcon != null) {
-
-            textHeight += tooltipIcon.getHeight(c) + textOffsetY + iconOffset;
-
-            for (int i = 0; i < splitTipText.length; i++) {
-
-                String current = splitTipText[i];
-                current.trim();
-                if (current.startsWith("<html>")) {
-                    current = current.substring(current.indexOf("<html>") + 6);
-                    splitTipText[i] = current;
-                }
-
-                if (current.endsWith("</html>")) {
-                    current = current.substring(0, current.indexOf("</html>"));
-                    splitTipText[i] = current;
-                }
-
-                if (splitTipText[i].matches(".*<\\s*b\\s*>.*") &&
-                        splitTipText[i].matches(".*<\\s*/?\\s*b\\s*>.*")) {
-
-                    int boldStart = splitTipText[i].indexOf("<b>");
-                    int boldEnd = splitTipText[i].indexOf("</b>");
-                    String boldText = splitTipText[i].substring(boldStart + 3, boldEnd);
-                    String beforeBold = splitTipText[i].substring(0, boldStart);
-                    String afterBold = splitTipText[i].substring(boldEnd + 4, splitTipText[i].length());
-
-                    int lineSize = 3;
-
-                    g.drawString(beforeBold, lineSize, textHeight);
-
-                    lineSize += SwingUtilities.computeStringWidth(metrics, beforeBold) + 2;
-                    Font currentFont = g.getFont();
-                    g.setFont(new Font(currentFont.getName(), Font.BOLD, currentFont.getSize()));
-                    g.drawString(boldText, lineSize, textHeight);
-
-                    lineSize += SwingUtilities.computeStringWidth(metrics, boldText) + 8;
-                    g.setFont(currentFont);
-                    g.drawString(afterBold, lineSize, textHeight);
-
-                    lineSize += SwingUtilities.computeStringWidth(metrics, afterBold);
-
-                    width = lineSize;
-
-                } else {
-
-                    g.drawString(splitTipText[i], 3, textHeight);
-
-                    int lineWidth = SwingUtilities.computeStringWidth(metrics, splitTipText[i]);
-                    if (lineWidth > width) {
-                        width = lineWidth;
-                    }
-
-                }
-
-                textHeight += metricsHeight + 3;
-            }
-
-            g.drawImage(tooltipIcon, width - tooltipIcon.getWidth(c), iconOffset, c);
-
-        } else {
-            textHeight += 3;
-
-            for (int i = 0; i < splitTipText.length; i++) {
-
-                String current = splitTipText[i];
-                current.trim();
-                if (current.startsWith("<html>")) {
-                    current = current.substring(current.indexOf("<html>") + 6);
-                    splitTipText[i] = current;
-                }
-
-                if (current.endsWith("</html>")) {
-                    current = current.substring(0, current.indexOf("</html>"));
-                    splitTipText[i] = current;
-                }
-
-                g.drawString(splitTipText[i], 3, textHeight);
-                textHeight += metricsHeight + 3;
-
-                int lineWidth = SwingUtilities.computeStringWidth(metrics, splitTipText[i]);
-
-                if (lineWidth > width) {
-                    width = lineWidth;
-                }
-            }
-        }
-        width += 5;
-        height = textHeight;
     }
 
-    /**
-     * @see javax.swing.plaf.ComponentUI#getPreferredSize(javax.swing.JComponent)
-     */
     @Override
     public Dimension getPreferredSize(final JComponent c) {
-        final FontMetrics metrics = c.getFontMetrics(c.getFont());
-        String tipText = ((JToolTip) c).getTipText();
-        String[] splitTipText = tipText.split("<\\s*/?\\s*br\\s*/?\\s*>");
-
-        if (splitTipText == null) {
-            splitTipText = new String[1];
-            splitTipText[0] = "";
+        if (c instanceof JToolTip) {
+            tip = (JToolTip) c;
         }
 
-        if (tooltipIcon != null) {
-            height = textOffsetY + tooltipIcon.getHeight(c) + iconOffset;
-//            width = tooltipIcon.getWidth(c);
-        }
+        offscreenLabel.setText(tip.getTipText());
 
-        for (int i = 0; i < splitTipText.length; i++) {
+        offscreenLabel.setBorder(BorderFactory.createEmptyBorder(offsetTop,
+                textOffsetY, textOffsetBottom, textOffsetY));
 
-            String current = splitTipText[i];
-            current.trim();
-            if (current.startsWith("<html>")) {
-                current = current.substring(current.indexOf("<html>") + 6);
-                splitTipText[i] = current;
-            }
+        return offscreenLabel.getPreferredSize();
 
-            if (current.endsWith("</html>")) {
-                current = current.substring(0, current.indexOf("</html>"));
-                splitTipText[i] = current;
-            }
-
-            int lineWidth = SwingUtilities.computeStringWidth(metrics, splitTipText[i]);
-
-            if (splitTipText[i].matches(".*<\\s*b\\s*>.*") &&
-                    splitTipText[i].matches(".*<\\s*/?\\s*b\\s*>.*")) {
-                lineWidth -= 40;
-            }
-
-            if (lineWidth > width) {
-                width = lineWidth;
-            }
-
-            height += metrics.getHeight() + textOffset;
-        }
-
-        width += 5;
-
-        return new Dimension(width, height);
     }
 
     @Override
-    public void update(Graphics g, JComponent c) {
+    public void update(final Graphics g, final JComponent c) {
 
-//        g.clearRect(0, 0, c.getWidth(), c.getHeight());
-        g.setColor(backgroundColor);
-        g.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        Dimension componentDim = c.getSize();
+        int centerX = (int) componentDim.getWidth() / 2;
+
+        g2d.setColor(backgroundColor);
+        g2d.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
+
+        drawBackgroundImage(g, c);
 
         paint(g, c);
+    }
+
+    private void drawBackgroundImage(final Graphics g, final JComponent c) {
+        if (tooltipIcon != null) {
+
+            Graphics2D g2d = (Graphics2D) g;
+
+            BufferedImage background = new BufferedImage(c.getWidth(), c.getHeight(),
+                    BufferedImage.TYPE_INT_ARGB);
+
+            Graphics2D backgroundGraphics = background.createGraphics();
+//            backgroundGraphics.setComposite(new ColorComposite(0.5f));
+
+            backgroundGraphics.drawImage(tooltipIcon.getImage(),
+                    c.getWidth() - tooltipIcon.getIconWidth() - iconOffsetRight,
+                    iconOffsetTop, c);
+
+            GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
+            background = blurFilter.filter(background, null);
+
+            g2d.drawImage(background, 0, 0, c);
+
+            backgroundGraphics.dispose();
+            background.flush();
+
+        }
     }
 }
 
