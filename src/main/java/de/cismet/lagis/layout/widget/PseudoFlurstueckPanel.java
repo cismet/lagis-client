@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package de.cismet.lagis.layout.widget;
 
@@ -15,6 +11,7 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
+import javax.swing.JToolTip;
 import org.jdesktop.swingx.image.GaussianBlurFilter;
 
 /**
@@ -26,16 +23,39 @@ import org.jdesktop.swingx.image.GaussianBlurFilter;
  */
 public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
 
-    private static final String TOOL_TIP_TEXT = "Flurstücke wurden in einem Schritt" +
-            " zusammengeführt und wieder geteilt";
+    private static final String TOOL_TIP_TEXT = "<html><b>Flurstücke wurden in einem Schritt <br>" +
+            " zusammengeführt und wieder geteilt</b></html>";
 
+    /**
+     * width of the representation object
+     */
     private int shapeWidth;
+
+    /**
+     * height of the representation object
+     */
     private int shapeHeight;
 
+    /**
+     * Constructor takes a Flurstueck instance and creates a representation for a
+     * pseudo flurstueck. This constructor initialises the representation
+     * object with a default size of 40x40
+     *
+     * @param flurstueck Flurstueck to display
+     */
     public PseudoFlurstueckPanel(Flurstueck flurstueck) {
         this(flurstueck, 40, 40);
     }
 
+    /**
+     * Constructor takes a Flurstueck instance and creates a representation for a
+     * pseudo flurstueck. Additionally a size for the representation object
+     * can be given
+     *
+     * @param flurstueck Flurstueck to display
+     * @param width Width of the representation object
+     * @param height Height of the representation object
+     */
     public PseudoFlurstueckPanel(Flurstueck flurstueck, int width, int height) {
         super(flurstueck);
         setDoubleBuffered(false);
@@ -44,6 +64,20 @@ public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
         shapeWidth = width - 4;
         shapeHeight = height - 4;
         setToolTipText(TOOL_TIP_TEXT);
+    }
+
+    /**
+     *
+     * To create custom toolTips for a specific component, this method needs to be
+     * overridden. The body of this method is usually quite equal to this implementation.
+     *
+     * @return JToolTip the tooltip component which is displayed
+     */
+    @Override
+    public JToolTip createToolTip() {
+        JToolTip tip = new PureCoolToolTip();
+        tip.setComponent(this);
+        return tip;
     }
 
     /**
@@ -69,15 +103,15 @@ public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
         imageGraphic.setPaint(grad);
 
         GeneralPath gp = new GeneralPath();
-        gp.moveTo(shapeWidth/2, 0);
-        gp.lineTo(shapeWidth, shapeHeight/2);
-        gp.lineTo(shapeWidth/2, shapeHeight);
-        gp.lineTo(0, shapeHeight/2);
+        gp.moveTo(shapeWidth / 2, 0);
+        gp.lineTo(shapeWidth, shapeHeight / 2);
+        gp.lineTo(shapeWidth / 2, shapeHeight);
+        gp.lineTo(0, shapeHeight / 2);
         gp.closePath();
 
         imageGraphic.fill(gp);
 
-        BufferedImage shadow = new BufferedImage(getWidth() + 3 , getHeight() + 5,
+        BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
                 BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D shadowGraphics = shadow.createGraphics();
@@ -92,5 +126,6 @@ public class PseudoFlurstueckPanel extends AbstractFlurstueckNodePanel {
         g2d.drawImage(image, 0, 0, this);
 
     }
+
 
 }
