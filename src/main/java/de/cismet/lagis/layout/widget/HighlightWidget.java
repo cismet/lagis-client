@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package de.cismet.lagis.layout.widget;
 
@@ -17,20 +13,59 @@ import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 
 /**
+ * This widget is used to highlight an selected FlurstueckNodePanel.
+ * It simply provides a paint method which draws a rounded rectangle on the
+ * given graphic context with a predefined color.
  *
  * @author mbrill
  */
 public class HighlightWidget extends Widget {
 
-    Widget foregroundWidget;
-    int width;
-    int height;
-    int addSize = 20;
-    Point prefLocation;
-//    Color highlightColor = new Color(133, 218, 221, 255);
-    Color highlightColor = new Color(5, 5, 255, 80);
+    /**
+     * The FlurstueckNodePanel Widget that is highlighted
+     */
+    private Widget foregroundWidget;
+
+    /**
+     * actual width of the HighlightWidget
+     */
+    private int width;
+
+    /**
+     * actual height of the HighlightWidget
+     */
+    private int height;
+
+    /**
+     * size that will be added to the size of the highlighted widget. If set >= 0
+     * the highlight widget seems to shine from behind the foregroundWidget
+     * (otherwise it can not be seen)
+     */
+    private int addSize = 20;
+
+    /**
+     * Prefered location of an instance of this class. This is
+     * <pre>
+     *      foregroundWidget.x - addSize
+     *      foregroundWidget.y - addSize
+     * </pre>
+     */
+    private Point prefLocation;
+
+    /**
+     * Overall color of an instance of this class
+     */
+    private Color highlightColor = new Color(5, 5, 255, 80);
 
 
+    /**
+     * The constructor thakes the scene and the selected widget as argument
+     * and calculates the ideal size and position for this widget.
+     *
+     * @param scene The scene this widget is displayed in (see
+     * {@link org.netbeans.api.visual.widget.Widget})
+     * @param foregroundWidget The widget which was selected
+     */
     public HighlightWidget(Scene scene, Widget foregroundWidget) {
         super(scene);
 
@@ -48,10 +83,13 @@ public class HighlightWidget extends Widget {
         prefLocation.y -= addSize;
 
         this.setPreferredLocation(prefLocation);
-        System.out.println(baseBounds);
-        System.out.println(getPreferredLocation());
     }
 
+    /**
+     * The paint method simply draws a filled, rounded rectangle with the size and
+     * position calculated from the widget given in the constructor and applies a
+     * blur filter.
+     */
     @Override
     protected void paintWidget() {
 
