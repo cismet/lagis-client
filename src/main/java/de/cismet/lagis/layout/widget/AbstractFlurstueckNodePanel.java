@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package de.cismet.lagis.layout.widget;
 
@@ -36,7 +32,7 @@ public abstract class AbstractFlurstueckNodePanel extends JPanel {
 
     /**
      * Getter for the dispalyed Flurstueck
-     * @return Flurstueck 
+     * @return Flurstueck The flurstueck that is attached to this AbstractFlurstueckNodePanel
      */
     public Flurstueck getFlurstueck() {
         return flurstueck;
