@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.cismet.lagis.layout.widget;
 
 import com.jhlabs.composite.ColorComposite;
@@ -12,7 +9,6 @@ import de.cismet.lagis.interfaces.DoneDelegate;
 import de.cismet.lagis.thread.ExtendedSwingWorker;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
 import de.cismet.tools.configuration.ConfigurationManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -27,7 +23,6 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
@@ -37,18 +32,37 @@ import org.openide.util.Exceptions;
 
 /**
  * The <code>FlurstueckGeometryPanel</code> class is used to draw the WFS geometry
- * of a flurstueck. Its is used as the center component of the {@link FlurstueckNodePanel}
+ * of a flurstueck. Its is used as the center component of the {@link FlurstueckNodePanel}.
  *
  * @author mbrill
  */
 public class FlurstueckGeometriePanel extends JPanel {
 
+    /**
+     * The flurstueck the geometry of which is drawn
+     */
     private Flurstueck flurstueck;
+
+    /**
+     * Factory object to request an WFSRetriever instance
+     */
     private static WFSRetrieverFactory retrieverFactory = WFSRetrieverFactory.getInstance();
+
+    /**
+     * Instance of an inner class which can draw an JTS geometry on its canvas
+     */
     private GeometryPanel geomPanel;
-    private JPanel legendPanel;
+
+    /**
+     * Panel which takes an instance of GeometryPanel
+     */
     private JPanel innerPanel;
+
+    /**
+     * JTS geometry of the current flurstueck
+     */
     private Geometry flurstueckGeometry;
+
     private FlurstueckGeometriePanel instance;
     private static final String LAGIS_CONFIGURATION_CLASSPATH = "/de/cismet/lagis/configuration/";
     private static final String LAGIS_LOCAL_CONFIGURATION_FOLDER = ".lagis";
@@ -90,12 +104,7 @@ public class FlurstueckGeometriePanel extends JPanel {
         geomPanel.setDoubleBuffered(false);
 
 
-        legendPanel = new JPanel();
-        legendPanel.setDoubleBuffered(false);
-        legendPanel.setOpaque(false);
-
         innerPanel.add(geomPanel, BorderLayout.CENTER);
-        innerPanel.add(legendPanel, BorderLayout.WEST);
 
         instance = this;
         drawGeometry();
@@ -114,13 +123,6 @@ public class FlurstueckGeometriePanel extends JPanel {
                 new FlurstueckGeometryRequestJobDone(), new HashMap<Integer, Boolean>());
 
         LagisBroker.getInstance().execute(retriever);
-    }
-
-    /**
-     * This method fills the legend panel with content. This content is a representation
-     * of all departments working with the specific Flurstueck
-     */
-    private void getVerwaltungsGeometrien() {
     }
 
     /**
@@ -216,63 +218,6 @@ public class FlurstueckGeometriePanel extends JPanel {
                 shadow.flush();
 
             }
-
-            if (flurstueck.getVerwaltungsbereiche().size() > 0) {
-            // TODO : rendering other features : ReBe, Dienststellen ...
-//                if (flurstueckEnvelope != null) {
-//
-//                    Set<Verwaltungsbereich> vb = flurstueck.getVerwaltungsbereiche();
-//                    for (Verwaltungsbereich verwaltungsbereich : vb) {
-//
-//                        Paint filling = verwaltungsbereich.getFillingPaint();
-//                        Geometry geom = verwaltungsbereich.getGeometry();
-//
-//                        LiteShape verwaltungsLiteShape = new LiteShape(geom, null, false);
-//
-//                        if (verwaltungsLiteShape != null) {
-//
-//                            AffineTransform verwaltungsTrans = new AffineTransform();
-//
-//                            verwaltungsTrans.translate(width / 2 - (envelopeWidth * dilation) / 2,
-//                                    height / 2 + (envelopeHeight * dilation) / 2);
-//                            verwaltungsTrans.scale(dilation, -dilation);
-//                            verwaltungsTrans.translate(-flurstueckEnvelope.getMinX(), -flurstueckEnvelope.getMinY());
-//
-//
-//                            Shape transformedVerwaltungsShape =
-//                                    verwaltungsTrans.createTransformedShape(verwaltungsLiteShape);
-//
-//                            g2d.setPaint(Color.BLACK);
-//                            g2d.draw(transformedVerwaltungsShape);
-//                            g2d.setPaint(filling);
-//                            g2d.fill(transformedVerwaltungsShape);
-//                        }
-                    }
-//                } else {
-//                }
-//            } else if (flurstueckEnvelope == null) {
-//
-//                BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
-//                        BufferedImage.TYPE_INT_ARGB);
-//
-//                Graphics2D shadowGraphics = shadow.createGraphics();
-//                shadowGraphics.setColor(Color.BLACK);
-//                shadowGraphics.setComposite(new ColorComposite(0.5f));
-//                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 2);
-//                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 9);
-//
-//                GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
-//                shadow = blurFilter.filter(shadow, null);
-//
-//                g2d.setPaint(Color.BLACK);
-//                g2d.drawImage(shadow, 0, 0, this);
-//                g2d.drawString("Es wurde keine", 20, height / 2 - 6);
-//                g2d.drawString("Geometrie gefunden", 9, height / 2 + 6);
-//
-//                shadowGraphics.dispose();
-//                shadow.flush();
-//
-//            }
         }
     }
 
@@ -291,6 +236,7 @@ public class FlurstueckGeometriePanel extends JPanel {
          * @param worker SwingWorker used
          * @param properties possible Properties asked
          */
+        @Override
         public void jobDone(ExtendedSwingWorker<Geometry, Void> worker,
                 HashMap<Integer, Boolean> properties) {
 
@@ -315,26 +261,4 @@ public class FlurstueckGeometriePanel extends JPanel {
             }
         }
     }
-//
-//    public static void main(String[] args) {
-//        JFrame f = new JFrame();
-//        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        f.setSize(500, 500);
-//        f.setLayout(new BorderLayout());
-//
-//        Flurstueck flurstueck = new Flurstueck();
-//        FlurstueckSchluessel key = new FlurstueckSchluessel();
-//        Gemarkung gem = new Gemarkung();
-//        gem.setSchluessel(3001);
-//        gem.setBezeichnung("Barmen");
-//        key.setGemarkung(gem);
-//        key.setFlur(5);
-//        key.setFlurstueckZaehler(83);
-//        key.setFlurstueckNenner(44);
-//        flurstueck.setFlurstueckSchluessel(key);
-//        JPanel geomPanel = new FlurstueckGeometriePanel(flurstueck);
-//        geomPanel.setBorder(new BevelBorder(BevelBorder.RAISED));
-//        f.add(geomPanel, BorderLayout.CENTER);
-//        f.setVisible(true);
-//    }
 }
