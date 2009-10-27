@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.cismet.lagis.layout.widget;
 
 import de.cismet.lagisEE.entity.core.DmsUrl;
@@ -30,7 +27,6 @@ import java.util.Set;
 import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
 import javax.swing.JToolTip;
-import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 /**
@@ -46,7 +42,7 @@ import org.apache.log4j.Logger;
  * <li>A footer, displaying further information</li>
  * </ul>
  *
- * The base of FlurstueckNodePanel is a PureCoolPanel.
+ * The base of FlurstueckNodePanel is a {@link PureCoolPanel}.
  * </p>
  *
  * @author mbrill
@@ -54,19 +50,84 @@ import org.apache.log4j.Logger;
 public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+
+    /**
+     * Dateformatter, used to display any date information in dd.MM.yyyy representation
+     */
     private final SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
+
+    /**
+     *  String constant to access the "unknow flurstueck" icon
+     */
     private static final String ICON_UNKNOWN = "default";
+
+    /**
+     *  String constant to access the "contracts" icon
+     */
     private static final String ICON_CONTRACTS = "icon_contracts";
+
+    /**
+     *  String constant to access the "rights" icon
+     */
     private static final String ICON_RIGHT = "icon_right";
+
+    /**
+     *  String constant to access the "loads" icon
+     */
     private static final String ICON_LOAD = "icon_load";
+
+    /**
+     *  String constant to access the "DMS" icon
+     */
     private static final String ICON_DMS = "icon_dms";
+
+    /**
+     *  String constant to access the icon which is displayed in a tooltip
+     */
     private static final String ICON_TOOLTIP = "icon_tooltip";
+
+    /**
+     * ResourceBundle which holds references to each icon used within the
+     * FlurstueckHistory module
+     */
     private ResourceBundle icon_bundle = ResourceBundle.getBundle("de/cismet/lagis/ressource/history/icon", new Locale("de", "DE"));
+
+    /**
+     * Instance of {@link PureCoolPanel} which is the base of this class' rendering
+     */
     private PureCoolPanel coolPanel;
+
+    /**
+     * Panel which renders the flurstueck Title and status. It is also used to
+     * determine the size of the heading area of the PureCoolPanel. The titlePanel
+     * itself contains another panel which does the actual renderíng, while this
+     * panel holds insets to make positioning of the rendered content easier
+     */
     private JPanel titlePanel;
+
+    /**
+     * Panel which renders the flurstueck Title and status.
+     */
     private JPanel innerTitlePanel;
+
+    /**
+     * Panel which renders the flurstueck geometry. It is also used to
+     * determine the size of the central area of the PureCoolPanel.
+     */
     private JPanel mainPanel;
+
+    /**
+     * Panel which renders the flurstueck additional information such as DMS attachments
+     * contracts etc. It is also used to
+     * determine the size of the footing area of the PureCoolPanel. The footerPanel
+     * itself contains another panel which does the actual renderíng, while this
+     * panel holds insets to make positioning of the rendered content easier
+     */
     private JPanel footerPanel;
+
+    /**
+     * Panel which renders the flurstueck additional information.
+     */
     private JPanel innerFooterPanel;
 
     /**
@@ -96,8 +157,6 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
                 JToolTip tip = new PureCoolToolTip();
-//                new ImageIcon(getClass().
-//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -124,7 +183,6 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
         footerPanel = new JPanel();
         footerPanel.setDoubleBuffered(false);
         footerPanel.setOpaque(false);
-//        footerPanel.setLayout(new GridBagLayout());
         footerPanel.setPreferredSize(new Dimension(0, 30));
 
         innerFooterPanel = new JPanel();
@@ -158,7 +216,7 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
      * <ul>
      * <li>The Flurstueck Key</li>
      * <li>An icon, representing the state of the Flurstueck and whether it is
-     * loched or not.</li>
+     * locked or not.</li>
      * </ul>
      */
     private void setFlurstueckTitle() {
@@ -338,8 +396,6 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
                 JToolTip tip = new PureCoolToolTip();
-//                        new ImageIcon(getClass().
-//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -377,8 +433,6 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
                 JToolTip tip = new PureCoolToolTip();
-//                new ImageIcon(getClass().
-//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -437,8 +491,6 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
                 JToolTip tip = new PureCoolToolTip();
-//                        new ImageIcon(getClass().
-//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
@@ -490,8 +542,6 @@ public class FlurstueckNodePanel extends AbstractFlurstueckNodePanel {
             public JToolTip createToolTip() {
                 log.info("create tooltip called for Title");
                 JToolTip tip = new PureCoolToolTip();
-//                new ImageIcon(getClass().
-//                        getResource(icon_bundle.getString(ICON_TOOLTIP))));
                 tip.setComponent(this);
                 return tip;
             }
