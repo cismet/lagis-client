@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.cismet.lagis.layout.widget;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
@@ -16,10 +13,12 @@ import org.netbeans.api.visual.widget.Scene;
  */
 public class FlurstueckHistoryWidget extends ComponentWidget {
 
-     AbstractFlurstueckNodePanel nodePanel;
+     private AbstractFlurstueckNodePanel nodePanel;
 
     /**
-     * Constructor
+     * Constructor makes shure that the panel given is of type {@link AbstractFlurstueckNodePanel}
+     * which holds instances of flurstueck
+     * 
      * @param scene Scene the widget is placed in
      * @param nodePanel JComponent used to render Flurstueck
      */
