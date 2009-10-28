@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.cismet.lagis.layout.model;
 
 import de.cismet.lagis.layout.actionprovider.FlurstueckSelectProvider;
@@ -28,14 +25,18 @@ import org.netbeans.api.visual.widget.Widget;
 
 /**
  * This class implements the abstract GraphScene class of the NetBeans Visual API.
- * It is used as a datamodel for the graphical representation of the scene. 
+ * It is used as a controller for the graphical representation of the scene (MVC pattern).
  * 
  * HistoryPanelModel receives Flurstuecke and Edges between Flurstuecken and 
  * generates the representing NetBeans Visual Widgets for each of the provided
  * datatypes. 
  * 
- * In Addition it sets some default behaviour such as the hover behaviour and the 
+ * In Addition it sets some default behaviour such as the selection behaviour and the
  * edit behaviour of FlurstueckHistoryWidgets.
+ *
+ * A instance of this scene creates 3 glasspane like layers on which the information
+ * is displayed. One for the nodes themself, one for the edges and a background layer for
+ * highlight widgets.
  *
  * @author mbrill
  */
@@ -44,12 +45,38 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     //--------------------------------------------------------------------------
     //      Attributes
     //--------------------------------------------------------------------------
-    private boolean backgroundSet = false;
+
+    /**
+     * Widget containing the nodes of the scene
+     */
     private LayerWidget nodeLayer;
+
+    /**
+     * Widget containing the edges of the scene
+     */
     private LayerWidget connectionLayer;
+
+    /**
+     * Widget containing the highlight Widget(s)
+     */
     private LayerWidget highlightLayer;
+
+    /**
+     * There is only one select provider in the scene which is attached to each
+     * node and the scene itself. This makes sure that there is only one selected
+     * node at time and that the selection can be discarded
+     */
     private FlurstueckSelectProvider selectProvider;
+
+    /**
+     * Action for selection
+     */
     private final WidgetAction selectAction;
+
+    /**
+     * edit action (double click for NBV) causes the lagis system to change the
+     * current flurstueck
+     */
     private final WidgetAction editAction = ActionFactory.createEditAction(new FlurstueckWidgetEditProvider());
     Logger log;
 
@@ -75,11 +102,8 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         setBackground(Color.WHITE);
 
         nodeLayer = new LayerWidget(this);
-//        nodeLayer.setBackground(Color.WHITE);
         connectionLayer = new LayerWidget(this);
-//        connectionLayer.setBackground(Color.WHITE);
         highlightLayer = new LayerWidget(this);
-//        highlightLayer.setBackground(Color.WHITE);
 
         addChild(nodeLayer);
         addChild(connectionLayer);
@@ -122,25 +146,14 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
             nodePanel = new PseudoFlurstueckPanel(node);
         } else {
             nodePanel = new FlurstueckNodePanel(node);
-
-//            if (!backgroundSet) {
-//                setBackground(nodePanel.getBackground());
-//                backgroundSet = true;
-//            }
         }
 
         FlurstueckHistoryWidget nodeWidget = new FlurstueckHistoryWidget(this, nodePanel);
 
-//        WidgetAction hoverAction = ActionFactory.createHoverAction(
-//                new FlurstueckWidgetHoverProvider(this, nodeWidget));
-//        getActions().addAction(hoverAction);
-
         nodeWidget.getActions().addAction(selectAction);
         nodeWidget.getActions().addAction(editAction);
-//        nodeWidget.getActions().addAction(hoverAction);
 
         nodeLayer.addChild(nodeWidget);
-//        nodeWidget.revalidate();
 
         return nodeWidget;
     }
@@ -234,18 +247,35 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
     }
 
+    /**
+     * Getter for the node layer.
+     * @return LayerWidget
+     */
     public LayerWidget getNodeLayer() {
         return nodeLayer;
     }
 
+    /**
+     * Getter for the selectProvider
+     * @return FlurstueckSelectProvider
+     */
     public FlurstueckSelectProvider getSelectProvider() {
         return selectProvider;
     }
 
+    /**
+     * Getter for the highlightLayer
+     * @return LayerWidget
+     */
     public LayerWidget getHighlightLayer() {
         return highlightLayer;
     }
 
+    /**
+     * Method is intended to calculate the total bounds of a graph. This could
+     * be useful to perform move operations on the scene view, e.g. to center the
+     * graph.
+     */
     public void shiftViewToContentBounds() {
 
         log.info("calculating total bounds for scene");
@@ -257,20 +287,5 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         }
 
         log.info("Total scene content bounds:" + totalBounds);
-
-        // hang out the scene LayerWidgets
-//        removeChild(connectionLayer);
-//        removeChild(nodeLayer);
-//        removeChild(highlightLayer);
-//
-//        connectionLayer.setPreferredBounds(totalBounds.getBounds());
-//        nodeLayer.setPreferredBounds(totalBounds.getBounds());
-//        highlightLayer.setPreferredBounds(totalBounds.getBounds());
-//
-//        addChild(nodeLayer);
-//        addChild(connectionLayer);
-//        addChild(highlightLayer);
-
-
     }
 }
