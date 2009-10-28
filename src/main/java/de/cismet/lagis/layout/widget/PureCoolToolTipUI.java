@@ -53,16 +53,54 @@ import org.jdesktop.swingx.image.GaussianBlurFilter;
  */
 public class PureCoolToolTipUI extends ToolTipUI {
 
+    /**
+     * The tooltip instance this UI was instantiated for
+     */
     private JToolTip tip;
+
+    /**
+     * The color of the background
+     */
     private Color backgroundColor = new Color(0, 0, 0, 120);
+
+    /**
+     * An Alpha only color, used to draw an invisible panel
+     */
     private Color clearColor = new Color(0, 0, 0, 255);
+
+    /**
+     * Icon to be drawn on the background of the tooltip
+     */
     private ImageIcon tooltipIcon = null;
+
+    /**
+     * vertical offset from the top to the beginning of the text
+     */
     private int textOffsetY = 25;
+
+    /**
+     * vertical offset from the bottom to the end of the text
+     */
     private int textOffsetBottom = 6;
+
+    /**
+     * Size of the upper inset of the offscreen JLabel
+     */
     private int offsetTop = 10;
 
+    /**
+     * vertical offset of the icon from the top
+     */
     private int iconOffsetTop = 8;
+
+    /**
+     * horizontal offset of the icon from the right
+     */
     private int iconOffsetRight = 8;
+
+    /**
+     * JLabel used to render HTML formatted strings
+     */
     private JLabel offscreenLabel;
 
     /**
