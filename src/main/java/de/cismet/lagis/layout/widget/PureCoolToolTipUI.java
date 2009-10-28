@@ -4,11 +4,9 @@
  */
 package de.cismet.lagis.layout.widget;
 
-import com.jhlabs.composite.ColorComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
