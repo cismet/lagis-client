@@ -1,9 +1,6 @@
-/*
- * Version with only 1 barycenter per node
- */
+
 package de.cismet.lagis.layout;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
@@ -19,29 +16,104 @@ import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 
 /**
+ * This class implements a Graphlayout after Kozo Sugiyama. To find a layout for 
+ * a graph, 4 basic steps are performed: 
+ * <ol>
+ *  <li>Layer assignment</li>
+ *  <li>insertion of dummy nodes</li>
+ *  <li>crossing minimization</li>
+ *  <li>horizontal coordinate assignment</li>
+ * </ol>
+ *
+ * Each of these steps uses the results of the previous one.
  *
  * @author mbrill
  */
 public class SugiyamaLayout<N, E> extends GraphLayout {
 
+    /**
+     * UniversalGraph instance represention the graph to be layouted. Given from the
+     * NetBeans Visual API
+     */
     private UniversalGraph<N, E> graph;
-    private GraphScene<N, E> scene;
-    private final ArrayList<ArrayList<SugiyamaNode<N>>> layers;
-    private final int topOffset = 20;
-    private int hgap = 10;
-    private Integer vgap = null;
-    private int maximumVSize;
-    private double dummySizeVertical = 50.0;
-    private double dummySizeHorizontal = 100.0;
-    private HashMap<N, SugiyamaNode<N>> nodeMapping;
-    private HashMap<E, SugiyamaEdge<E>> edgeMapping;
-    private HashMap<SugiyamaEdge<E>, ArrayList<SugiyamaNode<N>>> dummyMapping;
-    private HashMap<E, SugiyamaEdge<E>> longEdgeMapping;
-    private ArrayList<SugiyamaEdge<E>> cycleEdges;
-    private static int dfsTime = 0;
-    private int iterations = 10;
-    private boolean horizontal = false;
 
+    /**
+     * Scene which displays the layed out graph
+     */
+    private GraphScene<N, E> scene;
+
+    /**
+     * Datastructure representing the layers of the layed out graph
+     */
+    private final ArrayList<ArrayList<SugiyamaNode<N>>> layers;
+
+    /**
+     * Y coordinate of the first layer
+     */
+    private final int topOffset = 20;
+
+    /**
+     * minimum gap between two nodes
+     */
+    private int hgap = 10;
+
+    /**
+     * minimum gap between two layers. calculated during runtime depending on the
+     * preferred size of the given node representation widgets
+     */
+    private Integer vgap = null;
+
+    /**
+     * assumed vertical size for dummy nodes.
+     */
+    private double dummySizeVertical = 50.0;
+
+    /**
+     * assumed horizontal size for dummy nodes.
+     */
+    private double dummySizeHorizontal = 100.0;
+
+    /**
+     * Hashtable storing key value pairs of nodes for fast referencing
+     */
+    private HashMap<N, SugiyamaNode<N>> nodeMapping;
+
+    /**
+     * Hashtable storing key value pairs of edges for fast referencing
+     */
+    private HashMap<E, SugiyamaEdge<E>> edgeMapping;
+
+    /**
+     * Hashtable storing mappings between edges and a list of dummy nodes.
+     * Since long edges have to be replaced by a trail of dummy nodes, this HashMap
+     * keeps track of the replacement.
+     */
+    private HashMap<SugiyamaEdge<E>, ArrayList<SugiyamaNode<N>>> dummyMapping;
+
+    /**
+     * HashMap keeps track of which edges are long
+     */
+    private HashMap<E, SugiyamaEdge<E>> longEdgeMapping;
+
+    /**
+     * List of all edges that make the graph cyclic.
+     */
+    private ArrayList<SugiyamaEdge<E>> cycleEdges;
+
+    /**
+     * time index for the DFS Algorithm on directed graphs
+     */
+    private static int dfsTime = 0;
+
+    /**
+     * Number of overall iterations to perform to minimize crossings
+     */
+    private int iterations = 10;
+
+    /**
+     * Enummeration lists the colors a node can have during a run of the DFS
+     * algorithm.
+     */
     private enum DFSNodeColor {
 
         white, grey, black
@@ -181,22 +253,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     //==========================================================================
     //      Sugiyama algorithm part
     //==========================================================================
-    // ---------------------------------------------------
-    //      Normalisation
-    // ---------------------------------------------------
-    /**
-     * <p>
-     *  This method ensures that the graph is a so called DAG, a directed, acyclic
-     * graph. The directed property is considered given. Therefor the method ensures
-     * the graph is also acyclic. This is done by reversing edges which would
-     * result in a cycle. When the graph is drawn, the previously reversed edges
-     * are switched back, so that the original graph can be drawn.
-     * </p>
-     */
-    private void eliminateCycles() {
-        // Since the current problem does not need to deal with cycled graphs, this method
-        // will be implemented if I have time
-    }
+
 
     // ---------------------------------------------------
     //      Initial construction of datastructure and Layer assignment
@@ -398,7 +455,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     }
 
     /**
-     * Within this methode, a datastructure representing the graph given by the
+     * Within this method, a datastructure representing the graph given by the
      * performLayout() methods is build. For each node in the original graph a
      * SugiyamaNode is constructed which handles information for the algorithm.
      * SugiyamaNodes also handle edge information by a predecessor and successor
@@ -424,10 +481,6 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             // reference pred. and succ. in SugiyamaNodes
             from.addSuccessor(to);
             to.addPredecessor(from);
-
-            // reference edge in both nodes
-            from.addReferencedEdge(sugiEdge);
-            to.addReferencedEdge(sugiEdge);
 
             edgeMapping.put(edge, sugiEdge);
         }
@@ -490,7 +543,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
                 this.vgap = (int) (maxY + 30.0);
             }
         }
-        this.maximumVSize = (int) maxY;
+//        this.maximumVSize = (int) maxY;
 
         // calculate the ideal layer for the specific node
         for (SugiyamaNode<N> sugiyamaNode : topSort) {
@@ -817,6 +870,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
     /**
      *
+     *
      * @param matrixRep current matrix representation of the graph
      * @param layer layer from which the method starts to sweep down
      * @return the number of crossings after the phase
@@ -872,7 +926,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
     /**
      *
-     * @param matrixRep
+     * @param matrixRep current matrix representation of the graph
      */
     private void crossingMinimizationPhase2Down(
             ArrayList<TwoLayerIncidenceMatrix> matrixRep) {
@@ -913,7 +967,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
     /**
      *
-     * @param matrixRep
+     * @param matrixRep current matrix representation of the graph
      */
     private void crossingMinimizationPhase2Up(
             ArrayList<TwoLayerIncidenceMatrix> matrixRep) {
@@ -956,8 +1010,8 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     // ---------------------------------------------------
     /**
      *
-     * @param initialX
-     * @param horizontal
+     * @param initialX The offset of the leftmost node of the graph from the
+     * left of the scene
      */
     private void assignCoordinates(int initialX) {
 
@@ -1098,12 +1152,13 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
      *  After that, the ideal position for each node is calculated in priority order.
      *  In the next step, the algorithm checks wether the constraint "only shift
      *  nodes with lower priority" is violated if the node is shifted to its optimum.
-     *  If so, the first high prio node in the way of the shift is a barrier, that
+     *  If so, the first high prio node in the way of the shift is concidered a barrier, that
      *  may not be stepped over. Adittionally, no node left or right, depending on the
      *  shift direction, from that barrier may be shifted.
      *  Then the algorithm tries to make as much room as needed by pushing all nodes
      *  with lower priority together. After doing this, the max position for
-     *  the node to be shifted can be evaluated. 
+     *  the node to be shifted can be evaluated and the concidered node can be brought
+     *  as close as possible to its optimum position.
      */
     private void downAssignment() {
 
@@ -1330,6 +1385,23 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         }
     }
 
+    /**
+     *  This methods performs the steps of the sugiyama horizontal coordinate assignment
+     *  during bottom-up-traversion of the graph. This is assigning priorities from
+     *  the successors and shifting each node of the layer considered as close as
+     *  possible to their barycenter.
+     *  In the first place, the nodes on the focussed layer are assigned priorities.
+     *  After that, the ideal position for each node is calculated in priority order.
+     *  In the next step, the algorithm checks wether the constraint "only shift
+     *  nodes with lower priority" is violated if the node is shifted to its optimum.
+     *  If so, the first high prio node in the way of the shift is concidered a barrier, that
+     *  may not be stepped over. Adittionally, no node left or right, depending on the
+     *  shift direction, from that barrier may be shifted.
+     *  Then the algorithm tries to make as much room as needed by pushing all nodes
+     *  with lower priority together. After doing this, the max position for
+     *  the node to be shifted can be evaluated and the concidered node can be brought
+     *  as close as possible to its optimum position.
+     */
     private void upAssignment() {
         for (int i = layers.size() - 2; i >= 0; i--) {
 
@@ -1552,123 +1624,16 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         }
     }
 
-//    private void upAssignment() {
-//        for (int i = layers.size() - 1; i >= 0; i--) {
-//            ArrayList<SugiyamaNode<N>> layer = layers.get(i);
-//
-//            assignPriorities(layer, true);
-//
-//            // create a list of nodes in layer i sorted by priority
-//            ArrayList<SugiyamaNode> prioOrder = new ArrayList<SugiyamaNode>(layer);
-//            Collections.sort(prioOrder, new PriorityComparator());
-//
-//            for (int j = 0; j < prioOrder.size(); j++) {
-//                // calculate optimal position for a node
-//                SugiyamaNode<N> node = prioOrder.get(j);
-//                int optimum = 0;
-//                int maxPosition = 0;
-//
-//                if (node.getSuccessorList().size() != 0) {
-//                    for (SugiyamaNode<N> succ : node.getSuccessorList()) {
-//                        optimum += succ.getXCoordinate() + (int) succ.getHSize() / 2;
-//                    }
-//
-//                    optimum = optimum / node.getSuccessorList().size();
-//                    optimum -= (int) node.getHSize() / 2;
-//
-//                } else {
-//                    optimum = node.getXCoordinate();
-//                }
-//
-//                // determine the closest position to the optimum that can be achieved
-//                // regarding node sizes and desired gap. This is the new position
-//                // of the node
-//
-//                // step 1 : check wether there is a node with higher priority
-//                // right to the current node. If so, the position may not be moved
-//                // and its X position is a maximum for the position of the current node.
-//                int nodesBetween = 0;
-//                int indexOfHighPrioNode = -1;
-//                double nextNodeSize = 0;
-//                for (int k = layer.indexOf(node) + 1; k < layer.size(); k++) {
-//
-//                    // only nodes with lower priority can be shifted
-//                    if (node.getOrderingPriority() < layer.get(k).getOrderingPriority()) {
-//                        indexOfHighPrioNode = k;
-//                        break;
-//                    }
-//                    nodesBetween++;
-//                }
-//
-//                // since the order of node on a layer must not be changed,
-//                // any node between the current and a possible maximum position
-//                // must stay on a relative position to these two nodes.
-//                // this means, that if there are nodes in between, the maximum
-//                // X position for the current node is decreased further.
-//
-//                if (indexOfHighPrioNode > -1) {
-//
-//                    maxPosition = layer.get(indexOfHighPrioNode).getXCoordinate();
-//                    maxPosition -= hgap;
-//                    maxPosition -= node.getHSize();
-//
-//                    if (nodesBetween == 0) {
-//
-//                        // there must be enough room between the current node
-//                        // and the limitation node to regard all nodes which lie
-//                        // in between
-//
-//                        int currentNodeIndex = layer.indexOf(node);
-//
-//                        for (int k = 1; k <= nodesBetween; k++) {
-//                            maxPosition -= layer.get(currentNodeIndex + k).getHSize();
-//                            maxPosition -= hgap;
-//                        }
-//                    }
-//
-//                    nextNodeSize = layer.get(indexOfHighPrioNode).getHSize();
-//
-//                } else {
-//
-//                    // if there is no limitating node, the current node can
-//                    // be put anywhere
-//                    maxPosition = Integer.MAX_VALUE;
-//                }
-//
-//
-//
-//                if (maxPosition < optimum) {
-//                    node.setXCoordinate(maxPosition);
-//
-//                } else {
-//                    node.setXCoordinate(optimum);
-//                }
-//
-//                // shift all nodes right of the current and left of the
-//                // limitating node to a new Position where they don't overlap
-//
-//                int offset = node.getXCoordinate() + (int) node.getHSize() + hgap;
-//                if (indexOfHighPrioNode > -1) {
-//                    for (int k = layer.indexOf(node) + 1;
-//                            k < indexOfHighPrioNode; k++) {
-//
-//                        SugiyamaNode<N> temp = layer.get(k);
-//                        temp.setXCoordinate(offset);
-//                        offset += temp.getHSize() + hgap;
-//                    }
-//                } else {
-//                    for (int k = layer.indexOf(node) + 1;
-//                            k < layer.size(); k++) {
-//
-//                        SugiyamaNode<N> temp = layer.get(k);
-//                        temp.setXCoordinate(offset);
-//                        offset += temp.getHSize() + hgap;
-//                    }
-//                }
-//            }
-//            ensureNoOverlapping(layer);
-//        }
-//    }
+
+    /**
+     * This method assigns a priority to each node of the given layer. The priority is
+     * determined by the number of predecessors during downassignment and the number 
+     * of successors during Upassingment. In addition, any dummy node on a layer 
+     * will get the maximal priority possible (Integer.MAX_VALUE)
+     *
+     * @param layer Arraylist of SugiyamaNodes that are to be priorised
+     * @param up Determines wether the priorities for the Up- or Downassignment are assigned
+     */
     private void assignPriorities(ArrayList<SugiyamaNode<N>> layer, boolean up) {
 
         // assign priorities for each vertex on layer i
@@ -1703,67 +1668,17 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             }
         }
     }
-
+    
     /**
-     *
-     * @param layer
+     * During the horizontal coordinate assignment a graph may "wander". This means,
+     * that while keeping the constrains of the horizontal coordinate assignment 
+     * fulfilled, sum sum of the nodes in the graph may be shifted about a certain 
+     * offset to the left or the right. This method reduces this offset by shifting 
+     * any node so, that the relative distances of the nodes are kept while the 
+     * leftmost node has the exact offset from 0 that was given.
+     * 
+     * @param zeroOffset Offset of the leftmost node of the graph from 0
      */
-    private void ensureNoOverlapping(ArrayList<SugiyamaNode<N>> layer) {
-
-        // to most important constraint is, that no node may overlap another
-        // so in the last step, this is ensured for each node
-
-
-        SugiyamaNode first = layer.get(0);
-        SugiyamaNode second;
-        SugiyamaNode third;
-
-        if (layer.size() > 2) {
-            for (int i = 1; i < layer.size() - 1; i++) {
-
-                second = layer.get(i);
-                third = layer.get(i + 1);
-
-                int firstMin;
-                int firstMax;
-                int secondMin;
-                int secondMax;
-                int thirdMin;
-
-                firstMin = first.getXCoordinate();
-                firstMax = firstMin + (int) first.getHSize() + hgap;
-                secondMin = second.getXCoordinate();
-                secondMax = second.getXCoordinate() + (int) second.getHSize() + hgap;
-                thirdMin = third.getXCoordinate();
-
-
-                if (!(secondMin >= firstMax && secondMax <= thirdMin)) {
-
-                    second.setXCoordinate(firstMax);
-                    third.setXCoordinate(second.getXCoordinate() + (int) second.getHSize() + hgap);
-
-                }
-
-                first = second;
-
-            }
-        } else if (layer.size() == 2) {
-            int firstMin;
-            int firstMax;
-            int secondMin;
-
-            second = layer.get(1);
-
-            firstMin = first.getXCoordinate();
-            firstMax = firstMin + (int) first.getHSize() + hgap;
-            secondMin = second.getXCoordinate();
-
-            if (firstMax > secondMin) {
-                second.setXCoordinate(firstMax);
-            }
-        }
-    }
-
     private void shiftGraphToZero(int zeroOffset) {
 
         int minCoordinate = Integer.MAX_VALUE;
@@ -1790,15 +1705,18 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     }
 
     /**
-     *
+     * Comparator class to compare two instances of SugiyamaNode concerning 
+     * their priority.
      */
     private class PriorityComparator implements Comparator {
 
         /**
-         *
-         * @param o1
-         * @param o2
-         * @return
+         * Compares two SugiyamaNodes by there priorities
+         * 
+         * @param o1 Instance of SugiyamaNode
+         * @param o2 Instance of SugiyamaNode
+         * @return Integer < 0 if prio o1 > prio o2, = 0 if prio o1 = prio o2,
+         *          > 0 if prio o1 < prio o2
          */
         @Override
         public int compare(Object o1, Object o2) {
@@ -1819,28 +1737,98 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 //      Internal Classes
 //==========================================================================
     /**
-     *
-     * @param <N>
+     * The private class <code>SugiyamaNode</code> carries information concerning
+     * the sugiyama algorithm such as the x and y coordinates of the node, the barycenter,
+     * Dimension, predecessor and successor lists, priority etc. 
+     * 
+     * @param <N> The object assotiated with this node
      */
     private class SugiyamaNode<N> {
 
+        /**
+         * The layer assigned to this node by the assingLayers() sub algorithm 
+         */
         private int layer;
+        
+        /**
+         * Current barycenter of this node concerning their successors/predecessors
+         */
         private float barycenter;
+        
+        /**
+         * The actual information the node carries
+         */
         private N value;
+        
+        /**
+         * vertical size (= height)
+         */
         private double vSize;
+        
+        /**
+         * horizontal size (= width)
+         */
         private double hSize;
+        
+        /**
+         * currently assigned x coordinate 
+         */
         private int xCoordinate;
+        
+        /**
+         * currently assigned y coordinate 
+         */
         private int yCoordinate;
+        
+        /**
+         * Color of the node during the DFS run
+         */
         private DFSNodeColor color;
+        
+        /**
+         * The predecessor of this node during the DFS run
+         */
         private SugiyamaNode<N> dfsPredecessor;
+        
+        /**
+         * Time of the DFS run when this node was visited first (see dfsTime)
+         */
         private int discoveryTime;
+        
+        /**
+         * Time this node was finished by the DFS algorithm (see dfsTime)
+         */
         private int finishingTime;
+        
+        /**
+         * List of predecessor nodes 
+         */
         private ArrayList<SugiyamaNode<N>> predecessorList;
+        
+        /**
+         * list of successor nodes
+         */
         private ArrayList<SugiyamaNode<N>> successorList;
-        private HashMap<E, SugiyamaEdge<E>> referencedEdges;
+
+        /**
+         * false if value != null, else true (is node dummy ?)
+         */
         private boolean dummy = false;
+
+        /**
+         * ordering priority as assigned by the assignPriorities() sub algorithm
+         */
         private int orderingPriority;
 
+        /**
+         * Constructor building an instance of SugiyamaNode and initialising the
+         * node for further processing by the Sugiyama Algorithm (set DFS color = white,
+         * layer = -1 ... )
+         *
+         * @param value Actual information carried by this node
+         * @param predecessor single predecessor of this node
+         * @param successor single successor of this node
+         */
         public SugiyamaNode(N value, SugiyamaNode<N> predecessor,
                 SugiyamaNode<N> successor) {
 
@@ -1860,51 +1848,76 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             this.orderingPriority = 0;
             predecessorList = new ArrayList<SugiyamaNode<N>>();
             successorList = new ArrayList<SugiyamaNode<N>>();
-            referencedEdges = new HashMap<E, SugiyamaEdge<E>>();
+            
 
             addSuccessor(successor);
             addPredecessor(predecessor);
 
         }
 
+        /**
+         * Constructor building an instance of SugiyamaNode and initialising the
+         * node for further processing by the Sugiyama Algorithm (set DFS color = white,
+         * layer = -1 ... )
+         *
+         * @param value Actual information carried by this node
+         */
         public SugiyamaNode(N value) {
             this(value, null, null);
         }
 
-        public void addReferencedEdge(SugiyamaEdge<E> edge) {
-            if (edge != null) {
-                referencedEdges.put(edge.getValue(), edge);
-            }
-        }
-
+        /**
+         * Adds predecessors to the internal predecessor list
+         * @param pred Predecessor to add
+         */
         public void addPredecessor(SugiyamaNode<N> pred) {
             if (pred != null) {
                 predecessorList.add(pred);
             }
         }
 
+        /**
+         * Adds predecessors to the internal predecessor list
+         * @param succ Successor to add
+         */
         public void addSuccessor(SugiyamaNode<N> succ) {
             if (succ != null) {
                 successorList.add(succ);
             }
         }
 
+        /**
+         * Removes predecessors from the internal predecessor list
+         * @param pred Predecessor to remove
+         */
         public void removePredecessor(SugiyamaNode<N> pred) {
             if (predecessorList.contains(pred)) {
                 predecessorList.remove(pred);
             }
         }
 
+        /**
+         * Removes predecessors to the internal predecessor list
+         * @param succ Successor to remove
+         */
         public void removeSuccessor(SugiyamaNode<N> succ) {
             if (successorList.contains(succ)) {
                 successorList.remove(succ);
             }
         }
 
+        /**
+         * Getter for the current barycenter value
+         * @return float Current barycenter
+         */
         public float getBarycenter() {
             return barycenter;
         }
 
+        /**
+         * Setter for the current barycenter value
+         * @param float Current barycenter
+         */
         public void setBarycenter(float barycenter) {
             this.barycenter = barycenter;
         }
@@ -2016,15 +2029,36 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     }
 
     /**
+     * <code>SugiyamaEdge</code> is a datastructure for Edges used in this algorithm.
+     * It basically maps an edge with the source and target {@link SugiyamaNode}
      *
-     * @param <E>
+     * @param <E> The actual information a <code>SugiyamaEdge</code> carries
      */
     private class SugiyamaEdge<E> {
 
+        /**
+         * Source node
+         */
         private SugiyamaNode<N> from;
+
+        /**
+         * Target node
+         */
         private SugiyamaNode<N> to;
+
+        /**
+         * Actual information of this edge
+         */
         private E value;
 
+        /**
+         * Given all edge attributes, this constructor assembles a complete
+         * SugiyamaEdge instance
+         *
+         * @param value information this edge carries
+         * @param from Source SugiyamaNode
+         * @param to Target SugiyamaNode
+         */
         public SugiyamaEdge(E value, SugiyamaNode<N> from, SugiyamaNode<N> to) {
             this.value = value;
             this.from = from;
@@ -2053,10 +2087,18 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     }
 
     /**
-     *
+     * Comparator to compare two SugiyamaNodes by their DFS finishing time in order
+     * to sort the nodes topologically
      */
     private class TopologyComparator implements Comparator {
 
+        /**
+         * Compares two SugiyamaNodes by their finishingTime
+         * @param o1 SugiyamaNode
+         * @param o2 SugiyamaNode
+         * @return 0 if o1 = o2, < 0 if o1 > o2, > 0 if o1 < o2
+         */
+        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode) || !(o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Can not compare " + o1.getClass() +
@@ -2066,16 +2108,25 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             SugiyamaNode node1 = (SugiyamaNode) o1;
             SugiyamaNode node2 = (SugiyamaNode) o2;
 
-            /*
-             *
-             */
             return node2.getFinishingTime() - node1.getFinishingTime();
 
         }
     }
 
+    /**
+     * Comparator to compare two SugiyamaNodes by their current barycenter
+     */
     private class BarycenterComparator implements Comparator {
 
+        /**
+         * Compares two SugiyamaNodes by their barycenters
+         *
+         * @param o1 SugiyamaNode
+         * @param o2 SugiyamaNode
+         * @return 0 if o1 = o2 or if one or both barycenters are NaN,
+         * -1 if o1 < o2, 1 if o1 > o2
+         */
+        @Override
         public int compare(Object o1, Object o2) {
             if (!(o1 instanceof SugiyamaNode) || !(o2 instanceof SugiyamaNode)) {
                 throw new ClassCastException("Can not compare " + o1.getClass() +
@@ -2102,35 +2153,65 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     }
 
     /**
-     *
+     * <code>TwoLayerIncidenceMatrix</code> is a helper class for the
+     * crossing minimization sub algorithm. It is able to calculate the
+     * Matrix representation of a graph and perform operations such as
+     * the permutation of layers depending on the nodes barycenters as well as
+     * the calculation of the number of crossings for a specific matrix.
      */
     private class TwoLayerIncidenceMatrix {
 
+        /**
+         * Layer representing the rows of a incidence matrix
+         */
         private ArrayList<SugiyamaNode<N>> layer1;
+
+        /**
+         * Layer representing the columns of a incidence matrix
+         */
         private ArrayList<SugiyamaNode<N>> layer2;
+
+        /**
+         * Incedence matrix resulting from the layers given. If there is an
+         * Edge between nodes in layer1 (e.g. pos x) and layer2 (e.g. pos y)
+         * incidents[x][y] = 1 else = 0
+         */
         private int[][] incidents;
 
+        /**
+         * Constructor initializes the matrix from two ArrayLists given.
+         *
+         * @param layer1 ArrayList of SugiyamaNodes
+         * @param layer2 ArrayList of SugiyamaNodes
+         */
         private TwoLayerIncidenceMatrix(ArrayList<SugiyamaNode<N>> layer1,
                 ArrayList<SugiyamaNode<N>> layer2) {
 
             initialize(layer1, layer2);
         }
 
+        /**
+         * Initializes the matrix if both layers given are not null both are not empty
+         *
+         * @param layer1 ArrayList of SugiyamaNodes
+         * @param layer2 ArrayList of SugiyamaNodes
+         */
         private void initialize(ArrayList<SugiyamaNode<N>> layer1,
                 ArrayList<SugiyamaNode<N>> layer2) {
 
-            if (layer1 != null && layer2 != null) {
+            if (layer1 != null && layer2 != null && layer1.size() != 0 && layer2.size() != 0) {
 
                 this.layer1 = new ArrayList<SugiyamaNode<N>>(layer1);
                 this.layer2 = new ArrayList<SugiyamaNode<N>>(layer2);
 
                 calculateMatrix();
 
-                // calculate baryCenters for each Node
-//                calculateBarycenters();
             }
         }
 
+        /**
+         * Method calculates row and column barycenters for each node in the layers given
+         */
         private void calculateBarycenters() {
             for (int i = 0; i < incidents.length; i++) {
                 float barycenter = 0.0f;
@@ -2161,6 +2242,13 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             }
         }
 
+
+        /**
+         * Method calculates the number of edge crossing between the two layers
+         * represented by this TwoLayerIncidenceMatrix after a proposal of Sugiyama.
+         *
+         * @return Number of edge crossings between Layer1 and Layer2
+         */
         private int calculateNumberOfCrossings() {
             int crossings = 0;
 
@@ -2177,6 +2265,10 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             return crossings;
         }
 
+        /**
+         * Barycenter Ordering Rows <br>
+         * Sorts the nodes on layer1 according to their barycenters
+         */
         public void BOR() {
             // calculates the inner matrix each time new -> inefficient, but simple
             // initial solution
@@ -2184,26 +2276,32 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             calculateBarycenters();
 
             Collections.sort(layer1, new BarycenterComparator());
-//            sortLayer(layer1);
 
             calculateMatrix();
 
             calculateBarycenters();
         }
 
+        /**
+         * Barycenter Ordering Columns <br>
+         * Sorts the nodes on layer2 according to their barycenters
+         */
         public void BOC() {
             // calculates the inner matrix each time new -> inefficient, but simple
 
             calculateBarycenters();
 
             Collections.sort(layer2, new BarycenterComparator());
-//            sortLayer(layer2);
 
             calculateMatrix();
 
             calculateBarycenters();
         }
 
+        /**
+         * Rotates the nodes of equal Barycenter on layer1 to check if this improves the
+         * result of the crossing minimizartion
+         */
         public void ROR() {
 
             calculateBarycenters();
@@ -2249,6 +2347,10 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
         }
 
+        /**
+         * Rotates the nodes of equal Barycenter on layer2 to check if this improves the
+         * result of the crossing minimizartion
+         */
         public void ROC() {
 
             calculateBarycenters();
@@ -2291,6 +2393,12 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
         }
 
+        /**
+         * Checks wether all nodes on layer1 are in increase order concerning their
+         * barycenters
+         *
+         * @return boolean
+         */
         public boolean rowsInIncreaseOrder() {
 
             calculateMatrix();
@@ -2312,6 +2420,12 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             return true;
         }
 
+        /**
+         * Checks wether all nodes on layer2 are in increase order concerning their
+         * barycenters
+         *
+         * @return boolean
+         */
         public boolean columnsInIncreaseOrder() {
 
             calculateMatrix();
@@ -2354,15 +2468,11 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             calculateMatrix();
         }
 
-        private void setMatrix(ArrayList<SugiyamaNode<N>> layer1,
-                ArrayList<SugiyamaNode<N>> layer2) {
-
-            this.layer1 = layer1;
-            this.layer2 = layer2;
-
-            calculateMatrix();
-        }
-
+        /**
+         * Calculates the incedence matrix by checking for each combination of nodes
+         * wether there is an edge between the two nodes or not. If so, the matrix
+         * position is 1, 0 otherwise
+         */
         private void calculateMatrix() {
             incidents = new int[layer1.size()][layer2.size()];
 
@@ -2382,24 +2492,11 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
             }
         }
 
-        private void sortLayer(ArrayList<SugiyamaNode<N>> layer) {
-            for (int i = layer.size() - 1; i > 0; i--) {
-                for (int j = 0; j < i; j++) {
 
-                    if (layer.get(i).getBarycenter() == Float.NaN) {
-                    } else if (layer.get(i + 1).getBarycenter() == Float.NaN) {
-                        i++;
-
-                    } else if (layer.get(i).getBarycenter() >
-                            layer.get(i + 1).getBarycenter()) {
-                        SugiyamaNode<N> temp = layer.get(i);
-                        layer.set(i, layer.get(i + 1));
-                        layer.set(i + 1, temp);
-                    }
-                }
-            }
-        }
-
+        /**
+         * ToString method for debugging purpose.
+         * @return String representation of this matrix
+         */
         @Override
         public String toString() {
             StringBuffer buff = new StringBuffer();
