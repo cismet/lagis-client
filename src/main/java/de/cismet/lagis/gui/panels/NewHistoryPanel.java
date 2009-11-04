@@ -17,6 +17,7 @@ import de.cismet.lagis.layout.SugiyamaLayout;
 import de.cismet.lagis.layout.model.HistoryPanelEdge;
 import de.cismet.lagis.layout.model.HistoryPanelModel;
 import de.cismet.lagis.layout.widget.HistoryLegendPanel;
+import de.cismet.lagis.layout.widget.InfiniteProgressPanel;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.LagisServerBean.HistoryLevel;
@@ -30,8 +31,11 @@ import de.cismet.tools.configuration.NoWriteError;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,8 +47,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JViewport;
 import org.apache.log4j.Logger;
 
 import org.jdom.Element;
@@ -52,12 +56,13 @@ import org.netbeans.api.visual.graph.layout.GraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.BirdViewController;
+import org.netbeans.api.visual.widget.Widget;
 
 /**
  *
  * @author mbrill
  */
-public class NewHistoryPanel extends AbstractWidget 
+public class NewHistoryPanel extends AbstractWidget
         implements FlurstueckChangeListener, Configurable, PropertyChangeListener {
 
     //-------------------------------------------------------------------------
@@ -67,14 +72,13 @@ public class NewHistoryPanel extends AbstractWidget
     private HistoryPanelModel graphScene;
     private SceneLayout sceneLayout;
     private Logger log;
-    private JScrollPane scrollPane;
     private HistoryLevel level;
     private HistoryType type;
     private int depth;
     private BirdViewController birdViewController;
     private JComponent view;
-
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private GraphUpdateThread<Flurstueck> updateThread;
+    private InfiniteProgressPanel progressPanel;
     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
     /** Creates new form HistoryPanel */
@@ -87,10 +91,11 @@ public class NewHistoryPanel extends AbstractWidget
         setWidgetName("History Panel");
         setIsCoreWidget(true);
 
+        progressPanel = new InfiniteProgressPanel("Der Graph wird berechnet");
+
+
         graphScene = new HistoryPanelModel();
         graphScene.getSelectProvider().addPropertyChangeListener(this);
-
-        scrollPane = new JScrollPane();
 
         view = graphScene.createView();
         view.setDoubleBuffered(false);
@@ -111,15 +116,9 @@ public class NewHistoryPanel extends AbstractWidget
         birdViewController = graphScene.createBirdView();
         legendOverviewMainPanel.setVisible(overViewCHB.isSelected());
 
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new GraphUpdateThread();
 
-            @Override
-            protected void update() {
-
-                updateGraph();
-            }
-        };
-
+        updateThread.addPropertyChangeListener(this);
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
     }
@@ -354,7 +353,6 @@ public class NewHistoryPanel extends AbstractWidget
 
     private void overViewCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overViewCHBActionPerformed
         legendOverviewMainPanel.setVisible(overViewCHB.isSelected());
-        graphScene.revalidate();
 }//GEN-LAST:event_overViewCHBActionPerformed
 
     private void magnifyerCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_magnifyerCHBActionPerformed
@@ -366,7 +364,7 @@ public class NewHistoryPanel extends AbstractWidget
 }//GEN-LAST:event_magnifyerCHBActionPerformed
 
     private void holdHistoryCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_holdHistoryCHBActionPerformed
-        if(holdHistoryCHB.isSelected()) {
+        if (holdHistoryCHB.isSelected()) {
             depthChoserCB.setEnabled(false);
             flurstueckChoserCB.setEnabled(false);
             depthSP.setEnabled(false);
@@ -378,20 +376,22 @@ public class NewHistoryPanel extends AbstractWidget
     }//GEN-LAST:event_holdHistoryCHBActionPerformed
 
     private void depthChoserCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_depthChoserCBActionPerformed
-        if(currentFlurstueck != null)
+        if (currentFlurstueck != null) {
             updateThread.notifyThread(currentFlurstueck);
+        }
     }//GEN-LAST:event_depthChoserCBActionPerformed
 
     private void flurstueckChoserCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flurstueckChoserCBActionPerformed
-        if(currentFlurstueck != null)
+        if (currentFlurstueck != null) {
             updateThread.notifyThread(currentFlurstueck);
+        }
     }//GEN-LAST:event_flurstueckChoserCBActionPerformed
 
     private void depthSPStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_depthSPStateChanged
-        if(currentFlurstueck != null && ((String)depthChoserCB.getSelectedItem()).equals("Begrenzte Tiefe"))
+        if (currentFlurstueck != null && ((String) depthChoserCB.getSelectedItem()).equals("Begrenzte Tiefe")) {
             updateThread.notifyThread(currentFlurstueck);
+        }
     }//GEN-LAST:event_depthSPStateChanged
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel creationDateInfoLabel;
     private javax.swing.JLabel creationDateLabel;
@@ -474,7 +474,7 @@ public class NewHistoryPanel extends AbstractWidget
 
         if (newFlurstueck != null) {
             if (!holdHistoryCHB.isSelected()) {
-                graphScene.setVisible(false);
+           
                 currentFlurstueck = newFlurstueck;
                 updateThread.notifyThread(newFlurstueck);
                 LagisBroker.getInstance().flurstueckChangeFinished(this);
@@ -548,9 +548,9 @@ public class NewHistoryPanel extends AbstractWidget
 
                     Set<FlurstueckHistorie> history;
 
-                    if(level.equals(HistoryLevel.CUSTOM) && depth == 0) {
+                    if (level.equals(HistoryLevel.CUSTOM) && depth == 0) {
                         history = new HashSet<FlurstueckHistorie>();
-                        
+
                     } else {
                         history = EJBroker.getInstance().
                                 getHistoryEntries(currentFlurstueck.getFlurstueckSchluessel(),
@@ -592,7 +592,7 @@ public class NewHistoryPanel extends AbstractWidget
                             log.debug("adding edge " + edge);
                         }
 
-                        
+
                     }
 
                     sceneLayout.invokeLayout();
@@ -615,7 +615,7 @@ public class NewHistoryPanel extends AbstractWidget
         graphScene.revalidate(true);
         view.repaint();
         graphScene.shiftViewToContentBounds();
-        
+
     }
 
     /**
@@ -735,14 +735,6 @@ public class NewHistoryPanel extends AbstractWidget
         this.log = log;
     }
 
-    public JScrollPane getScrollPane() {
-        return scrollPane;
-    }
-
-    public void setScrollPane(JScrollPane scrollPane) {
-        this.scrollPane = scrollPane;
-    }
-
     public JLabel getCreationDateInfoLabel() {
         return creationDateInfoLabel;
     }
@@ -831,7 +823,6 @@ public class NewHistoryPanel extends AbstractWidget
         this.holdHistoryCHB = holdHistoryCHB;
     }
 
-
     public HistoryLevel getLevel() {
         return level;
     }
@@ -863,21 +854,72 @@ public class NewHistoryPanel extends AbstractWidget
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals("flurstueck_selected")) {
+        if (evt.getPropertyName().equals("flurstueck_selected")) {
             Flurstueck f = (Flurstueck) evt.getNewValue();
 
             Date creationDate = f.getFlurstueckSchluessel().getEntstehungsDatum();
             Date historicSince = f.getFlurstueckSchluessel().getGueltigBis();
 
-            if(creationDate != null)
+            if (creationDate != null) {
                 creationDateInfoLabel.setText(sdf.format(creationDate));
-            else
+            } else {
                 creationDateInfoLabel.setText("keine Angaben");
+            }
 
-            if(historicSince != null)
+            if (historicSince != null) {
                 historicSinceInfoLabel.setText(sdf.format(historicSince));
-            else
+            } else {
                 historicSinceInfoLabel.setText("Flurstück ist aktuell");
+            }
+
+        } else if (evt.getPropertyName().equals("startUpdate")) {
+
+            graphPane.setViewportView(progressPanel);
+            progressPanel.setSize(graphPane.getSize());
+            progressPanel.start();
+            
+            
+        } else if (evt.getPropertyName().equals("endUpdate")) {
+
+            progressPanel.stop();
+            graphPane.setViewportView(view);
+
+            Widget currentFlurstueckWidget = graphScene.findWidget(currentFlurstueck);
+            Point location = currentFlurstueckWidget.getPreferredLocation();
+            
+            JViewport vp = graphPane.getViewport();
+            Rectangle viewRect = vp.getViewRect();
+            
+            Point viewPosition = new Point();
+            Rectangle widgetDim = currentFlurstueckWidget.getBounds();
+            viewPosition.x = location.x + widgetDim.width/2 - viewRect.width/2;
+            viewPosition.y = location.y + widgetDim.height/2 - viewRect.height/2;
+
+            if(viewPosition.x < 0)
+                viewPosition.x = 0;
+
+            if(viewPosition.y < 0)
+                viewPosition.y = 0;
+            
+            vp.setViewPosition(viewPosition);
+
+        }
+    }
+
+    private class GraphUpdateThread<T> extends BackgroundUpdateThread<T> {
+
+        private PropertyChangeSupport propSup = new PropertyChangeSupport(this);
+
+        @Override
+        protected void update() {
+
+            propSup.firePropertyChange("startUpdate", 0, 1);
+            updateGraph();
+            propSup.firePropertyChange("endUpdate", 1, 0);
+        }
+
+        public void addPropertyChangeListener(PropertyChangeListener listener) {
+            propSup.addPropertyChangeListener(listener);
         }
     }
 }
