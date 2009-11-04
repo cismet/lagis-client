@@ -9,6 +9,7 @@ import de.cismet.lagis.layout.widget.FlurstueckHistoryWidget;
 import de.cismet.lagis.layout.widget.FlurstueckNodePanel;
 import de.cismet.lagis.layout.widget.PseudoFlurstueckPanel;
 import de.cismet.lagisEE.entity.core.Flurstueck;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
@@ -19,6 +20,7 @@ import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.graph.GraphScene;
+import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -172,8 +174,9 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         ConnectionWidget edgeWidget = new CurvedConnectionWidget(this,
                 CurvedConnectionWidget.SET_SCURVE_CTRLPTS);
 
+        edgeWidget.setStroke(new BasicStroke(1.5f));
+        edgeWidget.setRouter(RouterFactory.createFreeRouter());
         edgeWidget.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-
         WidgetAction.Chain actions = edgeWidget.getActions();
         actions.addAction(createObjectHoverAction());
         actions.addAction(createSelectAction());
@@ -271,21 +274,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         return highlightLayer;
     }
 
-    /**
-     * Method is intended to calculate the total bounds of a graph. This could
-     * be useful to perform move operations on the scene view, e.g. to center the
-     * graph.
-     */
-    public void shiftViewToContentBounds() {
-
-        log.info("calculating total bounds for scene");
-        log.info("There are " + nodeLayer.getChildren().size() + " nodes");
-        Rectangle2D totalBounds = new Rectangle().getBounds2D();
-
-        for (Widget widget : nodeLayer.getChildren()) {
-            totalBounds = totalBounds.createUnion(widget.getPreferredBounds().getBounds2D());
-        }
-
-        log.info("Total scene content bounds:" + totalBounds);
+    public LayerWidget getConnectionLayer() {
+        return connectionLayer;
     }
 }

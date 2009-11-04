@@ -68,17 +68,64 @@ public class NewHistoryPanel extends AbstractWidget
     //-------------------------------------------------------------------------
     //          Attributes
     //-------------------------------------------------------------------------
+    /**
+     * The flurstueck currently selected in lagis
+     */
     private Flurstueck currentFlurstueck;
+
+    /**
+     * The NBV Scene object rendering the graph
+     */
     private HistoryPanelModel graphScene;
+
+    /**
+     * The scene layout algorithm instance. In this case instanceof SugiyamaLayout
+     */
     private SceneLayout sceneLayout;
     private Logger log;
+
+    /**
+     * Variable holding the user selection of how many levels of the graph
+     * are to display
+     */
     private HistoryLevel level;
+
+    /**
+     * Variable holding the user selection of wether all, only predecessing or
+     * only successing nodes relative to the current flurstueck are to display
+     */
     private HistoryType type;
+
+    /**
+     * Variable holding the user selection of how many graph levels are to display
+     * in case the user chose to display a custom graph depth
+     */
     private int depth;
+
+    /**
+     * NBV Magnifying glass
+     */
     private BirdViewController birdViewController;
+
+    /**
+     * JComponent version of the NBV Scene which is used to integrate NBV into Swing
+     */
     private JComponent view;
+
+    /**
+     * Thread which updates the history graph asynchronously
+     */
     private GraphUpdateThread<Flurstueck> updateThread;
+
+    /**
+     * Panel indicating a progress. In this case the panel is shown instead of the
+     * NBV view to indicate that the graph is currently updating
+     */
     private InfiniteProgressPanel progressPanel;
+
+    /**
+     * Dateformatter to display any Date in the format dd.MM.yyyy
+     */
     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
     /** Creates new form HistoryPanel */
@@ -353,6 +400,8 @@ public class NewHistoryPanel extends AbstractWidget
 
     private void overViewCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overViewCHBActionPerformed
         legendOverviewMainPanel.setVisible(overViewCHB.isSelected());
+        graphScene.revalidate();
+        view.repaint();
 }//GEN-LAST:event_overViewCHBActionPerformed
 
     private void magnifyerCHBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_magnifyerCHBActionPerformed
@@ -460,7 +509,7 @@ public class NewHistoryPanel extends AbstractWidget
      */
     @Override
     public void setComponentEditable(boolean isEditable) {
-        log.error("Unsupported operation called : setComponentEditable");
+        log.warn("Unsupported operation called : setComponentEditable");
     }
 
     /**
@@ -613,57 +662,7 @@ public class NewHistoryPanel extends AbstractWidget
 
         graphScene.setVisible(true);
         graphScene.revalidate(true);
-        view.repaint();
-        graphScene.shiftViewToContentBounds();
-
-    }
-
-    /**
-     * In order to display the graph centered relative to the users view, rather 
-     * then left aligned as it comes from the layout algorithm, this method
-     * does just this. 
-     * 
-     * To get the area which has to be displayed, the widgets are evaluated for
-     * their bounds and then the scene is scrolled, but not scaled to the 
-     * rectangle calculated.
-     */
-    private void centerGraphInView() {
-
-        log.info("Bringing Graph to viewCenter");
-
-
-//        Rectangle2D totalBounds = new Rectangle(0,0,1,1).getBounds2D();
-//
-//
-//        // loop creates a union over all bounds in the scene (FlurstueckWidgets)
-//        for (Flurstueck flurstueck : graphScene.getNodes()) {
-//
-//            Widget w = graphScene.findWidget(flurstueck);
-//            Rectangle bounds = w.getBounds();
-//
-//
-//            if(bounds != null) {
-//
-//                Rectangle2D bounds2D = bounds.getBounds2D();
-//                totalBounds = totalBounds.createUnion(bounds2D);
-//
-//            } else {
-//                log.warn("bounds of widget " +
-//                        flurstueck.getFlurstueckSchluessel().toString() +
-//                        "is null.");
-//            }
-//        }
-//
-//        Rectangle2D flurstueckBounds = graphScene.findWidget(currentFlurstueck).getBounds().getBounds2D();
-//        Rectangle viewBounds = view.getBounds();
-//        Point center = new Point((int)totalBounds.getCenterX(),(int)totalBounds.getMinY());
-//        Point centerInScene = graphScene.convertSceneToView(center);
-//
-//        view.scrollRectToVisible(viewBounds);
-
-//        view.scrollRectToVisible(new Rectangle(center.x - viewBounds.width / 2, center.y -
-//                viewBounds.height / 2, viewBounds.width, viewBounds.height));
-
+//        view.repaint();
 
     }
 

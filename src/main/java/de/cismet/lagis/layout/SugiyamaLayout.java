@@ -1068,6 +1068,7 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
 
             if (w instanceof ConnectionWidget) {
                 ConnectionWidget cw = (ConnectionWidget) w;
+
                 ArrayList<Point> controlPoints = new ArrayList<Point>();
                 ArrayList<SugiyamaNode<N>> dummyTrail =
                         dummyMapping.get(longEdgeMapping.get(key));
@@ -1133,9 +1134,11 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
                 controlPoints.add(controlPoints.get(controlPoints.size() - 1));
                 controlPoints.add(0, controlPoints.get(0));
 
-
-                cw.setRouter(RouterFactory.createFreeRouter());
                 cw.setControlPoints(controlPoints, false);
+
+                // if connectionwidget belongs to a long edge, set a free router
+                // so that controlpoints are taken into concideration
+                cw.setRouter(RouterFactory.createFreeRouter());
 
             }
         }

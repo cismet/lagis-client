@@ -40,12 +40,16 @@ public class CurvedConnectionWidget extends ConnectionWidget {
     public static final int SET_SCURVE_CTRLPTS = 0;
 
     private boolean drawSCurve = false;
+
+
+    /**
+     * Offset for the S curve control points. This offset is set relatively to
+     * the direct connection between 2 points.
+     */
     private int sCurveCoordinateOffset = 8;
 
     public CurvedConnectionWidget(Scene scene) {
         super(scene);
-
-        paintWidget();
     }
 
     public CurvedConnectionWidget(Scene scene, int option) {
@@ -55,28 +59,29 @@ public class CurvedConnectionWidget extends ConnectionWidget {
             case SET_SCURVE_CTRLPTS:
                 drawSCurve = true;
         }
-
-        paintWidget();
     }
 
     /**
      * This method overrides paintWidget from ConnectionWidget.
-     * Instead of drawing straigt lines
+     * Instead of drawing straigt lines it draws a beziér line along the
+     * controlpoints for this connection widget. If the SCurve option is set and
+     * the connectionWidget hast only a start and end controlPoint, new controlPoints
+     * are added to draw an S like line between start and endpoint.
      */
     @Override
     protected void paintWidget() {
 
-        Anchor source = getSourceAnchor();
-        Anchor target = getTargetAnchor();
 
-        List<Point> controlPoints = this.getControlPoints();
-        int noOfControlPoints = controlPoints.size();
+        int noOfControlPoints = getControlPoints().size();
 
         if (noOfControlPoints > 1) {
-            Point prev = controlPoints.get(0);
-            Point current = controlPoints.get(1);
+
+            Point prev = getControlPoint(0);
+            Point current = getControlPoint(1);
+
 
             if (drawSCurve && noOfControlPoints == 2) {
+
                 ArrayList<Point> sCurveControl = new ArrayList();
 
                 Point ctrl1;
@@ -123,6 +128,10 @@ public class CurvedConnectionWidget extends ConnectionWidget {
                 }
             }
 
+            noOfControlPoints = getControlPoints().size();
+            prev = getControlPoint(0);
+            current = getControlPoint(1);
+            
             Point mid = new Point((current.x + prev.x) / 2,
                     (current.y + prev.y) / 2);
 
@@ -138,7 +147,7 @@ public class CurvedConnectionWidget extends ConnectionWidget {
 
                     prev = current;
 
-                    current = controlPoints.get(i);
+                    current = getControlPoint(i);
 
                     mid = new Point((current.x + prev.x) / 2,
                             (current.y + prev.y) / 2);
@@ -159,7 +168,7 @@ public class CurvedConnectionWidget extends ConnectionWidget {
 
             }
 
-            prev = controlPoints.get(noOfControlPoints - 1);
+            prev = getControlPoint(noOfControlPoints - 1);
             current = getLastControlPoint();
             mid = new Point((current.x + prev.x) / 2, (current.y + prev.y) / 2);
 
