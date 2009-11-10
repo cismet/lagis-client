@@ -11,8 +11,7 @@ import de.cismet.lagis.layout.widget.PseudoFlurstueckPanel;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
+import javax.swing.JPanel;
 import org.apache.log4j.Logger;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -48,6 +47,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
     //      Attributes
     //--------------------------------------------------------------------------
 
+    private static Color background = new Color(225, 225, 225);
     /**
      * Widget containing the nodes of the scene
      */
@@ -101,7 +101,7 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
 
         log = Logger.getLogger(this.getClass());
 
-        setBackground(Color.WHITE);
+        setBackground(background);
 
         nodeLayer = new LayerWidget(this);
         connectionLayer = new LayerWidget(this);
@@ -177,9 +177,9 @@ public class HistoryPanelModel extends GraphScene<Flurstueck, HistoryPanelEdge> 
         edgeWidget.setStroke(new BasicStroke(1.5f));
         edgeWidget.setRouter(RouterFactory.createFreeRouter());
         edgeWidget.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-        WidgetAction.Chain actions = edgeWidget.getActions();
-        actions.addAction(createObjectHoverAction());
-        actions.addAction(createSelectAction());
+//        WidgetAction.Chain actions = edgeWidget.getActions();
+//        actions.addAction(createObjectHoverAction());
+//        actions.addAction(createSelectAction());
         connectionLayer.addChild(edgeWidget);
 
         return edgeWidget;
