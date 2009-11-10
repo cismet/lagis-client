@@ -28,8 +28,6 @@ import javax.swing.JToolTip;
  */
 public class PureCoolToolTip extends JToolTip {
 
-//    private ResourceBundle icon_bundle = ResourceBundle.getBundle(
-//            "de/cismet/lagis/ressource/history/icon", new Locale("de", "DE"));
 
     /**
      * Constructs a new instance of JToolTip using PureCoolToolTipUI and a
@@ -37,8 +35,6 @@ public class PureCoolToolTip extends JToolTip {
      */
     public PureCoolToolTip() {
 
-//        ImageIcon icon = new ImageIcon(this.getClass().getResource(
-//                icon_bundle.getString("icon_tooltip")));
         setUI(new PureCoolToolTipUI(null));
         setOpaque(false);
 
