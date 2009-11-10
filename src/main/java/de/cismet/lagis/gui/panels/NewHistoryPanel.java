@@ -355,7 +355,7 @@ public class NewHistoryPanel extends AbstractWidget
         legendOverviewMainPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         legendOverviewMainPanel.setMaximumSize(new java.awt.Dimension(245, 32767));
 
-        satellitePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Graph Übersicht"));
+        satellitePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Übersicht"));
         satellitePanel.setLayout(new java.awt.BorderLayout());
 
         legendBasePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Legende"));
