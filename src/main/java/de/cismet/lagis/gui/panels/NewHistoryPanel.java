@@ -180,6 +180,11 @@ public class NewHistoryPanel extends AbstractWidget
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        graphPanel = new javax.swing.JPanel();
+        graphPane = new javax.swing.JScrollPane();
+        legendOverviewMainPanel = new javax.swing.JPanel();
+        satellitePanel = new javax.swing.JPanel();
+        legendBasePanel = new javax.swing.JPanel();
         historyControlPanel = new javax.swing.JPanel();
         historyOptionPanel = new javax.swing.JPanel();
         optionPanel = new javax.swing.JPanel();
@@ -195,13 +200,35 @@ public class NewHistoryPanel extends AbstractWidget
         historicSinceLabel = new javax.swing.JLabel();
         creationDateInfoLabel = new javax.swing.JLabel();
         historicSinceInfoLabel = new javax.swing.JLabel();
-        graphPanel = new javax.swing.JPanel();
-        graphPane = new javax.swing.JScrollPane();
-        legendOverviewMainPanel = new javax.swing.JPanel();
-        satellitePanel = new javax.swing.JPanel();
-        legendBasePanel = new javax.swing.JPanel();
 
         setLayout(new java.awt.BorderLayout());
+
+        graphPane.setBackground(new java.awt.Color(254, 254, 254));
+
+        legendOverviewMainPanel.setBorder(null);
+        legendOverviewMainPanel.setMaximumSize(new java.awt.Dimension(245, 32767));
+
+        satellitePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Übersicht"));
+        satellitePanel.setLayout(new java.awt.BorderLayout());
+
+        legendBasePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Legende"));
+        legendBasePanel.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.GroupLayout legendOverviewMainPanelLayout = new javax.swing.GroupLayout(legendOverviewMainPanel);
+        legendOverviewMainPanel.setLayout(legendOverviewMainPanelLayout);
+        legendOverviewMainPanelLayout.setHorizontalGroup(
+            legendOverviewMainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(satellitePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+            .addComponent(legendBasePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+        );
+        legendOverviewMainPanelLayout.setVerticalGroup(
+            legendOverviewMainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(legendOverviewMainPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(satellitePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(legendBasePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
+        );
 
         historyControlPanel.setBorder(null);
         historyControlPanel.setPreferredSize(new java.awt.Dimension(498, 115));
@@ -283,26 +310,6 @@ public class NewHistoryPanel extends AbstractWidget
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
         graphDepthPanel.add(depthSP, gridBagConstraints);
 
-        javax.swing.GroupLayout historyOptionPanelLayout = new javax.swing.GroupLayout(historyOptionPanel);
-        historyOptionPanel.setLayout(historyOptionPanelLayout);
-        historyOptionPanelLayout.setHorizontalGroup(
-            historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(historyOptionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(optionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 141, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(graphDepthPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        historyOptionPanelLayout.setVerticalGroup(
-            historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(historyOptionPanelLayout.createSequentialGroup()
-                .addGroup(historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(graphDepthPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
-                    .addComponent(optionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
         historyInformationPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Informationen"));
         historyInformationPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -330,54 +337,44 @@ public class NewHistoryPanel extends AbstractWidget
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         historyInformationPanel.add(historicSinceInfoLabel, gridBagConstraints);
 
+        javax.swing.GroupLayout historyOptionPanelLayout = new javax.swing.GroupLayout(historyOptionPanel);
+        historyOptionPanel.setLayout(historyOptionPanelLayout);
+        historyOptionPanelLayout.setHorizontalGroup(
+            historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(historyOptionPanelLayout.createSequentialGroup()
+                .addComponent(optionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(graphDepthPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(historyInformationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        historyOptionPanelLayout.setVerticalGroup(
+            historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, historyOptionPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(historyInformationPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(historyOptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(optionPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(graphDepthPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout historyControlPanelLayout = new javax.swing.GroupLayout(historyControlPanel);
         historyControlPanel.setLayout(historyControlPanelLayout);
         historyControlPanelLayout.setHorizontalGroup(
             historyControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(historyControlPanelLayout.createSequentialGroup()
-                .addComponent(historyOptionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(historyInformationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, historyControlPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(historyOptionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         historyControlPanelLayout.setVerticalGroup(
             historyControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, historyControlPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(historyControlPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(historyControlPanelLayout.createSequentialGroup()
-                        .addComponent(historyInformationPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(12, 12, 12))
-                    .addComponent(historyOptionPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        );
-
-        add(historyControlPanel, java.awt.BorderLayout.SOUTH);
-
-        graphPane.setBackground(new java.awt.Color(254, 254, 254));
-
-        legendOverviewMainPanel.setBorder(null);
-        legendOverviewMainPanel.setMaximumSize(new java.awt.Dimension(245, 32767));
-
-        satellitePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Übersicht"));
-        satellitePanel.setLayout(new java.awt.BorderLayout());
-
-        legendBasePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Legende"));
-        legendBasePanel.setLayout(new java.awt.BorderLayout());
-
-        javax.swing.GroupLayout legendOverviewMainPanelLayout = new javax.swing.GroupLayout(legendOverviewMainPanel);
-        legendOverviewMainPanel.setLayout(legendOverviewMainPanelLayout);
-        legendOverviewMainPanelLayout.setHorizontalGroup(
-            legendOverviewMainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(satellitePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
-            .addComponent(legendBasePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
-        );
-        legendOverviewMainPanelLayout.setVerticalGroup(
-            legendOverviewMainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(legendOverviewMainPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(satellitePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 203, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(legendBasePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 563, Short.MAX_VALUE))
+            .addGroup(historyControlPanelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(historyOptionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout graphPanelLayout = new javax.swing.GroupLayout(graphPanel);
@@ -385,16 +382,22 @@ public class NewHistoryPanel extends AbstractWidget
         graphPanelLayout.setHorizontalGroup(
             graphPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, graphPanelLayout.createSequentialGroup()
-                .addComponent(graphPane, javax.swing.GroupLayout.DEFAULT_SIZE, 599, Short.MAX_VALUE)
+                .addComponent(graphPane, javax.swing.GroupLayout.DEFAULT_SIZE, 716, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(legendOverviewMainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(graphPanelLayout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(historyControlPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 908, Short.MAX_VALUE)
+                .addContainerGap())
         );
         graphPanelLayout.setVerticalGroup(
             graphPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, graphPanelLayout.createSequentialGroup()
                 .addGroup(graphPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(graphPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 784, Short.MAX_VALUE)
+                    .addComponent(graphPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 673, Short.MAX_VALUE)
                     .addComponent(legendOverviewMainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(historyControlPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
