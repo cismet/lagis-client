@@ -38,6 +38,11 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
     private UniversalGraph<N, E> graph;
 
     /**
+     * Attribute to set the default offset between layers.
+     */
+    private int additionalLayerOffset = 50;
+
+    /**
      * Scene which displays the layed out graph
      */
     private GraphScene<N, E> scene;
@@ -535,13 +540,15 @@ public class SugiyamaLayout<N, E> extends GraphLayout {
         // maximum size for a widget was calculated, set the gaps between layers
         // according to the maximal vertical size of a widget
         if (vgap == null) {
-            if (maxY > 60.0 && maxY < 200) {
-                this.vgap = (int) (maxY + maxY / 2.0);
-            } else if (maxY > 200) {
-                this.vgap = (int) (maxY + 100.0);
-            } else {
-                this.vgap = (int) (maxY + 30.0);
-            }
+//            if (maxY > 60.0 && maxY < 200) {
+//                this.vgap = (int) (maxY + maxY / 2.0);
+//            } else if (maxY > 200) {
+//                this.vgap = (int) (maxY + 100.0);
+//            } else {
+//                this.vgap = (int) (maxY + 30.0);
+//            }
+
+            this.vgap = (int) (maxY + additionalLayerOffset);
         }
 //        this.maximumVSize = (int) maxY;
 
