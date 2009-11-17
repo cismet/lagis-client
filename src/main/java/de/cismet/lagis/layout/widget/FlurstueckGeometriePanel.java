@@ -12,6 +12,7 @@ import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.tools.configuration.ConfigurationManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -25,6 +26,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import org.geotools.geometry.jts.LiteShape;
 import org.jdesktop.swingx.image.GaussianBlurFilter;
@@ -197,22 +199,35 @@ public class FlurstueckGeometriePanel extends JPanel {
                 g2d.setPaint(oldPaint);
             } else {
 
+                FontMetrics m = g.getFontMetrics();
+
+                String s1 = "Es wurde keine";
+                String s2 = "Geometrie gefunden";
+
+                int fontHeight = m.getHeight();
+                int s1Length = SwingUtilities.computeStringWidth(m, s1);
+                int s2Length = SwingUtilities.computeStringWidth(m, s2);
+
                 BufferedImage shadow = new BufferedImage(getWidth() + 3, getHeight() + 5,
                         BufferedImage.TYPE_INT_ARGB);
 
                 Graphics2D shadowGraphics = shadow.createGraphics();
                 shadowGraphics.setColor(Color.BLACK);
                 shadowGraphics.setComposite(new ColorComposite(0.5f));
-                shadowGraphics.drawString("Es wurde keine", 22, height / 2 - 4);
-                shadowGraphics.drawString("Geometrie gefunden", 11, height / 2 + 8);
+                shadowGraphics.drawString(s1, (width/2) - (s1Length/2)
+                        , height / 2 - 5);
+                shadowGraphics.drawString(s2, (width/2) - (s2Length/2)
+                        , height / 2 + 8);
 
                 GaussianBlurFilter blurFilter = new GaussianBlurFilter(3);
                 shadow = blurFilter.filter(shadow, null);
 
                 g2d.setPaint(Color.BLACK);
                 g2d.drawImage(shadow, 0, 0, this);
-                g2d.drawString("Es wurde keine", 20, height / 2 - 6);
-                g2d.drawString("Geometrie gefunden", 9, height / 2 + 6);
+                g2d.drawString(s1, (width/2) - (s1Length/2 + 2)
+                        , height / 2 - 5);
+                g2d.drawString(s2, (width/2) - (s2Length/2 + 2)
+                        , height / 2 + 8);
 
                 shadowGraphics.dispose();
                 shadow.flush();
