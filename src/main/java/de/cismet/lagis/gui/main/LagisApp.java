@@ -2020,10 +2020,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (IOException ex) {
                 log.error("Layout File IO Exception --> loading default Layout", ex);
                 if (isInit) {
-                    JOptionPane.showMessageDialog(this, java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.loading_layout_failure_message_init"), java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.message_title"), JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.","Fehler" , JOptionPane.INFORMATION_MESSAGE);
                     doLayoutInfoNode();
                 } else {
-                    JOptionPane.showMessageDialog(this, java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.loading_layout_failure_message"), java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.message_title"), JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.","Fehler", JOptionPane.INFORMATION_MESSAGE);
                 }
 
             }
@@ -2042,7 +2042,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 });
             } else {
                 log.warn("Datei exitstiert nicht)");
-                JOptionPane.showMessageDialog(this, java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.layout_does_not_exist"), java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.message_title"), JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Das angegebene Layout konnte nicht gefunden werden.","Fehler", JOptionPane.INFORMATION_MESSAGE);
             }
 
         }
@@ -2074,7 +2074,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 loadLayout(name);
             } else {
                 //TODO Schwachsinn
-                JOptionPane.showMessageDialog(this, java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.format_failure_message"), java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.message_title"), JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Das gew\u00E4hlte Dateiformat wird nicht unterst\u00FCtzt.\nBitte w\u00E4hlen Sie eine Datei mit der Endung .layout", "Fehler", JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }//GEN-LAST:event_mniLoadLayoutActionPerformed
@@ -2097,7 +2097,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             out.close();
             log.debug("Saving Layout.. to " + file + " successfull");
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.saving_layout_failure"), java.util.ResourceBundle.getBundle("de/cismet/cismap/navigatorplugin/Bundle").getString("CismapPlugin.InfoNode.message_title"), JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Speichern des Layouts ist ein Fehler aufgetreten.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
             log.error("A failure occured during writing the layout file", ex);
         }
     }
@@ -2580,6 +2580,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         log.debug("HistoryChanged");
         //throw new UnsupportedOperationException("Not supported yet.");
         try {
+            if(mapComponent != null && mapComponent.getCurrentElement() != null){
             Vector backPos = mapComponent.getBackPossibilities();
             Vector forwPos = mapComponent.getForwardPossibilities();
             if (menHistory != null) {
@@ -2642,6 +2643,9 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 }
                 menHistory.add(sepAfterPos);
                 menHistory.add(mniHistorySidebar);
+            }
+            } else {
+                log.debug("CurrentElement == null --> No History change");
             }
         } catch (Exception ex) {
             log.error("Fehler in Historychanged", ex);
@@ -3020,16 +3024,16 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 appletContext.showDocument(u, "cismetBrowser");
             }
         } catch (Exception e) {
-            log.warn(java.util.ResourceBundle.getBundle("de/cismet/cismap/commons/GuiBundle").getString("FeatureInfoDisplay.log.Fehler_beim_Oeffnen_von") + url + java.util.ResourceBundle.getBundle("de/cismet/cismap/commons/GuiBundle").getString("FeatureInfoDisplay.log.Neuer_Versuch"), e);
+            log.warn("Fehler beim \u00D6ffnen von:"+ url + "\\nNeuer Versuch", e);
             //Nochmal zur Sicherheit mit dem BrowserLauncher probieren
             try {
                 de.cismet.tools.BrowserLauncher.openURL(url);
             } catch (Exception e2) {
-                log.warn(java.util.ResourceBundle.getBundle("de/cismet/cismap/commons/GuiBundle").getString("FeatureInfoDisplay.log.Auch_das_2te_Mal_ging_schief.Fehler_beim_Oeffnen_von") + url + java.util.ResourceBundle.getBundle("de/cismet/cismap/commons/GuiBundle").getString("FeatureInfoDisplay.log.Letzter_Versuch"), e2);
+                log.warn("Auch das 2te Mal ging schief.Fehler beim \u00D6ffnen von:"+ "\\nLetzter Versuch", e2);
                 try {
                     de.cismet.tools.BrowserLauncher.openURL("file://" + url);
                 } catch (Exception e3) {
-                    log.error(java.util.ResourceBundle.getBundle("de/cismet/cismap/commons/GuiBundle").getString("FeatureInfoDisplay.log.Auch_das_3te_Mal_ging_schief.Fehler_beim_Oeffnen_von:file://") + url, e3);
+                    log.error("Auch das 3te Mal ging schief.Fehler beim \u00D6ffnen von:" + url, e3);
                 }
             }
         }
