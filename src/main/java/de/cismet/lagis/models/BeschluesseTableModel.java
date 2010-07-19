@@ -56,7 +56,12 @@ public class BeschluesseTableModel extends AbstractTableModel {
     public void refreshTableModel(Set<Beschluss> beschluesse) {
         try {
             log.debug("Refresh des BeschlussTableModell");
-            this.beschluesse = new Vector<Beschluss>(beschluesse);
+            if (beschluesse != null) {
+                this.beschluesse = new Vector<Beschluss>(beschluesse);
+            } else {
+                log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
+                this.beschluesse = new Vector<Beschluss>();
+            }
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
             this.beschluesse = new Vector<Beschluss>();

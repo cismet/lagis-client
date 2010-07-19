@@ -440,7 +440,13 @@ public class NKFTableModel extends AbstractTableModel {
     public void refreshTableModel(Set<Nutzung> nutzungen) {
         try {
             log.debug("Refresh des NKFTableModell");
-            this.allNutzungen = new Vector<Nutzung>(nutzungen);
+
+            if (nutzungen != null) {
+                this.allNutzungen = new Vector<Nutzung>(nutzungen);
+            } else {
+                log.debug("Nutzungsvektor == null --> Erstelle Vektor.");
+                this.allNutzungen = new Vector<Nutzung>();
+            }
             currentNutzungen = new Vector<Nutzung>();
             Iterator<Nutzung> it = allNutzungen.iterator();
             while (it.hasNext()) {

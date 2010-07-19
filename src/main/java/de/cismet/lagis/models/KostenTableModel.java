@@ -58,7 +58,12 @@ public class KostenTableModel extends AbstractTableModel {
     public void refreshTableModel(Set<Kosten>  kosten){
         try{
             log.debug("Refresh des KostenTableModell");
-            this.kosten = new Vector<Kosten>(kosten);
+            if (kosten != null) {
+                this.kosten = new Vector<Kosten>(kosten);
+            } else {
+                log.debug("Kostenvektor == null --> Erstelle Vektor.");
+                this.kosten = new Vector<Kosten>();
+            }
         }catch(Exception ex){
             log.error("Fehler beim refreshen des Models",ex);
             this.kosten = new Vector<Kosten>();
