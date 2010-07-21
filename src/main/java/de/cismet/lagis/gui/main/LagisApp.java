@@ -64,6 +64,7 @@ import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.wizard.ContinuationWizard;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
+import de.cismet.tools.CurrentStackTrace;
 import de.cismet.tools.StaticDecimalTools;
 
 import de.cismet.tools.configuration.Configurable;
@@ -255,21 +256,44 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     //FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel() {
 
+
+        private Element serverConfiguration = null;
         @Override
         public void masterConfigure(Element e) {
-            super.masterConfigure(e);
-            super.configure(e);
+            log.debug("Lagis ActiveLayerModel masterConfigure.",new CurrentStackTrace());
+            serverConfiguration=e;
         }
 
         @Override
         public void configure(Element e) {
+            log.debug("Lagis ActiveLayerModel configure.",new CurrentStackTrace());
+            try{
+            final Element conf = e.getChild("cismapActiveLayerConfiguration");
+            if((conf != null && conf.getChildren() != null && conf.getChildren().size() > 0)){
+                log.debug("Es sind lokale Layer vorhanden");                
+                super.configure(e);
+                return;
+            }
+            final Element layers = conf.getChild("Layers");
+            if(layers != null && layers.getChildren().size() >0){
+              log.debug("Es sind lokale Layer vorhanden");
+                super.configure(e);
+                return;
+            }
+            } catch(Exception ex){
+                log.error("Fehler beim laden der lokalen Layer. Lade Server Layer...",ex);
+                super.configure(serverConfiguration);
+                return;
+            }
+            log.debug("Es sind keine lokalen Layer vorhanden. Lade Server Layer...");
+            super.configure(serverConfiguration);
         }
 
-        @Override
-        public Element getConfiguration() throws NoWriteError {
-            Element conf = new Element("cismapActiveLayerConfiguration");
-            return conf;
-        }
+//        @Override
+//        public Element getConfiguration() throws NoWriteError {
+//            Element conf = new Element("cismapActiveLayerConfiguration");
+//            return conf;
+//        }
     };
     private Vector widgets = new Vector();
     private boolean isInit = true;
