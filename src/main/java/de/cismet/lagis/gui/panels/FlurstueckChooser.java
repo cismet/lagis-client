@@ -869,7 +869,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             try{
                 if(RETRIEVE_AUTOMATIC_MODE==mode || event.getSource() instanceof JComboBox){
                     if(RETRIEVE_AUTOMATIC_MODE!=mode){
-                        log.fatal("modifiers: "+event.getModifiers());
+                        log.debug("modifiers: "+event.getModifiers());
                     }
                     if(RETRIEVE_AUTOMATIC_MODE==mode || event.getActionCommand().equals("comboBoxChanged")){
                         if(RETRIEVE_AUTOMATIC_MODE==mode ||((event.getModifiers() & InputEvent.BUTTON1_MASK) !=0) ||(event.getModifiers() !=0 && ((event.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0))){
