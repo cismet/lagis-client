@@ -290,6 +290,7 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         //        isConnected();
         try {
             flurstueck.getFlurstueckSchluessel().setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            flurstueck.getFlurstueckSchluessel().setLetzte_bearbeitung(getCurrentDate());
             lagisEJBServerStub.modifyFlurstueck(flurstueck);
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -302,6 +303,7 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         //        isConnected();
         try {
             key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzte_bearbeitung(getCurrentDate());
             lagisEJBServerStub.modifyFlurstueckSchluessel(key);
         } catch (final EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -599,6 +601,7 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
 //        isConnected();
         try {
             key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzte_bearbeitung(getCurrentDate());
             return lagisEJBServerStub.createFlurstueck(key);
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -622,6 +625,8 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         try {
             oldFlurstueckSchluessel.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
             newFlurstueckSchluessel.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            oldFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
+            newFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
             return lagisEJBServerStub.renameFlurstueck(oldFlurstueckSchluessel, newFlurstueckSchluessel, LagisBroker.getInstance().getAccountName());
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -646,8 +651,10 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         try {
             for(FlurstueckSchluessel key:joinMembers){
                 key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+                key.setLetzte_bearbeitung(getCurrentDate());
             }
             newFlurstueckSchluessel.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            newFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
             return lagisEJBServerStub.joinFlurstuecke(joinMembers, newFlurstueckSchluessel, LagisBroker.getInstance().getAccountName());
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -661,8 +668,10 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         try {
             for(FlurstueckSchluessel key:splitMembers){
                 key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+                key.setLetzte_bearbeitung(getCurrentDate());
             }
             oldFlurstueckSchluessel.setLetzter_bearbeiter(benutzerkonto);
+            oldFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
             lagisEJBServerStub.splitFlurstuecke(oldFlurstueckSchluessel, splitMembers, LagisBroker.getInstance().getAccountName());
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -676,9 +685,11 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         try {
             for(FlurstueckSchluessel key:joinMembers){
                 key.setLetzter_bearbeiter(benutzerkonto);
+                key.setLetzte_bearbeitung(getCurrentDate());
             }
             for(FlurstueckSchluessel key:splitMembers){
                 key.setLetzter_bearbeiter(benutzerkonto);
+                key.setLetzte_bearbeitung(getCurrentDate());
             }
             lagisEJBServerStub.joinSplitFlurstuecke(joinMembers, splitMembers, LagisBroker.getInstance().getAccountName());
         } catch (EJBException ex) {
@@ -821,6 +832,7 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
         try {
 //        isConnected();
             key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzte_bearbeitung(getCurrentDate());
             return lagisEJBServerStub.setFlurstueckHistoric(key);
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -843,6 +855,7 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
     public boolean setFlurstueckActive(final FlurstueckSchluessel key) throws ActionNotSuccessfulException {
         try {
             key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzte_bearbeitung(getCurrentDate());
             return lagisEJBServerStub.setFlurstueckActive(key);
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");
@@ -853,6 +866,8 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
     
     public void bookNutzungenForFlurstueck(FlurstueckSchluessel key,String username) throws ActionNotSuccessfulException{
         try {
+            key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzte_bearbeitung(getCurrentDate());
             lagisEJBServerStub.bookNutzungenForFlurstueck(key,username);
         } catch (EJBException ex) {
             log.debug("Exception ist eine EJBException");

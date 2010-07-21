@@ -67,6 +67,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DateFormatter;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
@@ -142,8 +143,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener, G
                         cleanup();
                         return;
                     }
-                    if (getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter() != null) {
+                    if (getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter() != null && getCurrentObject().getFlurstueckSchluessel().getLetzte_bearbeitung() != null) {
+                        lblLastModification.setToolTipText(getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter() + " am " + LagisBroker.getDateFormatter().format(getCurrentObject().getFlurstueckSchluessel().getLetzte_bearbeitung()));
+                    }else  if (getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter() != null) {
                         lblLastModification.setToolTipText(getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter());
+                    } else {
+                        lblLastModification.setToolTipText("Unbekannt");
                     }
                     if (getCurrentObject().getFlurstueckSchluessel() != null) {                        
                         historyModel.addToHistory(getCurrentObject());                                                    
