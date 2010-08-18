@@ -18,7 +18,7 @@
     <description>!!! description pending !!!</description>
 
     <dependencies>
-         <dependency>
+        <dependency>
             <groupId>de.cismet.cids.navigator.plugin</groupId>
             <artifactId>tim-easy</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -107,6 +107,28 @@
             <version>1.0-SNAPSHOT</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+            <version>RELEASE67</version>
+        </dependency>
+        <dependency>
+            <groupId>de.cismet.lagis.plugin</groupId>
+            <artifactId>flurstueck-historie</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-visual</artifactId>
+            <version>RELEASE67</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-main</artifactId>
+            <version>2.6-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>LagisClient</finalName>
