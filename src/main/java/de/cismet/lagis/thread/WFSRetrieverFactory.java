@@ -26,8 +26,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
-import org.deegree2.model.feature.GMLFeatureCollectionDocument;
-import org.deegree2.model.spatialschema.JTSAdapter;
+import org.deegree.model.feature.GMLFeatureCollectionDocument;
+import org.deegree.model.spatialschema.JTSAdapter;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -134,7 +134,7 @@ public class WFSRetrieverFactory implements Configurable{
         private HashMap<Integer,Boolean> properties;
         //private int mode;
         private FlurstueckSchluessel flurstueckKey;
-        private org.deegree2.model.feature.FeatureCollection featuresCollection;
+        private org.deegree.model.feature.FeatureCollection featuresCollection;
         //private boolean hasManyVerwal
         //private boolean hasManyVerwaltungsbereiche;
         //private boolean isNoGeometryAssigned=true;
@@ -319,7 +319,7 @@ public class WFSRetrieverFactory implements Configurable{
             return null;
         }
         
-        public org.deegree2.model.feature.FeatureCollection parse(InputStreamReader reader){
+        public org.deegree.model.feature.FeatureCollection parse(InputStreamReader reader){
             try {
                 log.debug("start parsing");
                 long start = System.currentTimeMillis();
@@ -339,7 +339,7 @@ public class WFSRetrieverFactory implements Configurable{
                     return null;
                 }
                 log.debug("resultString :"+doc.toString());
-                org.deegree2.model.feature.FeatureCollection tmp = doc.parse();
+                org.deegree.model.feature.FeatureCollection tmp = doc.parse();
                 if(isCancelled()){
                     log.debug("parse()(WFSRetriever) is canceled");
                     return null;
