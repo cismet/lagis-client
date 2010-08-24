@@ -2420,6 +2420,7 @@ private void cmdCopyFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//GE
 //    }
 private void cmdPasteFlaecheActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdPasteFlaecheActionPerformed
     if (copiedFeatures.size() > 0) {
+        LagisBroker.getInstance().getMappingComponent().getFeatureCollection().unselectAll();
         Iterator it = copiedFeatures.iterator();
         boolean cutting = false;
         while (it.hasNext()) {
