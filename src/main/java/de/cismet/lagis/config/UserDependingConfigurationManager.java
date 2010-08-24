@@ -6,6 +6,8 @@ package de.cismet.lagis.config;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.ConfigurationManager;
+import de.cismet.tools.encoding.EncodingDetector;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
@@ -86,7 +88,8 @@ public class UserDependingConfigurationManager extends ConfigurationManager {
 
     public void configure(Configurable singleConfig, String path) {
         try {
-            SAXBuilder builder = new SAXBuilder(false);
+            SAXBuilder builder = new SAXBuilder(false);                        
+            //log.debug("encoding detection results: "+EncodingDetector.cachedDetectEncoding(path));
             Document doc = builder.build(new File(path));
             rootObject = doc.getRootElement();
         } catch (Throwable e) {
@@ -105,7 +108,9 @@ public class UserDependingConfigurationManager extends ConfigurationManager {
         serializer.setEncoding("ISO-8859-1");
         log.debug("ENCODING:" + serializer.toString());
         serializer.setIndent("\t");
-
+        serializer.setLineSeparator("\n");
+        serializer.setNewlines(true);
+        serializer.setTextTrim( true );
 
         log.info("ConfigurationDocument: " + serializer.outputString(rootObject.getDocument()));
         pureConfigure(singleConfig);
@@ -215,13 +220,15 @@ public class UserDependingConfigurationManager extends ConfigurationManager {
                 } catch (Exception t) {
                     log.warn("Fehler beim Schreiben der eines Konfigurationsteils.", t);
                 }
-            }
+            }  
             Document doc = new Document(root);
             XMLOutputter serializer = new XMLOutputter();
             serializer.setEncoding("ISO-8859-1");
             log.debug("ENCODING:" + serializer.toString());
             serializer.setIndent("\t");
+            serializer.setLineSeparator("\n");
             serializer.setNewlines(true);
+            serializer.setTextTrim( true );
             File file = new File(path);
             FileWriter writer = new FileWriter(file);
             serializer.output(doc, writer);
