@@ -6,8 +6,6 @@ package de.cismet.lagis.config;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.ConfigurationManager;
-import de.cismet.tools.encoding.EncodingDetector;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStream;
