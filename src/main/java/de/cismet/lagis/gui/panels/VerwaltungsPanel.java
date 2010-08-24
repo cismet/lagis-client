@@ -50,6 +50,7 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -67,7 +68,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DateFormatter;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
@@ -90,6 +90,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener, G
     private final Icon icoWFSSizeTolerated = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_yellow.png"));
     private final Icon icoWFSLoad = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/exec.png"));
     private final Icon icoWFSWarn = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/16warn.png"));
+    private final Icon icoBelastung = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"));
+    private final Icon icoRecht =new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"));
+    private final Icon icoBelastungExpired = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastungExpired.png"));
+    private final Icon icoRechtExpired =new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/rechtExpired.png"));
     private Flurstueck currentFlurstueck = null;
     private Validator valTxtBemerkung;
     private SimpleDocumentModel bemerkungDocumentModel;
@@ -464,17 +468,50 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener, G
         try {
             Set<ReBe> reBe = currentFlurstueck.getRechteUndBelastungen();
             Iterator<ReBe> it = reBe.iterator();
+            boolean allRechteExpired = true;
+            boolean oneRechtExisiting = false;
+            boolean allBelastungenExpired = true;
+            boolean oneBelastungExisiting = false;
+            final Date currentDate = new Date();
             while (it.hasNext()) {
-                Boolean curRebe = it.next().getIstRecht();
-                if (curRebe != null && curRebe.booleanValue() == true) {
+                ReBe curReBe = it.next();
+                Boolean curReBeArt = curReBe.getIstRecht();
+                if (curReBeArt != null && curReBeArt.booleanValue() == true) {
+                    if(curReBe.getDatumLoeschung() == null || (curReBe.getDatumLoeschung() != null && (currentDate.compareTo(curReBe.getDatumLoeschung()) <= 0))){
+                        allRechteExpired=false;
+                    }
                     log.debug(lblRechte);
                     log.debug("aktuelle ReBe ist recht");
-                    lblRechte.setVisible(true);
+                    oneRechtExisiting=true;                    
                 } else {
+                    if(curReBe.getDatumLoeschung() == null ||(curReBe.getDatumLoeschung() != null && (currentDate.compareTo(curReBe.getDatumLoeschung()) <= 0))){
+                        allBelastungenExpired=false;
+                    }
                     log.debug(lblBelastungen);
-                    lblBelastungen.setVisible(true);
+                    oneBelastungExisiting = true;                    
                     log.debug("aktuelle ReBe ist Belastung");
                 }
+            }
+            if(allBelastungenExpired){
+                lblBelastungen.setIcon(icoBelastungExpired);
+                lblBelastungen.setToolTipText("Alle Belastungen sind gelöscht");
+            } else {
+                lblBelastungen.setIcon(icoBelastung);
+                lblBelastungen.setToolTipText("Es sind Belastungen vorhanden");
+            }
+            if(allRechteExpired){
+                lblRechte.setIcon(icoRechtExpired);
+                lblRechte.setToolTipText("Alle Rechte sind gelöscht");
+            } else {
+               lblRechte.setIcon(icoRecht);
+               lblRechte.setToolTipText("Es sind Rechte vorhanden");
+            }
+            if(oneBelastungExisiting){
+                lblBelastungen.setVisible(true);
+
+            }
+            if(oneRechtExisiting){
+                lblRechte.setVisible(true);
             }
         } catch (Exception ex) {
             log.warn("Fehler beim setzen der Rebe Icons", ex);
