@@ -90,6 +90,13 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
 //            panSVG.setDoubleBufferedRendering(false);
             // Threading-- seperated Image
             loadDocuments();
+
+            panSVG.setEnableImageZoomInteractor(false);
+            panSVG.setEnablePanInteractor(false);
+            panSVG.setEnableResetTransformInteractor(false);
+            panSVG.setEnableRotateInteractor(false);
+            panSVG.setEnableZoomInteractor(false);
+
             panSVG.setVisible(false);            
 
         } catch (Exception ex) {
