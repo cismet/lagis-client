@@ -10,15 +10,19 @@ package de.cismet.lagis.models;
 
 import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
+import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
 import de.cismet.lagisEE.entity.core.Nutzung;
+import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -26,48 +30,48 @@ import org.apache.log4j.Logger;
  */
 public class NKFOverviewTableModel extends AbstractTableModel {
 
-    private Vector<Nutzung> nutzungen = new Vector<Nutzung>();
+    private ArrayList<Nutzung> nutzungen = new ArrayList<Nutzung>();
     private static final String[] COLUMN_HEADER = {"Anlageklasse", "Summe"};
-    private Vector<AnlagenklasseSumme> data = new Vector<AnlagenklasseSumme>();
+    private ArrayList<AnlagenklasseSumme> data = new ArrayList<AnlagenklasseSumme>();
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
     /** Creates a new instance of NKFOverviewTableModel */
     public NKFOverviewTableModel() {
-        nutzungen = new Vector<Nutzung>();
+        nutzungen = new ArrayList<Nutzung>();
     }
 
     public NKFOverviewTableModel(Set<Nutzung> nutzungen) {
         try {
             log.debug("Konstruktor Nutzungen");
-            this.nutzungen = new Vector<Nutzung>(nutzungen);
+            this.nutzungen = new ArrayList<Nutzung>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.nutzungen = new Vector<Nutzung>();
+            this.nutzungen = new ArrayList<Nutzung>();
         }
     }
 
     public synchronized void refreshModel(Set<Nutzung> nutzungen) {
         try {
             log.debug("Refresh Nutzungen");
-            this.nutzungen = new Vector<Nutzung>(nutzungen);
+            this.nutzungen = new ArrayList<Nutzung>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.nutzungen = new Vector<Nutzung>();
+            this.nutzungen = new ArrayList<Nutzung>();
         }
         fireTableDataChanged();
     }
 
-    public synchronized void refreshModel(Vector<Nutzung> nutzungen) {
+    public synchronized void refreshModel(ArrayList<Nutzung> nutzungen) {
         try {
             log.debug("Refresh Nutzungen");
-            this.nutzungen = new Vector<Nutzung>(nutzungen);
+            this.nutzungen = new ArrayList<Nutzung>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.nutzungen = new Vector<Nutzung>();
+            this.nutzungen = new ArrayList<Nutzung>();
         }
         fireTableDataChanged();
     }
@@ -104,89 +108,78 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 
     private synchronized void calculateSum() {
         log.debug("Calculate Sum");
-        data = new Vector<AnlagenklasseSumme>();
-        Iterator<Nutzung> it = nutzungen.iterator();
-        while (it.hasNext()) {
-            Nutzung currentNutzung = it.next();
-            if (hasNutzungSuccessor(currentNutzung)) {
-                log.debug("Nutzung hat einen Nachfolger und wird für NKF nicht berücksichtigt");
-                continue;
-            } else {
-                log.debug("Nutzung hat keinen Nachfolger --> wird für NKF berücksichtigt");
-            }
-            if (currentNutzung.getAnlageklasse() != null && currentNutzung.getQuadratmeterpreis() != null && currentNutzung.getFlaeche() != null) {
-                int index = 0;
-                Iterator<AnlagenklasseSumme> itAS = data.iterator();
-                //System.out.println(data.size());
-                //System.out.println("currentNutz:"+currentNutzung.getAnlageklasse().getSchluessel());
-                boolean isAlreadyInVector = false;
-                while (itAS.hasNext()) {
-                    AnlagenklasseSumme curSumme = itAS.next();
-                    if (curSumme.equals(currentNutzung.getAnlageklasse())) {
-                        log.debug("Element der anlagensumme vorhanden");
-                        if (currentNutzung.getStilleReserve() != null) {
-                            curSumme.setSumme(curSumme.getSumme() + ((currentNutzung.getQuadratmeterpreis() * currentNutzung.getFlaeche()) - currentNutzung.getStilleReserve()));
-                        } else {
-                            curSumme.setSumme(curSumme.getSumme() + (currentNutzung.getQuadratmeterpreis() * currentNutzung.getFlaeche()));
+        data = new ArrayList<AnlagenklasseSumme>();
+        for (Nutzung currentNutzung : nutzungen) {
+            if (!currentNutzung.isTerminated()) {
+                NutzungsBuchung currentBuchung = currentNutzung.getCurrentBuchung();
+                if (currentBuchung.getGueltigbis() == null) {
+                    if (currentBuchung.getAnlageklasse() != null && currentBuchung.getGesamtpreis() != null) {
+                        int index = 0;
+                        Iterator<AnlagenklasseSumme> itAS = data.iterator();
+                        //System.out.println(data.size());
+                        //System.out.println("currentNutz:"+currentNutzung.getAnlageklasse().getSchluessel());
+                        boolean isAlreadyInVector = false;
+                        while (itAS.hasNext()) {
+                            AnlagenklasseSumme curSumme = itAS.next();
+                            if (curSumme.equals(currentBuchung.getAnlageklasse())) {
+                                log.debug("Element der anlagensumme vorhanden");
+
+                                //ToDo NKF muss behandelt werden und dem Benutzer mitgeteilt werden
+                                try {
+                                    Double stilleReserve = currentNutzung.getStilleReserve();
+                                    if (stilleReserve == null) {
+                                        stilleReserve = 0.0;
+                                        curSumme.setSumme(curSumme.getSumme() + (currentBuchung.getGesamtpreis() - stilleReserve));
+                                    }
+                                } catch (IllegalNutzungStateException ex) {
+                                    log.error("Stille Reserve konnte nicht berechnet werden");
+                                }
+
+
+                                isAlreadyInVector = true;
+                            }
+                            if (!isAlreadyInVector) {
+                                log.debug("Element der anlagensumme hinzugefügt");
+                                AnlagenklasseSumme tmp = new AnlagenklasseSumme(currentBuchung.getAnlageklasse());
+                                try {
+                                    Double stilleReserve = currentNutzung.getStilleReserve();
+                                    if (stilleReserve == null) {
+                                        stilleReserve = 0.0;
+                                        tmp.setSumme((currentBuchung.getGesamtpreis()) - stilleReserve);
+                                    }
+                                } catch (IllegalNutzungStateException ex) {
+                                    log.error("Stille Reserve konnte nicht berechnet werden");
+                                }
+                                data.add(tmp);
+                            }
                         }
-                        isAlreadyInVector = true;
+
                     }
                 }
-                if (!isAlreadyInVector) {
-                    log.debug("Element der anlagensumme hinzugefügt");
-                    AnlagenklasseSumme tmp = new AnlagenklasseSumme(currentNutzung.getAnlageklasse());
-                    if (currentNutzung.getStilleReserve() != null) {
-                        tmp.setSumme((currentNutzung.getQuadratmeterpreis() * currentNutzung.getFlaeche()) - currentNutzung.getStilleReserve());
-                    } else {
-                        tmp.setSumme(currentNutzung.getQuadratmeterpreis() * currentNutzung.getFlaeche());
-                    }
-                    data.add(tmp);
-                }
             }
         }
-        Collections.sort((Vector) data);
+        Collections.sort((ArrayList) data);
     }
 
-    public boolean hasNutzungSuccessor(Nutzung nutzung) {
-        log.debug("hat Nutzung: " + nutzung.getId() + " einen Nachfolger ? (anzahl Nutzungen: "+nutzungen.size()+")");
-        if (nutzung != null) {
-            Iterator<Nutzung> it = nutzungen.iterator();
-            while (it.hasNext()) {
-                Nutzung currentNutzung = it.next();
-                log.debug("Aktuelle Nutzung gueltigbis: "+ currentNutzung.getGueltigbis());
-                log.debug("Aktuelle Nutzung vorgänger: "+ currentNutzung.getVorgaenger());
-                log.debug("zu prüfende Nutzung id: "+nutzung.getId());
-                if (nutzung.getGueltigbis() != null && currentNutzung.getVorgaenger() != null && nutzung.getId() != null && currentNutzung.getVorgaenger().equals(nutzung.getId())) {
-                    log.debug("Nutzung hat einen Nachfolger");
-                    return true;
-                }
-            }
-            log.debug("Nutzung hat keinen Nachfolger");
-            return false;
-        } else {
-            log.debug("Nutzung hat keinen Nachfolger");
-            return false;
-        }
-    }
 
-    public boolean containsHistoricNutzung() {
-        Iterator<Nutzung> it = nutzungen.iterator();
-        while (it.hasNext()) {
-            Nutzung currentNutzung = it.next();
-            if (currentNutzung.getGueltigbis() != null) {
-                System.out.println("Nutzung hat einen Nachfolger");
-                return true;
-            }
-        }
-        return false;
-    }
+//    public boolean containsHistoricNutzung() {
+//        Iterator<Nutzung> it = nutzungen.iterator();
+//        while (it.hasNext()) {
+//            Nutzung currentNutzung = it.next();
+//            if (currentNutzung.getGueltigbis() != null) {
+//                System.out.println("Nutzung hat einen Nachfolger");
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @Override
     public String getColumnName(int column) {
         return COLUMN_HEADER[column];
     }
 
-    public Vector<Nutzung> getAllNutzungen() {
+    public ArrayList<Nutzung> getAllNutzungen() {
         return nutzungen;
     }
 //    @Override

@@ -12,8 +12,11 @@ import de.cismet.lagis.models.NKFOverviewTableModel;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
+import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.Nutzung;
+import de.cismet.lagisEE.entity.core.NutzungsBuchung;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Vector;
@@ -21,9 +24,9 @@ import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
 //import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.jdesktop.swingx.decorator.SortOrder;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -116,9 +119,10 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
             if (stilleReserven != null) {
                 try {
                     Number amount = LagisBroker.getCurrencyFormatter().parse(stilleReserven);
-                    if (amount.doubleValue() != 0.0 && !tableModel.containsHistoricNutzung()) {
-                        btnBuchen.setEnabled(isEditable);
-                    }
+//ToDo NKF
+                    //                    if (amount.doubleValue() != 0.0 && !tableModel.containsHistoricNutzung()) {
+//                        btnBuchen.setEnabled(isEditable);
+//                    }
                 } catch (Exception silent) {
 
                 }
@@ -130,7 +134,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     }
 
     public synchronized void clearComponent() {
-        tableModel.refreshModel(new Vector<Nutzung>());
+        tableModel.refreshModel(new ArrayList<Nutzung>());
         updateStilleReservenBetrag(null);
         btnBuchen.setEnabled(false);
     }
@@ -138,8 +142,8 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     public synchronized void refresh(Object refreshObject) {
         log.debug("Refresh NKFPanel");
         if (refreshObject != null && refreshObject instanceof Vector) {
-            tableModel.refreshModel((Vector<Nutzung>) refreshObject);
-            updateStilleReservenBetrag((Vector<Nutzung>) refreshObject);
+            tableModel.refreshModel((ArrayList<Nutzung>) refreshObject);
+            updateStilleReservenBetrag((ArrayList<Nutzung>) refreshObject);
         }
     }
 
@@ -151,18 +155,24 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
             double stilleReservenSumme = 0.0;
             while (it.hasNext()) {
                 Nutzung currentNutzung = it.next();
-                if (tableModel.hasNutzungSuccessor(currentNutzung)) {
-                    log.debug("Nutzung hat einen Nachfolger und wird für Stille Reserve nicht berücksichtigt");
-                    continue;
-                } else {
-                    log.debug("Nutzung hat keinen Nachfolger --> wird für Stille Reserve berücksichtigt");
+                //TODO NKF Benutzer muss benachrichtigt werden
+                try {
+//                if (tableModel.hasNutzungSuccessor(currentNutzung)) {
+//                    log.debug("Nutzung hat einen Nachfolger und wird für Stille Reserve nicht berücksichtigt");
+//                    continue;
+//                } else {
+//                    log.debug("Nutzung hat keinen Nachfolger --> wird für Stille Reserve berücksichtigt");
+//                }
+                    if (currentNutzung.getStilleReserve() != null) {
+                        stilleReservenSumme += currentNutzung.getStilleReserve();
+                    }
+                } catch (IllegalNutzungStateException ex) {
+                    log.error("Stille Reserve konnte nicht berechnet werden.",ex);
                 }
-                if (currentNutzung.getStilleReserve() != null) {
-                    stilleReservenSumme += currentNutzung.getStilleReserve();
-                }
-                if (currentNutzung.getGueltigbis() != null) {
-                    containsHistoricNutzung = true;                    
-                }
+                //ToDo NKF
+//                if (currentNutzung.getGueltigbis() != null) {
+//                    containsHistoricNutzung = true;
+//                }
             }
 //            if (containsHistoricNutzung) {
 //                lblStilleReservenBetrag.setText("-/-");
