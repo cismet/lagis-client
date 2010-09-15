@@ -209,16 +209,27 @@ public class NKFTableModel extends AbstractTableModel {
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         try {
             final Nutzung selectedNutzung = selectedNutzungen.get(rowIndex);
-            final NutzungsBuchung selectedBuchung = selectedNutzung.getNutzungForDate(currentDate);
+            NutzungsBuchung selectedBuchung = selectedNutzung.getNutzungForDate(currentDate);
+            NutzungsBuchung oldBuchung = null;
+            if (selectedBuchung.getId() != null) {
+                final Date buchungsDate = new Date();
+                selectedBuchung.setGueltigbis(buchungsDate);
+                final NutzungsBuchung newBuchung = selectedBuchung.cloneBuchungWithoutMetainformation();
+                newBuchung.setGueltigvon(buchungsDate);
+                newBuchung.setNutzung(selectedNutzung);
+                selectedNutzung.getNutzungsBuchungen().add(newBuchung);
+                oldBuchung=selectedBuchung;
+                selectedBuchung = newBuchung;
+            }
             switch (columnIndex) {
-                case 0:
+                case 1:
                     selectedBuchung.setAnlageklasse((Anlageklasse) aValue);
                     break;
-                case 1:
+                case 2:
                     selectedBuchung.setNutzungsart((Nutzungsart) aValue);
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
-                case 3:
+                case 4:
                     Set<Flaechennutzung> tmpNutz = selectedBuchung.getFlaechennutzung();
                     if (tmpNutz != null) {
                         tmpNutz.clear();
@@ -236,7 +247,7 @@ public class NKFTableModel extends AbstractTableModel {
                     }
                     selectedBuchung.setFlaechennutzung(tmpNutz);
                     break;
-                case 4:
+                case 5:
                     Set<Bebauung> tmpBebauung = selectedBuchung.getBebauung();
                     if (tmpBebauung != null) {
                         tmpBebauung.clear();
@@ -254,27 +265,35 @@ public class NKFTableModel extends AbstractTableModel {
                     }
                     selectedBuchung.setBebauung(tmpBebauung);
                     break;
-                case 5:
-//                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
-//                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
-//                    }
-                    selectedBuchung.setFlaeche((Integer) aValue);
-                    fireTableRowsUpdated(rowIndex, rowIndex);
-                    break;
                 case 6:
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
-//                    }
+//                    }                   
                     selectedBuchung.setQuadratmeterpreis((Double) aValue);
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
-                case 10:
+                case 7:
+//                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
+//                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
+//                    }                    
+                    selectedBuchung.setQuadratmeterpreis((Double) aValue);
+                    fireTableRowsUpdated(rowIndex, rowIndex);
+                    break;
+                case 11:
                     selectedBuchung.setBemerkung((String) aValue);
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
                 default:
                     log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
+            }
+            if(selectedBuchung != null && oldBuchung != null && selectedBuchung.getId() == null){
+                log.debug("Prüfe ob die Nutzung sich wirklich verändert hat");
+                if(NutzungsBuchung.NUTZUNG_HISTORY_EQUALATOR.pedanticEquals(oldBuchung, selectedBuchung)){
+                    log.debug("Nutzungen sind gleich muss keine neue angelegt werden");
+                    selectedNutzung.getNutzungsBuchungen().remove(selectedBuchung);
+                    oldBuchung.setGueltigbis(null);
+                }
             }
             fireTableDataChanged();
         } catch (Exception ex) {
