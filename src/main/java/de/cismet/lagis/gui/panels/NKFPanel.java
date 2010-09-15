@@ -587,7 +587,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 final int index = ((JXTable) tNutzung).convertRowIndexToModel(selectedRows[i]);
                 final NutzungsBuchung curNutzungToCopy = tableModel.getNutzungAtRow(index);
                 if (curNutzungToCopy != null) {
-                    copyPasteList.add(curNutzungToCopy.createNewNutzungWithoutMetainformation());
+                    copyPasteList.add(curNutzungToCopy.createNewNutzung());
                 }
             }
         }
@@ -1324,6 +1324,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                             existingBufferDisolves = true;
                         }
                     } catch (IllegalNutzungStateException ex) {
+                        log.warn("Nutzungszustand konnte nicht ermittelt werden",ex);
                         validationMessage = "Die Änderungen können nicht gespeichert werden,\n weil der Zustand einer Nutzung nicht ermittelt werden konnte.\n Nutzungsnummer: "+currentBuchung.getNutzung().getId();
                         return Validatable.ERROR;
                     }
