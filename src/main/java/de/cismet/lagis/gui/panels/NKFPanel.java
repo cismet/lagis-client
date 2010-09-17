@@ -18,6 +18,7 @@ import de.cismet.lagis.renderer.EuroRenderer;
 import de.cismet.lagis.renderer.FlaecheRenderer;
 import de.cismet.lagis.renderer.PlanRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
+import de.cismet.lagis.util.NutzungsContainer;
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
@@ -137,24 +138,24 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     }
                     if (newNutzungen != null) {
                         log.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
-                        Iterator<Nutzung> it = newNutzungen.iterator();
-                        while (it.hasNext()) {
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-//                            Nutzung curNutzung = it.next();
-//                            log.debug("Nutzung: " + curNutzung.getId());
-//                            log.debug("Gueltig von: " + curNutzung.getGueltigvon());
-//                            log.debug("Gueltig bis: " + curNutzung.getGueltigbis());
-//                            log.debug("Quadratmeterpreis: " + curNutzung.getQuadratmeterpreis());
-//                            log.debug("Fläche: " + curNutzung.getFlaeche());
-                        }
+//                        Iterator<Nutzung> it = newNutzungen.iterator();
+//                        while (it.hasNext()) {
+//                            if (isUpdateAvailable()) {
+//                                cleanup();
+//                                return;
+//                            }
+////                            Nutzung curNutzung = it.next();
+////                            log.debug("Nutzung: " + curNutzung.getId());
+////                            log.debug("Gueltig von: " + curNutzung.getGueltigvon());
+////                            log.debug("Gueltig bis: " + curNutzung.getGueltigbis());
+////                            log.debug("Quadratmeterpreis: " + curNutzung.getQuadratmeterpreis());
+////                            log.debug("Fläche: " + curNutzung.getFlaeche());
+//                        }
                     }
                     if (isUpdateAvailable()) {
                         cleanup();
                         return;
-                    }
+                    }                    
                     updateSlider(false);
                     if (isUpdateAvailable()) {
                         cleanup();
@@ -587,7 +588,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 final int index = ((JXTable) tNutzung).convertRowIndexToModel(selectedRows[i]);
                 final NutzungsBuchung curNutzungToCopy = tableModel.getNutzungAtRow(index);
                 if (curNutzungToCopy != null) {
-                    copyPasteList.add(curNutzungToCopy.createNewNutzung());
+                    copyPasteList.add(Nutzung.createNewNutzung(curNutzungToCopy));
                 }
             }
         }
@@ -857,12 +858,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         //TODO CHECK FOR REFACTORING
         log.debug("tableChanged");
         final Refreshable refresh = LagisBroker.getInstance().getRefreshableByClass(NKFOverviewPanel.class);
-        if (refresh != null) {
-            refresh.refresh(tableModel.getSelectedNutzungen());
+        if (refresh != null) {            
+            refresh.refresh(new NutzungsContainer(tableModel.getSelectedNutzungen(), tableModel.getCurrentDate()));
         }
         ((JXTable) tNutzung).packAll();
     }
 
+    //ToDo refactorn viel zu kompliziert??
     //ToDo SliderStateChanged
     //private boolean wasRemovedEnabled = false;
     public void stateChanged(final ChangeEvent e) {

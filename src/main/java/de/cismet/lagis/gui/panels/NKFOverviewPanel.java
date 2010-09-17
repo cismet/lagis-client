@@ -10,6 +10,7 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.models.NKFOverviewTableModel;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
+import de.cismet.lagis.util.NutzungsContainer;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
@@ -39,7 +40,6 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     private static final String WIDGET_NAME = "NKF Übersicht";
     private NKFOverviewTableModel tableModel = new NKFOverviewTableModel();
     private BackgroundUpdateThread<Flurstueck> updateThread;
-    
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/history.png"));
     private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"));
 
@@ -53,7 +53,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         ((JXTable) tSummeNutzungen).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
         ((JXTable) tSummeNutzungen).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable) tSummeNutzungen).packAll();
-        configBackgroundThread();        
+        configBackgroundThread();
         btnBuchen.setEnabled(false);
     }
 
@@ -71,8 +71,9 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                         cleanup();
                         return;
                     }
+                    tableModel.setCurrentDate(null);
                     tableModel.refreshModel(getCurrentObject().getNutzungen());
-                    updateStilleReservenBetrag(getCurrentObject().getNutzungen());
+                    updateStilleReservenBetrag();
                     if (isUpdateAvailable()) {
                         cleanup();
                         return;
@@ -83,6 +84,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
                 }
             }
+            
             protected void cleanup() {
             }
         };
@@ -90,6 +92,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         updateThread.start();
     }
     //private Thread panelRefresherThread;
+
     public synchronized void flurstueckChanged(final Flurstueck newFlurstueck) {
         try {
             log.info("FlurstueckChanged");
@@ -124,7 +127,6 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 //                        btnBuchen.setEnabled(isEditable);
 //                    }
                 } catch (Exception silent) {
-
                 }
             } else {
                 btnBuchen.setEnabled(isEditable);
@@ -134,70 +136,20 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     }
 
     public synchronized void clearComponent() {
+        tableModel.setCurrentDate(null);
         tableModel.refreshModel(new ArrayList<Nutzung>());
-        updateStilleReservenBetrag(null);
+        updateStilleReservenBetrag();
         btnBuchen.setEnabled(false);
     }
 
     public synchronized void refresh(Object refreshObject) {
         log.debug("Refresh NKFPanel");
-        if (refreshObject != null && refreshObject instanceof Vector) {
-            tableModel.refreshModel((ArrayList<Nutzung>) refreshObject);
-            updateStilleReservenBetrag((ArrayList<Nutzung>) refreshObject);
+        if (refreshObject != null && refreshObject instanceof NutzungsContainer) {
+            final NutzungsContainer container = (NutzungsContainer) refreshObject;
+            tableModel.setCurrentDate(container.getCurrentDate());
+            tableModel.refreshModel(container.getNutzungen());
+            updateStilleReservenBetrag();
         }
-    }
-
-    //TODO better in NKFOVERVIEWTABLEMODEL ? YES doppeltgemoppelt
-    private synchronized void updateStilleReservenBetrag(Collection<Nutzung> nutzungen) {
-        boolean containsHistoricNutzung = false;
-        if (nutzungen != null) {
-            Iterator<Nutzung> it = nutzungen.iterator();
-            double stilleReservenSumme = 0.0;
-            while (it.hasNext()) {
-                Nutzung currentNutzung = it.next();
-                //TODO NKF Benutzer muss benachrichtigt werden
-                try {
-//                if (tableModel.hasNutzungSuccessor(currentNutzung)) {
-//                    log.debug("Nutzung hat einen Nachfolger und wird für Stille Reserve nicht berücksichtigt");
-//                    continue;
-//                } else {
-//                    log.debug("Nutzung hat keinen Nachfolger --> wird für Stille Reserve berücksichtigt");
-//                }
-                    if (currentNutzung.getStilleReserve() != null) {
-                        stilleReservenSumme += currentNutzung.getStilleReserve();
-                    }
-                } catch (IllegalNutzungStateException ex) {
-                    log.error("Stille Reserve konnte nicht berechnet werden.",ex);
-                }
-                //ToDo NKF
-//                if (currentNutzung.getGueltigbis() != null) {
-//                    containsHistoricNutzung = true;
-//                }
-            }
-//            if (containsHistoricNutzung) {
-//                lblStilleReservenBetrag.setText("-/-");
-//                btnBuchen.setEnabled(false);
-//            } else {
-            lblStilleReservenBetrag.setText(LagisBroker.getCurrencyFormatter().format(stilleReservenSumme));
-            if (stilleReservenSumme != 0.0 && LagisBroker.getInstance().isInEditMode()) {
-                if (!containsHistoricNutzung) {
-                    btnBuchen.setEnabled(true);                    
-                } else {
-                    btnBuchen.setEnabled(false);
-                }
-            } else {
-                btnBuchen.setEnabled(false);
-            }
-//            }
-            if(containsHistoricNutzung){
-                lblHistoricIcon.setIcon(icoHistoricIcon);
-            } else {
-                lblHistoricIcon.setIcon(icoHistoricIconDummy);
-            }
-        } else {
-            lblStilleReservenBetrag.setText(LagisBroker.getCurrencyFormatter().format(0.0));
-            btnBuchen.setEnabled(false);
-        }        
     }
 
     /** This method is called from within the constructor to
@@ -292,7 +244,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     //TODO Locking problem
                     EJBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel(), LagisBroker.getInstance().getAccountName());
                 }
-            //EJBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
+                //EJBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
             } catch (Exception ex) {
                 //TODO ActionNotSuccessfull Exception
                 final StringBuffer resultString = new StringBuffer("Es war nicht möglich die Stillen Reserven des Flurstücks zu buchen. Fehler: \n");
@@ -310,7 +262,6 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
             }
         }
     }//GEN-LAST:event_btnBuchenActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuchen;
     private javax.swing.JScrollPane jScrollPane1;
@@ -319,14 +270,26 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     private javax.swing.JLabel lblStilleReservenBetrag;
     private javax.swing.JTable tSummeNutzungen;
     // End of variables declaration//GEN-END:variables
+
     public String getWidgetName() {
         return WIDGET_NAME;
     }
 
-    
-
     //TODO USE
     public Icon getWidgetIcon() {
         return null;
+    }
+
+    private void updateStilleReservenBetrag() {
+        final double stilleReserve = tableModel.getStilleReserve();
+        lblStilleReservenBetrag.setText(LagisBroker.getCurrencyFormatter().format(stilleReserve));
+        if (stilleReserve > 0.0 && LagisBroker.getInstance().isInEditMode()) {
+//            btnBuchen.setEnabled(true);
+            }
+        if (tableModel.getCurrentDate() != null) {
+            lblHistoricIcon.setIcon(icoHistoricIcon);
+        } else {
+            lblHistoricIcon.setIcon(icoHistoricIconDummy);
+        }
     }
 }

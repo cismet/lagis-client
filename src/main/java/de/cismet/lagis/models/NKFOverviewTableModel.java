@@ -17,12 +17,11 @@ import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -35,13 +34,15 @@ public class NKFOverviewTableModel extends AbstractTableModel {
     private ArrayList<AnlagenklasseSumme> data = new ArrayList<AnlagenklasseSumme>();
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    private Date currentDate = null;
+    private double stilleReserve = 0.0;
 
     /** Creates a new instance of NKFOverviewTableModel */
     public NKFOverviewTableModel() {
         nutzungen = new ArrayList<Nutzung>();
     }
 
-    public NKFOverviewTableModel(Set<Nutzung> nutzungen) {
+    public NKFOverviewTableModel(ArrayList<Nutzung> nutzungen) {
         try {
             log.debug("Konstruktor Nutzungen");
             this.nutzungen = new ArrayList<Nutzung>(nutzungen);
@@ -53,15 +54,12 @@ public class NKFOverviewTableModel extends AbstractTableModel {
     }
 
     public synchronized void refreshModel(Set<Nutzung> nutzungen) {
-        try {
-            log.debug("Refresh Nutzungen");
-            this.nutzungen = new ArrayList<Nutzung>(nutzungen);
-            calculateSum();
-        } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
-            this.nutzungen = new ArrayList<Nutzung>();
+        if (nutzungen != null) {
+            refreshModel(new ArrayList<Nutzung>(nutzungen));
+        } else {
+            refreshModel(new ArrayList());
         }
-        fireTableDataChanged();
+
     }
 
     public synchronized void refreshModel(ArrayList<Nutzung> nutzungen) {
@@ -69,14 +67,17 @@ public class NKFOverviewTableModel extends AbstractTableModel {
             log.debug("Refresh Nutzungen");
             this.nutzungen = new ArrayList<Nutzung>(nutzungen);
             calculateSum();
+
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
             this.nutzungen = new ArrayList<Nutzung>();
         }
+
         fireTableDataChanged();
     }
 
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    public Object getValueAt(
+            int rowIndex, int columnIndex) {
         try {
             AnlagenklasseSumme summe = data.get(rowIndex);
 
@@ -88,10 +89,12 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                 default:
                     return "Spalte ist nicht definiert";
             }
+
         } catch (Exception ex) {
             log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
+
     }
 
     public int getRowCount() {
@@ -108,59 +111,122 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 
     private synchronized void calculateSum() {
         log.debug("Calculate Sum");
+        stilleReserve=0.0;
         data = new ArrayList<AnlagenklasseSumme>();
         for (Nutzung currentNutzung : nutzungen) {
-            if (!currentNutzung.isTerminated()) {
-                NutzungsBuchung currentBuchung = currentNutzung.getCurrentBuchung();
-                if (currentBuchung.getGueltigbis() == null) {
+            log.debug("curNutzung:"+currentNutzung);
+            log.debug("tableModelDate:"+currentDate);
+                NutzungsBuchung currentBuchung = currentNutzung.getBuchungForDate(currentDate);
+                if (currentBuchung != null) {
+                    log.debug("currentBuchung: "+currentBuchung);
                     if (currentBuchung.getAnlageklasse() != null && currentBuchung.getGesamtpreis() != null) {
+                        log.debug("Anlageklasse & Gesamtpreis != null");
                         int index = 0;
                         Iterator<AnlagenklasseSumme> itAS = data.iterator();
                         //System.out.println(data.size());
                         //System.out.println("currentNutz:"+currentNutzung.getAnlageklasse().getSchluessel());
                         boolean isAlreadyInVector = false;
+                        //Das hier ist Käse Code dupliziert;
                         while (itAS.hasNext()) {
+                            log.debug("vektor nicht leer");
                             AnlagenklasseSumme curSumme = itAS.next();
                             if (curSumme.equals(currentBuchung.getAnlageklasse())) {
                                 log.debug("Element der anlagensumme vorhanden");
 
                                 //ToDo NKF muss behandelt werden und dem Benutzer mitgeteilt werden
                                 try {
-                                    Double stilleReserve = currentNutzung.getStilleReserve();
-                                    if (stilleReserve == null) {
-                                        stilleReserve = 0.0;
-                                        curSumme.setSumme(curSumme.getSumme() + (currentBuchung.getGesamtpreis() - stilleReserve));
+                                    Double curStilleReseve = currentNutzung.getStilleReserveForBuchung(currentBuchung);
+                                    if (curStilleReseve != null) {
+                                        stilleReserve+=curStilleReseve;                                        
+                                        curSumme.setSumme(curSumme.getSumme() + (currentBuchung.getGesamtpreis() - curStilleReseve));
                                     }
+
                                 } catch (IllegalNutzungStateException ex) {
                                     log.error("Stille Reserve konnte nicht berechnet werden");
                                 }
 
-
                                 isAlreadyInVector = true;
                             }
+                        }
+                        log.debug("nach while");
                             if (!isAlreadyInVector) {
                                 log.debug("Element der anlagensumme hinzugefügt");
                                 AnlagenklasseSumme tmp = new AnlagenklasseSumme(currentBuchung.getAnlageklasse());
                                 try {
-                                    Double stilleReserve = currentNutzung.getStilleReserve();
-                                    if (stilleReserve == null) {
-                                        stilleReserve = 0.0;
-                                        tmp.setSumme((currentBuchung.getGesamtpreis()) - stilleReserve);
+                                    Double curStilleReseve = currentNutzung.getStilleReserveForBuchung(currentBuchung);
+                                    //ToDo NKF
+                                    if (curStilleReseve != null) {
+                                        stilleReserve+=curStilleReseve;                                        
+                                        tmp.setSumme((currentBuchung.getGesamtpreis()) - curStilleReseve);
                                     }
+
                                 } catch (IllegalNutzungStateException ex) {
                                     log.error("Stille Reserve konnte nicht berechnet werden");
                                 }
+
                                 data.add(tmp);
                             }
-                        }
 
-                    }
-                }
+                    }                
             }
         }
         Collections.sort((ArrayList) data);
     }
 
+    public double getStilleReserve() {
+        return stilleReserve;
+    }
+//    private synchronized void updateStilleReservenBetrag(NutzungsContainer nutzungen) {
+//        boolean containsHistoricNutzung = false;
+//        if (nutzungen != null) {
+//            Iterator<Nutzung> it = nutzungen.iterator();
+//            double stilleReservenSumme = 0.0;
+//            while (it.hasNext()) {
+//                Nutzung currentNutzung = it.next();
+//                //TODO NKF Benutzer muss benachrichtigt werden
+//                try {
+////                if (tableModel.hasNutzungSuccessor(currentNutzung)) {
+////                    log.debug("Nutzung hat einen Nachfolger und wird für Stille Reserve nicht berücksichtigt");
+////                    continue;
+////                } else {
+////                    log.debug("Nutzung hat keinen Nachfolger --> wird für Stille Reserve berücksichtigt");
+////                }
+//                    if (currentNutzung.getStilleReserve() != null) {
+//                        stilleReservenSumme += currentNutzung.getStilleReserve();
+//                    }
+//                } catch (IllegalNutzungStateException ex) {
+//                    log.error("Stille Reserve konnte nicht berechnet werden.",ex);
+//                }
+//                //ToDo NKF
+////                if (currentNutzung.getGueltigbis() != null) {
+////                    containsHistoricNutzung = true;
+////                }
+//            }
+////            if (containsHistoricNutzung) {
+////                lblStilleReservenBetrag.setText("-/-");
+////                btnBuchen.setEnabled(false);
+////            } else {
+//            lblStilleReservenBetrag.setText(LagisBroker.getCurrencyFormatter().format(stilleReservenSumme));
+//            if (stilleReservenSumme != 0.0 && LagisBroker.getInstance().isInEditMode()) {
+//                if (!containsHistoricNutzung) {
+//                    btnBuchen.setEnabled(true);
+//                } else {
+//                    btnBuchen.setEnabled(false);
+//                }
+//            } else {
+//                btnBuchen.setEnabled(false);
+//            }
+////            }
+//            if(containsHistoricNutzung){
+//                lblHistoricIcon.setIcon(icoHistoricIcon);
+//            } else {
+//                lblHistoricIcon.setIcon(icoHistoricIconDummy);
+//            }
+//        } else {
+//            lblStilleReservenBetrag.setText(LagisBroker.getCurrencyFormatter().format(0.0));
+//            btnBuchen.setEnabled(false);
+//        }
+//    }
 
 //    public boolean containsHistoricNutzung() {
 //        Iterator<Nutzung> it = nutzungen.iterator();
@@ -173,14 +239,22 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 //        }
 //        return false;
 //    }
-
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(
+            int column) {
         return COLUMN_HEADER[column];
     }
 
     public ArrayList<Nutzung> getAllNutzungen() {
         return nutzungen;
+    }
+
+    public void setCurrentDate(Date currentDate) {
+        this.currentDate = currentDate;
+    }
+
+    public Date getCurrentDate() {
+        return currentDate;
     }
 //    @Override
 //    public Class<?> getColumnClass(int columnIndex) {
