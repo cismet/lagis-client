@@ -22,7 +22,7 @@ import de.cismet.lagis.util.NutzungsContainer;
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
-import de.cismet.lagisEE.entity.core.AddingOfBuchungNotPossibleException;
+import de.cismet.lagisEE.bean.Exception.AddingOfBuchungNotPossibleException;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.Nutzung;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
@@ -1330,70 +1330,36 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 return Validatable.ERROR;
             }
 
-            boolean existingBufferDisolves = false;
-            boolean existingValidCurrentNutzung = false;
-            boolean existingUnbookedDeletedNutzung = false;
+             boolean existingBufferDisolves = false;
+             boolean existingUnvalidCurrentNutzung = false;
+             boolean existsAtLeastOneValidCurrentNutzung = false;
+//            boolean existingUnbookedDeletedNutzung = false;
 
             ArrayList<Nutzung> currentNutzungen = tableModel.getSelectedNutzungen();
             ArrayList<NutzungsBuchung> currentBuchungen = tableModel.getCurrentBuchungen();
 
             if (currentNutzungen != null || currentNutzungen.size() > 0) {
                 for (NutzungsBuchung currentBuchung : currentBuchungen) {
-                    if (currentBuchung != null && currentBuchung.getNutzungsart() != null) {
+                    if (currentBuchung != null && currentBuchung.getNutzungsart() == null) {
                         //return Validatable.VALID;
-                        existingValidCurrentNutzung = true;
+                        existingUnvalidCurrentNutzung = true;
+                    }
+                    if(currentBuchung != null && currentBuchung.getNutzungsart() != null){
+                        existsAtLeastOneValidCurrentNutzung = true;
                     }
                     if (currentBuchung.getFlaeche() != null && currentBuchung.getQuadratmeterpreis() != null) {
                         log.debug("Neuer Preis: " + (currentBuchung.getFlaeche() * currentBuchung.getQuadratmeterpreis()));
                     } else {
                         log.debug("Neuer Preis kann nicht berechnet werden");
-                    }
-                    try {
-                        final Set<Nutzung.NUTZUNG_STATES> nutzung_states;
-                        nutzung_states = currentBuchung.getNutzung().getNutzungsState();
-                        if (nutzung_states.contains(Nutzung.NUTZUNG_STATES.STILLE_RESERVE_DISOLVED)) {
-                            existingBufferDisolves = true;
-                        }
-                    } catch (IllegalNutzungStateException ex) {
-                        log.warn("Nutzungszustand konnte nicht ermittelt werden", ex);
-                        validationMessage = "Die Änderungen können nicht gespeichert werden,\n weil der Zustand einer Nutzung nicht ermittelt werden konnte.\n Nutzungsnummer: " + currentBuchung.getNutzung().getId();
-                        return Validatable.ERROR;
-                    }
+                    }                   
                 }
-            }
-//            Vector<NutzungsBuchung> oldNutzungen = tableModel.getAllNutzungen();
-//ToDO NKF Nutzung
-//            if (oldNutzungen != null || oldNutzungen.size() > 0) {
-//                for (NutzungsBuchung oldNutzung : oldNutzungen) {
-//                    if (oldNutzung != null && oldNutzung.getSollGeloeschtWerden() != null && oldNutzung.getSollGeloeschtWerden()) {
-//                        //ToDo Dirk fragen
-//                        existingUnbookedDeletedNutzung = true;
-//                    }
-//                }
-//            }
-            if (!existingValidCurrentNutzung) {
+            }           
+            if (existingUnvalidCurrentNutzung) {
+                validationMessage = "Alle Nutzungen müssen eine Nutzungsart haben,\num das Flurstück speichern zu können.";
+                return Validatable.ERROR;
+            }else if (!existsAtLeastOneValidCurrentNutzung) {
                 validationMessage = "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
                 return Validatable.ERROR;
-            } else if (existingBufferDisolves) {
-                int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(), "Bei mindestens einer Nutzung reicht die Stille Reserve nicht aus,\n" +
-                        "um die Verminderung des Gesamtbetrags zu decken. Alle zu dieser Nutzung\n" +
-                        "gehörenden offenen Buchungen müssen gebucht werden.\n\n" +
-                        "Möchten Sie diese Nutzungen jetzt buchen?\n", "Stille Reserve aufgelöst", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    return Validatable.VALID;
-                } else {
-                    validationMessage = "Die Änderungen können nicht gespeichert werden, weil die offenen Buchungen nicht gebucht wurden.";
-                    return Validatable.ERROR;
-                }
-            } else if (existingUnbookedDeletedNutzung) {
-                int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(), "Mindestens eine Nutzung mit Stiller Reserve soll gelöscht werden,\n" +
-                        "dafür müssen alle dazugehörigen offenen Buchungen gebucht werden.\n\n" + "Möchten Sie dieses Nutzungen jetzt buchen?\n", "Gelöschte Nutzung", JOptionPane.YES_NO_OPTION);
-                if (result == JOptionPane.YES_OPTION) {
-                    return Validatable.VALID;
-                } else {
-                    validationMessage = "Die Änderungen können nicht gespeichert werden, weil die offenen Buchungen nicht gebucht wurden.";
-                    return Validatable.ERROR;
-                }
             } else {
                 return Validatable.VALID;
             }

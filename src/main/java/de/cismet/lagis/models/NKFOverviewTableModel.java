@@ -11,7 +11,7 @@ package de.cismet.lagis.models;
 import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
-import de.cismet.lagisEE.entity.core.BuchungNotInNutzungException;
+import de.cismet.lagisEE.bean.Exception.BuchungNotInNutzungException;
 import de.cismet.lagisEE.entity.core.Nutzung;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 

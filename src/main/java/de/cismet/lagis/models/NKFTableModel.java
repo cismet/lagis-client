@@ -466,14 +466,15 @@ public class NKFTableModel extends AbstractTableModel {
     }
 
     public ArrayList<NutzungsBuchung> getCurrentBuchungen() {
-        log.debug("Anzahl aktueller Nutzungen: " + selectedNutzungen.size());
+        log.debug("Anzahl aller Nutzungen: " + allNutzungen.size());
         final ArrayList<NutzungsBuchung> selectedBuchungen = new ArrayList<NutzungsBuchung>();
-        for (Nutzung curNutzung : selectedNutzungen) {
+        for (Nutzung curNutzung : allNutzungen) {
             NutzungsBuchung curBuchung = curNutzung.getOpenBuchung();
             if (curBuchung != null) {
                 selectedBuchungen.add(curBuchung);
             }
         }
+        log.debug("Anzahl offener Nutzungen: " + selectedBuchungen.size());
         return selectedBuchungen;
     }
 
