@@ -237,7 +237,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Nutzung einf&#xfc;gen"/>
+        <Property name="toolTipText" type="java.lang.String" value="Buchung einf&#xfc;gen"/>
         <Property name="borderPainted" type="boolean" value="false"/>
       </Properties>
       <Events>
@@ -249,7 +249,7 @@
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
           <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Nutzung kopieren"/>
+        <Property name="toolTipText" type="java.lang.String" value="Buchung kopieren"/>
         <Property name="borderPainted" type="boolean" value="false"/>
       </Properties>
       <Events>

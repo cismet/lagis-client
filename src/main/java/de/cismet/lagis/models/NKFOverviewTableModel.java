@@ -11,6 +11,7 @@ package de.cismet.lagis.models;
 import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
+import de.cismet.lagisEE.entity.core.BuchungNotInNutzungException;
 import de.cismet.lagisEE.entity.core.Nutzung;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 
@@ -130,6 +131,10 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                         while (itAS.hasNext()) {
                             log.debug("vektor nicht leer");
                             AnlagenklasseSumme curSumme = itAS.next();
+                            if(curSumme.equals(Double.NaN)){
+                                log.debug("Bei der Berechnung der Summen ist ein Fehler aufgetreten: Keine weitere Berechnung");
+                                continue;
+                            }
                             if (curSumme.equals(currentBuchung.getAnlageklasse())) {
                                 log.debug("Element der anlagensumme vorhanden");
 
@@ -140,10 +145,16 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                                         stilleReserve+=curStilleReseve;                                        
                                         curSumme.setSumme(curSumme.getSumme() + (currentBuchung.getGesamtpreis() - curStilleReseve));
                                     }
+                                }   catch (BuchungNotInNutzungException ex) {
+                                    log.error("Stille Reserve konnte nicht berechnet werden: Fehlerhalfte Buchung");
+                                    stilleReserve = Double.NaN;
+                                    curSumme.setSumme(Double.NaN);
 
                                 } catch (IllegalNutzungStateException ex) {
-                                    log.error("Stille Reserve konnte nicht berechnet werden");
-                                }
+                                    log.error("Stille Reserve konnte nicht berechnet werden: Kein Buchwert");
+                                    stilleReserve = Double.NaN;
+                                    curSumme.setSumme(Double.NaN);
+                                } 
 
                                 isAlreadyInVector = true;
                             }
@@ -160,8 +171,12 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                                         tmp.setSumme((currentBuchung.getGesamtpreis()) - curStilleReseve);
                                     }
 
+                                 }   catch (BuchungNotInNutzungException ex) {
+                                    log.error("Stille Reserve konnte nicht berechnet werden: Fehlerhalfte Buchung");
+                                    tmp.setSumme(Double.NaN);                                    
                                 } catch (IllegalNutzungStateException ex) {
-                                    log.error("Stille Reserve konnte nicht berechnet werden");
+                                    log.error("Stille Reserve konnte nicht berechnet werden: Kein Buchwert");
+                                    tmp.setSumme(Double.NaN);                                    
                                 }
 
                                 data.add(tmp);

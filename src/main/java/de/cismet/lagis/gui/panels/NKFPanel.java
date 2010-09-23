@@ -22,6 +22,7 @@ import de.cismet.lagis.util.NutzungsContainer;
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
+import de.cismet.lagisEE.entity.core.AddingOfBuchungNotPossibleException;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.Nutzung;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
@@ -155,7 +156,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     if (isUpdateAvailable()) {
                         cleanup();
                         return;
-                    }                    
+                    }
                     updateSlider(false);
                     if (isUpdateAvailable()) {
                         cleanup();
@@ -466,7 +467,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         lblHistoricIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"))); // NOI18N
 
         btnPasteNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"))); // NOI18N
-        btnPasteNutzung.setToolTipText("Nutzung einfügen");
+        btnPasteNutzung.setToolTipText("Buchung einfügen");
         btnPasteNutzung.setBorderPainted(false);
         btnPasteNutzung.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -475,7 +476,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         });
 
         btnCopyNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"))); // NOI18N
-        btnCopyNutzung.setToolTipText("Nutzung kopieren");
+        btnCopyNutzung.setToolTipText("Buchung kopieren");
         btnCopyNutzung.setBorderPainted(false);
         btnCopyNutzung.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -563,12 +564,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
     }//GEN-LAST:event_cbxChangesActionPerformed
 
     private void btnRemoveNutzungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
-        final int currentRow = tNutzung.getSelectedRow();
+        log.debug("Remove Nutzung");
+        final int currentRow = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
         if (currentRow != -1) {
+            log.debug("Selektierte Nutzng gefunden in Zeile: " + currentRow);
             //VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            if (!tableModel.removeNutzung(((JXTable) tNutzung).getFilters().convertRowIndexToModel(currentRow))) {
-                updateSlider(true);
-            }
+//            if (!tableModel.removeNutzung(currentRow)) {
+            tableModel.removeNutzung(currentRow);
+            updateSlider(true);
+//            }
             //tableModel.fireTableDataChanged();
         }
 
@@ -588,7 +592,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 final int index = ((JXTable) tNutzung).convertRowIndexToModel(selectedRows[i]);
                 final NutzungsBuchung curNutzungToCopy = tableModel.getNutzungAtRow(index);
                 if (curNutzungToCopy != null) {
-                    copyPasteList.add(Nutzung.createNewNutzung(curNutzungToCopy));
+                    try {
+                        copyPasteList.add(new Nutzung(curNutzungToCopy.cloneBuchung()));
+                    } catch (Exception ex) {
+                        log.error("Fehler beim kopieren einer Buchung: ",ex);
+                        int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(), "Die Buchung konnte nicht kopiert werden, da die zu \n" +
+                        "kopierende Buchung Fehler enthält"
+                        , "Fehler beim kopieren einer Buchung", JOptionPane.OK_OPTION);
+                    }
                 }
             }
         }
@@ -607,6 +618,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         }
     }//GEN-LAST:event_btnPasteNutzungActionPerformed
 
+    //TODO should be obsolete (no thread needed) because the server should overwrite the dates
     //TODO SAME AS NKFTABLEMODEL
     //ToDo problem if server is not responding not the best concept
     class NutzungsCreator extends SwingWorker<Date, Void> {
@@ -646,13 +658,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                         case MODE_ADD_NUTZUNG:
                             final NutzungsBuchung tmp = new NutzungsBuchung();
                             tmp.setGueltigvon(serverDate);
-                            tableModel.addNutzung(Nutzung.createNewNutzung(serverDate));
+                            //ToDo NKF
+                            tableModel.addNutzung(new Nutzung());
                             log.info("New Nutzung added to Model");
                             break;
                         case MODE_COPY_NUTZUNG:
                             if (copyPasteList.size() > 0) {
                                 for (Nutzung curNutzung : copyPasteList) {
-                                    curNutzung.getNutzungsBuchungen().get(0).setGueltigvon(serverDate);
+                                    //ToDo date der Nutzung wird im Server korrigiert
                                 }
                                 if (isInEditMode) {
                                     btnPasteNutzung.setEnabled(true);
@@ -858,10 +871,12 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         //TODO CHECK FOR REFACTORING
         log.debug("tableChanged");
         final Refreshable refresh = LagisBroker.getInstance().getRefreshableByClass(NKFOverviewPanel.class);
-        if (refresh != null) {            
+        if (refresh != null) {
             refresh.refresh(new NutzungsContainer(tableModel.getSelectedNutzungen(), tableModel.getCurrentDate()));
         }
-        ((JXTable) tNutzung).packAll();
+        if (tableModel.getRowCount() != 0) {
+            ((JXTable) tNutzung).packAll();
+        }
     }
 
     //ToDo refactorn viel zu kompliziert??
@@ -1128,6 +1143,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 if (sortedNutzungen != null) {
                     counter = 0;
                     if (sortedNutzungen.size() >= 1) {
+                        //ToDO NKF Comparator
                         Collections.sort(sortedNutzungen, NutzungsBuchung.DATE_COMPARATOR);
                         final Iterator<NutzungsBuchung> it = sortedNutzungen.iterator();
                         while (it.hasNext()) {
@@ -1171,7 +1187,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                     slrHistory.setMinorTickSpacing(5);
                                     slrHistory.setMajorTickSpacing(10);
                                     mode = YEAR_SCALE;
-                                    slrHistory.setValue(years + 1);
+                                    if (setToLatestHistoric) {
+                                        slrHistory.setValue(years);
+                                    } else {
+                                        slrHistory.setValue(years + 1);
+                                    }
                                     slrHistory.setEnabled(true);
                                     cbxChanges.setEnabled(true);
                                 } else {
@@ -1179,7 +1199,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                     slrHistory.setMinorTickSpacing(12);
                                     slrHistory.setMaximum(months + 1);
                                     mode = MONTH_SCALE;
-                                    slrHistory.setValue(months + 1);
+                                    if (setToLatestHistoric) {
+                                        slrHistory.setValue(months);
+                                    } else {
+                                        slrHistory.setValue(months + 1);
+                                    }
                                     slrHistory.setEnabled(true);
                                     cbxChanges.setEnabled(true);
                                 }
@@ -1188,7 +1212,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                 slrHistory.setMinorTickSpacing(30);
                                 slrHistory.setMaximum(days + 1);
                                 mode = DAY_SCALE;
-                                slrHistory.setValue(days + 1);
+                                if (setToLatestHistoric) {
+                                        slrHistory.setValue(days);
+                                    } else {
+                                        slrHistory.setValue(days + 1);
+                                    }
                                 slrHistory.setEnabled(true);
                                 cbxChanges.setEnabled(true);
                             }
@@ -1293,6 +1321,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         return null;
     }
 
+    //ToDo NKF die meldungen/überprüfungen müssen angepasst werden
     @Override
     public int getStatus() {
         if (isFlurstueckEditable) {
@@ -1326,8 +1355,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                             existingBufferDisolves = true;
                         }
                     } catch (IllegalNutzungStateException ex) {
-                        log.warn("Nutzungszustand konnte nicht ermittelt werden",ex);
-                        validationMessage = "Die Änderungen können nicht gespeichert werden,\n weil der Zustand einer Nutzung nicht ermittelt werden konnte.\n Nutzungsnummer: "+currentBuchung.getNutzung().getId();
+                        log.warn("Nutzungszustand konnte nicht ermittelt werden", ex);
+                        validationMessage = "Die Änderungen können nicht gespeichert werden,\n weil der Zustand einer Nutzung nicht ermittelt werden konnte.\n Nutzungsnummer: " + currentBuchung.getNutzung().getId();
                         return Validatable.ERROR;
                     }
                 }
