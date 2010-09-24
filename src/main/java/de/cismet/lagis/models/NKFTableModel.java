@@ -221,7 +221,7 @@ public class NKFTableModel extends AbstractTableModel {
     }
 
     //ToDo beseitigen wenn abgebrochen wird ?? wird aber glaube ich neu geladen 
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {        
         try {
             //ToDo NKF gibt nur eine Nutzung spezialfall
             final Nutzung selectedNutzung = selectedNutzungen.get(rowIndex);                        
@@ -238,9 +238,17 @@ public class NKFTableModel extends AbstractTableModel {
             }            
             switch (columnIndex) {
                 case 1:
+                    if(aValue != null && aValue instanceof String){                        
+                        selectedBuchung.setAnlageklasse(null);
+                        break;
+                    }
                     selectedBuchung.setAnlageklasse((Anlageklasse) aValue);
                     break;
                 case 2:
+                    if(aValue != null && aValue instanceof String){                        
+                        selectedBuchung.setNutzungsart(null);
+                        break;
+                    }
                     selectedBuchung.setNutzungsart((Nutzungsart) aValue);
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
@@ -295,6 +303,10 @@ public class NKFTableModel extends AbstractTableModel {
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
                 case 11:
+                    if(aValue != null && aValue instanceof String){
+                        selectedBuchung.setBemerkung(null);
+                        return;
+                    }
                     selectedBuchung.setBemerkung((String) aValue);
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;

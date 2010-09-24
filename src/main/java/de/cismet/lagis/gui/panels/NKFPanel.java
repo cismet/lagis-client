@@ -234,6 +234,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         //bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
         //.setModel();
         final JComboBox cboAK = new JComboBox(new Vector<Anlageklasse>(EJBroker.getInstance().getAllAnlageklassen()));
+        cboAK.addItem("");
 //        //tNutzung.setDefaultRenderer(Verwaltungsgebrauch.class,new VerwaltungsgebrauchRenderer());
 //        tNutzung.setDefaultEditor(VerwaltendeDienststelle.class,new DefaultCellEditor(cboVD));
 //        JComboBox cboVG = new JComboBox(new Vector<Verwaltungsgebrauch>(allVerwaltungsgebraeuche));
@@ -247,6 +248,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         final Vector<Nutzungsart> nutzungsarten = new Vector<Nutzungsart>(EJBroker.getInstance().getAllNutzungsarten());
         Collections.sort(nutzungsarten);
         JComboBox cboNA = new JComboBox(nutzungsarten);
+        cboNA.addItem("");
 //        tNutzung.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cboVG));
         cboNA.setEditable(true);
         tNutzung.setDefaultEditor(Nutzungsart.class, new ComboBoxCellEditor(cboNA));
@@ -595,10 +597,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     try {
                         copyPasteList.add(new Nutzung(curNutzungToCopy.cloneBuchung()));
                     } catch (Exception ex) {
-                        log.error("Fehler beim kopieren einer Buchung: ",ex);
+                        log.error("Fehler beim kopieren einer Buchung: ", ex);
                         int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(), "Die Buchung konnte nicht kopiert werden, da die zu \n" +
-                        "kopierende Buchung Fehler enthält"
-                        , "Fehler beim kopieren einer Buchung", JOptionPane.OK_OPTION);
+                                "kopierende Buchung Fehler enthält", "Fehler beim kopieren einer Buchung", JOptionPane.OK_OPTION);
                     }
                 }
             }
@@ -1213,10 +1214,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                 slrHistory.setMaximum(days + 1);
                                 mode = DAY_SCALE;
                                 if (setToLatestHistoric) {
-                                        slrHistory.setValue(days);
-                                    } else {
-                                        slrHistory.setValue(days + 1);
-                                    }
+                                    slrHistory.setValue(days);
+                                } else {
+                                    slrHistory.setValue(days + 1);
+                                }
                                 slrHistory.setEnabled(true);
                                 cbxChanges.setEnabled(true);
                             }
@@ -1330,9 +1331,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 return Validatable.ERROR;
             }
 
-             boolean existingBufferDisolves = false;
-             boolean existingUnvalidCurrentNutzung = false;
-             boolean existsAtLeastOneValidCurrentNutzung = false;
+            boolean existingBufferDisolves = false;
+            boolean existingUnvalidCurrentNutzung = false;
+            boolean existsAtLeastOneValidCurrentNutzung = false;
 //            boolean existingUnbookedDeletedNutzung = false;
 
             ArrayList<Nutzung> currentNutzungen = tableModel.getSelectedNutzungen();
@@ -1344,20 +1345,20 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                         //return Validatable.VALID;
                         existingUnvalidCurrentNutzung = true;
                     }
-                    if(currentBuchung != null && currentBuchung.getNutzungsart() != null){
+                    if (currentBuchung != null && currentBuchung.getNutzungsart() != null) {
                         existsAtLeastOneValidCurrentNutzung = true;
                     }
                     if (currentBuchung.getFlaeche() != null && currentBuchung.getQuadratmeterpreis() != null) {
                         log.debug("Neuer Preis: " + (currentBuchung.getFlaeche() * currentBuchung.getQuadratmeterpreis()));
                     } else {
                         log.debug("Neuer Preis kann nicht berechnet werden");
-                    }                   
+                    }
                 }
-            }           
+            }
             if (existingUnvalidCurrentNutzung) {
                 validationMessage = "Alle Nutzungen müssen eine Nutzungsart haben,\num das Flurstück speichern zu können.";
                 return Validatable.ERROR;
-            }else if (!existsAtLeastOneValidCurrentNutzung) {
+            } else if (!existsAtLeastOneValidCurrentNutzung) {
                 validationMessage = "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
                 return Validatable.ERROR;
             } else {
