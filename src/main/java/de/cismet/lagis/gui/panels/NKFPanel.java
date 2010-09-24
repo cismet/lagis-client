@@ -1161,7 +1161,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                         if (counter != 0) {
                             first = sortedHistoricNutzungen.get(0).getGueltigvon();
                             last = sortedHistoricNutzungen.get(sortedHistoricNutzungen.size() - 1).getGueltigbis();
-
+                            log.debug("first: "+first+" last: "+last);
                             //TODO OPTIMIZE for example over isHistoric
                             long between;
                             if (sortedNutzungen.size() == sortedHistoricNutzungen.size()) {
@@ -1356,7 +1356,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 }
             }
             if (existingUnvalidCurrentNutzung) {
-                validationMessage = "Alle Nutzungen müssen eine Nutzungsart haben,\num das Flurstück speichern zu können.";
+                validationMessage = "Alle Nutzungen müssen eine Nutzungsart haben.";
                 return Validatable.ERROR;
             } else if (!existsAtLeastOneValidCurrentNutzung) {
                 validationMessage = "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
