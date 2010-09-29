@@ -26,11 +26,7 @@
                 <exclusion>
                     <artifactId>groovy-all</artifactId>
                     <groupId>groovy</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jdom</artifactId>
-                    <groupId>jdom</groupId>
-                </exclusion>
+                </exclusion>                         
             </exclusions>
         </dependency>
         <dependency>
@@ -65,21 +61,17 @@
             <version>1.1</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
             <version>1.1.1-ea</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>1.7-beta-1</version>
         </dependency>
-        <dependency>
-            <groupId>jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>0.7</version>
-        </dependency>
+       
         <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
@@ -128,7 +120,6 @@
             <artifactId>gt-main</artifactId>
             <version>2.6-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
     <build>
         <finalName>LagisClient</finalName>
