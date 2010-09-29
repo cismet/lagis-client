@@ -28,7 +28,7 @@
                     <groupId>groovy</groupId>
                 </exclusion>                         
             </exclusions>
-        </dependency>
+        </dependency>        
         <dependency>
             <groupId>de.cismet.todo</groupId>
             <artifactId>wizard</artifactId>
@@ -72,11 +72,11 @@
             <version>1.7-beta-1</version>
         </dependency>
        
-        <dependency>
+       <!-- <dependency>
             <groupId>jaxen</groupId>
             <artifactId>jaxen</artifactId>
             <version>1.1.1</version>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>de.cismet.lagis</groupId>
             <artifactId>lagis-ee-server-ejb</artifactId>
