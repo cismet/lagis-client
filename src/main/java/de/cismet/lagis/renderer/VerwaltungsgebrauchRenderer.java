@@ -20,6 +20,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -83,7 +84,10 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer{
     /** Creates a new instance of VerwaltungsgebrauchRenderer */
     public VerwaltungsgebrauchRenderer() {
         super();
-        serializer.setEncoding("ISO-8859-1");
+        final Format format = Format.getPrettyFormat();
+        // TODO: WHY NOT USING UTF-8
+        format.setEncoding("ISO-8859-1");
+        serializer.setFormat(format);
     }
     
     public void setHTMLTooltip(Element htmlTooltip){

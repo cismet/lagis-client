@@ -64,6 +64,7 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -1973,8 +1974,10 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         try{
             wfsRequest = (Element)parent.getChild("WFSRequest").clone();
             wfsRequest.detach();
-            XMLOutputter serializer = new XMLOutputter();
-            serializer.setEncoding("ISO-8859-1");
+            final Format format = Format.getPrettyFormat();
+        // TODO: WHY NOT USING UTF-8
+        format.setEncoding("ISO-8859-1"); // NOI18N
+        final XMLOutputter serializer = new XMLOutputter(format);                        
             log.debug("WFSRequest: "+serializer.outputString(wfsRequest));
             log.debug("Child availaible: "+parent.getChild("WFSRequest").getChild("Query").getChild("GetFeature",Namespace.getNamespace("wfs","http://www.opengis.net/wfs")));
             query = (Element) parent.getChild("WFSRequest").getChild("Query").getChild("GetFeature",Namespace.getNamespace("wfs","http://www.opengis.net/wfs")).clone();

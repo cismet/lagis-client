@@ -14,6 +14,7 @@ import java.util.Vector;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
 /**
@@ -86,7 +87,7 @@ public class UserDependingConfigurationManager extends ConfigurationManager {
 
     public void configure(Configurable singleConfig, String path) {
         try {
-            SAXBuilder builder = new SAXBuilder(false);                        
+            SAXBuilder builder = new SAXBuilder(false);
             //log.debug("encoding detection results: "+EncodingDetector.cachedDetectEncoding(path));
             Document doc = builder.build(new File(path));
             rootObject = doc.getRootElement();
@@ -101,14 +102,17 @@ public class UserDependingConfigurationManager extends ConfigurationManager {
         if (rootObject == null) {
             log.fatal("Fehler beim Konfigurationsmanagement. Von einem fehlerfreien Start kann nicht ausgegangen werden.");
         }
+        final Format format = Format.getPrettyFormat();
+        // TODO: WHY NOT USING UTF-8
+        format.setEncoding("ISO-8859-1");
 
-        XMLOutputter serializer = new XMLOutputter();
-        serializer.setEncoding("ISO-8859-1");
+        XMLOutputter serializer = new XMLOutputter(format);
         log.debug("ENCODING:" + serializer.toString());
-        serializer.setIndent("\t");
-        serializer.setLineSeparator("\n");
-        serializer.setNewlines(true);
-        serializer.setTextTrim( true );
+//ToDo check if it works with the new jdom version
+        //        serializer.setIndent("\t");
+//        serializer.setLineSeparator("\n");
+//        serializer.setNewlines(true);
+//        serializer.setTextTrim( true );
 
         log.info("ConfigurationDocument: " + serializer.outputString(rootObject.getDocument()));
         pureConfigure(singleConfig);
@@ -218,15 +222,18 @@ public class UserDependingConfigurationManager extends ConfigurationManager {
                 } catch (Exception t) {
                     log.warn("Fehler beim Schreiben der eines Konfigurationsteils.", t);
                 }
-            }  
+            }
             Document doc = new Document(root);
-            XMLOutputter serializer = new XMLOutputter();
-            serializer.setEncoding("ISO-8859-1");
+            final Format format = Format.getPrettyFormat();
+            // TODO: WHY NOT USING UTF-8
+            format.setEncoding("ISO-8859-1");
+            XMLOutputter serializer = new XMLOutputter(format);
             log.debug("ENCODING:" + serializer.toString());
-            serializer.setIndent("\t");
-            serializer.setLineSeparator("\n");
-            serializer.setNewlines(true);
-            serializer.setTextTrim( true );
+            //ToDo check if it works with the new version
+//            serializer.setIndent("\t");
+//            serializer.setLineSeparator("\n");
+//            serializer.setNewlines(true);
+//            serializer.setTextTrim(true);
             File file = new File(path);
             FileWriter writer = new FileWriter(file);
             serializer.output(doc, writer);

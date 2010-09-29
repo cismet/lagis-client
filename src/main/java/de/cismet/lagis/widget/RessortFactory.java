@@ -51,7 +51,7 @@ public class RessortFactory implements Configurable{
     public void masterConfigure(Element parent) {
         log.debug("RessortFactory MasterConfigure");
         try{
-            Element ressortWidgets=((Element)parent.clone()).getChild("RessortWidgets").detach();
+            Element ressortWidgets=(Element)((Element)parent.clone()).getChild("RessortWidgets").detach();
             List<Element> list=ressortWidgets.getChildren("RessortWidget");
             for (Element e:list) {
                 try {
