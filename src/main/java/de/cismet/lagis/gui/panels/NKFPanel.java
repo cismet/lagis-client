@@ -23,12 +23,14 @@ import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
 import de.cismet.lagisEE.bean.Exception.AddingOfBuchungNotPossibleException;
+import de.cismet.lagisEE.bean.Exception.TerminateNutzungNotPossibleException;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.Nutzung;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
+import de.cismet.tools.CurrentStackTrace;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -70,7 +72,6 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.SortOrder;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -88,12 +89,27 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
     private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
     private final ArrayList<Nutzung> copyPasteList = new ArrayList();
+    private JPopupMenu predecessorPopup;
+    private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
+
+    private Date currentDate;
+    private ArrayList<NutzungsBuchung> sortedNutzungen;
+    //perhaps not good
+    ArrayList<Date> dateToTicks;
+    ArrayList<NutzungsBuchung> historicNutzungenDayClasses;
+    private int counter = 0;
+    private int mode;
+    private static final int YEAR_SCALE = 1;
+    private static final int MONTH_SCALE = 2;
+    private static final int DAY_SCALE = 3;
+    private Date first;
+    private Date last;
+    boolean isOnlyHistoric = false;
 
     /** Creates new form RechteTabellenPanel */
     public NKFPanel() {
         setIsCoreWidget(true);
         initComponents();
-        //slrHistory.putClientProperty("JSlider.isFilled",Boolean.TRUE);
         slrHistory.addChangeListener(this);
         slrHistory.setMajorTickSpacing(5);
         slrHistory.setMinorTickSpacing(1);
@@ -131,7 +147,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                         isFlurstueckEditable = false;
                     }
                     final Set<Nutzung> newNutzungen = getCurrentObject().getNutzungen();
-//                    printNutzungen(newNutzungen);
                     tableModel.refreshTableModel(newNutzungen);
                     if (isUpdateAvailable()) {
                         cleanup();
@@ -139,25 +154,12 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     }
                     if (newNutzungen != null) {
                         log.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
-//                        Iterator<Nutzung> it = newNutzungen.iterator();
-//                        while (it.hasNext()) {
-//                            if (isUpdateAvailable()) {
-//                                cleanup();
-//                                return;
-//                            }
-////                            Nutzung curNutzung = it.next();
-////                            log.debug("Nutzung: " + curNutzung.getId());
-////                            log.debug("Gueltig von: " + curNutzung.getGueltigvon());
-////                            log.debug("Gueltig bis: " + curNutzung.getGueltigbis());
-////                            log.debug("Quadratmeterpreis: " + curNutzung.getQuadratmeterpreis());
-////                            log.debug("Fläche: " + curNutzung.getFlaeche());
-//                        }
                     }
                     if (isUpdateAvailable()) {
                         cleanup();
                         return;
                     }
-                    updateSlider(false);
+                    updateSlider();
                     if (isUpdateAvailable()) {
                         cleanup();
                         return;
@@ -171,39 +173,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 
             protected void cleanup() {
             }
-//            private void printNutzungen(Set<Nutzung> newNutzungen) {
-//                if (newNutzungen != null){
-//                    for(Nutzung nutz:newNutzungen){
-//                        if(nutz != null && nutz.getGueltigbis() == null){
-//                             printNutzungRecursive(nutz);
-//                        } else {
-//                            log.debug("NKFImpl: Nutzung entweder Null oder Historisch --> ignoriert");
-//                        }
-//                    }
-//                } else {
-//                    log.debug("NKFImpl: Nutzungen sind leer");
-//                }
-//            }
-//
-//            private void printNutzungRecursive(NutzungsBuchung nutzung){
-//                if(nutzung != null){
-//                   if(nutzung.getVorgaenger_todo() != null){
-//                       log.debug("NKFImpl: Rekursion: "+nutzung.getVorgaenger_todo());
-//                       printNutzungRecursive(nutzung.getVorgaenger_todo());
-//                   } else {
-//                       log.debug("NKFImpl: Nutzung hat keinen Vorgänger mehr.");
-//                   }
-//                   log.debug("NKFImpl: Nutzung: "+nutzung);
-//                } else {
-//                    log.debug("NKFImpl: Nutzung ist null");
-//                }
-//            }
         };
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
     }
-    private JPopupMenu predecessorPopup;
-    private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
 
     private void configurePopupMenue() {
         predecessorPopup = new JPopupMenu();
@@ -229,19 +202,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         tNutzung.setModel(tableModel);
         tNutzung.getSelectionModel().addListSelectionListener(this);
         tableModel.addTableModelListener(this);
-        //TODO NUllSAVe
-        //tableModel.setVerwaltendenDienstellenList(allVerwaltendeDienstellen);
-        //bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
-        //.setModel();
         final JComboBox cboAK = new JComboBox(new Vector<Anlageklasse>(EJBroker.getInstance().getAllAnlageklassen()));
         cboAK.addItem("");
-//        //tNutzung.setDefaultRenderer(Verwaltungsgebrauch.class,new VerwaltungsgebrauchRenderer());
-//        tNutzung.setDefaultEditor(VerwaltendeDienststelle.class,new DefaultCellEditor(cboVD));
-//        JComboBox cboVG = new JComboBox(new Vector<Verwaltungsgebrauch>(allVerwaltungsgebraeuche));
-//        //JComboBox cboVG = new JComboBox(new Vector<Verwaltungsgebrauch>(allVerwaltungsgebraeuche));
-//        cboVG.setEditable(true);
-//        ComboBoxCellEditor cellEditor = new ComboBoxCellEditor(cboVG);
-//        //AutoCompleteDecorator.decorate(cboVG);
         tNutzung.setDefaultEditor(Anlageklasse.class, new DefaultCellEditor(cboAK));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
@@ -249,7 +211,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         Collections.sort(nutzungsarten);
         JComboBox cboNA = new JComboBox(nutzungsarten);
         cboNA.addItem("");
-//        tNutzung.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cboVG));
         cboNA.setEditable(true);
         tNutzung.setDefaultEditor(Nutzungsart.class, new ComboBoxCellEditor(cboNA));
         tNutzung.setDefaultEditor(Vector.class, new PlanEditor());
@@ -259,9 +220,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         tNutzung.addMouseListener(this);
         tNutzung.addMouseListener(new PopupListener());
         tableModel.addTableModelListener(this);
-        //(LagisBroker.UNKOWN_COLOR, null, 0, -1)
         HighlightPredicate buchungsStatusPredicate = new HighlightPredicate() {
 
+            @Override
             public boolean isHighlighted(Component renderer, ComponentAdapter componentAdapter) {
                 try {
                     int displayedIndex = componentAdapter.row;
@@ -280,6 +241,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         //(LagisBroker.grey, null, 0, -1)
         HighlightPredicate geloeschtPredicate = new HighlightPredicate() {
 
+            @Override
             public boolean isHighlighted(Component renderer, ComponentAdapter componentAdapter) {
                 try {
                     int displayedIndex = componentAdapter.row;
@@ -294,7 +256,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             }
         };
         Highlighter geloeschtHighlighter = new ColorHighlighter(geloeschtPredicate, LagisBroker.grey, null);
-        //final HighlighterPipeline hPipline = new HighlighterPipeline(new Highlighter[]{LagisBroker.ALTERNATE_ROW_HIGHLIGHTER, buchungsStatusHighlighter, geloeschtHighlighter});
         ((JXTable) tNutzung).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER, buchungsStatusHighlighter, geloeschtHighlighter);
         ((JXTable) tNutzung).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable) tNutzung).setColumnControlVisible(true);
@@ -319,17 +280,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             log.debug("NKFPanel --> setComponentEditable");
             isInEditMode = isEditable;
             tableModel.setIsInEditMode(isEditable);
-//        btnAddNutzung.setEnabled(isEditable);
-//        if(isEditable && tNutzung.getSelectedRow() != -1){
-//            int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-//            if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null){
-//               btnRemoveNutzung.setEnabled(true);
-//            } else {
-//               btnRemoveNutzung.setEnabled(false);
-//            }
-//        } else if(!isEditable){
-//            btnRemoveNutzung.setEnabled(false);
-//        }
             if (isEditable) {
                 if (!slrHistory.isEnabled()) {
                     btnAddNutzung.setEnabled(true);
@@ -362,15 +312,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 btnRemoveNutzung.setEnabled(false);
                 btnCopyNutzung.setEnabled(false);
             }
-
-
-//        HighlighterPipeline pipeline = ((JXTable)tNutzung).getHighlighters();
-//        if(isEditable){
-//        pipeline.removeHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_DEFAULT);
-//        pipeline.addHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_EDIT,false);
-//        } else {
-//        pipeline.removeHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_EDIT);
-//        pipeline.addHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_DEFAULT,false);
 //        }
             log.debug("NKFPanel --> setComponentEditable finished");
         } else {
@@ -378,12 +319,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         }
     }
 
+    @Override
     public synchronized void clearComponent() {
-
         tableModel.refreshTableModel(null);
     }
 
     //TODO validate the single cell of the tables
+    @Override
     public void refresh(Object refreshObject) {
     }
 
@@ -562,27 +504,27 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 
     }// </editor-fold>//GEN-END:initComponents
     private void cbxChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
-        updateSlider(false);
+        updateSlider();
     }//GEN-LAST:event_cbxChangesActionPerformed
 
     private void btnRemoveNutzungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
         log.debug("Remove Nutzung");
         final int currentRow = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
         if (currentRow != -1) {
-            log.debug("Selektierte Nutzng gefunden in Zeile: " + currentRow);
-            //VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-//            if (!tableModel.removeNutzung(currentRow)) {
-            tableModel.removeNutzung(currentRow);
-            updateSlider(true);
-//            }
-            //tableModel.fireTableDataChanged();
+            log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: "+tNutzung.getSelectedRow());
+            try {                
+                tableModel.removeNutzung(currentRow);                
+            } catch (TerminateNutzungNotPossibleException ex) {
+                log.error("Eine Nutzung konnte nicht entfernt werden", ex);
+                int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(), "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n" +
+                        "sich an den Systemadministrator", "Fehler beim löschen einer Buchung", JOptionPane.OK_OPTION);
+            }            
         }
-
     }//GEN-LAST:event_btnRemoveNutzungActionPerformed
 
     private void btnAddNutzungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNutzungActionPerformed
-        NutzungsCreator nurtungsCreator = new NutzungsCreator(NutzungsCreator.MODE_ADD_NUTZUNG);
-        nurtungsCreator.execute();
+        tableModel.addNutzung(new Nutzung());
+        log.info("New Nutzung added to Model");
     }//GEN-LAST:event_btnAddNutzungActionPerformed
 
     private void btnCopyNutzungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
@@ -604,8 +546,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 }
             }
         }
-        NutzungsCreator nurtungsCreator = new NutzungsCreator(NutzungsCreator.MODE_COPY_NUTZUNG);
-        nurtungsCreator.execute();
+        if (isInEditMode) {
+            btnPasteNutzung.setEnabled(true);
+        }
     }//GEN-LAST:event_btnCopyNutzungActionPerformed
 
     private void btnPasteNutzungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
@@ -618,86 +561,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
     }//GEN-LAST:event_btnPasteNutzungActionPerformed
-
-    //TODO should be obsolete (no thread needed) because the server should overwrite the dates
-    //TODO SAME AS NKFTABLEMODEL
-    //ToDo problem if server is not responding not the best concept
-    class NutzungsCreator extends SwingWorker<Date, Void> {
-
-        private static final int MODE_ADD_NUTZUNG = 0;
-        private static final int MODE_COPY_NUTZUNG = 1;
-        //private static final int MODE_SET_NUTZUNG_HISTORIC=1;
-        private int currentMode = 0;
-
-        NutzungsCreator(int mode) {
-            super();
-            currentMode = mode;
-        }
-
-        protected Date doInBackground() throws Exception {
-            try {
-
-                return EJBroker.getInstance().getCurrentDate();
-
-
-            } catch (Exception ex) {
-                log.error("Fehler beim abrufen des Datums vom Server", ex);
-                return null;
-            }
-        }
-
-        protected void done() {
-            super.done();
-            if (isCancelled()) {
-                log.warn("Swing Worker wurde abgebrochen");
-                return;
-            }
-            try {
-                Date serverDate = get();
-                if (serverDate != null) {
-                    switch (currentMode) {
-                        case MODE_ADD_NUTZUNG:
-                            final NutzungsBuchung tmp = new NutzungsBuchung();
-                            tmp.setGueltigvon(serverDate);
-                            //ToDo NKF
-                            tableModel.addNutzung(new Nutzung());
-                            log.info("New Nutzung added to Model");
-                            break;
-                        case MODE_COPY_NUTZUNG:
-                            if (copyPasteList.size() > 0) {
-                                for (Nutzung curNutzung : copyPasteList) {
-                                    //ToDo date der Nutzung wird im Server korrigiert
-                                }
-                                if (isInEditMode) {
-                                    btnPasteNutzung.setEnabled(true);
-                                }
-                            } else {
-                                copyNotPossible();
-                            }
-                            break;
-                        default:
-                            log.warn("Mode is unbekannt tue nichts");
-                    }
-                } else {
-                    log.warn("Es konnte keine Datum geliefert werden.");
-                    if (currentMode == MODE_COPY_NUTZUNG) {
-                        copyNotPossible();
-                    }
-                }
-            } catch (Exception ex) {
-                log.error("Fehler beim verarbeiten des Results vom NutzungsCreator (SwingWorker)", ex);
-                if (currentMode == MODE_COPY_NUTZUNG) {
-                    copyNotPossible();
-                }
-                return;
-            }
-        }
-
-        private void copyNotPossible() {
-            log.warn("Kopieren nicht möglich");
-            copyPasteList.clear();
-        }
-    }
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNutzung;
     private javax.swing.JButton btnCopyNutzung;
@@ -735,23 +599,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 
     public void mouseClicked(final MouseEvent e) {
         Object source = e.getSource();
-//        if(source instanceof JXTable){
-//            log.debug("Mit maus auf NKFTabelle geklickt");
-//            int selecetdRow = tNutzung.getSelectedRow();
-//            if(selecetdRow != -1){
-//                if(isInEditMode){
-//                    Nutzung nutzung = tableModel.getNutzungAtRow(((JXTable)tNutzung).convertRowIndexToModel(selecetdRow));
-//                    if(nutzung != null && nutzung.getGueltigbis() != null){
-//                        btnRemoveNutzung.setEnabled(false);
-//                    } else {
-//                        btnRemoveNutzung.setEnabled(true);
-//                    }
-//                }
-//            } else {
-//                wasRemovedEnabled=false;
-//                btnRemoveNutzung.setEnabled(false);
-//            }
-//        }
         log.debug("MouseClicked");
         // falls es Nutzung eine Stille Reserve besitzt zu der entsprechenden Nutzung springen
         if (source instanceof JXTable) {
@@ -778,28 +625,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         } else {
             log.fatal("Es gibt keinen Vorgänger für die Nutzung: " + buchung.getId());
         }
-//        int tickToJump = getTickForNutzung(vorgaenger);
-//        if (tickToJump != -1) {
-//            log.debug("Es wurde ein Tick gefunden zu dem gesprungen werden kann: " + tickToJump);
-//            slrHistory.setValue(tickToJump);
-//            int index = tableModel.getIndexOfNutzung(vorgaenger);
-//            log.debug("index: " + index);
-//            int displayedIndex = ((JXTable) tNutzung).getFilters().convertRowIndexToView(index);
-//            if (index != -1) {
-//                log.debug("DisplayedIndex: " + displayedIndex);
-//                log.debug("Tablemodel rowCount: " + tableModel.getRowCount());
-//                tNutzung.getSelectionModel().clearSelection();
-//                tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-//                Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
-//                if (tmp != null) {
-//                    tNutzung.scrollRectToVisible(tmp);
-//                }
-//            } else {
-//                log.debug("Keine passende Nutzung im TableModel gefunden");
-//            }
-//        } else {
-//            log.debug("Kein Tick gefunden zu dem gesprungen werden kann");
-//        }
     }
 
     private void selectNutzungInHistory(NutzungsBuchung nutzung) {
@@ -825,7 +650,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         } else {
             log.debug("Kein Tick gefunden zu dem gesprungen werden kann");
         }
-    }
+    }    
     private NutzungsBuchung currentPopupNutzung = null;
 
     class PopupListener extends MouseAdapter {
@@ -883,6 +708,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
     //ToDo refactorn viel zu kompliziert??
     //ToDo SliderStateChanged
     //private boolean wasRemovedEnabled = false;
+    @Override
     public void stateChanged(final ChangeEvent e) {
         if (cbxChanges.isSelected()) {
             if (historicNutzungenDayClasses != null) {
@@ -893,7 +719,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     log.debug("Counter: " + counter);
                     if (source.getValue() < counter) {
                         lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(historicNutzungenDayClasses.get(source.getValue()).getGueltigbis()));
-
                     } else {
                         lblCurrentHistoryPostion.setText("Aktuelle Nutzungen");
                     }
@@ -903,7 +728,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
                                 btnAddNutzung.setEnabled(false);
-
                                 //wasRemovedEnabled = btnRemoveNutzung.isEnabled();
                                 btnRemoveNutzung.setEnabled(false);
                             }
@@ -1011,23 +835,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             }
         }
     }
-    private Date currentDate;
-    private ArrayList<NutzungsBuchung> sortedNutzungen;
-    //perhaps not good
-    ArrayList<Date> dateToTicks;
-    ArrayList<NutzungsBuchung> historicNutzungenDayClasses;
-    private int counter = 0;
-    private int mode;
-    private static final int YEAR_SCALE = 1;
-    private static final int MONTH_SCALE = 2;
-    private static final int DAY_SCALE = 3;
-    private Date first;
-    private Date last;
-    boolean isOnlyHistoric = false;
 
     //ToDo refactor
-    public synchronized void updateSlider(final boolean setToLatestHistoric) {
-        log.debug("update Slider");
+    public synchronized void updateSlider() {
+        log.debug("update Slider", new CurrentStackTrace());
         if (cbxChanges.isSelected()) {
             log.debug("nach Änderungen");
             try {
@@ -1101,11 +912,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                             slrHistory.setMinimum(0);
                             //TODO WARUM?
                             slrHistory.setMaximum(counter);
-                            if (setToLatestHistoric) {
-                                slrHistory.setValue(counter - 1);
-                            } else {
+//                            if (setToLatestHistoric) {
+//                                slrHistory.setValue(counter - 1);
+//                            } else {
                                 slrHistory.setValue(counter);
-                            }
+//                            }
                             slrHistory.setEnabled(true);
                             cbxChanges.setEnabled(true);
                         }
@@ -1133,7 +944,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 log.error("Fehler beim updaten des NKF History Sliders (Change Filter)", ex);
             }
         } else {
-            log.debug("nach zeitstrahl");
+//            log.debug("nach zeitstrahl. Set to last historic: " + setToLatestHistoric);
             try {
                 isOnlyHistoric = false;
                 slrHistory.setSnapToTicks(false);
@@ -1161,7 +972,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                         if (counter != 0) {
                             first = sortedHistoricNutzungen.get(0).getGueltigvon();
                             last = sortedHistoricNutzungen.get(sortedHistoricNutzungen.size() - 1).getGueltigbis();
-                            log.debug("first: "+first+" last: "+last);
+                            log.debug("last in millis: " + last.getTime());
+                            log.debug("first: " + first + " last: " + last);
                             //TODO OPTIMIZE for example over isHistoric
                             long between;
                             if (sortedNutzungen.size() == sortedHistoricNutzungen.size()) {
@@ -1170,6 +982,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                 isOnlyHistoric = true;
                             } else {
                                 last = new Date();
+                                log.debug("Last gets new time: " + last.getTime());
                                 between = last.getTime() - first.getTime();
                             }
                             //TODO ROUND
@@ -1188,11 +1001,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                     slrHistory.setMinorTickSpacing(5);
                                     slrHistory.setMajorTickSpacing(10);
                                     mode = YEAR_SCALE;
-                                    if (setToLatestHistoric) {
-                                        slrHistory.setValue(years);
-                                    } else {
+//                                    if (setToLatestHistoric) {
+//                                        slrHistory.setValue(years);
+//                                    } else {
                                         slrHistory.setValue(years + 1);
-                                    }
+//                                    }
                                     slrHistory.setEnabled(true);
                                     cbxChanges.setEnabled(true);
                                 } else {
@@ -1200,11 +1013,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                     slrHistory.setMinorTickSpacing(12);
                                     slrHistory.setMaximum(months + 1);
                                     mode = MONTH_SCALE;
-                                    if (setToLatestHistoric) {
-                                        slrHistory.setValue(months);
-                                    } else {
+//                                    if (setToLatestHistoric) {
+//                                        slrHistory.setValue(months);
+//                                    } else {
                                         slrHistory.setValue(months + 1);
-                                    }
+//                                    }
                                     slrHistory.setEnabled(true);
                                     cbxChanges.setEnabled(true);
                                 }
@@ -1213,11 +1026,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                                 slrHistory.setMinorTickSpacing(30);
                                 slrHistory.setMaximum(days + 1);
                                 mode = DAY_SCALE;
-                                if (setToLatestHistoric) {
-                                    slrHistory.setValue(days);
-                                } else {
+//                                if (setToLatestHistoric) {
+//                                    slrHistory.setValue(days);
+//                                } else {
                                     slrHistory.setValue(days + 1);
-                                }
+//                                }
                                 slrHistory.setEnabled(true);
                                 cbxChanges.setEnabled(true);
                             }
@@ -1254,6 +1067,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 log.error("Fehler beim updaten des NKF History Sliders (Date Filter)", ex);
             }
         }
+        log.debug("tablemodel rowcount: " + tableModel.getRowCount());
     }
 
     public void valueChanged(final ListSelectionEvent e) {

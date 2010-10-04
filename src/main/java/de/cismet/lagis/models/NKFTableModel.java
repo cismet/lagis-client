@@ -12,6 +12,7 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.utillity.BebauungsVector;
 import de.cismet.lagis.utillity.FlaechennutzungsVector;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
+import de.cismet.lagisEE.bean.Exception.TerminateNutzungNotPossibleException;
 import de.cismet.lagisEE.entity.core.Nutzung;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
@@ -20,6 +21,7 @@ import de.cismet.lagisEE.entity.core.hardwired.Flaechennutzung;
 
 import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
 
+import de.cismet.tools.CurrentStackTrace;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +50,7 @@ public class NKFTableModel extends AbstractTableModel {
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private ArrayList<Nutzung> allNutzungen;
     //ToDo Selection über Datum noch nicht ganz optimal weil sehr oft im EDT benutzt und kostspielig
-    private ArrayList<Nutzung> selectedNutzungen;
+    private ArrayList<Nutzung> currentNutzungen;
     //private Vector<Nutzung> nutzungenHistorisch;
     private final static String[] COLUMN_HEADER = {"Nutzungs Nr.", "Anlageklasse", "Nutzungsartenschlüssel", "Nutzungsart", "Flächennutzungsplan", "Bebauungsplan", "Fläche m²", "Quadratmeterpreis", "Gesamtpreis", "Stille Reserve", "Buchwert", "Bemerkung"};
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
@@ -58,43 +60,28 @@ public class NKFTableModel extends AbstractTableModel {
     /** Creates a new instance of NKFTableModel */
     public NKFTableModel() {
         allNutzungen = new ArrayList<Nutzung>();
-        selectedNutzungen = new ArrayList<Nutzung>();
+        currentNutzungen = new ArrayList<Nutzung>();
         //nutzungenHistorisch = new Vector<Nutzung>();
     }
 
     public NKFTableModel(Set<Nutzung> nutzungen) {
         try {
             allNutzungen = new ArrayList<Nutzung>(nutzungen);
-            selectedNutzungen = new ArrayList<Nutzung>();
-//            Iterator<NutzungsBuchung> it = allNutzungen.iterator();
-//            while (it.hasNext()) {
-//                NutzungsBuchung curNutzung = it.next();
-//                if (curNutzung.getGueltigbis() == null) {
-//                    selection.add(curNutzung);
-//                }
-//            }
-            log.debug("Anzahl aktueller Nutzungen: " + selectedNutzungen.size());
             log.debug("Anzahl aller Nutzungen: " + allNutzungen.size());
-//            this.nutzungenHistorisch = new Vector<Nutzung>();
-//            Iterator<Nutzung> it = nutzungen.iterator();
-//            while(it.hasNext()){
-//                Nutzung curNutzung = it.next();
-//                if(curNutzung.getGueltigbis() != null){
-//                    nutzungenHistorisch.add(curNutzung);
-//                }
-//            }
-            //nutzungen.removeAll(nutzungenHistorisch);
+            currentNutzungen = new ArrayList<Nutzung>();
+            currentDate=null;
+            refreshTableModel();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
             this.allNutzungen = new ArrayList<Nutzung>();
-            this.selectedNutzungen = new ArrayList<Nutzung>();
+            this.currentNutzungen = new ArrayList<Nutzung>();
             //this.nutzungenHistorisch = new Vector<Nutzung>();
         }
     }
 
     public Object getValueAt(final int rowIndex, final int columnIndex) {
-        try {            
-            final Nutzung nutzung = selectedNutzungen.get(rowIndex);
+        try {
+            final Nutzung nutzung = currentNutzungen.get(rowIndex);
             final NutzungsBuchung selectedBuchung = nutzung.getBuchungForDate(currentDate);
             final Double stilleReserve = nutzung.getStilleReserveForBuchung(selectedBuchung);
             switch (columnIndex) {
@@ -128,22 +115,22 @@ public class NKFTableModel extends AbstractTableModel {
                 case 7:
                     return selectedBuchung.getQuadratmeterpreis();
                 case 8:
-                    if(stilleReserve != null){
-                        return selectedBuchung.getGesamtpreis()-stilleReserve;
+                    if (stilleReserve != null) {
+                        return selectedBuchung.getGesamtpreis() - stilleReserve;
                     } else {
                         //ToDo NKF
                         return selectedBuchung.getGesamtpreis();
                     }
                 case 9:
                     //ToDo NKF
-                    if(stilleReserve != null){
+                    if (stilleReserve != null) {
                         return stilleReserve;
                     } else {
                         return 0.0;
                     }
                 case 10:
                     //ToDo gibt so wenig Buchwerte extra Spalte dafür ?
-                    if(selectedBuchung.getIstBuchwert()){
+                    if (selectedBuchung.getIstBuchwert()) {
                         return booked;
                     } else {
                         return notBooked;
@@ -160,8 +147,8 @@ public class NKFTableModel extends AbstractTableModel {
 
     }
 
-    public int getRowCount() {        
-        return selectedNutzungen.size();
+    public int getRowCount() {
+        return currentNutzungen.size();
     }
 
     public int getColumnCount() {
@@ -179,7 +166,7 @@ public class NKFTableModel extends AbstractTableModel {
         if (columnIndex == 3 || columnIndex == 8 || columnIndex == 9 || columnIndex == 10) {
             return false;
         } else {
-            return (COLUMN_HEADER.length > columnIndex) && (selectedNutzungen.size() > rowIndex) && isInEditMode && selectedNutzungen.get(rowIndex).getBuchungForDate(currentDate).getGueltigbis() == null;
+            return (COLUMN_HEADER.length > columnIndex) && (currentNutzungen.size() > rowIndex) && isInEditMode && currentNutzungen.get(rowIndex).getBuchungForDate(currentDate).getGueltigbis() == null;
         }
 
     }
@@ -221,31 +208,31 @@ public class NKFTableModel extends AbstractTableModel {
     }
 
     //ToDo beseitigen wenn abgebrochen wird ?? wird aber glaube ich neu geladen 
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {        
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         try {
             //ToDo NKF gibt nur eine Nutzung spezialfall
-            final Nutzung selectedNutzung = selectedNutzungen.get(rowIndex);                        
+            final Nutzung selectedNutzung = currentNutzungen.get(rowIndex);
             NutzungsBuchung selectedBuchung = selectedNutzung.getBuchungForDate(currentDate);
-            NutzungsBuchung oldBuchung = null;            
+            NutzungsBuchung oldBuchung = null;
             if (selectedBuchung.getId() != null) {
-                log.debug("neue Buchung wird angelegt");                                
-                final NutzungsBuchung newBuchung = selectedBuchung.cloneBuchung();                               
+                log.debug("neue Buchung wird angelegt");
+                final NutzungsBuchung newBuchung = selectedBuchung.cloneBuchung();
                 selectedNutzung.addBuchung(newBuchung);
-                oldBuchung=selectedBuchung;
+                oldBuchung = selectedBuchung;
                 selectedBuchung = newBuchung;
-            } else {                                
-                oldBuchung=selectedNutzung.getPreviousBuchung();
-            }            
+            } else {
+                oldBuchung = selectedNutzung.getPreviousBuchung();
+            }
             switch (columnIndex) {
                 case 1:
-                    if(aValue != null && aValue instanceof String){                        
+                    if (aValue != null && aValue instanceof String) {
                         selectedBuchung.setAnlageklasse(null);
                         break;
                     }
                     selectedBuchung.setAnlageklasse((Anlageklasse) aValue);
                     break;
                 case 2:
-                    if(aValue != null && aValue instanceof String){                        
+                    if (aValue != null && aValue instanceof String) {
                         selectedBuchung.setNutzungsart(null);
                         break;
                     }
@@ -288,12 +275,12 @@ public class NKFTableModel extends AbstractTableModel {
                     }
                     selectedBuchung.setBebauung(tmpBebauung);
                     break;
-                case 6:                    
+                case 6:
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
                     selectedBuchung.setFlaeche((Integer) aValue);
-                    fireTableRowsUpdated(rowIndex, rowIndex);                    
+                    fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
                 case 7:
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
@@ -303,7 +290,7 @@ public class NKFTableModel extends AbstractTableModel {
                     fireTableRowsUpdated(rowIndex, rowIndex);
                     break;
                 case 11:
-                    if(aValue != null && aValue instanceof String){
+                    if (aValue != null && aValue instanceof String) {
                         selectedBuchung.setBemerkung(null);
                         return;
                     }
@@ -313,10 +300,10 @@ public class NKFTableModel extends AbstractTableModel {
                 default:
                     log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
-            }          
-            if(selectedBuchung != null && oldBuchung != null && selectedBuchung.getId() == null){
-                log.debug("Prüfe ob die Nutzung sich wirklich verändert hat");                
-                if(NutzungsBuchung.NUTZUNG_HISTORY_EQUALATOR.pedanticEquals(oldBuchung, selectedBuchung)){
+            }
+            if (selectedBuchung != null && oldBuchung != null && selectedBuchung.getId() == null) {
+                log.debug("Prüfe ob die Nutzung sich wirklich verändert hat");
+                if (NutzungsBuchung.NUTZUNG_HISTORY_EQUALATOR.pedanticEquals(oldBuchung, selectedBuchung)) {
                     log.debug("Nutzungen sind gleich muss keine neue angelegt werden");
                     selectedNutzung.removeOpenNutzung();
                 }
@@ -329,48 +316,42 @@ public class NKFTableModel extends AbstractTableModel {
 
     public void addNutzung(Nutzung nutzung) {
         if (nutzung != null) {
-            allNutzungen.add(nutzung);
-            if (nutzung.getBuchungForDate(currentDate) != null) {
-                selectedNutzungen.add(nutzung);
-            }
-            fireTableDataChanged();
+            allNutzungen.add(nutzung);            
+            refreshTableModel();
         } else {
             log.debug("Nutzung kann nicht hinzugefügt werden ist null.");
         }
     }
 
     public NutzungsBuchung getNutzungAtRow(int rowIndex) {
-        return selectedNutzungen.get(rowIndex).getBuchungForDate(currentDate);
+        return currentNutzungen.get(rowIndex).getBuchungForDate(currentDate);
     }
 
-    public boolean removeNutzung(int rowIndex) {
-        // Nutzung nutzung = nutzungen.get(rowIndex);
-//        if(nutzung != null && nutzung.getGeometrie() != null && nutzung.getGeometrie().getGeometry() != null ){
-//            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(nutzung.getGeometrie());
-//        }
-        //allNutzungen.get
-        Nutzung nutzung = selectedNutzungen.get(rowIndex);
-        if (nutzung != null) {
+    public void removeNutzung(int rowIndex) throws TerminateNutzungNotPossibleException {        
+        final Nutzung nutzungToRemove = currentNutzungen.get(rowIndex);
+        final NutzungsBuchung selectedBuchung = nutzungToRemove.getBuchungForDate(currentDate);
+        if (nutzungToRemove != null) {
             log.debug("Nutzung die entfernt werden soll ist in Modell vorhanden.");
-            if (nutzung.getId() == null) {
+            if (nutzungToRemove.getId() == null) {
                 log.debug("Nutzung die Entfernt wurde war noch nicht in Datenbank");
-                selectedNutzungen.remove(rowIndex);
-                allNutzungen.remove(rowIndex);
-                fireTableDataChanged();
-                return true;
+                allNutzungen.remove(nutzungToRemove);            
             } else {
-                System.out.println("Nutzung in Datenbank gesetzt wird historisch gesetzt");
-                final Nutzung nutzungToRemove = selectedNutzungen.get(rowIndex);
-                selectedNutzungen.remove(rowIndex);                
-                    NutzungsBuchung buchungToTerminate = nutzung.getBuchungForDate(null);
-                    buchungToTerminate.setGueltigbis(new Date());
-                    buchungToTerminate.setSollGeloeschtWerden(true);
-                    setModelToHistoryDate(buchungToTerminate.getGueltigbis());
-                //TODO NKF EXCEPTION;
-                //alles ohne if try-catch
-            }
+                log.debug("Nutzung ist in Datenbank vorhanden");
+                if (selectedBuchung != null && selectedBuchung.getId() == null) {
+                    log.debug("Die Betroffene Buchung ist neu und kann gelöscht werden");
+                    nutzungToRemove.removeOpenNutzung();
+                } else {
+                    log.debug("Die Betroffene Buchung ist in der Datenbank gespeichert. Komplette Nutzung wird historisch gesetzt");                                        
+                    final Date terminationDate = new Date();
+                    log.debug("Termination date: "+terminationDate);
+                    nutzungToRemove.terminateNutzung(terminationDate);
+                    log.debug("Terminated Nutzung Date: "+nutzungToRemove.getTerminalBuchung().getGueltigbis());
+                    log.debug("Termination id: "+nutzungToRemove.getTerminalBuchung().getId());
+                    log.debug("BuchungForDate: "+nutzungToRemove.getBuchungForDate(terminationDate));
+                }
+            }            
         }
-        return true;
+        refreshTableModel();
     }
 
     public ArrayList<NutzungsBuchung> getAllBuchungen() {
@@ -389,64 +370,6 @@ public class NKFTableModel extends AbstractTableModel {
         return sortedNutzungen;
     }
 
-//    //TODO SAME AS NUTZUNG
-//    class DateRetriever extends SwingWorker<Date, Void> {
-//        //private static final int MODE_ADD_NUTZUNG=0;
-//        private static final int MODE_SET_NUTZUNG_HISTORIC = 1;
-//        private int currentMode = 0;
-//        private NutzungsBuchung nutzung;
-//        private int resultIndex;
-//
-//        //TODO Knaup
-//        DateRetriever(int mode, NutzungsBuchung nutzung, int resultIndex) {
-//            super();
-//            currentMode = mode;
-//            this.nutzung = nutzung;
-//            this.resultIndex = resultIndex;
-//        }
-//
-//        protected Date doInBackground() throws Exception {
-//            try {
-//                return EJBroker.getInstance().getCurrentDate();
-//            } catch (Exception ex) {
-//                log.error("Fehler beim abrufen des Datums vom Server", ex);
-//                return null;
-//            }
-//        }
-//
-//        protected void done() {
-//            super.done();
-//            if (isCancelled()) {
-//                log.warn("Swing Worker wurde abgebrochen");
-//                return;
-//            }
-//            try {
-//                Date serverDate = get();
-//                if (serverDate != null) {
-//                    switch (currentMode) {
-////                        case MODE_ADD_NUTZUNG:
-////                            final Nutzung tmp = new Nutzung();
-////                            tmp.setGueltigvon(serverDate);
-////                            tableModel.addNutzung(tmp);
-////                            break;
-//                        case MODE_SET_NUTZUNG_HISTORIC:
-//                            allNutzungen.get(resultIndex).setGueltigbis(serverDate);
-//                            allNutzungen.get(resultIndex).setSollGeloeschtWerden(true);
-//                            selectedNutzungen.remove(nutzung);
-//                            fireTableDataChanged();
-//                            break;
-//                        default:
-//                            log.warn("Mode is unbekannt tue nichts");
-//                    }
-//                } else {
-//                    log.warn("Es konnte kein Datum vom Server abgerufen werden");
-//                }
-//            } catch (Exception ex) {
-//                log.error("Fehler beim verarbeiten des Results vom DateRetriever (SwingWorker)", ex);
-//                return;
-//            }
-//        }
-//    }
     public void refreshTableModel(Set<Nutzung> nutzungen) {
         try {
             log.debug("Refresh des NKFTableModell");
@@ -460,15 +383,15 @@ public class NKFTableModel extends AbstractTableModel {
             setModelToHistoryDate(currentDate);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.selectedNutzungen = new ArrayList<Nutzung>();
+            this.currentNutzungen = new ArrayList<Nutzung>();
             this.allNutzungen = new ArrayList<Nutzung>();
         }
     }
 
     public ArrayList<NutzungsBuchung> getselectedBuchungen() {
-        log.debug("Anzahl aktueller Nutzungen: " + selectedNutzungen.size());
+        log.debug("Anzahl aktueller Nutzungen: " + currentNutzungen.size());
         final ArrayList<NutzungsBuchung> selectedBuchungen = new ArrayList<NutzungsBuchung>();
-        for (Nutzung curNutzung : selectedNutzungen) {
+        for (Nutzung curNutzung : currentNutzungen) {
             NutzungsBuchung curBuchung = curNutzung.getBuchungForDate(currentDate);
             if (curBuchung != null) {
                 selectedBuchungen.add(curBuchung);
@@ -491,35 +414,62 @@ public class NKFTableModel extends AbstractTableModel {
     }
 
     public ArrayList<Nutzung> getSelectedNutzungen() {
-        return selectedNutzungen;
+        return currentNutzungen;
     }
 
     public ArrayList<Nutzung> getAllNutzungen() {
         return allNutzungen;
     }
 
-    public void setModelToHistoryDate(Date historyDate) {
-        log.debug("setModelToHistoryDate: "+historyDate);
-        currentDate=historyDate;
-        selectedNutzungen.clear();
+    public void setModelToHistoryDate(final Date historyDate) {
+        log.debug("setModelToHistoryDate: " + historyDate, new CurrentStackTrace());
+        log.debug("anzahl rows: "+getRowCount());
+        log.debug("AnzahlNutzungen: "+allNutzungen.size());
+        currentDate = historyDate;
+        currentNutzungen.clear();
         for (Nutzung curNutzung : allNutzungen) {
+//            log.debug("historydate"+historyDate);
+//            log.debug("currentDate"+currentDate);
+//            System.out.println("historydate"+historyDate);
+//            System.out.println("currentDate"+currentDate);
+//            final NutzungsBuchung open = curNutzung.getOpenBuchung();
+//            log.debug("openBuchung: "+open+"");
+//            final NutzungsBuchung terminated = curNutzung.getTerminalBuchung();
+//            log.debug("getTerminated"+terminated);
+//            if(terminated != null){
+//                log.debug("id: "+terminated+" gueltig_bis: "+terminated.getGueltigbis());
+//                log.debug("Terminated Nutzung Date: "+curNutzung.getTerminalBuchung().getGueltigbis());
+//                log.debug("millis"+curNutzung.getTerminalBuchung().getGueltigbis().getTime());
+//                if(historyDate != null){
+//                log.debug("millis"+historyDate.getTime());
+//                }
+//                log.debug("Termination id: "+curNutzung.getTerminalBuchung().getId());
+//                log.debug("curNutzung size"+curNutzung.getBuchungsCount());
+//                log.debug("BuchungForDate: "+curNutzung.getBuchungForDate(curNutzung.getTerminalBuchung().getGueltigbis()));
+//                System.out.println("marker: "+curNutzung.getBuchungForDate(historyDate));
+//            }
+//            log.debug("historydate"+historyDate);
+//            log.debug("currentDate"+currentDate);
+//            System.out.println("historydate"+historyDate);
+//            System.out.println("currentDate"+currentDate);
             if (curNutzung.getBuchungForDate(historyDate) != null) {
                 log.debug("Nutzung für Datum gefunden");
-                selectedNutzungen.add(curNutzung);
+                currentNutzungen.add(curNutzung);
             }
         }
+        log.debug("anzahl rows: "+getRowCount());
         fireTableDataChanged();
     }
 
-    public Date getCurrentDate(){
+    public Date getCurrentDate() {
         return currentDate;
     }
 
     public int getIndexOfNutzung(NutzungsBuchung nutzung) {
-        return selectedNutzungen.indexOf(nutzung);
+        return currentNutzungen.indexOf(nutzung);
     }
 
-    public void refreshTableModel(){
+    public void refreshTableModel() {
         setModelToHistoryDate(currentDate);
     }
 }
