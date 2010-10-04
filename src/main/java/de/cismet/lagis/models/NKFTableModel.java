@@ -236,8 +236,7 @@ public class NKFTableModel extends AbstractTableModel {
                         selectedBuchung.setNutzungsart(null);
                         break;
                     }
-                    selectedBuchung.setNutzungsart((Nutzungsart) aValue);
-                    fireTableRowsUpdated(rowIndex, rowIndex);
+                    selectedBuchung.setNutzungsart((Nutzungsart) aValue);                    
                     break;
                 case 4:
                     Set<Flaechennutzung> tmpNutz = selectedBuchung.getFlaechennutzung();
@@ -279,23 +278,22 @@ public class NKFTableModel extends AbstractTableModel {
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
-                    selectedBuchung.setFlaeche((Integer) aValue);
-                    fireTableRowsUpdated(rowIndex, rowIndex);
+                    selectedBuchung.setFlaeche((Integer) aValue);                    
                     break;
                 case 7:
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
-                    selectedBuchung.setQuadratmeterpreis((Double) aValue);
-                    fireTableRowsUpdated(rowIndex, rowIndex);
+                    selectedBuchung.setQuadratmeterpreis((Double) aValue);                    
                     break;
                 case 11:
-                    if (aValue != null && aValue instanceof String) {
+                    if (aValue != null && aValue instanceof String && ((String)aValue).length() == 0) {                        
+                        log.debug("leerstring");
                         selectedBuchung.setBemerkung(null);
                         return;
                     }
-                    selectedBuchung.setBemerkung((String) aValue);
-                    fireTableRowsUpdated(rowIndex, rowIndex);
+                    log.debug("nicht leer: "+aValue);
+                    selectedBuchung.setBemerkung((String) aValue);                    
                     break;
                 default:
                     log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
