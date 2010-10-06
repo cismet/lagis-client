@@ -8,6 +8,7 @@
  */
 package de.cismet.lagis.broker;
 
+import Sirius.navigator.connection.ConnectionSession;
 import bean.KassenzeichenFacadeRemote;
 import com.vividsolutions.jts.geom.Geometry;
 import de.cismet.cismap.commons.features.Feature;
@@ -153,6 +154,18 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
     private double kassenzeichenBuffer=-0.5;
+
+    private transient ConnectionSession session;
+
+    public ConnectionSession getSession()
+    {
+        return session;
+    }
+
+    public void setSession(final ConnectionSession session)
+    {
+        this.session = session;
+    }
 
     private LagisBroker() {
         execService = Executors.newCachedThreadPool();

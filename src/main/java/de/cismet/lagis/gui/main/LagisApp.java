@@ -17,6 +17,7 @@ import Sirius.navigator.plugin.interfaces.PluginMethod;
 import Sirius.navigator.plugin.interfaces.PluginProperties;
 import Sirius.navigator.plugin.interfaces.PluginSupport;
 import Sirius.navigator.plugin.interfaces.PluginUI;
+import Sirius.server.newuser.User;
 import bean.KassenzeichenFacadeRemote;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.sun.jersey.api.container.ContainerFactory;
@@ -39,7 +40,6 @@ import de.cismet.ee.EJBAccessor;
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.broker.LagisCrossover;
-import de.cismet.lagis.config.UserDependingConfigurationManager;
 import de.cismet.lagis.gui.panels.AktenzeichenSearch;
 import de.cismet.lagis.gui.panels.HistoryPanel;
 import de.cismet.lagis.gui.panels.VerwaltungsPanel;
@@ -68,6 +68,7 @@ import de.cismet.tools.CurrentStackTrace;
 import de.cismet.tools.StaticDecimalTools;
 
 import de.cismet.tools.configuration.Configurable;
+import de.cismet.tools.configuration.ConfigurationManager;
 import de.cismet.tools.configuration.NoWriteError;
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
@@ -108,7 +109,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.prefs.Preferences;
@@ -228,7 +228,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     //private final Icon icoUnknown = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/unknown.png"));
     //TODO sollte eigentlich alles in den LagisBroker ??
     //Configuration
-    private UserDependingConfigurationManager configManager;
+    private ConfigurationManager configManager;
     private static final String LAGIS_CONFIGURATION_FILE = "defaultLagisProperties.xml";
     private static final String LOCAL_LAGIS_CONFIGURATION_FILE = "lagisProperties.xml";
     private static final String LAGIS_CONFIGURATION_CLASSPATH = "/de/cismet/lagis/configuration/";
@@ -236,8 +236,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private static final String USER_HOME_DIRECTORY = System.getProperty("user.home");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     //userdependingConfiguration
-    private static String userDependingConfigurationFile;
-    private static String userDependingConfigurationClasspathfolder;
     //TODO Auslagern in configFile
     private static final String LAGIS_CONFIGURATION_FOLDER = USER_HOME_DIRECTORY + FILE_SEPARATOR + ".lagis";
     private static final String DEFAULT_LAYOUT_PATH = LAGIS_CONFIGURATION_FOLDER + "/lagis.layout";
@@ -300,10 +298,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     //Ressort
     private Set<View> ressortViews = new HashSet<View>();
     private DockingWindow[] ressortDockingWindow;
-    //login
-    private static String standaloneDomain;
-    //private static String callserverhost;
-    //private static String userString;
     //Plugin Navigator
     private final PluginContext context;
     private ArrayList<JMenuItem> menues = new ArrayList<JMenuItem>();
@@ -369,7 +363,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             //TODO FIX
             this.addWindowListener(this);
-            configManager = new UserDependingConfigurationManager();
+            configManager = new ConfigurationManager();
             log.info("Laden der Lagis Konfiguration");
             log.debug("Name des Lagis Server Konfigurationsfiles: " + LAGIS_CONFIGURATION_FILE);
             configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
@@ -384,31 +378,34 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             //            }
             configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
             configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
-            configManager.setUserDependingConfigurationClasspath(userDependingConfigurationClasspathfolder);
-            configManager.setUserDependingConfigurationFile(userDependingConfigurationFile);
             configManager.addConfigurable(this);
             configManager.addConfigurable(LagisBroker.getInstance());
             log.debug("Konfiguriere Karten Widget");
 
-            if (LagisBroker.getInstance().getAccountName() != null && standaloneDomain != null) {
-                configManager.setCurrentUser(LagisBroker.getInstance().getAccountName() + "@" + standaloneDomain);
-                configManager.configure(this);
-            } else {
-                log.fatal("Es ist kein ordentlich angemeldeter usernamen vorhanden LagIS wird beendet");
-                System.exit(0);
-            }
             if (isPlugin) {
                 loginWasSuccessful = true;
                 try {
-                    String userString = Sirius.navigator.connection.SessionManager.getSession().getUser().getName() + "@" + Sirius.navigator.connection.SessionManager.getSession().getUser().getUserGroup().getName();
-                    String userGroup = Sirius.navigator.connection.SessionManager.getSession().getUser().getUserGroup().toString();
-                    String standaloneDomain = Sirius.navigator.connection.SessionManager.getSession().getUser().getUserGroup().getDomain();
-                    log.debug("userstring: " + userString);
-                    log.debug("userGroup: " + userGroup);
-                    //setUserString(userString);
+                    final ConnectionSession session = SessionManager.getSession();
+                    final User user = session.getUser();
+
+                    LagisBroker.getInstance().setSession(session);
+                    final String userString = user.getName() + "@" + user.getUserGroup().getName();
+                    // usergroup.toString is most likely not what the usergroup represents within the system but a
+                    // human readeable representation suited for logging purposes
+                    // usergroup.getName is probably what you want
+                    final String userGroup = user.getUserGroup().toString();
+
+                    if(log.isDebugEnabled()){
+                        log.debug("userstring: " + userString);
+                        log.debug("userGroup: " + userGroup);
+                    }
+
                     LagisBroker.getInstance().setAccountName(userString);
-                    log.debug("full qualified username: " + userString + "@" + standaloneDomain);
-                    configManager.setCurrentUser(userString + "@" + standaloneDomain);
+                    log.debug("full qualified username: " + userString + "@" + user.getUserGroup().getDomain());
+                    // TODO: I don't get why there are those numerous calls to configure all over the code.
+                    // configuration should be done once (!) and especially the leaking 'this' in this case is higly
+                    // error prone because the configuration manager uses 'this' (currently being built) object. Thus
+                    // the configuration stuff is done on a partially constructed object. VERY NASTY
                     configManager.configure(LagisApp.this);
                     Boolean permission = LagisBroker.getInstance().getPermissions().get(userGroup.toLowerCase());
                     log.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
@@ -435,6 +432,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //                    System.exit(0);
 //                }
             }
+
+            if (LagisBroker.getInstance().getSession() != null) {
+                // error prone !!! see above
+                configManager.configure(this);
+            } else {
+                log.fatal("Es ist kein ordentlich angemeldeter usernamen vorhanden LagIS wird beendet");
+                System.exit(0);
+            }
+
             //TODO !!!Blocker
             //while(!loginWasSuccessful);
             //if there is a userdepending config file, the configuration will be overwritten
@@ -746,15 +752,17 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     }
 
-    private static void handleLogin() {
+    private static void handleLogin(final String[] args) {
         log.debug("Intialisiere Loginframe");
+
         //TODO VERDIS COPY
         //Thread t=new Thread(new Runnable(){
         //       public void run() {
         final DefaultUserNameStore usernames = new DefaultUserNameStore();
         Preferences appPrefs = Preferences.userNodeForPackage(LagisApp.class);
         usernames.setPreferences(appPrefs.node("login"));
-        LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification();
+        // TODO: parse and validate arguments --> cli tools recommended
+        LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification(args[0], args[1]);
 
         final JXLoginPane login = new JXLoginPane(wa, null, usernames) {
 
@@ -2454,7 +2462,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {        
+    public static void main(final String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
@@ -2470,7 +2478,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 }
                 initLog4J();
                 try {
-                    handleLogin();
+                    handleLogin(args);
                 } catch (Exception ex) {
                     log.error("Fehler beim Loginframe", ex);
                     System.exit(0);
@@ -3140,42 +3148,20 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     //TODO VERDIS COPY
-    public static class WundaAuthentification extends LoginService implements Configurable {
+    public static class WundaAuthentification extends LoginService {
 
         private final Logger log = org.apache.log4j.Logger.getLogger(WundaAuthentification.class);
         //TODO steht auch so in VERDIS schlecht für ÄNDERUNGEN !!!!!
         public static final String CONNECTION_CLASS = "Sirius.navigator.connection.RMIConnection";
         public static final String CONNECTION_PROXY_CLASS = "Sirius.navigator.connection.proxy.DefaultConnectionProxyHandler";
-        //private String standaloneDomain;
-        private String callserverhost;
+        private final String standaloneDomain;
+        private final String callserverhost;
         private String userString;
-        //private String userDependingConfigurationFile;
-        private UserDependingConfigurationManager configManager;
 
-        public WundaAuthentification() {
-            try {
-                configManager = new UserDependingConfigurationManager();
-                log.info("Laden der Lagis Konfiguration");
-                log.debug("Name des Lagis Server Konfigurationsfiles: " + LAGIS_CONFIGURATION_FILE);
-                configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
-                configManager.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
-
-                //            if (!plugin) {
-                //                configManager.setFileName("configuration.xml");
-                //
-                //            } else {
-                //                configManager.setFileName("configurationPlugin.xml");
-                //                configManager.addConfigurable(metaSearch);
-                //            }
-                configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
-                configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
-                configManager.addConfigurable(this);
-                configManager.addConfigurable(LagisBroker.getInstance());
-                configManager.configure(this);
-                configManager.configure(LagisBroker.getInstance());
-            } catch (Exception ex) {
-                log.fatal("Fehler bei der Konfiguration des ConfigurationManagers (LoginFrame)", ex);
-            }
+        public WundaAuthentification(final String standaloneDomain, final String callserverhost)
+        {
+            this.standaloneDomain = standaloneDomain;
+            this.callserverhost = callserverhost;
         }
 
         public boolean authenticate(String name, char[] password, String server) throws Exception {
@@ -3206,6 +3192,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 proxy = ConnectionFactory.getFactory().createProxy(CONNECTION_PROXY_CLASS, session);
                 //proxy = ConnectionFactory.getFactory().createProxy(CONNECTION_CLASS,CONNECTION_PROXY_CLASS, connectionInfo,false);
                 SessionManager.init(proxy);
+                LagisBroker.getInstance().setSession(SessionManager.getSession());
                 String tester = (group + "@" + domain).toLowerCase();
                 log.debug("authentication: tester = " + tester);
                 log.debug("authentication: name = " + name);
@@ -3214,9 +3201,8 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 //TODO
                 //update Configuration depending on username --> formaly after the handlelogin method --> test if its work!!!!
 
-                configManager.setCurrentUser(userString + "@" + standaloneDomain);
                 //zweimal wegen userdepending konfiguration
-                configManager.configure(this);
+
                 Boolean permission = LagisBroker.getInstance().getPermissions().get(tester);
                 log.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
                 log.debug("Permission: " + permission);
@@ -3262,69 +3248,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
             }
         }
 
-        public void configure(Element parent) {
-        }
-
-        public Element getConfiguration() throws NoWriteError {
-            return null;
-        }
-
-        public void masterConfigure(Element parent) {
-            Element login = parent.getChild("login").getChild("standalone");
-            Element userDep = parent.getChild("userDependingConfigurationProperties");
-            Element userPermissions = parent.getChild("permissions");
-            try {
-                log.debug("Userdomain: " + login.getAttribute("userdomainname").getValue());
-                standaloneDomain = login.getAttribute("userdomainname").getValue();
-            } catch (Exception ex) {
-                log.warn("Fehler beim lesen der Userdomainname", ex);
-            }
-            try {
-                log.debug("Callserverhost: " + login.getAttribute("callserverhost").getValue());
-                callserverhost = login.getAttribute("callserverhost").getValue();
-            } catch (Exception ex) {
-                log.warn("Fehler beim lesen des callserverhost", ex);
-            }
-            try {
-                userDependingConfigurationFile = userDep.getChildText("file");
-                userDependingConfigurationClasspathfolder = userDep.getChildText("classpathfolder");
-                log.debug("UserDependingConfiguration: file=" + userDependingConfigurationFile + " classpathfolder=" + userDependingConfigurationClasspathfolder);
-                configManager.setUserDependingConfigurationClasspath(userDependingConfigurationClasspathfolder);
-                configManager.setUserDependingConfigurationFile(userDependingConfigurationFile);
-            } catch (Exception ex) {
-                log.warn("Fehler beim lesen des userconfigurationfiles", ex);
-            }
-            try {
-                HashMap<String, Boolean> permissions = new HashMap<String, Boolean>();
-                List<Element> xmlPermissions = userPermissions.getChildren();
-                for (Element currentPermission : xmlPermissions) {
-                    try {
-                        String isReadWriteAllowedString = currentPermission.getChildText("readWrite");
-                        boolean isReadWriteAllowed = false;
-                        if (isReadWriteAllowedString != null) {
-                            if (isReadWriteAllowedString.equals("true")) {
-                                isReadWriteAllowed = true;
-                            }
-                        }
-                        String userGroup = currentPermission.getChildText("userGroup");
-                        String userDomain = currentPermission.getChildText("userDomain");
-                        String permissionString = userGroup + "@" + userDomain;
-                        log.info("Permissions für: login=*@" + permissionString + " readWriteAllowed=" + isReadWriteAllowed + "(boolean)/" + isReadWriteAllowedString + "(String)");
-                        if (permissionString != null) {
-                            permissions.put(permissionString.toLowerCase(), isReadWriteAllowed);
-                        }
-                    } catch (Exception ex) {
-                        log.fatal("Fehler beim lesen eines Userechtes", ex);
-                    }
-                }
-                LagisBroker.getInstance().setPermissions(permissions);
-            } catch (Exception ex) {
-                log.fatal("Fehler beim lesen der Userrechte (Permissions)", ex);
-                LagisBroker.getInstance().setPermissions(new HashMap<String, Boolean>());
-                //TODO wenigstens den Nutzer benachrichtigen sonst ist es zu hard oder nur lesen modus --> besser!!!
-                //System.exit(1);
-            }
-        }
+     
     }
     //TODO VERDIS COPY
     private static Image banner = new javax.swing.ImageIcon(LagisApp.class.getResource("/de/cismet/lagis/ressource/image/login.png")).getImage();
