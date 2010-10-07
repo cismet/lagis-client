@@ -166,7 +166,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         Widget,
         FlurstueckChangeListener, FeatureSelectionChangedListener {
 
-    private final static Logger log = org.apache.log4j.Logger.getLogger(LagisApp.class);
+    private final static Logger LOG = Logger.getLogger(LagisApp.class);
     private RootWindow rootWindow;
     //Panels
     private VerwaltungsPanel pFlurstueck;
@@ -228,7 +228,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     //private final Icon icoUnknown = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/unknown.png"));
     //TODO sollte eigentlich alles in den LagisBroker ??
     //Configuration
-    private ConfigurationManager configManager;
+    private static ConfigurationManager configManager = new ConfigurationManager();
     private static final String LAGIS_CONFIGURATION_FILE = "defaultLagisProperties.xml";
     private static final String LOCAL_LAGIS_CONFIGURATION_FILE = "lagisProperties.xml";
     private static final String LAGIS_CONFIGURATION_CLASSPATH = "/de/cismet/lagis/configuration/";
@@ -258,32 +258,32 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         private Element serverConfiguration = null;
         @Override
         public void masterConfigure(Element e) {
-            log.debug("Lagis ActiveLayerModel masterConfigure.",new CurrentStackTrace());
+            LOG.debug("Lagis ActiveLayerModel masterConfigure.",new CurrentStackTrace());
             serverConfiguration=e;
         }
 
         @Override
         public void configure(Element e) {
-            log.debug("Lagis ActiveLayerModel configure.",new CurrentStackTrace());
+            LOG.debug("Lagis ActiveLayerModel configure.",new CurrentStackTrace());
             try{
             final Element conf = e.getChild("cismapActiveLayerConfiguration");
             if((conf != null && conf.getChildren() != null && conf.getChildren().size() > 0)){
-                log.debug("Es sind lokale Layer vorhanden");                
+                LOG.debug("Es sind lokale Layer vorhanden");
                 super.configure(e);
                 return;
             }
             final Element layers = conf.getChild("Layers");
             if(layers != null && layers.getChildren().size() >0){
-              log.debug("Es sind lokale Layer vorhanden");
+              LOG.debug("Es sind lokale Layer vorhanden");
                 super.configure(e);
                 return;
             }
             } catch(Exception ex){
-                log.error("Fehler beim laden der lokalen Layer. Lade Server Layer...",ex);
+                LOG.error("Fehler beim laden der lokalen Layer. Lade Server Layer...",ex);
                 super.configure(serverConfiguration);
                 return;
             }
-            log.debug("Es sind keine lokalen Layer vorhanden. Lade Server Layer...");
+            LOG.debug("Es sind keine lokalen Layer vorhanden. Lade Server Layer...");
             super.configure(serverConfiguration);
         }
 
@@ -307,6 +307,21 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private Thread sleepingMainThread = null;
     private String albURL;
     private static String userAcount = null;
+
+    static {
+    configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
+            configManager.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
+
+            //            if (!plugin) {
+            //                configManager.setFileName("configuration.xml");
+            //
+            //            } else {
+            //                configManager.setFileName("configurationPlugin.xml");
+            //                configManager.addConfigurable(metaSearch);
+            //            }
+            configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
+            configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
+    }
 
     public LagisApp() {
         this(null);
@@ -340,8 +355,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //                initLog4J();
 //            }
 
-            log.info("Starten der LaGIS Applikation");
-            log.debug("Ist Plugin: " + isPlugin);
+            LOG.info("Starten der LaGIS Applikation");
+            LOG.debug("Ist Plugin: " + isPlugin);
             //System.out.println(System.getProperty("user.dir"));
             //File test;
             //test = new File("lagis.log");
@@ -363,24 +378,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             //TODO FIX
             this.addWindowListener(this);
-            configManager = new ConfigurationManager();
-            log.info("Laden der Lagis Konfiguration");
-            log.debug("Name des Lagis Server Konfigurationsfiles: " + LAGIS_CONFIGURATION_FILE);
-            configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
-            configManager.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
-
-            //            if (!plugin) {
-            //                configManager.setFileName("configuration.xml");
-            //
-            //            } else {
-            //                configManager.setFileName("configurationPlugin.xml");
-            //                configManager.addConfigurable(metaSearch);
-            //            }
-            configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
-            configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
+            LOG.info("Laden der Lagis Konfiguration");
+            LOG.debug("Name des Lagis Server Konfigurationsfiles: " + LAGIS_CONFIGURATION_FILE);
+            
             configManager.addConfigurable(this);
-            configManager.addConfigurable(LagisBroker.getInstance());
-            log.debug("Konfiguriere Karten Widget");
+            LOG.debug("Konfiguriere Karten Widget");
 
             if (isPlugin) {
                 loginWasSuccessful = true;
@@ -395,34 +397,34 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     // usergroup.getName is probably what you want
                     final String userGroup = user.getUserGroup().toString();
 
-                    if(log.isDebugEnabled()){
-                        log.debug("userstring: " + userString);
-                        log.debug("userGroup: " + userGroup);
+                    if(LOG.isDebugEnabled()){
+                        LOG.debug("userstring: " + userString);
+                        LOG.debug("userGroup: " + userGroup);
                     }
 
                     LagisBroker.getInstance().setAccountName(userString);
-                    log.debug("full qualified username: " + userString + "@" + user.getUserGroup().getDomain());
+                    LOG.debug("full qualified username: " + userString + "@" + user.getUserGroup().getDomain());
                     // TODO: I don't get why there are those numerous calls to configure all over the code.
                     // configuration should be done once (!) and especially the leaking 'this' in this case is higly
                     // error prone because the configuration manager uses 'this' (currently being built) object. Thus
                     // the configuration stuff is done on a partially constructed object. VERY NASTY
                     configManager.configure(LagisApp.this);
                     Boolean permission = LagisBroker.getInstance().getPermissions().get(userGroup.toLowerCase());
-                    log.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
-                    log.debug("Permission: " + permission);
+                    LOG.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
+                    LOG.debug("Permission: " + permission);
                     if (permission != null && permission) {
-                        log.debug("Authentication successfull user has granted readwrite access");
+                        LOG.debug("Authentication successfull user has granted readwrite access");
                         //TODO strange names
                         LagisBroker.getInstance().setCoreReadOnlyMode(false);
                         LagisBroker.getInstance().setFullReadOnlyMode(false);
                     } else {
-                        log.debug("Authentication successfull user has granted readonly access");
+                        LOG.debug("Authentication successfull user has granted readonly access");
                     }
                     //TODOTest
                     //pDMS.setAppletContext(context.getEnvironment().getAppletContext());
                     //java.lang.Runtime.getRuntime().addShutdownHook(hook)
                 } catch (Throwable t) {
-                    log.error("Fehler im PluginKonstruktor", t);
+                    LOG.error("Fehler im PluginKonstruktor", t);
                 }
             } else {
                 setIconImage(imgMain);
@@ -437,7 +439,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 // error prone !!! see above
                 configManager.configure(this);
             } else {
-                log.fatal("Es ist kein ordentlich angemeldeter usernamen vorhanden LagIS wird beendet");
+                LOG.fatal("Es ist kein ordentlich angemeldeter usernamen vorhanden LagIS wird beendet");
                 System.exit(0);
             }
 
@@ -463,7 +465,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 this.context.getEnvironment().getProgressObserver().setProgress(250, "Laden und konfigurieren der Ressorterweiterugnen...");
             }
 
-            log.debug("Konfiguriere ALBListener");
+            LOG.debug("Konfiguriere ALBListener");
             CustomFeatureInfoListener cfil = (CustomFeatureInfoListener) mapComponent.getInputListener(MappingComponent.CUSTOM_FEATUREINFO);
             cfil.setFeatureInforetrievalUrl(albURL);
 
@@ -497,14 +499,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
             Set<String> keySet = wfsFormFactory.getForms().keySet();
             JMenu wfsFormsMenu = new JMenu("Finde & Zeichne");
-            log.debug("configuriere WFSForms");
+            LOG.debug("configuriere WFSForms");
             for (String key : keySet) {
                 //View
                 final AbstractWFSForm form = wfsFormFactory.getForms().get(key);
                 form.setMappingComponent(LagisBroker.getInstance().getMappingComponent());
-                log.debug("WFSForms: key,form" + key + "," + form);
+                LOG.debug("WFSForms: key,form" + key + "," + form);
                 final View formView = new View(form.getTitle(), Static2DTools.borderIcon(form.getIcon(), 0, 3, 0, 1), form);
-                log.debug("WFSForms: formView" + formView);
+                LOG.debug("WFSForms: formView" + formView);
                 viewMap.addView(form.getId(), formView);
                 wfsFormViews.add(formView);
                 wfs.add(formView);
@@ -514,14 +516,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 menuItem.addActionListener(new ActionListener() {
 
                     public void actionPerformed(ActionEvent e) {
-                        log.debug("showOrHideView:" + formView);
+                        LOG.debug("showOrHideView:" + formView);
                         showOrHideView(formView);
                     }
                 });
                 wfsFormsMenu.add(menuItem);
             }
 
-            log.debug("wfsFormView.size: " + wfsFormViews.size());
+            LOG.debug("wfsFormView.size: " + wfsFormViews.size());
             wfsViews = new DockingWindow[wfsFormViews.size()];
             for (int i = 0; i < wfsViews.length; i++) {
                 wfsViews[i] = wfs.get(i);
@@ -596,11 +598,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             configManager.addConfigurable(pKarte);
             configManager.configure(pKarte);
 
-            log.info("Konstruktion des LaGIS Objektes erfolgreich");
+            LOG.info("Konstruktion des LaGIS Objektes erfolgreich");
             Runtime.getRuntime().addShutdownHook(new Thread() {
 
                 public void run() {
-                    log.debug("ShutdownHook gestartet");
+                    LOG.debug("ShutdownHook gestartet");
                     cleanUp();
                 }
             });
@@ -631,14 +633,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         try {
                             FlurstueckArt flurstuecksArt = getCurrentObject().getFlurstueckSchluessel().getFlurstueckArt();
                             if (flurstuecksArt.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                                log.debug("Art des Flurstücks ist Städtisch");
+                                LOG.debug("Art des Flurstücks ist Städtisch");
                                 if (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() != null) {
                                     pFlurstueckChooser.setStatusIcon(icoStaedtischHistoric);
                                 } else {
                                     pFlurstueckChooser.setStatusIcon(icoStaedtisch);
                                 }
                             } else if (flurstuecksArt.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
-                                log.debug("Art des Flurstücks ist Abteilung IX");
+                                LOG.debug("Art des Flurstücks ist Abteilung IX");
                                 if (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() != null) {
                                     pFlurstueckChooser.setStatusIcon(icoAbteilungIXHistoric);
                                 } else {
@@ -646,14 +648,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                 }
 
                             } else {
-                                log.warn("Art des Flurstücks nicht bekannt");
+                                LOG.warn("Art des Flurstücks nicht bekannt");
                             }
                         } catch (Exception ex) {
-                            log.error("Fehler beim bestimmen der Flurstücksart");
+                            LOG.error("Fehler beim bestimmen der Flurstücksart");
                         }
                         //datamodell refactoring 22.10.07
                         if (getCurrentObject().getFlurstueckSchluessel().isGesperrt() && getCurrentObject().getFlurstueckSchluessel().getGueltigBis() == null) {
-                            log.info("Flurstück ist gesperrt");
+                            LOG.info("Flurstück ist gesperrt");
                             rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().getNormalProperties().getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(LagisBroker.LOCK_MODE_COLOR, new Color(236, 233, 216), LagisBroker.LOCK_MODE_COLOR, new Color(236, 233, 216)));
                             if (!LagisBroker.getInstance().isFullReadOnlyMode()) {
 
@@ -664,14 +666,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                             }
                             //datamodell refactoring 22.10.07
                         } else if (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() != null) {
-                            log.info("Flurstück ist historisch");
+                            LOG.info("Flurstück ist historisch");
                             rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().getNormalProperties().getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(LagisBroker.HISTORY_MODE_COLOR, new Color(236, 233, 216), LagisBroker.HISTORY_MODE_COLOR, new Color(236, 233, 216)));
                             btnSwitchInEditmode.setEnabled(false);
                             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                                 btnOpenWizard.setEnabled(true);
                             }
                         } else {
-                            log.info("Flurstück ist normal");
+                            LOG.info("Flurstück ist normal");
                             rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().getNormalProperties().getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(LagisBroker.DEFAULT_MODE_COLOR, new Color(236, 233, 216), LagisBroker.DEFAULT_MODE_COLOR, new Color(236, 233, 216)));
                             if (!LagisBroker.getInstance().isFullReadOnlyMode()) {
 
@@ -687,7 +689,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         }
                         LagisBroker.getInstance().flurstueckChangeFinished(LagisApp.this);
                     } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
+                        LOG.error("Fehler im refresh thread: ", ex);
                         LagisBroker.getInstance().flurstueckChangeFinished(LagisApp.this);
                     }
                 }
@@ -727,7 +729,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     for (Widget tmp : ressortPermission.keySet()) {
                         Boolean isReadOnly = ressortPermission.get(tmp);
                         if (isReadOnly != null && !isReadOnly) {
-                            log.debug("Mindestens ein Widget kann editiert werden");
+                            LOG.debug("Mindestens ein Widget kann editiert werden");
                             LagisBroker.getInstance().setFullReadOnlyMode(false);
                             break;
                         }
@@ -738,22 +740,22 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             mapComponent.unlock();
         } catch (Exception ex) {
-            log.fatal("Fehler beim konstruieren des LaGIS Objektes", ex);
+            LOG.fatal("Fehler beim konstruieren des LaGIS Objektes", ex);
         }
     }
 
     public void setVisible(boolean visible) {
         if (isPlugin) {
-            log.debug("Plugin setVisible ignoriert: " + visible);
+            LOG.debug("Plugin setVisible ignoriert: " + visible);
         } else {
-            log.debug("Kein Plugin super.setVisible: " + visible);
+            LOG.debug("Kein Plugin super.setVisible: " + visible);
             super.setVisible(visible);
         }
 
     }
 
     private static void handleLogin(final String[] args) {
-        log.debug("Intialisiere Loginframe");
+        LOG.debug("Intialisiere Loginframe");
 
         //TODO VERDIS COPY
         //Thread t=new Thread(new Runnable(){
@@ -866,7 +868,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
-                    log.warn("Fehler in validateTree()", t);
+                    LOG.warn("Fehler in validateTree()", t);
                     validateTree();
                 }
             });
@@ -902,7 +904,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             //System.out.println();
             //PropertyConfigurator.configure(ClassLoader.getSystemResource("de/cismet/lagis/ressource/log4j/log4j.properties"));
             PropertyConfigurator.configure(LagisApp.class.getResource("/de/cismet/lagis/configuration/log4j.properties"));
-            log.info("Log4J System erfolgreich konfiguriert");
+            LOG.info("Log4J System erfolgreich konfiguriert");
         } catch (Exception ex) {
             System.err.println("Fehler bei Log4J Initialisierung");
             ex.printStackTrace();
@@ -919,15 +921,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             configManager.configure(ressortFactory);
             HashMap<String, AbstractWidget> ressorts = ressortFactory.getRessorts();
             if (ressorts.size() > 0) {
-                log.debug("Anzahl Ressort Widget: " + ressorts.size());
+                LOG.debug("Anzahl Ressort Widget: " + ressorts.size());
                 JMenu ressortMenue = new JMenu("Ressorts");
                 Set<String> keySet = ressorts.keySet();
-                log.debug("Ressort Keyset: " + keySet);
+                LOG.debug("Ressort Keyset: " + keySet);
                 for (String key : keySet) {
                     try {
-                        log.debug("Aktueller Key " + key);
+                        LOG.debug("Aktueller Key " + key);
                         AbstractWidget ressort = ressorts.get(key);
-                        log.debug("Aktueller Name des RessortWidgets " + ressort.getWidgetName());
+                        LOG.debug("Aktueller Name des RessortWidgets " + ressort.getWidgetName());
                         final View ressortView = new View(ressort.getWidgetName(), Static2DTools.borderIcon(ressort.getWidgetIcon(), 0, 3, 0, 1), ressort);
                         viewMap.addView(ressort.getWidgetName(), ressortView);
                         ressortViews.add(ressortView);
@@ -945,7 +947,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         });
                         ressortMenue.add(menuItem);
                     } catch (Exception ex) {
-                        log.warn("Fehler beim Configurieren eines RessortWidgets: " + ex);
+                        LOG.warn("Fehler beim Configurieren eines RessortWidgets: " + ex);
                     }
                 }
                 ressortDockingWindow = new DockingWindow[ressortViews.size()];
@@ -972,15 +974,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 mnuBar.add(menHelp);
             } else {
                 ressortDockingWindow = new DockingWindow[0];
-                log.info("Es existieren keine Ressort Widgets");
+                LOG.info("Es existieren keine Ressort Widgets");
             }
         } catch (Exception ex) {
-            log.warn("Fehler beim Configurieren der RessortWidgets: " + ex);
+            LOG.warn("Fehler beim Configurieren der RessortWidgets: " + ex);
         }
     }
 
     private void initDefaultPanels() {
-        log.info("Initialisieren der einzelnen Komponenten");
+        LOG.info("Initialisieren der einzelnen Komponenten");
         pFlurstueck = new VerwaltungsPanel();
         pVertraege = new VertraegePanel();
         pNKFOverview = new NKFOverviewPanel();
@@ -1005,7 +1007,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         //widgets.add(pFlurstueckSearch);
         widgets.add(pFlurstueckChooser);
 
-        log.info("Referenz auf die mainApplikation: " + this);
+        LOG.info("Referenz auf die mainApplikation: " + this);
         widgets.add(this);
         //LagisBroker.getInstance().addResettables(widgets);
         LagisBroker.getInstance().addWidgets(widgets);
@@ -1285,7 +1287,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         try {
 //        cboGemarkung.setModel(new KeyComboboxModel());
         } catch (Exception ex) {
-            log.error("Fehler beim initalisieren der Flurstueck Comboboxen: ", ex);
+            LOG.error("Fehler beim initalisieren der Flurstueck Comboboxen: ", ex);
         }
     }
 
@@ -2012,10 +2014,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         });
         fc.setMultiSelectionEnabled(false);
         int state = fc.showSaveDialog(this);
-        log.debug("state:" + state);
+        LOG.debug("state:" + state);
         if (state == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
-            log.debug("file:" + file);
+            LOG.debug("file:" + file);
             String name = file.getAbsolutePath();
             name = name.toLowerCase();
             if (name.endsWith(".layout")) {
@@ -2027,11 +2029,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     }//GEN-LAST:event_mniSaveLayoutActionPerformed
 
     public void loadLayout(String file) {
-        log.debug("Load Layout.. from " + file);
+        LOG.debug("Load Layout.. from " + file);
         File layoutFile = new File(file);
 
         if (layoutFile.exists()) {
-            log.debug("Layout File exists");
+            LOG.debug("Layout File exists");
             try {
                 FileInputStream layoutInput = new FileInputStream(layoutFile);
                 ObjectInputStream in = new ObjectInputStream(layoutInput);
@@ -2048,9 +2050,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         }
                     }
                 }
-                log.debug("Loading Layout successfull");
+                LOG.debug("Loading Layout successfull");
             } catch (IOException ex) {
-                log.error("Layout File IO Exception --> loading default Layout", ex);
+                LOG.error("Layout File IO Exception --> loading default Layout", ex);
                 if (isInit) {
                     JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.","Fehler" , JOptionPane.INFORMATION_MESSAGE);
                     doLayoutInfoNode();
@@ -2061,7 +2063,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
         } else {
             if (isInit) {
-                log.warn("Datei exitstiert nicht --> default layout (init)");
+                LOG.warn("Datei exitstiert nicht --> default layout (init)");
                 SwingUtilities.invokeLater(new Runnable() {
 
                     public void run() {
@@ -2073,7 +2075,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     }
                 });
             } else {
-                log.warn("Datei exitstiert nicht)");
+                LOG.warn("Datei exitstiert nicht)");
                 JOptionPane.showMessageDialog(this, "Das angegebene Layout konnte nicht gefunden werden.","Fehler", JOptionPane.INFORMATION_MESSAGE);
             }
 
@@ -2113,24 +2115,24 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     public void saveLayout(String file) {
         LagisBroker.getInstance().setTitleBarComponentpainter(LagisBroker.DEFAULT_MODE_COLOR);
-        log.debug("Saving Layout.. to " + file);
+        LOG.debug("Saving Layout.. to " + file);
         File layoutFile = new File(file);
         try {
             if (!layoutFile.exists()) {
-                log.debug("Saving Layout.. File does not exit");
+                LOG.debug("Saving Layout.. File does not exit");
                 layoutFile.createNewFile();
             } else {
-                log.debug("Saving Layout.. File does exit");
+                LOG.debug("Saving Layout.. File does exit");
             }
             FileOutputStream layoutOutput = new FileOutputStream(layoutFile);
             ObjectOutputStream out = new ObjectOutputStream(layoutOutput);
             rootWindow.write(out);
             out.flush();
             out.close();
-            log.debug("Saving Layout.. to " + file + " successfull");
+            LOG.debug("Saving Layout.. to " + file + " successfull");
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Speichern des Layouts ist ein Fehler aufgetreten.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
-            log.error("A failure occured during writing the layout file", ex);
+            LOG.error("A failure occured during writing the layout file", ex);
         }
     }
 
@@ -2140,7 +2142,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     private void btnDiscardChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiscardChangesActionPerformed
         if (LagisBroker.getInstance().isInEditMode()) {
-            log.debug("Versuche aus Editiermodus heraus zu wechseln: ");
+            LOG.debug("Versuche aus Editiermodus heraus zu wechseln: ");
             int answer = JOptionPane.showConfirmDialog(this, "Wollen Sie die gemachten Änderungen verwerfen?", "Lagis Änderungen", JOptionPane.YES_NO_OPTION);
             if (answer == JOptionPane.NO_OPTION) {
                 return;
@@ -2162,13 +2164,13 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 //TODO EDT
                 LagisBroker.getInstance().getMappingComponent().setReadOnly(true);
             } else {
-                log.debug("Fehler beim lösen der Sperre des Flurstuecks");
+                LOG.debug("Fehler beim lösen der Sperre des Flurstuecks");
             }
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                 btnOpenWizard.setEnabled(true);
             }
             LagisBroker.getInstance().reloadFlurstueck();
-            log.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
+            LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
         }
     }//GEN-LAST:event_btnDiscardChangesActionPerformed
 
@@ -2180,18 +2182,18 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private void btnAcceptChangesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptChangesActionPerformed
         try {
             if (LagisBroker.getInstance().isInEditMode()) {
-                log.debug("Versuche aus Editiermodus heraus zu wechseln: ");
+                LOG.debug("Versuche aus Editiermodus heraus zu wechseln: ");
                 boolean isValid = LagisBroker.getInstance().validateWidgets();
                 if (isValid) {
-                    log.debug("Alle Änderungen sind valide: " + isValid);
+                    LOG.debug("Alle Änderungen sind valide: " + isValid);
                     int answer = JOptionPane.showConfirmDialog(this, "Wollen Sie die gemachten Änderungen speichern?", "Lagis Änderungen", JOptionPane.YES_NO_OPTION);
                     if (answer == JOptionPane.YES_OPTION) {
                         LagisBroker.getInstance().saveCurrentFlurstueck();
                     } else {
-                        log.debug("info speichern wurde gecanceled --> weiter im Editmodus");
+                        LOG.debug("info speichern wurde gecanceled --> weiter im Editmodus");
                         return;
                     }
-                    log.debug("Änderungen wurden gespeichert");
+                    LOG.debug("Änderungen wurden gespeichert");
                     //rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().getNormalProperties().getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(new Color(124,160,221),new Color(236,233,216),new Color(124,160,221),new Color(236,233,216)));
                     btnAcceptChanges.setEnabled(false);
                     btnDiscardChanges.setEnabled(false);
@@ -2214,16 +2216,16 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     LagisBroker.getInstance().reloadFlurstueck();
                 } else {
                     String reason = LagisBroker.getInstance().getCurrentValidationErrorMessage();
-                    log.debug("Flurstueck kann nicht gespeichert werden, da nicht alle Komponenten valide sind. Grund:\n" + reason);
+                    LOG.debug("Flurstueck kann nicht gespeichert werden, da nicht alle Komponenten valide sind. Grund:\n" + reason);
                     JOptionPane.showMessageDialog(this, "Änderungen können nur gespeichert werden, wenn alle Inhalte korrekt sind:\n\n" + reason + "\n\nBitte berichtigen Sie die Inhalte oder machen Sie die jeweiligen Änderungen rückgängig.", "Fehler", JOptionPane.WARNING_MESSAGE);
                 }
                 if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                     btnOpenWizard.setEnabled(true);
                 }
             }
-            log.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
+            LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
         } catch (Exception ex) {
-            log.error("Fehler beim akzeptieren von Änderungen: ", ex);
+            LOG.error("Fehler beim akzeptieren von Änderungen: ", ex);
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                 btnOpenWizard.setEnabled(true);
             }
@@ -2256,7 +2258,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //            }
 //            log.debug("ist im Editiermodus: "+LagisBroker.getInstance().isInEditMode());
 //        } else {
-        log.debug("Versuche in Editiermodus zu wechseln: ");
+        LOG.debug("Versuche in Editiermodus zu wechseln: ");
         if (LagisBroker.getInstance().acquireLock()) {
             //rootWindow.getRootWindowProperties().getViewProperties().getViewTitleBarProperties().getNormalProperties().getShapedPanelProperties().setComponentPainter(new GradientComponentPainter(new Color(245,3,3),new Color(236,233,216),new Color(245,3,3),new Color(236,233,216)));
             if (LagisBroker.getInstance().isCurrentFlurstueckLockedByUser()) {
@@ -2274,7 +2276,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             btnOpenWizard.setEnabled(false);
         } else {
         }
-        log.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
+        LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
 //        }
     }//GEN-LAST:event_btnSwitchInEditmodeActionPerformed
 
@@ -2339,7 +2341,7 @@ private void mniInformationActionPerformed(java.awt.event.ActionEvent evt) {//GE
 private void cmdPrintActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdPrintActionPerformed
 
     String oldMode = mapComponent.getInteractionMode();
-    log.debug("oldInteractionMode:" + oldMode);
+    LOG.debug("oldInteractionMode:" + oldMode);
     //Enumeration en = cmdGroupPrimaryInteractionMode.getElements();
     //togInvisible.setSelected(true);
     mapComponent.showPrintingSettingsDialog(oldMode);
@@ -2454,7 +2456,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         vcp.startSearch();
         dialog.setVisible(true);
     } catch (Exception ex) {
-        log.error("Crossover: Fehler im VerdIS Crossover", ex);
+        LOG.error("Crossover: Fehler im VerdIS Crossover", ex);
         //ToDo Meldung an Benutzer
         }
 }//GEN-LAST:event_btnVerdisCrossoverActionPerformed
@@ -2474,13 +2476,13 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                     //lf.set3DEnabled(true);
                     javax.swing.UIManager.setLookAndFeel(lf);
                 } catch (Exception ex) {
-                    log.error("Fehler beim setzen des Look & Feels");
+                    LOG.error("Fehler beim setzen des Look & Feels");
                 }
                 initLog4J();
                 try {
-                    handleLogin(args);
+                    handleLogin(new String[] {"VERDIS", "localhost"});
                 } catch (Exception ex) {
-                    log.error("Fehler beim Loginframe", ex);
+                    LOG.error("Fehler beim Loginframe", ex);
                     System.exit(0);
                 }
 
@@ -2610,7 +2612,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     public void historyChanged() {
-        log.debug("HistoryChanged");
+        LOG.debug("HistoryChanged");
         //throw new UnsupportedOperationException("Not supported yet.");
         try {
             if(mapComponent != null && mapComponent.getCurrentElement() != null){
@@ -2678,16 +2680,16 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 menHistory.add(mniHistorySidebar);
             }
             } else {
-                log.debug("CurrentElement == null --> No History change");
+                LOG.debug("CurrentElement == null --> No History change");
             }
         } catch (Exception ex) {
-            log.error("Fehler in Historychanged", ex);
+            LOG.error("Fehler in Historychanged", ex);
         }
     }
 
     public void historyActionPerformed() {
         //throw new UnsupportedOperationException("Not supported yet.");
-        log.info("historyActionPerformed");
+        LOG.info("historyActionPerformed");
     }
 
     private void setWindowSize() {
@@ -2705,7 +2707,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     public void configure(Element parent) {
         Element prefs = parent.getChild("cismapPluginUIPreferences");
         try {
-            log.debug("setting windowsize of application");
+            LOG.debug("setting windowsize of application");
             Element window = prefs.getChild("window");
             int windowHeight = window.getAttribute("height").getIntValue();
             int windowWidth = window.getAttribute("width").getIntValue();
@@ -2714,17 +2716,17 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
             boolean windowMaximised = window.getAttribute("max").getBooleanValue();
             windowSize = new Dimension(windowWidth, windowHeight);
             windowLocation = new Point(windowX, windowY);
-            log.debug("windowSize: width " + windowWidth + " heigth " + windowHeight);
+            LOG.debug("windowSize: width " + windowWidth + " heigth " + windowHeight);
             //TODO why is this not working
             //mapComponent.formComponentResized(null);
             if (windowMaximised) {
                 this.setExtendedState(MAXIMIZED_BOTH);
             } else {
             }
-            log.debug("setting of window successful");
+            LOG.debug("setting of window successful");
         } catch (Throwable t) {
             //TODO defaults
-            log.error("Error while setting windowsize", t);
+            LOG.error("Error while setting windowsize", t);
         }
     }
     //TODO optimize
@@ -2734,72 +2736,70 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
             //ToDo if it fails all fail better place in the single try catch
             Element prefs = parent.getChild("glassfishSetup");
             Element urls = parent.getChild("urls");
-            Element login = parent.getChild("login").getChild("standalone");
-            Element userDep = parent.getChild("userDependingConfigurationProperties");
             Element userPermissions = parent.getChild("permissions");
             Element albConfiguration = parent.getChild("albConfiguration");
             try {
-                log.debug("OnlineHilfeUrl: " + urls.getChildText("onlineHelp"));
+                LOG.debug("OnlineHilfeUrl: " + urls.getChildText("onlineHelp"));
                 onlineHelpURL = urls.getChildText("onlineHelp");
             } catch (Exception ex) {
-                log.warn("Fehler beim lesen der OnlineHilfe URL", ex);
+                LOG.warn("Fehler beim lesen der OnlineHilfe URL", ex);
             }
             try {
                 albURL = albConfiguration.getChildText("albURL");
                 if (albURL != null) {
                     albURL = albURL.trim();
                 }
-                log.debug("ALBURL: " + albURL.trim());
+                LOG.debug("ALBURL: " + albURL.trim());
             } catch (Exception ex) {
-                log.warn("Fehler beim lesen der ALB Konfiguration", ex);
+                LOG.warn("Fehler beim lesen der ALB Konfiguration", ex);
             }
             try {
-                log.debug("News Url: " + urls.getChildText("onlineHelp"));
+                LOG.debug("News Url: " + urls.getChildText("onlineHelp"));
                 newsURL = urls.getChildText("news");
             } catch (Exception ex) {
-                log.warn("Fehler beim lesen der News Url", ex);
+                LOG.warn("Fehler beim lesen der News Url", ex);
             }
             try {
-                log.debug("Glassfishhost: " + prefs.getChildText("host"));
+                LOG.debug("Glassfishhost: " + prefs.getChildText("host"));
                 //System.setProperty("org.omg.CORBA.ORBInitialHost", prefs.getChildText("host"));
                 EJBroker.setServer(prefs.getChildText("host"));
             } catch (Exception ex) {
-                log.warn("Fehler beim lesen des Glassfish Hosts", ex);
+                LOG.warn("Fehler beim lesen des Glassfish Hosts", ex);
             }
             try {
-                log.debug("Glassfisport: " + prefs.getChildText("orbPort"));
+                LOG.debug("Glassfisport: " + prefs.getChildText("orbPort"));
                 //System.setProperty("org.omg.CORBA.ORBInitialPort", prefs.getChildText("orbPort"));
                 EJBroker.setOrbPort(prefs.getChildText("orbPort"));
             } catch (Exception ex) {
-                log.warn("Fehler beim lesen des Glassfish Ports", ex);
+                LOG.warn("Fehler beim lesen des Glassfish Ports", ex);
             }
             try {
                 Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
-                log.debug("Crossover: Crossover port: " + crossoverServerPort);
+                LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
                 initCrossoverServer(Integer.parseInt(crossoverServerPort));
             } catch (Exception ex) {
-                log.warn("Crossover: Error while starting Server", ex);
+                LOG.warn("Crossover: Error while starting Server", ex);
             }
             try {
                 Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final String verdisHost = crossoverPrefs.getChild("VerdisConfiguration").getChildText("Host");
-                log.debug("Crossover: verdisHost: " + verdisHost);
+                LOG.debug("Crossover: verdisHost: " + verdisHost);
                 final String verdisORBPort = crossoverPrefs.getChild("VerdisConfiguration").getChildText("ORBPort");
-                log.debug("Crossover: verdisORBPort: " + verdisORBPort);
+                LOG.debug("Crossover: verdisORBPort: " + verdisORBPort);
                 LagisBroker.getInstance().setVerdisCrossoverPort(Integer.parseInt(crossoverPrefs.getChild("VerdisConfiguration").getChildText("VerdisCrossoverPort")));
-                log.debug("Crossover: verdisCrossoverPort: " + LagisBroker.getInstance().getVerdisCrossoverPort());
+                LOG.debug("Crossover: verdisCrossoverPort: " + LagisBroker.getInstance().getVerdisCrossoverPort());
                 final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(verdisHost, verdisORBPort, KassenzeichenFacadeRemote.class).getEjbInterface();
                 LagisBroker.getInstance().setVerdisServer(verdisServer);
             } catch (Exception ex) {
-                log.warn("Crossover: Error beim setzen des verdis servers", ex);
+                LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
             }
             try {
                 Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText("KassenzeichenBuffer"));
                 LagisBroker.getInstance().setKassenzeichenBuffer(kassenzeichenBuffer);
             } catch (Exception ex) {
-                log.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
+                LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
             }
 //            try {
 //                log.debug("Userdomain: " + login.getAttribute("userdomainname").getValue());
@@ -2868,7 +2868,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
 //            //System.exit(1);
 //            }
         } catch (Exception ex) {
-            log.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);
+            LOG.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);
         }
     }
 
@@ -2880,7 +2880,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         int windowX = (int) this.getLocation().getX();
         int windowY = (int) this.getLocation().getY();
         boolean windowMaximised = (this.getExtendedState() == MAXIMIZED_BOTH);
-        log.debug("Windowsize: width " + windowWidth + " height " + windowHeight);
+        LOG.debug("Windowsize: width " + windowWidth + " height " + windowHeight);
         window.setAttribute("height", "" + windowHeight);
         window.setAttribute("width", "" + windowWidth);
         window.setAttribute("x", "" + windowX);
@@ -2893,7 +2893,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     // awt.Window
     public void dispose() {
         setVisible(false);
-        log.info("Dispose(): Lagis wird heruntergefahren");
+        LOG.info("Dispose(): Lagis wird heruntergefahren");
         saveLayout(DEFAULT_LAYOUT_PATH);
         //TODO
         //configurationManager.writeConfiguration();
@@ -2909,7 +2909,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     public void flurstueckChanged(final Flurstueck newFlurstueck) {
         //mapComponent
         currentFlurstueck = newFlurstueck;
-        log.info("Flurstueck Changed");
+        LOG.info("Flurstueck Changed");
         updateThread.notifyThread(newFlurstueck);
 //        if(refresherThread != null && refresherThread.isAlive()){
 //            refresherThread.interrupt();
@@ -2977,22 +2977,22 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         boolean defaultServerPortUsed = false;
         try {
             if (crossoverServerPort < 0 || crossoverServerPort > 65535) {
-                log.warn("Crossover: Invalid Crossover serverport: " + crossoverServerPort + ". Going to use default port: " + defaultServerPort);
+                LOG.warn("Crossover: Invalid Crossover serverport: " + crossoverServerPort + ". Going to use default port: " + defaultServerPort);
                 defaultServerPortUsed = true;
                 initCrossoverServerImpl(defaultServerPort);
             } else {
                 initCrossoverServerImpl(crossoverServerPort);
             }
         } catch (Exception ex) {
-            log.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort);
+            LOG.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort);
             if (!defaultServerPortUsed) {
-                log.debug("Crossover: Trying to create server with defaultPort: " + defaultServerPort);
+                LOG.debug("Crossover: Trying to create server with defaultPort: " + defaultServerPort);
                 defaultServerPortUsed = true;
                 try {
                     initCrossoverServerImpl(defaultServerPort);
-                    log.debug("Crossover: Server started at port: " + defaultServerPort);
+                    LOG.debug("Crossover: Server started at port: " + defaultServerPort);
                 } catch (Exception ex1) {
-                    log.error("Crossover: Failed to initialize Crossover server on defaultport: " + defaultServerPort + ". No Server is started");
+                    LOG.error("Crossover: Failed to initialize Crossover server on defaultport: " + defaultServerPort + ". No Server is started");
                     btnVerdisCrossover.setEnabled(false);
                 }
             }
@@ -3057,16 +3057,16 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 appletContext.showDocument(u, "cismetBrowser");
             }
         } catch (Exception e) {
-            log.warn("Fehler beim \u00D6ffnen von:"+ url + "\\nNeuer Versuch", e);
+            LOG.warn("Fehler beim \u00D6ffnen von:"+ url + "\\nNeuer Versuch", e);
             //Nochmal zur Sicherheit mit dem BrowserLauncher probieren
             try {
                 de.cismet.tools.BrowserLauncher.openURL(url);
             } catch (Exception e2) {
-                log.warn("Auch das 2te Mal ging schief.Fehler beim \u00D6ffnen von:"+ "\\nLetzter Versuch", e2);
+                LOG.warn("Auch das 2te Mal ging schief.Fehler beim \u00D6ffnen von:"+ "\\nLetzter Versuch", e2);
                 try {
                     de.cismet.tools.BrowserLauncher.openURL("file://" + url);
                 } catch (Exception e3) {
-                    log.error("Auch das 3te Mal ging schief.Fehler beim \u00D6ffnen von:" + url, e3);
+                    LOG.error("Auch das 3te Mal ging schief.Fehler beim \u00D6ffnen von:" + url, e3);
                 }
             }
         }
@@ -3096,8 +3096,8 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     public void windowClosing(WindowEvent e) {
-        log.debug("windowClosing():");
-        log.debug("windowClosing(): Checke ob noch eine Sperre vorhanden ist.");
+        LOG.debug("windowClosing():");
+        LOG.debug("windowClosing(): Checke ob noch eine Sperre vorhanden ist.");
         cleanUp();
         dispose();
     }
@@ -3106,22 +3106,22 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         if (LagisBroker.getInstance().isInEditMode()) {
             try {
 
-                log.debug("Versuche aus Editiermodus heraus zu wechseln: ");
+                LOG.debug("Versuche aus Editiermodus heraus zu wechseln: ");
                 int answer = JOptionPane.showConfirmDialog(this, "Wollen Sie die gemachten Änderungen speichern", "Lagis Änderungen", JOptionPane.YES_NO_OPTION);
                 if (answer == JOptionPane.YES_OPTION) {
                     boolean isValid = LagisBroker.getInstance().validateWidgets();
                     if (isValid) {
                         //TODO Progressbar
-                        log.debug("Alle Änderungen sind valide: " + isValid);
+                        LOG.debug("Alle Änderungen sind valide: " + isValid);
                         LagisBroker.getInstance().saveCurrentFlurstueck();
-                        log.debug("Änderungen wurden gespeichert");
+                        LOG.debug("Änderungen wurden gespeichert");
 
                     }
                     //ToDo bescheid sagen und warten wenn Änderungen nicht valide sind
                 }
             } catch (Exception ex) {
                 //TODO saveCurrentFlurstueck wirft keine Exception, prüfen an welchen Stellen die Methode benutzt wird und sicherstellen das keine Probleme durch eine geworfene Exception auftreten
-                log.debug("Es ist ein Fehler wärend dem abspeichern des Flurstuecks aufgetreten", ex);
+                LOG.debug("Es ist ein Fehler wärend dem abspeichern des Flurstuecks aufgetreten", ex);
                 JOptionPane.showMessageDialog(this, "Es traten Fehler beim abspeichern des Flurstuecks auf", "Fehler", JOptionPane.ERROR_MESSAGE);
             }
             while (true) {
@@ -3202,7 +3202,8 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 //update Configuration depending on username --> formaly after the handlelogin method --> test if its work!!!!
 
                 //zweimal wegen userdepending konfiguration
-
+                configManager.addConfigurable(LagisBroker.getInstance());
+                configManager.configure(LagisBroker.getInstance());
                 Boolean permission = LagisBroker.getInstance().getPermissions().get(tester);
                 log.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
                 log.debug("Permission: " + permission);
@@ -3268,12 +3269,12 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
             usernames.saveUserNames();
             //Added for RM Plugin functionalty 22.07.2007 Sebastian Puhl
             LagisBroker.getInstance().setLoggedIn(true);
-            log.debug("Login erfolgreich");
+            LOG.debug("Login erfolgreich");
             new LagisApp();
             //loginWasSuccessful = true;
         } else {
             //Should never gets executed
-            log.warn("Login fehlgeschlagen");
+            LOG.warn("Login fehlgeschlagen");
             System.exit(0);
         }
     }
@@ -3304,7 +3305,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     public void setActive(boolean active) {
-        log.debug("setActive:" + active);
+        LOG.debug("setActive:" + active);
         if (!active) {
             cleanUp();
             //CismapBroker.getInstance().cleanUpSystemRegistry();
@@ -3376,7 +3377,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     public void setFlurstueckUnkown() {
-        log.debug("Art des Flurstücks ist unbekannt (privat)");
+        LOG.debug("Art des Flurstücks ist unbekannt (privat)");
         pFlurstueckChooser.setStatusIcon(icoUnknownFlurstueck);
     }
 
@@ -3385,20 +3386,20 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     public void featureSelectionChanged(Collection<Feature> features) {
-        log.debug("FeatureSelectionChanged LagisApp: ");
+        LOG.debug("FeatureSelectionChanged LagisApp: ");
         if (LagisBroker.getInstance().isInEditMode() && features != null && features.size() > 0) {
             Iterator<Feature> it = features.iterator();
             while (it.hasNext()) {
                 final Feature curFeature = it.next();
                 if (curFeature.canBeSelected() && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(curFeature)) {
-                    log.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
+                    LOG.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
                     cmdCopyFlaeche.setEnabled(true);
                     return;
                 }
             }
             cmdCopyFlaeche.setEnabled(false);
         } else {
-            log.debug("disable copy nicht alle vorraussetzungen erfüllt");
+            LOG.debug("disable copy nicht alle vorraussetzungen erfüllt");
             cmdCopyFlaeche.setEnabled(false);
         }
     }

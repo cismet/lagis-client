@@ -1175,6 +1175,37 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         } catch (Exception ex) {
             log.error("Fehler beim konfigurieren des Lagis Brokers: ", ex);
         }
+        try {
+                HashMap<String, Boolean> perms = new HashMap<String, Boolean>();
+                Element userPermissions = parent.getChild("permissions");
+                List<Element> xmlPermissions = userPermissions.getChildren();
+                for (Element currentPermission : xmlPermissions) {
+                    try {
+                        String isReadWriteAllowedString = currentPermission.getChildText("readWrite");
+                        boolean isReadWriteAllowed = false;
+                        if (isReadWriteAllowedString != null) {
+                            if (isReadWriteAllowedString.equals("true")) {
+                                isReadWriteAllowed = true;
+                            }
+                        }
+                        String userGroup = currentPermission.getChildText("userGroup");
+                        String userDomain = currentPermission.getChildText("userDomain");
+                        String permissionString = userGroup + "@" + userDomain;
+                        log.info("Permissions für: login=*@" + permissionString + " readWriteAllowed=" + isReadWriteAllowed + "(boolean)/" + isReadWriteAllowedString + "(String)");
+                        if (permissionString != null) {
+                            perms.put(permissionString.toLowerCase(), isReadWriteAllowed);
+                        }
+                    } catch (Exception ex) {
+                        log.fatal("Fehler beim lesen eines Userechtes", ex);
+                    }
+                }
+                setPermissions(perms);
+            } catch (Exception ex) {
+                log.fatal("Fehler beim lesen der Userrechte (Permissions)", ex);
+                setPermissions(new HashMap<String, Boolean>());
+                //TODO wenigstens den Nutzer benachrichtigen sonst ist es zu hard oder nur lesen modus --> besser!!!
+                //System.exit(1);
+            }
     }
 
     public void configure(final Element parent) {
