@@ -252,47 +252,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
     private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     //FIXME ugly winning
-    private ActiveLayerModel mappingModel = new ActiveLayerModel() {
-
-
-        private Element serverConfiguration = null;
-        @Override
-        public void masterConfigure(Element e) {
-            LOG.debug("Lagis ActiveLayerModel masterConfigure.",new CurrentStackTrace());
-            serverConfiguration=e;
-        }
-
-        @Override
-        public void configure(Element e) {
-            LOG.debug("Lagis ActiveLayerModel configure.",new CurrentStackTrace());
-            try{
-            final Element conf = e.getChild("cismapActiveLayerConfiguration");
-            if((conf != null && conf.getChildren() != null && conf.getChildren().size() > 0)){
-                LOG.debug("Es sind lokale Layer vorhanden");
-                super.configure(e);
-                return;
-            }
-            final Element layers = conf.getChild("Layers");
-            if(layers != null && layers.getChildren().size() >0){
-              LOG.debug("Es sind lokale Layer vorhanden");
-                super.configure(e);
-                return;
-            }
-            } catch(Exception ex){
-                LOG.error("Fehler beim laden der lokalen Layer. Lade Server Layer...",ex);
-                super.configure(serverConfiguration);
-                return;
-            }
-            LOG.debug("Es sind keine lokalen Layer vorhanden. Lade Server Layer...");
-            super.configure(serverConfiguration);
-        }
-
-//        @Override
-//        public Element getConfiguration() throws NoWriteError {
-//            Element conf = new Element("cismapActiveLayerConfiguration");
-//            return conf;
-//        }
-    };
+    private ActiveLayerModel mappingModel = new ActiveLayerModel();
+    
     private Vector widgets = new Vector();
     private boolean isInit = true;
     //Ressort
@@ -855,7 +816,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     private void loadLagisConfiguration() {
 
-
+        mappingModel.setInitalLayerConfigurationFromServer(true);
         configManager.addConfigurable((ActiveLayerModel) mappingModel);
         configManager.addConfigurable(mapComponent);
         //configManager.addConfigurable(pFlurstueckSearch);
@@ -2984,7 +2945,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 initCrossoverServerImpl(crossoverServerPort);
             }
         } catch (Exception ex) {
-            LOG.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort);
+            LOG.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort,ex);
             if (!defaultServerPortUsed) {
                 LOG.debug("Crossover: Trying to create server with defaultPort: " + defaultServerPort);
                 defaultServerPortUsed = true;
