@@ -9,6 +9,8 @@
 package de.cismet.lagis.broker;
 
 import Sirius.navigator.connection.ConnectionSession;
+import Sirius.navigator.exception.ConnectionException;
+import Sirius.server.newuser.User;
 import bean.KassenzeichenFacadeRemote;
 import com.vividsolutions.jts.geom.Geometry;
 import de.cismet.cismap.commons.features.Feature;
@@ -73,6 +75,7 @@ import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdom.Element;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -98,6 +101,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     //private String username;
     //private String group;
     //private String domain;
+    private String callserverHost;
+    private String domain;
     private String account;
     private FlurstueckRequester requester;
     private JFrame parentComponent;
@@ -155,6 +160,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private Geometry currentWFSGeometry;
     private double kassenzeichenBuffer=-0.5;
 
+    private boolean nkfAdminPermission=false;
+
     private transient ConnectionSession session;
 
     public ConnectionSession getSession()
@@ -176,6 +183,19 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             broker = new LagisBroker();
         }
         return broker;
+    }
+
+    public boolean isNkfAdminPermission() {
+        return nkfAdminPermission;
+    }
+
+    public void checkNKFAdminPermissionsOnServer(){
+        try {
+            nkfAdminPermission = getSession().getConnection().hasConfigAttr(getSession().getUser(), "lagis.perm.nkf.admin");
+            log.info("NKF Admin Recht wurde gesetzt: "+nkfAdminPermission);
+        } catch (Exception ex) {
+            log.error("Fehler beim setzen der NKF Admin Rechte. Rechte wurden nicht richtig gesetzt und deshalb deaktiviert.",ex);
+        }
     }
 
     public void addWidget(Widget widget) {
@@ -1347,4 +1367,22 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public void setLoggedIn(boolean loggedIn) {
         this.loggedIn = loggedIn;
     }
+
+    public String getCallserverHost() {
+        return callserverHost;
+    }
+
+    public void setCallserverHost(String callserverHost) {
+        this.callserverHost = callserverHost;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String domain) {
+        this.domain = domain;        
+    }
+
+
 }

@@ -64,7 +64,6 @@ import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.wizard.ContinuationWizard;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.tools.CurrentStackTrace;
 import de.cismet.tools.StaticDecimalTools;
 
 import de.cismet.tools.configuration.Configurable;
@@ -112,6 +111,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.Vector;
 import java.util.prefs.Preferences;
+import java_cup.parser;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -145,6 +145,9 @@ import net.infonode.docking.DockingWindow;
 import net.infonode.docking.SplitWindow;
 import net.infonode.gui.componentpainter.GradientComponentPainter;
 import net.infonode.util.Direction;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.jdesktop.swingx.JXLoginPane;
@@ -253,7 +256,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     //FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel();
-    
     private Vector widgets = new Vector();
     private boolean isInit = true;
     //Ressort
@@ -270,18 +272,18 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private static String userAcount = null;
 
     static {
-    configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
-            configManager.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
+        configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
+        configManager.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
 
-            //            if (!plugin) {
-            //                configManager.setFileName("configuration.xml");
-            //
-            //            } else {
-            //                configManager.setFileName("configurationPlugin.xml");
-            //                configManager.addConfigurable(metaSearch);
-            //            }
-            configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
-            configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
+        //            if (!plugin) {
+        //                configManager.setFileName("configuration.xml");
+        //
+        //            } else {
+        //                configManager.setFileName("configurationPlugin.xml");
+        //                configManager.addConfigurable(metaSearch);
+        //            }
+        configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
+        configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
     }
 
     public LagisApp() {
@@ -341,7 +343,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             this.addWindowListener(this);
             LOG.info("Laden der Lagis Konfiguration");
             LOG.debug("Name des Lagis Server Konfigurationsfiles: " + LAGIS_CONFIGURATION_FILE);
-            
+
             configManager.addConfigurable(this);
             LOG.debug("Konfiguriere Karten Widget");
 
@@ -358,7 +360,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     // usergroup.getName is probably what you want
                     final String userGroup = user.getUserGroup().toString();
 
-                    if(LOG.isDebugEnabled()){
+                    if (LOG.isDebugEnabled()) {
                         LOG.debug("userstring: " + userString);
                         LOG.debug("userGroup: " + userGroup);
                     }
@@ -409,8 +411,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             //if there is a userdepending config file, the configuration will be overwritten
             if (context != null && context.getEnvironment() != null && this.context.getEnvironment().isProgressObservable()) {
                 this.context.getEnvironment().getProgressObserver().setProgress(100, "Aufbau der Verbindung zum LagisServer...");
-            }
-            EJBroker.getInstance();
+            }            
             configManager.configure(LagisBroker.getInstance());
             if (context != null && context.getEnvironment() != null && this.context.getEnvironment().isProgressObservable()) {
                 this.context.getEnvironment().getProgressObserver().setProgress(200, "Initialisieren der graphischen Oberfläche...");
@@ -555,6 +556,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             configManager.addConfigurable(pFlurstueck);
             configManager.configure(pFlurstueck);
+
+            configManager.addConfigurable(pNKF);
+            configManager.configure(pNKF);
 
             configManager.addConfigurable(pKarte);
             configManager.configure(pKarte);
@@ -715,7 +719,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     }
 
-    private static void handleLogin(final String[] args) {
+    private static void handleLogin() {
         LOG.debug("Intialisiere Loginframe");
 
         //TODO VERDIS COPY
@@ -725,7 +729,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         Preferences appPrefs = Preferences.userNodeForPackage(LagisApp.class);
         usernames.setPreferences(appPrefs.node("login"));
         // TODO: parse and validate arguments --> cli tools recommended
-        LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification(args[0], args[1]);
+        LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification(LagisBroker.getInstance().getDomain(),
+                LagisBroker.getInstance().getCallserverHost());
 
         final JXLoginPane login = new JXLoginPane(wa, null, usernames) {
 
@@ -846,7 +851,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         //configManager.configure(pFlurstueckSearch);
         //configManager.configure(pFlurstueckChooser);
         configManager.configure(WFSRetrieverFactory.getInstance());
-
+        LagisBroker.getInstance().checkNKFAdminPermissionsOnServer();
         //        }
         //setButtonSelectionAccordingToMappingComponent();
     }
@@ -2015,10 +2020,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (IOException ex) {
                 LOG.error("Layout File IO Exception --> loading default Layout", ex);
                 if (isInit) {
-                    JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.","Fehler" , JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
                     doLayoutInfoNode();
                 } else {
-                    JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.","Fehler", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "W\u00E4hrend dem Laden des Layouts ist ein Fehler aufgetreten.\n Das Layout wird zur\u00FCckgesetzt.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
                 }
 
             }
@@ -2037,7 +2042,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 });
             } else {
                 LOG.warn("Datei exitstiert nicht)");
-                JOptionPane.showMessageDialog(this, "Das angegebene Layout konnte nicht gefunden werden.","Fehler", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Das angegebene Layout konnte nicht gefunden werden.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
             }
 
         }
@@ -2092,7 +2097,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             out.close();
             LOG.debug("Saving Layout.. to " + file + " successfull");
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this,"W\u00E4hrend dem Speichern des Layouts ist ein Fehler aufgetreten.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "W\u00E4hrend dem Speichern des Layouts ist ein Fehler aufgetreten.", "Fehler", JOptionPane.INFORMATION_MESSAGE);
             LOG.error("A failure occured during writing the layout file", ex);
         }
     }
@@ -2430,6 +2435,41 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
 
             public void run() {
                 try {
+                    final Options options = new Options();
+                    options.addOption("h", true, "callserver host");
+                    options.addOption("d", true, "Domain");
+                    options.addOption("g", true, "Glassfish host");
+                    options.addOption("p", true, "Glassfish port");
+                    final PosixParser parser = new PosixParser();
+                    final CommandLine cmd = parser.parse(options, args);
+                    if (cmd.hasOption("h")) {
+                        LagisBroker.getInstance().setCallserverHost(cmd.getOptionValue("h"));
+                    } else {
+                        System.out.println("Kein Callserverhost spezifiziert. Versuche localhost...");
+                        LagisBroker.getInstance().setCallserverHost("localhost");
+                    }
+                    if (cmd.hasOption("d")) {
+                        LagisBroker.getInstance().setDomain(cmd.getOptionValue("d"));
+                    } else {
+                    System.err.println("Keine Domain spezifiziert, bitte mit -d setzen");
+                    System.exit(1);
+                    }
+                    if (cmd.hasOption("g")) {
+                         EJBroker.setServer(cmd.getOptionValue("g"));
+                         System.out.println("Glassfish Server wurder über Kommandozeile gesetzt, dieser " +
+                                 "Wert überschreibt den Konfigurationswert");
+                    }
+                    if (cmd.hasOption("p")) {
+                         EJBroker.setOrbPort(cmd.getOptionValue("p"));
+                         System.out.println("Glassfish Server Port wurder über Kommandozeile gesetzt, dieser " +
+                                 "Wert überschreibt den Konfigurationswert");
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Fehler beim auslesen der Kommandozeilen Parameter");
+                    ex.printStackTrace();
+                    System.exit(1);
+                }
+                try {
 
                     PlasticXPLookAndFeel lf = new PlasticXPLookAndFeel();
                     //TODO NACH MESSE
@@ -2441,7 +2481,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 }
                 initLog4J();
                 try {
-                    handleLogin(new String[] {"VERDIS", "localhost"});
+                    handleLogin();
                 } catch (Exception ex) {
                     LOG.error("Fehler beim Loginframe", ex);
                     System.exit(0);
@@ -2576,70 +2616,70 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         LOG.debug("HistoryChanged");
         //throw new UnsupportedOperationException("Not supported yet.");
         try {
-            if(mapComponent != null && mapComponent.getCurrentElement() != null){
-            Vector backPos = mapComponent.getBackPossibilities();
-            Vector forwPos = mapComponent.getForwardPossibilities();
-            if (menHistory != null) {
-                menHistory.removeAll();
-                menHistory.add(mniBack);
-                menHistory.add(mniForward);
-                menHistory.add(mniHome);
-                menHistory.add(sepBeforePos);
-                int counter = 0;
+            if (mapComponent != null && mapComponent.getCurrentElement() != null) {
+                Vector backPos = mapComponent.getBackPossibilities();
+                Vector forwPos = mapComponent.getForwardPossibilities();
+                if (menHistory != null) {
+                    menHistory.removeAll();
+                    menHistory.add(mniBack);
+                    menHistory.add(mniForward);
+                    menHistory.add(mniHome);
+                    menHistory.add(sepBeforePos);
+                    int counter = 0;
 
-                int start = 0;
-                if (backPos.size() - 10 > 0) {
-                    start = backPos.size() - 10;
-                }
-
-                for (int index = start; index < backPos.size(); ++index) {
-                    Object elem = backPos.get(index);
-                    JMenuItem item = new JMenuItem(elem.toString());//+" :"+new Integer(backPos.size()-1-index));
-
-                    item.setIcon(miniBack);
-                    final int pos = backPos.size() - 1 - index;
-                    item.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            for (int i = 0; i < pos; ++i) {
-                                mapComponent.back(false);
-                            }
-                            mapComponent.back(true);
-                        }
-                    });
-                    menHistory.add(item);
-//                if (counter++>15) break;
-                }
-                JMenuItem currentItem = new JMenuItem(mapComponent.getCurrentElement().toString());
-                currentItem.setEnabled(false);
-
-                currentItem.setIcon(current);
-                menHistory.add(currentItem);
-                counter = 0;
-                for (int index = forwPos.size() - 1; index >= 0; --index) {
-                    Object elem = forwPos.get(index);
-                    JMenuItem item = new JMenuItem(elem.toString());//+":"+new Integer(forwPos.size()-1-index));
-
-                    item.setIcon(miniForward);
-                    final int pos = forwPos.size() - 1 - index;
-                    item.addActionListener(new ActionListener() {
-
-                        public void actionPerformed(ActionEvent e) {
-                            for (int i = 0; i < pos; ++i) {
-                                mapComponent.forward(false);
-                            }
-                            mapComponent.forward(true);
-                        }
-                    });
-
-                    menHistory.add(item);
-                    if (counter++ > 10) {
-                        break;
+                    int start = 0;
+                    if (backPos.size() - 10 > 0) {
+                        start = backPos.size() - 10;
                     }
+
+                    for (int index = start; index < backPos.size(); ++index) {
+                        Object elem = backPos.get(index);
+                        JMenuItem item = new JMenuItem(elem.toString());//+" :"+new Integer(backPos.size()-1-index));
+
+                        item.setIcon(miniBack);
+                        final int pos = backPos.size() - 1 - index;
+                        item.addActionListener(new ActionListener() {
+
+                            public void actionPerformed(ActionEvent e) {
+                                for (int i = 0; i < pos; ++i) {
+                                    mapComponent.back(false);
+                                }
+                                mapComponent.back(true);
+                            }
+                        });
+                        menHistory.add(item);
+//                if (counter++>15) break;
+                    }
+                    JMenuItem currentItem = new JMenuItem(mapComponent.getCurrentElement().toString());
+                    currentItem.setEnabled(false);
+
+                    currentItem.setIcon(current);
+                    menHistory.add(currentItem);
+                    counter = 0;
+                    for (int index = forwPos.size() - 1; index >= 0; --index) {
+                        Object elem = forwPos.get(index);
+                        JMenuItem item = new JMenuItem(elem.toString());//+":"+new Integer(forwPos.size()-1-index));
+
+                        item.setIcon(miniForward);
+                        final int pos = forwPos.size() - 1 - index;
+                        item.addActionListener(new ActionListener() {
+
+                            public void actionPerformed(ActionEvent e) {
+                                for (int i = 0; i < pos; ++i) {
+                                    mapComponent.forward(false);
+                                }
+                                mapComponent.forward(true);
+                            }
+                        });
+
+                        menHistory.add(item);
+                        if (counter++ > 10) {
+                            break;
+                        }
+                    }
+                    menHistory.add(sepAfterPos);
+                    menHistory.add(mniHistorySidebar);
                 }
-                menHistory.add(sepAfterPos);
-                menHistory.add(mniHistorySidebar);
-            }
             } else {
                 LOG.debug("CurrentElement == null --> No History change");
             }
@@ -2721,19 +2761,28 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
             try {
+                if(EJBroker.getServer() == null){
                 LOG.debug("Glassfishhost: " + prefs.getChildText("host"));
                 //System.setProperty("org.omg.CORBA.ORBInitialHost", prefs.getChildText("host"));
                 EJBroker.setServer(prefs.getChildText("host"));
+                } else {
+                    LOG.info("Glassfish Server wurde bereits über die Kommandozeile gesetzt. Keine Konfiguration");
+                }
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen des Glassfish Hosts", ex);
             }
             try {
+                if(EJBroker.getOrbPort() == null){
                 LOG.debug("Glassfisport: " + prefs.getChildText("orbPort"));
                 //System.setProperty("org.omg.CORBA.ORBInitialPort", prefs.getChildText("orbPort"));
                 EJBroker.setOrbPort(prefs.getChildText("orbPort"));
+                 } else {
+                    LOG.info("Glassfish Serverport wurde bereits über die Kommandozeile gesetzt. Keine Konfiguration");
+                }
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen des Glassfish Ports", ex);
             }
+            EJBroker.getInstance();
             try {
                 Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
@@ -2945,7 +2994,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 initCrossoverServerImpl(crossoverServerPort);
             }
         } catch (Exception ex) {
-            LOG.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort,ex);
+            LOG.error("Crossover: Error while creating crossover server on port: " + crossoverServerPort, ex);
             if (!defaultServerPortUsed) {
                 LOG.debug("Crossover: Trying to create server with defaultPort: " + defaultServerPort);
                 defaultServerPortUsed = true;
@@ -2960,11 +3009,11 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         }
     }
 
-    private void initCrossoverServerImpl(int crossoverServerPort) throws Exception {        
-        HttpHandler handler = ContainerFactory.createContainer(HttpHandler.class,LagisCrossover.class);        
+    private void initCrossoverServerImpl(int crossoverServerPort) throws Exception {
+        HttpHandler handler = ContainerFactory.createContainer(HttpHandler.class, LagisCrossover.class);
         HttpServer server = HttpServer.create(new InetSocketAddress(crossoverServerPort), 0);
-        server.createContext("/",handler);
-        server.setExecutor(null);        
+        server.createContext("/", handler);
+        server.setExecutor(null);
         server.start();
     }
 
@@ -3018,12 +3067,12 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 appletContext.showDocument(u, "cismetBrowser");
             }
         } catch (Exception e) {
-            LOG.warn("Fehler beim \u00D6ffnen von:"+ url + "\\nNeuer Versuch", e);
+            LOG.warn("Fehler beim \u00D6ffnen von:" + url + "\\nNeuer Versuch", e);
             //Nochmal zur Sicherheit mit dem BrowserLauncher probieren
             try {
                 de.cismet.tools.BrowserLauncher.openURL(url);
             } catch (Exception e2) {
-                LOG.warn("Auch das 2te Mal ging schief.Fehler beim \u00D6ffnen von:"+ "\\nLetzter Versuch", e2);
+                LOG.warn("Auch das 2te Mal ging schief.Fehler beim \u00D6ffnen von:" + "\\nLetzter Versuch", e2);
                 try {
                     de.cismet.tools.BrowserLauncher.openURL("file://" + url);
                 } catch (Exception e3) {
@@ -3119,8 +3168,7 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
         private final String callserverhost;
         private String userString;
 
-        public WundaAuthentification(final String standaloneDomain, final String callserverhost)
-        {
+        public WundaAuthentification(final String standaloneDomain, final String callserverhost) {
             this.standaloneDomain = standaloneDomain;
             this.callserverhost = callserverhost;
         }
@@ -3209,8 +3257,6 @@ private void btnVerdisCrossoverActionPerformed(java.awt.event.ActionEvent evt) {
                 return false;
             }
         }
-
-     
     }
     //TODO VERDIS COPY
     private static Image banner = new javax.swing.ImageIcon(LagisApp.class.getResource("/de/cismet/lagis/ressource/image/login.png")).getImage();

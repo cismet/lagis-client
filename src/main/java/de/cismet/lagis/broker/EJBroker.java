@@ -76,8 +76,8 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
     private static EJBConnector EJBConnectorWorker;
     private static JFrame dialogOwner;
     private static InitialContext ic;
-    private static String server="localhost";
-    private static String orbPort="3700";
+    private static String server = null;
+    private static String orbPort = null;
 
     /** Creates a new instance of EJBroker */
     private EJBroker() {
@@ -90,6 +90,14 @@ public final class EJBroker implements LagisServerRemote, LagisServerLocal {
             //c = new InitialContext();
             //log.debug("Initial Kontext komplett");
             //log.debug("Lookup des LagisEJB erfolgreich");
+            if(server == null){
+                log.info("Kein valider Glassfishserver gesetzt, setze localhost");
+                server = "localhost";
+            }
+            if(orbPort == null){
+                log.info("Kein valider Glassfish Port gesetzt, setze Standardport 3700");
+                orbPort="3700";
+            }
             lagisEJBServerStub = EJBAccessor.createEJBAccessor(getServer(), getOrbPort(), LagisServerRemote.class).getEjbInterface();
         } catch (Throwable ex) {
             log.fatal("Fehler beim Verbinden mit Glassfish.\nFehler beim initialisieren/lookup des EJBs", ex);

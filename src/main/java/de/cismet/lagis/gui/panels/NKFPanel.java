@@ -21,6 +21,7 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.util.NutzungsContainer;
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
+import de.cismet.lagisEE.bean.Exception.BuchungNotInNutzungException;
 import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
 import de.cismet.lagisEE.bean.Exception.AddingOfBuchungNotPossibleException;
 import de.cismet.lagisEE.bean.Exception.TerminateNutzungNotPossibleException;
@@ -31,6 +32,8 @@ import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
 import de.cismet.tools.CurrentStackTrace;
+import de.cismet.tools.configuration.Configurable;
+import de.cismet.tools.configuration.NoWriteError;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -72,12 +75,14 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.SortOrder;
+import org.jdom.Element;
+import org.openide.util.Exceptions;
 
 /**
  *
  * @author  Puhl
  */
-public class NKFPanel extends AbstractWidget implements MouseListener, FlurstueckChangeListener, FlurstueckSaver, TableModelListener, ChangeListener, ListSelectionListener {
+public class NKFPanel extends AbstractWidget implements MouseListener, FlurstueckChangeListener, FlurstueckSaver, TableModelListener, ChangeListener, ListSelectionListener,Configurable {
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Flurstueck currentFlurstueck;
@@ -88,10 +93,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
     private boolean isFlurstueckEditable = true;
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
     private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
+    private Icon icoBooked = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
+    private Icon icoNotBooked = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
     private final ArrayList<Nutzung> copyPasteList = new ArrayList();
     private JPopupMenu predecessorPopup;
     private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
-
     private Date currentDate;
     private ArrayList<NutzungsBuchung> sortedNutzungen;
     //perhaps not good
@@ -119,6 +125,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         cbxChanges.setEnabled(false);
         btnRemoveNutzung.setEnabled(false);
         btnAddNutzung.setEnabled(false);
+        btnFlipBuchung.setEnabled(false);
         configureTable();
         configBackgroundThread();
         configurePopupMenue();
@@ -178,6 +185,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         updateThread.start();
     }
 
+    //TODO Forbid if time bar mode is active
     private void configurePopupMenue() {
         predecessorPopup = new JPopupMenu();
         JMenuItem findPredecessor = new JMenuItem(FIND_PREDECESSOR_MENU_NAME);
@@ -227,7 +235,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 try {
                     int displayedIndex = componentAdapter.row;
                     int modelIndex = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
-                    NutzungsBuchung n = tableModel.getNutzungAtRow(modelIndex);
+                    NutzungsBuchung n = tableModel.getBuchungAtRow(modelIndex);
                     //NO Geometry & more than one Verwaltungsbereich                    
                     return (n != null && n.getIstBuchwert() == null);
                 } catch (Exception ex) {
@@ -246,7 +254,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 try {
                     int displayedIndex = componentAdapter.row;
                     int modelIndex = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
-                    NutzungsBuchung n = tableModel.getNutzungAtRow(modelIndex);
+                    NutzungsBuchung n = tableModel.getBuchungAtRow(modelIndex);
                     //NO Geometry & more than one Verwaltungsbereich                    
                     return (n != null && (n.getSollGeloeschtWerden() != null && n.getSollGeloeschtWerden()));
                 } catch (Exception ex) {
@@ -260,7 +268,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         ((JXTable) tNutzung).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable) tNutzung).setColumnControlVisible(true);
         ((JXTable) tNutzung).setHorizontalScrollEnabled(true);
-        ((JXTable) tNutzung).packAll();
+         ((JXTable) tNutzung).packAll();
     }
     //private Thread panelRefresherThread;
 
@@ -291,9 +299,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
                     final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+                    final NutzungsBuchung selectedBuchung = tableModel.getBuchungAtRow(index);
+                    if (selectedBuchung.isBuchwertFlippable() && LagisBroker.getInstance().isNkfAdminPermission()) {
+                        btnFlipBuchung.setEnabled(true);
+                    }
                     if (index != -1) {
                         //TODO NKF Testen
-                        if (tableModel.getNutzungAtRow(index).getGueltigbis() == null) {
+                        if (selectedBuchung.getGueltigbis() == null) {
                             btnRemoveNutzung.setEnabled(true);
                         }
                     }
@@ -302,6 +314,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     btnPasteNutzung.setEnabled(isEditable);
                 }
             } else {
+                btnFlipBuchung.setEnabled(false);
                 btnPasteNutzung.setEnabled(isEditable);
                 btnCopyNutzung.setEnabled(false);
                 btnAddNutzung.setEnabled(false);
@@ -351,6 +364,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         lblHistoricIcon = new javax.swing.JLabel();
         btnPasteNutzung = new javax.swing.JButton();
         btnCopyNutzung = new javax.swing.JButton();
+        btnFlipBuchung = new javax.swing.JButton();
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
@@ -428,6 +442,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             }
         });
 
+        btnFlipBuchung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"))); // NOI18N
+        btnFlipBuchung.setToolTipText("Buchung kopieren");
+        btnFlipBuchung.setBorderPainted(false);
+        btnFlipBuchung.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFlipBuchungActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -438,7 +461,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 573, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 375, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 341, Short.MAX_VALUE)
+                        .add(btnFlipBuchung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnCopyNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnPasteNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -477,7 +502,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                         .add(btnRemoveNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(btnPasteNutzung)
-                        .add(btnCopyNutzung)))
+                        .add(btnCopyNutzung))
+                    .add(btnFlipBuchung))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -511,14 +537,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         log.debug("Remove Nutzung");
         final int currentRow = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
         if (currentRow != -1) {
-            log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: "+tNutzung.getSelectedRow());
-            try {                
-                tableModel.removeNutzung(currentRow);                
+            log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: " + tNutzung.getSelectedRow());
+            try {
+                tableModel.removeNutzung(currentRow);
             } catch (TerminateNutzungNotPossibleException ex) {
                 log.error("Eine Nutzung konnte nicht entfernt werden", ex);
                 int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(), "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n" +
                         "sich an den Systemadministrator", "Fehler beim löschen einer Buchung", JOptionPane.OK_OPTION);
-            }            
+            }
         }
     }//GEN-LAST:event_btnRemoveNutzungActionPerformed
 
@@ -534,7 +560,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             for (int i = 0; i < selectedRows.length; i++) {
                 tNutzung.getSelectedRow();
                 final int index = ((JXTable) tNutzung).convertRowIndexToModel(selectedRows[i]);
-                final NutzungsBuchung curNutzungToCopy = tableModel.getNutzungAtRow(index);
+                final NutzungsBuchung curNutzungToCopy = tableModel.getBuchungAtRow(index);
                 if (curNutzungToCopy != null) {
                     try {
                         copyPasteList.add(new Nutzung(curNutzungToCopy.cloneBuchung()));
@@ -561,10 +587,32 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
     }//GEN-LAST:event_btnPasteNutzungActionPerformed
-   
+
+    private void btnFlipBuchungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
+        log.debug("Flippe Buchung");
+        final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+        if (index != -1) {
+            NutzungsBuchung selectedBuchung = tableModel.getBuchungAtRow(index);
+            if (selectedBuchung.isBuchwertFlippable()) {
+                try {
+                    selectedBuchung.flipBuchungsBuchwert();
+                    tableModel.fireTableDataChanged();
+                    tNutzung.repaint();
+                } catch (IllegalNutzungStateException ex) {
+                   log.error("Buchwert kann nicht geflipped werden, Nutzung in illegalem Zustand: ",ex);
+                } catch (BuchungNotInNutzungException ex) {
+                    log.error("Buchwert kann nicht geflipped werden, Die Buchung ist nicht in der Nutzung vorhanden: ",ex);
+                }
+            }
+        } else {
+            log.warn("Keine Buchung selektiert, sollte nicht möglich sein");
+
+        }
+    }//GEN-LAST:event_btnFlipBuchungActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNutzung;
     private javax.swing.JButton btnCopyNutzung;
+    private javax.swing.JButton btnFlipBuchung;
     private javax.swing.JButton btnPasteNutzung;
     private javax.swing.JButton btnRemoveNutzung;
     private javax.swing.JCheckBox cbxChanges;
@@ -605,8 +653,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             log.debug("Mit maus auf NKFTabelle geklickt");
             int selecetdRow = tNutzung.getSelectedRow();
             if (selecetdRow != -1) {
-                NutzungsBuchung nutzung = tableModel.getNutzungAtRow(((JXTable) tNutzung).convertRowIndexToModel(selecetdRow));
-                if (nutzung != null && e.getClickCount() == 2 && (!isInEditMode || tNutzung.getSelectedColumn() == 9)) {
+                NutzungsBuchung nutzung = tableModel.getBuchungAtRow(((JXTable) tNutzung).convertRowIndexToModel(selecetdRow));
+                if (cbxChanges.isSelected() && nutzung != null && e.getClickCount() == 2 && (!isInEditMode || (tNutzung.getSelectedColumn() == 1 || tNutzung.getSelectedColumn() == 9 || tNutzung.getSelectedColumn() == 10 || tNutzung.getSelectedColumn() == 0 || tNutzung.getSelectedColumn() == 4 || tNutzung.getSelectedColumn() == 11))) {
                     jumpToPredecessorNutzung(nutzung);
                 }
             }
@@ -632,7 +680,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         if (tickToJump != -1) {
             log.debug("Es wurde ein Tick gefunden zu dem gesprungen werden kann: " + tickToJump);
             slrHistory.setValue(tickToJump);
-            int index = tableModel.getIndexOfNutzung(nutzung);
+            int index = tableModel.getIndexOfBuchung(nutzung);
             log.debug("index: " + index);
             int displayedIndex = ((JXTable) tNutzung).getFilters().convertRowIndexToView(index);
             if (index != -1) {
@@ -650,7 +698,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         } else {
             log.debug("Kein Tick gefunden zu dem gesprungen werden kann");
         }
-    }    
+    }
     private NutzungsBuchung currentPopupNutzung = null;
 
     class PopupListener extends MouseAdapter {
@@ -672,7 +720,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 log.debug("popup triggered");
                 int rowAtPoint = tNutzung.rowAtPoint(new Point(e.getX(), e.getY()));
                 NutzungsBuchung selectedNutzung = null;
-                if (rowAtPoint != -1 && (selectedNutzung = tableModel.getNutzungAtRow(((JXTable) tNutzung).getFilters().convertRowIndexToModel(rowAtPoint))) != null && selectedNutzung.getNutzung() != null && selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null) {
+                if (rowAtPoint != -1 && (selectedNutzung = tableModel.getBuchungAtRow(((JXTable) tNutzung).getFilters().convertRowIndexToModel(rowAtPoint))) != null && selectedNutzung.getNutzung() != null && selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null) {
                     log.debug("nutzung found");
                     currentPopupNutzung = selectedNutzung;
                     predecessorPopup.show(e.getComponent(), e.getX(), e.getY());
@@ -694,15 +742,38 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
     }
 
     public void tableChanged(final TableModelEvent e) {
+        
+        // check if selection is still valid
+        if (tNutzung.getSelectedRow() != -1) {
+            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            NutzungsBuchung selectedBuchung = tableModel.getBuchungAtRow(index);
+            if(selectedBuchung == null){
+                log.debug("selectedBuchung nicht länger verfügbar lösche selektierung");
+                tNutzung.clearSelection();
+            }
+        }
         //TODO CHECK FOR REFACTORING
         log.debug("tableChanged");
         final Refreshable refresh = LagisBroker.getInstance().getRefreshableByClass(NKFOverviewPanel.class);
         if (refresh != null) {
-            refresh.refresh(new NutzungsContainer(tableModel.getSelectedNutzungen(), tableModel.getCurrentDate()));
+            refresh.refresh(new NutzungsContainer(tableModel.getAllNutzungen(), tableModel.getCurrentDate()));
         }
-        if (tableModel.getRowCount() != 0) {
-            ((JXTable) tNutzung).packAll();
+//        if (tableModel.getRowCount() != 0) {
+//            log.debug("Rowcount ist: "+tableModel.getRowCount());
+//            ((JXTable) tNutzung).packAll();
+//        }
+        if (tNutzung.getSelectedRow() != -1) {
+            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            if (index != -1) {
+                NutzungsBuchung selectedBuchung = tableModel.getBuchungAtRow(index);
+                if (selectedBuchung.getIstBuchwert() == true) {
+                    btnFlipBuchung.setIcon(icoNotBooked);
+                } else {
+                    btnFlipBuchung.setIcon(icoBooked);
+                }
+            }
         }
+
     }
 
     //ToDo refactorn viel zu kompliziert??
@@ -845,11 +916,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
                 slrHistory.setSnapToTicks(true);
                 slrHistory.setMajorTickSpacing(5);
                 slrHistory.setMinorTickSpacing(1);
-                final ArrayList<Nutzung> nutzungen = tableModel.getAllNutzungen();
+                sortedNutzungen = tableModel.getAllBuchungen();
                 final ArrayList<NutzungsBuchung> sortedHistoricNutzungen = new ArrayList<NutzungsBuchung>();
-                if (nutzungen != null) {
-                    //sortedNutzungen = (Vector) tableModel.getAllNutzungen().clone();
-                    sortedNutzungen = tableModel.getAllBuchungen();
+                if (sortedNutzungen != null) {
+                    //sortedNutzungen = (Vector) tableModel.getAllNutzungen().clone();                    
                     counter = 0;
                     if (sortedNutzungen.size() >= 1) {
                         for (NutzungsBuchung curBuchung : sortedNutzungen) {
@@ -915,7 +985,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 //                            if (setToLatestHistoric) {
 //                                slrHistory.setValue(counter - 1);
 //                            } else {
-                                slrHistory.setValue(counter);
+                            slrHistory.setValue(counter);
 //                            }
                             slrHistory.setEnabled(true);
                             cbxChanges.setEnabled(true);
@@ -1004,7 +1074,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 //                                    if (setToLatestHistoric) {
 //                                        slrHistory.setValue(years);
 //                                    } else {
-                                        slrHistory.setValue(years + 1);
+                                    slrHistory.setValue(years + 1);
 //                                    }
                                     slrHistory.setEnabled(true);
                                     cbxChanges.setEnabled(true);
@@ -1016,7 +1086,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 //                                    if (setToLatestHistoric) {
 //                                        slrHistory.setValue(months);
 //                                    } else {
-                                        slrHistory.setValue(months + 1);
+                                    slrHistory.setValue(months + 1);
 //                                    }
                                     slrHistory.setEnabled(true);
                                     cbxChanges.setEnabled(true);
@@ -1029,7 +1099,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 //                                if (setToLatestHistoric) {
 //                                    slrHistory.setValue(days);
 //                                } else {
-                                    slrHistory.setValue(days + 1);
+                                slrHistory.setValue(days + 1);
 //                                }
                                 slrHistory.setEnabled(true);
                                 cbxChanges.setEnabled(true);
@@ -1073,11 +1143,22 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
     public void valueChanged(final ListSelectionEvent e) {
         if (tNutzung.getSelectedRow() != -1) {
             final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-            //if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null && isInEditMode){
+            //if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null && isInEditMode){            
             if (index != -1) {
+                NutzungsBuchung selectedBuchung = tableModel.getBuchungAtRow(index);
                 btnCopyNutzung.setEnabled(true);
+                 if (selectedBuchung.getIstBuchwert() == true) {
+                        btnFlipBuchung.setIcon(icoNotBooked);
+                    } else {
+                        btnFlipBuchung.setIcon(icoBooked);
+                    }
                 if (isInEditMode) {
-                    if (tableModel.getNutzungAtRow(index).getGueltigbis() == null) {
+                    if (selectedBuchung.isBuchwertFlippable() && LagisBroker.getInstance().isNkfAdminPermission()) {
+                        btnFlipBuchung.setEnabled(true);
+                    } else {
+                        btnFlipBuchung.setEnabled(false);
+                    }
+                    if (selectedBuchung.getGueltigbis() == null) {
                         btnRemoveNutzung.setEnabled(true);
                     } else {
                         btnRemoveNutzung.setEnabled(false);
@@ -1085,34 +1166,36 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
 
                 } else {
                     btnRemoveNutzung.setEnabled(false);
+                    btnFlipBuchung.setEnabled(false);
                 }
 
             } else {
                 btnCopyNutzung.setEnabled(false);
                 btnRemoveNutzung.setEnabled(false);
+                btnFlipBuchung.setEnabled(false);
             }
 
         } else {
             btnRemoveNutzung.setEnabled(false);
             btnCopyNutzung.setEnabled(false);
+            btnFlipBuchung.setEnabled(false);
         }
     }
 
     private int getTickForNutzung(NutzungsBuchung current) {
         if (cbxChanges.isSelected()) {
-            log.debug("Tick wird für Nutzung: " + current.getId() + " im Änderungsmodus ermittelt");
+            log.debug("Tick wird für Buchung: " + current.getId() + " im Änderungsmodus ermittelt");
             log.debug("dateToTicks: " + dateToTicks);
             return dateToTicks.indexOf(LagisBroker.getDateWithoutTime(current.getGueltigbis()));
         } else {
-            log.debug("Tick wird für Nutzung: " + current.getId() + " im Zeitstrahlmodus ermittelt");
+            log.debug("Tick wird für Buchung: " + current.getId() + " im Zeitstrahlmodus ermittelt");
             if (current.getGueltigbis() == null) {
-                log.debug("Nutzung ist nicht historisch, springe zu aktuellen Nutzungen");
+                log.debug("Buchung ist nicht historisch, springe zu aktuellen Buchungen");
                 return slrHistory.getMaximum();
             } else {
-                log.debug("Nutzung ist historisch");
-                final GregorianCalendar calender = new GregorianCalendar();
+                log.debug("Buchung ist historisch");
                 final long between = current.getGueltigbis().getTime() - first.getTime();
-                log.debug("Zeit zwischen erster Nutzung und ausgewählter: " + between);
+                log.debug("Zeit zwischen erster Buchung und ausgewählter: " + between);
                 if (mode == DAY_SCALE) {
                     log.debug("DayScale");
                     return (int) (Math.round(between / 1000 / 60 / 60 / 24));
@@ -1150,8 +1233,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
             boolean existsAtLeastOneValidCurrentNutzung = false;
 //            boolean existingUnbookedDeletedNutzung = false;
 
-            ArrayList<Nutzung> currentNutzungen = tableModel.getSelectedNutzungen();
-            ArrayList<NutzungsBuchung> currentBuchungen = tableModel.getCurrentBuchungen();
+            ArrayList<Nutzung> currentNutzungen = tableModel.getAllNutzungen();
+            ArrayList<NutzungsBuchung> currentBuchungen = tableModel.getOpenBuchungen();
 
             if (currentNutzungen != null || currentNutzungen.size() > 0) {
                 for (NutzungsBuchung currentBuchung : currentBuchungen) {
@@ -1181,5 +1264,28 @@ public class NKFPanel extends AbstractWidget implements MouseListener, Flurstuec
         } else {
             return Validatable.VALID;
         }
+    }
+
+    @Override
+    public void configure(Element parent) {
+        try{
+            log.debug("configure NKFPanel");
+            cbxChanges.setSelected(Boolean.valueOf(parent.getChild("nkfConfiguration").getAttributeValue("displayedByChanges")));
+        }catch(Exception ex){
+            log.warn("Fehler beim konfigurieren des NKFPanels: ",ex);
+            cbxChanges.setSelected(true);
+        }
+    }
+
+    @Override
+    public Element getConfiguration() throws NoWriteError {
+        Element ret = new Element("nkfConfiguration");
+        ret.setAttribute("displayedByChanges", String.valueOf(cbxChanges.isSelected()));
+        return ret;
+    }
+
+    @Override
+    public void masterConfigure(Element parent) {
+
     }
 }
