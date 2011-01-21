@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * VerwaltungsbreicheTableModel.java
  *
@@ -8,38 +15,63 @@
  */
 package de.cismet.lagis.models;
 
+import org.apache.log4j.Logger;
+
+import java.util.Iterator;
+import java.util.Set;
+import java.util.Vector;
+
+import javax.swing.table.AbstractTableModel;
+
 import de.cismet.cismap.commons.features.Feature;
+
 import de.cismet.lagis.broker.LagisBroker;
+
 import de.cismet.lagisEE.entity.core.Geom;
 import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
 import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
 import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Vector;
-import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class VerwaltungsTableModel extends AbstractTableModel {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String[] COLUMN_HEADER = { "Dienststelle", "Gebrauch", "Fläche m²" };
+
+    //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<Verwaltungsbereich> verwaltungsbereiche;
     private Vector<Verwaltungsgebrauch> verwaltungsgebraeuche;
     private Vector<VerwaltendeDienststelle> verwaltendeDienstellen;
-    private final static String[] COLUMN_HEADER = {"Dienststelle", "Gebrauch", "Fläche m²"};
     private boolean isInEditMode = false;
     private double currentWFSSize = 0;
 
+    //~ Constructors -----------------------------------------------------------
+
     /**
-     * Creates a new instance of VerwaltungsbreicheTableModel
+     * Creates a new VerwaltungsTableModel object.
      */
-    public VerwaltungsTableModel(Set<Verwaltungsbereich> verwaltungsbereiche) {
+    public VerwaltungsTableModel() {
+        verwaltungsbereiche = new Vector<Verwaltungsbereich>();
+    }
+
+    /**
+     * Creates a new instance of VerwaltungsbreicheTableModel.
+     *
+     * @param  verwaltungsbereiche  DOCUMENT ME!
+     */
+    public VerwaltungsTableModel(final Set<Verwaltungsbereich> verwaltungsbereiche) {
         try {
-            log.debug("Initialisierung des VerwaltungsbereichTableModell");
+            if (log.isDebugEnabled()) {
+                log.debug("Initialisierung des VerwaltungsbereichTableModell");
+            }
             this.verwaltungsbereiche = new Vector<Verwaltungsbereich>(verwaltungsbereiche);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
@@ -47,49 +79,56 @@ public class VerwaltungsTableModel extends AbstractTableModel {
         }
     }
 
-    public VerwaltungsTableModel() {
-        verwaltungsbereiche = new Vector<Verwaltungsbereich>();
-    }
+    //~ Methods ----------------------------------------------------------------
 
-//    public void setVerwaltungsGebrauchList(Set<Verwaltungsgebrauch> verwaltungsgebraeuche){
-//        try{
-//            log.debug("Initialisierung der VerwaltungsGebrauchList");
-//            this.verwaltungsgebraeuche = new Vector<Verwaltungsgebrauch>(verwaltungsgebraeuche);
-//        }catch(Exception ex){
-//            log.error("Fehler beim anlegen der VerwaltungsGebrauchList",ex);
-//            this.verwaltungsgebraeuche = new Vector<Verwaltungsgebrauch>();
-//        }
-//    }
-//    public void setVerwaltendenDienstellenList(Set<VerwaltendeDienststelle> verwaltendeDienstellen){
-//        try{
-//            log.debug("Initialisierung der VerwaltendenDienstellenList");
-//            this.verwaltendeDienstellen = new Vector<VerwaltendeDienststelle>(verwaltendeDienstellen);
-//        }catch(Exception ex){
-//            log.error("Fehler beim anlegen der VerwaltendenDienstellenList",ex);
-//            this.verwaltendeDienstellen = new Vector<VerwaltendeDienststelle>();
-//        }
-//    }
-    public Object getValueAt(int rowIndex, int columnIndex) {
+// public void setVerwaltungsGebrauchList(Set<Verwaltungsgebrauch> verwaltungsgebraeuche){
+// try{
+// log.debug("Initialisierung der VerwaltungsGebrauchList");
+// this.verwaltungsgebraeuche = new Vector<Verwaltungsgebrauch>(verwaltungsgebraeuche);
+// }catch(Exception ex){
+// log.error("Fehler beim anlegen der VerwaltungsGebrauchList",ex);
+// this.verwaltungsgebraeuche = new Vector<Verwaltungsgebrauch>();
+// }
+// }
+// public void setVerwaltendenDienstellenList(Set<VerwaltendeDienststelle> verwaltendeDienstellen){
+// try{
+// log.debug("Initialisierung der VerwaltendenDienstellenList");
+// this.verwaltendeDienstellen = new Vector<VerwaltendeDienststelle>(verwaltendeDienstellen);
+// }catch(Exception ex){
+// log.error("Fehler beim anlegen der VerwaltendenDienstellenList",ex);
+// this.verwaltendeDienstellen = new Vector<VerwaltendeDienststelle>();
+// }
+// }
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            log.debug("ausgewählte zeile/spalte" + rowIndex + "/" + columnIndex);
-            Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+            if (log.isDebugEnabled()) {
+                log.debug("ausgewählte zeile/spalte" + rowIndex + "/" + columnIndex);
+            }
+            final Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
             switch (columnIndex) {
-                case 0:
+                case 0: {
                     return vBereich.getDienststelle();
+                }
 
-                case 1:
-                    log.debug("aktueller Gebrauch: " + vBereich.getGebrauch());
+                case 1: {
+                    if (log.isDebugEnabled()) {
+                        log.debug("aktueller Gebrauch: " + vBereich.getGebrauch());
+                    }
                     return vBereich.getGebrauch();
+                }
 
-                case 2:
-                    //if there is only one Verwaltungsbereich & the WFS Geometry is used
+                case 2: {
+                    // if there is only one Verwaltungsbereich & the WFS Geometry is used
                     if (verwaltungsbereiche.size() == 1) {
-                        return (int) Math.round(currentWFSSize);
+                        return (int)Math.round(currentWFSSize);
                     } else {
                         return vBereich.getFlaeche();
                     }
-                default:
+                }
+                default: {
                     return "Spalte ist nicht definiert";
+                }
             }
         } catch (Exception ex) {
             log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
@@ -97,11 +136,18 @@ public class VerwaltungsTableModel extends AbstractTableModel {
         }
     }
 
-    public void refreshTableModel(Set<Verwaltungsbereich> verwaltungsbereiche) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  verwaltungsbereiche  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Set<Verwaltungsbereich> verwaltungsbereiche) {
         try {
-            log.debug("Refresh des VerwaltungsbereichTableModell");
+            if (log.isDebugEnabled()) {
+                log.debug("Refresh des VerwaltungsbereichTableModell");
+            }
             this.verwaltungsbereiche = new Vector<Verwaltungsbereich>(verwaltungsbereiche);
-        //updateAreaInformation(null);            
+            // updateAreaInformation(null);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
             this.verwaltungsbereiche = new Vector<Verwaltungsbereich>();
@@ -109,16 +155,18 @@ public class VerwaltungsTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    @Override
     public int getRowCount() {
         return verwaltungsbereiche.size();
     }
 
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
 
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
 
@@ -127,32 +175,42 @@ public class VerwaltungsTableModel extends AbstractTableModel {
 //        return getValueAt(0,columnIndex).getClass();
 //    }
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return (COLUMN_HEADER.length - 1 > columnIndex) && (verwaltungsbereiche.size() > rowIndex) && isInEditMode;
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        return ((COLUMN_HEADER.length - 1) > columnIndex) && (verwaltungsbereiche.size() > rowIndex) && isInEditMode;
     }
 
-    public void setIsInEditMode(boolean isEditable) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isEditable  DOCUMENT ME!
+     */
+    public void setIsInEditMode(final boolean isEditable) {
         isInEditMode = isEditable;
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+    public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+            final Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
             switch (columnIndex) {
-                case 0:
-                    vBereich.setDienststelle((VerwaltendeDienststelle) aValue);
+                case 0: {
+                    vBereich.setDienststelle((VerwaltendeDienststelle)aValue);
                     break;
-                case 1:
-                    log.debug("Setze Wert: " + aValue);
-                    vBereich.setGebrauch((Verwaltungsgebrauch) aValue);
+                }
+                case 1: {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Setze Wert: " + aValue);
+                    }
+                    vBereich.setGebrauch((Verwaltungsgebrauch)aValue);
                     break;
+                }
 //                case 2:
 //                    vBereich.setFlaeche((Integer)aValue);
 //                    break;
-                default:
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: "+columnIndex);
+                default: {
+                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
+                }
             }
             fireTableDataChanged();
         } catch (Exception ex) {
@@ -208,26 +266,21 @@ public class VerwaltungsTableModel extends AbstractTableModel {
 //
 //        }
     }
-
-//    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//        JLabel label = new JLabel();
-//        if(value instanceof VerwaltendeDienststelle){
-//            VerwaltendeDienststelle dienststelle = (VerwaltendeDienststelle) value;
-//            label.setText(dienststelle.toString());
-//        } else if(value instanceof Verwaltungsgebrauch){
-//            Verwaltungsgebrauch  nutzung = (Verwaltungsgebrauch) value;
-//            label.setText(nutzung.toString());
-//        } else{
-//            log.debug("Object ist vom Typ: "+value.getClass());
-//        }
-//        return label;
-//    }
+    /**
+     * public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+     * int row, int column) { JLabel label = new JLabel(); if(value instanceof VerwaltendeDienststelle){
+     * VerwaltendeDienststelle dienststelle = (VerwaltendeDienststelle) value; label.setText(dienststelle.toString()); }
+     * else if(value instanceof Verwaltungsgebrauch){ Verwaltungsgebrauch nutzung = (Verwaltungsgebrauch) value;
+     * label.setText(nutzung.toString()); } else{ log.debug("Object ist vom Typ: "+value.getClass()); } return label; }
+     *
+     * @return  DOCUMENT ME!
+     */
     public Vector<Feature> getAllVerwaltungsFeatures() {
-        Vector<Feature> tmp = new Vector<Feature>();
+        final Vector<Feature> tmp = new Vector<Feature>();
         if (verwaltungsbereiche != null) {
-            Iterator<Verwaltungsbereich> it = verwaltungsbereiche.iterator();
+            final Iterator<Verwaltungsbereich> it = verwaltungsbereiche.iterator();
             while (it.hasNext()) {
-                Verwaltungsbereich curVB = it.next();
+                final Verwaltungsbereich curVB = it.next();
                 if (curVB.getGeometry() != null) {
                     tmp.add(curVB);
                 }
@@ -238,12 +291,24 @@ public class VerwaltungsTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  vBereich  DOCUMENT ME!
+     */
     public void addVerwaltungsbereich(final Verwaltungsbereich vBereich) {
         verwaltungsbereiche.add(vBereich);
         fireTableDataChanged();
-    //updateAreaInformation(null);
+        // updateAreaInformation(null);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Verwaltungsbereich getVerwaltungsbereichAtRow(final int rowIndex) {
         if (rowIndex < verwaltungsbereiche.size()) {
             return verwaltungsbereiche.get(rowIndex);
@@ -252,107 +317,88 @@ public class VerwaltungsTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
     public void removeVerwaltungsbereich(final int rowIndex) {
-        Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
-        if (vBereich != null && vBereich.getGeometry() != null) {
+        final Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+        if ((vBereich != null) && (vBereich.getGeometry() != null)) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(vBereich);
         }
         verwaltungsbereiche.remove(rowIndex);
         fireTableDataChanged();
-    //updateAreaInformation(null);        
+        // updateAreaInformation(null);
     }
-
-//    //TODO CHECK FOR BETTER Solution
-//    public synchronized void updateAreaInformation(final Double singleSizeUpdate){
-//        final int verwaltungsbereicheSize = verwaltungsbereiche.size();
-//        log.debug("Flächeninformation wird geupdated");
-//        log.debug("Anzahl Verwaltungsbereiche: "+verwaltungsbereicheSize);
-//        try{
-//            Iterator<Verwaltungsbereich> it = verwaltungsbereiche.iterator();
-//            if(verwaltungsbereicheSize == 1 && singleSizeUpdate != null){
-//                log.debug("Nur ein Verwaltungsbereich vorhanden");
-//                Verwaltungsbereich currentVerwaltungsbereich = it.next();
-//                if(currentVerwaltungsbereich != null && (currentVerwaltungsbereich.getFlaeche() ==null || !currentVerwaltungsbereich.getFlaeche().equals(singleSizeUpdate.intValue()))){
-//                    log.debug("Fläche hat sich geändert");
-//                    currentVerwaltungsbereich.setFlaeche(singleSizeUpdate.intValue());
-//                    fireTableDataChanged();
-//                    //TODO setSelection on new Entry
-//                } else {
-//                    log.debug("Fläche hat sich nicht geändert");
-//                }
-//            } else if(verwaltungsbereicheSize == 1){
-//                log.debug("Nur ein Verwaltungsbereich vorhanden");
-//                log.warn("Es war nicht möglich die Fläche zu updaten weil keine Größe mitgeliefert wurde");
-//                Verwaltungsbereich currentVerwaltungsbereich = it.next();
-//                if(currentVerwaltungsbereich != null && (currentVerwaltungsbereich.getFlaeche() ==null || !currentVerwaltungsbereich.getFlaeche().equals(0))){
-//                    log.debug("Fläche hat sich geändert");
-//                    currentVerwaltungsbereich.setFlaeche(0);
-//                    fireTableDataChanged();
-//                    //TODO setSelection on new Entry
-//                } else {
-//                    log.debug("Fläche hat sich nicht geändert");
-//                }
-//                return;
-//            }else {
-//                log.debug("mehrere Verwaltungsbereiche vorhanden");
-//                while(it.hasNext()){
-//                    Verwaltungsbereich curBereich = it.next();
-//                    if(curBereich.getGeometry() != null){
-//                        log.debug("Verwaltungsbereich: "+curBereich+" hat eine Fläche --> wird geupdated");                        
-//                        final int area = (int)Math.round(curBereich.getGeometry().getArea());
-//                        if(curBereich.getFlaeche() ==null || !curBereich.getFlaeche().equals(area)){
-//                            log.debug("Fläche hat sich geändert");
-//                            curBereich.setFlaeche(area);
-//                            fireTableDataChanged();
-//                            //TODO setSelection on new Entry
-//                        } else {
-//                            log.debug("Fläche hat sich nicht geändert");
-//                        }
-//                    } else if(curBereich.getGeometry() == null) {
-//                        log.debug("Verwaltungsbereich: "+curBereich+" hat keine Fläche --> wird geupdated");                        
-//                        if(curBereich.getFlaeche() ==null || !curBereich.getFlaeche().equals(0)){
-//                            log.debug("Fläche hat sich geändert");
-//                            curBereich.setFlaeche(0);
-//                            fireTableDataChanged();
-//                            //TODO setSelection on new Entry
-//                        } else {
-//                            log.debug("Fläche hat sich nicht geändert");
-//                        }
-//                    } else {
-//                        log.warn("Keiner der Fälle trifft zu");
-//                    }
-//                }
-//            }
-//        }catch(Exception ex){
-//            log.error("Fehler beim updaten der Flächeninformation",ex);
-//        }
-//    }
+    /**
+     * //TODO CHECK FOR BETTER Solution public synchronized void updateAreaInformation(final Double singleSizeUpdate){
+     * final int verwaltungsbereicheSize = verwaltungsbereiche.size(); log.debug("Flächeninformation wird geupdated");
+     * log.debug("Anzahl Verwaltungsbereiche: "+verwaltungsbereicheSize); try{ Iterator<Verwaltungsbereich> it =
+     * verwaltungsbereiche.iterator(); if(verwaltungsbereicheSize == 1 && singleSizeUpdate != null){ log.debug("Nur ein
+     * Verwaltungsbereich vorhanden"); Verwaltungsbereich currentVerwaltungsbereich = it.next();
+     * if(currentVerwaltungsbereich != null && (currentVerwaltungsbereich.getFlaeche() ==null ||
+     * !currentVerwaltungsbereich.getFlaeche().equals(singleSizeUpdate.intValue()))){ log.debug("Fläche hat sich
+     * geändert"); currentVerwaltungsbereich.setFlaeche(singleSizeUpdate.intValue()); fireTableDataChanged(); //TODO
+     * setSelection on new Entry } else { log.debug("Fläche hat sich nicht geändert"); } } else
+     * if(verwaltungsbereicheSize == 1){ log.debug("Nur ein Verwaltungsbereich vorhanden"); log.warn("Es war nicht
+     * möglich die Fläche zu updaten weil keine Größe mitgeliefert wurde"); Verwaltungsbereich currentVerwaltungsbereich
+     * = it.next(); if(currentVerwaltungsbereich != null && (currentVerwaltungsbereich.getFlaeche() ==null ||
+     * !currentVerwaltungsbereich.getFlaeche().equals(0))){ log.debug("Fläche hat sich geändert");
+     * currentVerwaltungsbereich.setFlaeche(0); fireTableDataChanged(); //TODO setSelection on new Entry } else {
+     * log.debug("Fläche hat sich nicht geändert"); } return; }else { log.debug("mehrere Verwaltungsbereiche
+     * vorhanden"); while(it.hasNext()){ Verwaltungsbereich curBereich = it.next(); if(curBereich.getGeometry() !=
+     * null){ log.debug("Verwaltungsbereich: "+curBereich+" hat eine Fläche --> wird geupdated"); final int area =
+     * (int)Math.round(curBereich.getGeometry().getArea()); if(curBereich.getFlaeche() ==null ||
+     * !curBereich.getFlaeche().equals(area)){ log.debug("Fläche hat sich geändert"); curBereich.setFlaeche(area);
+     * fireTableDataChanged(); //TODO setSelection on new Entry } else { log.debug("Fläche hat sich nicht geändert"); }}
+     * else if(curBereich.getGeometry() == null) { log.debug("Verwaltungsbereich: "+curBereich+" hat keine Fläche -->
+     * wird geupdated"); if(curBereich.getFlaeche() ==null || !curBereich.getFlaeche().equals(0)){ log.debug("Fläche hat
+     * sich geändert"); curBereich.setFlaeche(0); fireTableDataChanged(); //TODO setSelection on new Entry } else {
+     * log.debug("Fläche hat sich nicht geändert"); } } else { log.warn("Keiner der Fälle trifft zu"); } } }
+     * }catch(Exception ex){ log.error("Fehler beim updaten der Flächeninformation",ex); } }
+     *
+     * @return  DOCUMENT ME!
+     */
     public Vector<Verwaltungsbereich> getVerwaltungsbereiche() {
         return verwaltungsbereiche;
     }
-
-//    public void selectVerwaltungsbereich(Verwaltungsbereich vBereich){
-//
-//    }
-    public int getIndexOfVerwaltungsbereich(Verwaltungsbereich vBereich) {
+    /**
+     * public void selectVerwaltungsbereich(Verwaltungsbereich vBereich){ }.
+     *
+     * @param   vBereich  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public int getIndexOfVerwaltungsbereich(final Verwaltungsbereich vBereich) {
         return verwaltungsbereiche.indexOf(vBereich);
     }
 
-    public Class<?> getColumnClass(int columnIndex) {
+    @Override
+    public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
-            case 0:
+            case 0: {
                 return VerwaltendeDienststelle.class;
-            case 1:
+            }
+            case 1: {
                 return Verwaltungsgebrauch.class;
-            case 2:
+            }
+            case 2: {
                 return Integer.class;
-            default:
+            }
+            default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
                 return null;
+            }
         }
     }
 
-    public void setCurrentWFSSize(double currentWFSSize) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  currentWFSSize  DOCUMENT ME!
+     */
+    public void setCurrentWFSSize(final double currentWFSSize) {
         this.currentWFSSize = currentWFSSize;
     }
 }

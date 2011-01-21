@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * Widget.java
  *
@@ -6,19 +13,38 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
-import de.cismet.lagis.validation.Validatable;
 import javax.swing.Icon;
 
+import de.cismet.lagis.validation.Validatable;
+
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
-public interface Widget extends ChangeListener,Resettable,Editable,Validatable,Refreshable,EntitySaver {    
-    
-    public String getWidgetName();
-    public Icon getWidgetIcon();
-    public boolean isWidgetReadOnly();
+public interface Widget extends ChangeListener, Resettable, Editable, Validatable, Refreshable, EntitySaver {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    String getWidgetName();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Icon getWidgetIcon();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    boolean isWidgetReadOnly();
 }

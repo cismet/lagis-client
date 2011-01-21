@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * FlurstueckSchluesselRenderer.java
  *
@@ -6,42 +13,56 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.renderer;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
 import java.awt.Component;
+
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
+import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
+
 /**
+ * DOCUMENT ME!
  *
- * @author Sebastian Puhl
+ * @author   Sebastian Puhl
+ * @version  $Revision$, $Date$
  */
 public class FlurstueckSchluesselRenderer extends JLabel implements ListCellRenderer {
-    
-    
-    /** Creates a new instance of FlurstueckSchluesselRenderer */
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of FlurstueckSchluesselRenderer.
+     */
     public FlurstueckSchluesselRenderer() {
-        setOpaque(true);        
+        setOpaque(true);
     }
 
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        if(isSelected){
+    //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public Component getListCellRendererComponent(final JList list,
+            final Object value,
+            final int index,
+            final boolean isSelected,
+            final boolean cellHasFocus) {
+        if (isSelected) {
             setBackground(list.getSelectionBackground());
             setForeground(list.getSelectionForeground());
-        }else {
+        } else {
             setBackground(list.getBackground());
             setForeground(list.getForeground());
         }
-        
-        if(value != null && value instanceof FlurstueckSchluessel){
-            FlurstueckSchluessel key = (FlurstueckSchluessel) value;
+
+        if ((value != null) && (value instanceof FlurstueckSchluessel)) {
+            final FlurstueckSchluessel key = (FlurstueckSchluessel)value;
             setFont(list.getFont());
-            if(key.getGemarkung() != null){
-                setText(key.getGemarkung().getBezeichnung()+" "+key.getFlur()+" "+key.getFlurstueckZaehler()+"/"+key.getFlurstueckNenner());                
+            if (key.getGemarkung() != null) {
+                setText(key.getGemarkung().getBezeichnung() + " " + key.getFlur() + " " + key.getFlurstueckZaehler()
+                            + "/" + key.getFlurstueckNenner());
             } else {
                 setText("Schlüssel ist unvollständig");
             }
@@ -49,5 +70,5 @@ public class FlurstueckSchluesselRenderer extends JLabel implements ListCellRend
             setText("Unbekanntes Objekt");
         }
         return this;
-    }                
+    }
 }

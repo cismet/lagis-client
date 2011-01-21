@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * VertraegeTableModel.java
  *
@@ -8,66 +15,99 @@
  */
 package de.cismet.lagis.models;
 
-import de.cismet.lagis.broker.LagisBroker;
-import de.cismet.lagisEE.entity.core.Vertrag;
-import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
+import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagisEE.entity.core.Vertrag;
+import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class VertraegeTableModel extends AbstractTableModel {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String[] COLUMN_HEADER = {
+            "Vertragsart",
+            "Aktenzeichen",
+            "Quadratmeterpreis",
+            "Kaufpreis (i. NK)"
+        };
+
+    //~ Instance fields --------------------------------------------------------
+
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<Vertrag> vertraege;
-    private final static String[] COLUMN_HEADER = {"Vertragsart", "Aktenzeichen", "Quadratmeterpreis", "Kaufpreis (i. NK)"};
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
-    //Models
+    // Models
 
-    /** Creates a new instance of VertraegeTableModel */
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of VertraegeTableModel.
+     */
     public VertraegeTableModel() {
         vertraege = new Vector<Vertrag>();
     }
 
-    public VertraegeTableModel(Set<Vertrag> vertraege) {
+    /**
+     * Creates a new VertraegeTableModel object.
+     *
+     * @param  vertraege  DOCUMENT ME!
+     */
+    public VertraegeTableModel(final Set<Vertrag> vertraege) {
         try {
             this.vertraege = new Vector<Vertrag>(vertraege);
-            //log.fatal("Voreigentuemer: "+this.vertraege.get(0).getVoreigentuemer());
+            // log.fatal("Voreigentuemer: "+this.vertraege.get(0).getVoreigentuemer());
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
             this.vertraege = new Vector<Vertrag>();
-            HashSet test = new HashSet();
+            final HashSet test = new HashSet();
         }
     }
 
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            Vertrag vertrag = vertraege.get(rowIndex);
+            final Vertrag vertrag = vertraege.get(rowIndex);
             switch (columnIndex) {
-                case 0:
-                    Vertragsart art = vertrag.getVertragsart();
+                case 0: {
+                    final Vertragsart art = vertrag.getVertragsart();
                     if (art != null) {
                         return art.getBezeichnung();
                     } else {
                         return null;
                     }
-                case 1:
+                }
+                case 1: {
                     return vertrag.getAktenzeichen();
-                case 2:
-                    Double qPreis = vertrag.getQuadratmeterpreis();
-                    return qPreis != null ? df.format(qPreis) : null;
-                case 3:
-                    Double gPreis = vertrag.getGesamtpreis();
-                    return gPreis != null ? df.format(gPreis) : null;
-                default:
+                }
+                case 2: {
+                    final Double qPreis = vertrag.getQuadratmeterpreis();
+                    return (qPreis != null) ? df.format(qPreis) : null;
+                }
+                case 3: {
+                    final Double gPreis = vertrag.getGesamtpreis();
+                    return (gPreis != null) ? df.format(gPreis) : null;
+                }
+                default: {
                     return "Spalte ist nicht definiert";
+                }
             }
         } catch (Exception ex) {
             log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
@@ -75,49 +115,82 @@ public class VertraegeTableModel extends AbstractTableModel {
         }
     }
 
+    @Override
     public int getRowCount() {
         return vertraege.size();
     }
 
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
 
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
 
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return false;
     }
 
-    public Vertrag getVertragAtRow(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Vertrag getVertragAtRow(final int rowIndex) {
         return vertraege.get(rowIndex);
     }
 
-    public void addVertrag(Vertrag vertrag) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  vertrag  DOCUMENT ME!
+     */
+    public void addVertrag(final Vertrag vertrag) {
         vertraege.add(vertrag);
         fireTableDataChanged();
     }
 
-    public void removeVertrag(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeVertrag(final int rowIndex) {
         vertraege.remove(rowIndex);
         fireTableDataChanged();
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Vector<Vertrag> getVertraege() {
         return vertraege;
     }
 
-    public void refreshTableModel(Set<Vertrag> vertraege) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  vertraege  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Set<Vertrag> vertraege) {
         try {
-            log.debug("Refresh des VertraegeTableModell");
+            if (log.isDebugEnabled()) {
+                log.debug("Refresh des VertraegeTableModell");
+            }
             if (vertraege != null) {
                 this.vertraege = new Vector<Vertrag>(vertraege);
             } else {
-                log.debug("Vertraege == null --> Erstelle neuer Vektor.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Vertraege == null --> Erstelle neuer Vektor.");
+                }
                 this.vertraege = new Vector<Vertrag>();
             }
         } catch (Exception ex) {

@@ -1,71 +1,111 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ActivateActionPanel.java
  *
  * Created on 6. Februar 2008, 10:56
  */
-
 package de.cismet.lagis.wizard.panels;
 
-import de.cismet.lagis.broker.EJBroker;
-import de.cismet.lagis.gui.panels.FlurstueckChooser;
-import de.cismet.lagis.validation.Validatable;
-import de.cismet.lagis.validation.ValidationStateChangedListener;
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-import de.cismet.lagisEE.entity.locking.Sperre;
-import java.util.Map;
 import org.apache.log4j.Logger;
+
 import org.netbeans.spi.wizard.WizardController;
 
+import java.util.Map;
+
+import de.cismet.lagis.broker.EJBroker;
+
+import de.cismet.lagis.gui.panels.FlurstueckChooser;
+
+import de.cismet.lagis.validation.Validatable;
+import de.cismet.lagis.validation.ValidationStateChangedListener;
+
+import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
+
+import de.cismet.lagisEE.entity.locking.Sperre;
+
 /**
+ * DOCUMENT ME!
  *
- * @author  Sebastian Puhl
+ * @author   Sebastian Puhl
+ * @version  $Revision$, $Date$
  */
 public class ActivateActionPanel extends javax.swing.JPanel implements ValidationStateChangedListener {
+
+    //~ Static fields/initializers ---------------------------------------------
+
     public static final String KEY_ACTIVATE_CANDIDATE = "activateCandidate";
+
+    //~ Instance fields --------------------------------------------------------
+
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private WizardController wizardController;
     private Map wizardData;
-    
-    /** Creates new form ActivateActionPanel */
-    public ActivateActionPanel(WizardController wizardController, Map wizardData) {
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private de.cismet.lagis.gui.panels.FlurstueckChooser panActivate;
+    // End of variables declaration//GEN-END:variables
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates new form ActivateActionPanel.
+     *
+     * @param  wizardController  DOCUMENT ME!
+     * @param  wizardData        DOCUMENT ME!
+     */
+    public ActivateActionPanel(final WizardController wizardController, final Map wizardData) {
         initComponents();
         this.wizardController = wizardController;
         this.wizardData = wizardData;
         wizardController.setProblem("Bitte wählen Sie das Flurstück aus das aktiviert werden soll");
         panActivate.addValidationStateChangedListener(this);
     }
-    
-    public void validationStateChanged(Object validatedObject) {
-        if(panActivate.getStatus() == Validatable.VALID){
-            Sperre sperre = EJBroker.getInstance().isLocked(panActivate.getCurrentFlurstueckSchluessel());                        
-            if(sperre != null){
-                //TODO nicht ganz sichtbar
-                wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "+sperre.getBenutzerkonto());
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public void validationStateChanged(final Object validatedObject) {
+        if (panActivate.getStatus() == Validatable.VALID) {
+            final Sperre sperre = EJBroker.getInstance().isLocked(panActivate.getCurrentFlurstueckSchluessel());
+            if (sperre != null) {
+                // TODO nicht ganz sichtbar
+                wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
+                            + sperre.getBenutzerkonto());
                 return;
             }
             try {
-                if(EJBroker.getInstance().hasFlurstueckSucccessors(panActivate.getCurrentFlurstueckSchluessel())){
-                    log.debug("Flurstück kann nicht aktiviert werden es hat nachfogler");
-                    wizardController.setProblem("Ausgewähltes Flurstück hat Nachfolger und kann nicht aktiviert werden ");
+                if (EJBroker.getInstance().hasFlurstueckSucccessors(panActivate.getCurrentFlurstueckSchluessel())) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Flurstück kann nicht aktiviert werden es hat nachfogler");
+                    }
+                    wizardController.setProblem(
+                        "Ausgewähltes Flurstück hat Nachfolger und kann nicht aktiviert werden ");
                     return;
                 }
             } catch (ActionNotSuccessfulException ex) {
-                log.error("Fehler beim Abfragen ob ein Flurstück Nachfolger hat",ex);                
+                log.error("Fehler beim Abfragen ob ein Flurstück Nachfolger hat", ex);
                 wizardController.setProblem(ex.getMessage());
                 return;
             }
-            wizardData.put(KEY_ACTIVATE_CANDIDATE,panActivate.getCurrentFlurstueckSchluessel());
+            wizardData.put(KEY_ACTIVATE_CANDIDATE, panActivate.getCurrentFlurstueckSchluessel());
             wizardController.setProblem(null);
-            wizardController.setForwardNavigationMode(wizardController.MODE_CAN_FINISH);            
+            wizardController.setForwardNavigationMode(wizardController.MODE_CAN_FINISH);
         } else {
             wizardController.setProblem(panActivate.getValidationMessage());
         }
     }
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
+     * content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -75,46 +115,47 @@ public class ActivateActionPanel extends javax.swing.JPanel implements Validatio
 
         jLabel1.setText("Flurst\u00fcck");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        final javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 381, Short.MAX_VALUE)
-        );
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(
+                0,
+                381,
+                Short.MAX_VALUE));
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 58, Short.MAX_VALUE)
-        );
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(
+                0,
+                58,
+                Short.MAX_VALUE));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        final javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panActivate, javax.swing.GroupLayout.PREFERRED_SIZE, 349, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                jPanel1,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                javax.swing.GroupLayout.DEFAULT_SIZE,
+                javax.swing.GroupLayout.PREFERRED_SIZE).addGroup(
+                layout.createSequentialGroup().addContainerGap().addComponent(jLabel1)).addGroup(
+                layout.createSequentialGroup().addContainerGap().addComponent(
+                    panActivate,
+                    javax.swing.GroupLayout.PREFERRED_SIZE,
+                    349,
+                    javax.swing.GroupLayout.PREFERRED_SIZE)));
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panActivate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-    }// </editor-fold>//GEN-END:initComponents
-    
-    
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
-    private de.cismet.lagis.gui.panels.FlurstueckChooser panActivate;
-    // End of variables declaration//GEN-END:variables
-    
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                layout.createSequentialGroup().addComponent(
+                    jPanel1,
+                    javax.swing.GroupLayout.PREFERRED_SIZE,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jLabel1).addPreferredGap(
+                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
+                    panActivate,
+                    javax.swing.GroupLayout.PREFERRED_SIZE,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    javax.swing.GroupLayout.PREFERRED_SIZE).addContainerGap(
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    Short.MAX_VALUE)));
+    } // </editor-fold>//GEN-END:initComponents
 }

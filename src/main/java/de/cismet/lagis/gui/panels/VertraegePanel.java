@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * RechteBelastungenPanel.java
  *
@@ -5,40 +12,21 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import de.cismet.lagis.broker.EJBroker;
-import de.cismet.lagis.broker.LagisBroker;
-import de.cismet.lagis.editor.DateEditor;
-import de.cismet.lagis.editor.EuroEditor;
-import de.cismet.lagis.interfaces.FlurstueckChangeListener;
-import de.cismet.lagis.interfaces.FlurstueckSaver;
-import de.cismet.lagis.models.DefaultUniqueListModel;
-import de.cismet.lagis.models.KostenTableModel;
-import de.cismet.lagis.models.VertraegeTableModel;
-import de.cismet.lagis.models.documents.VertragDocumentModelContainer;
-import de.cismet.lagis.renderer.DateRenderer;
-import de.cismet.lagis.renderer.EuroRenderer;
-import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-import de.cismet.lagis.validation.Validatable;
-import de.cismet.lagis.validation.Validator;
-import de.cismet.lagis.widget.AbstractWidget;
-import de.cismet.lagisEE.entity.core.Beschluss;
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Kosten;
-import de.cismet.lagisEE.entity.core.Vertrag;
-import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
-import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
+import org.apache.log4j.Logger;
+
+import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.SortOrder;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import java.util.Date;
 import java.util.HashSet;
-
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
@@ -50,21 +38,108 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
-import org.apache.log4j.Logger;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.SortOrder;
+
+import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.editor.DateEditor;
+import de.cismet.lagis.editor.EuroEditor;
+
+import de.cismet.lagis.interfaces.FlurstueckChangeListener;
+import de.cismet.lagis.interfaces.FlurstueckSaver;
+
+import de.cismet.lagis.models.DefaultUniqueListModel;
+import de.cismet.lagis.models.KostenTableModel;
+import de.cismet.lagis.models.VertraegeTableModel;
+import de.cismet.lagis.models.documents.VertragDocumentModelContainer;
+
+import de.cismet.lagis.renderer.DateRenderer;
+import de.cismet.lagis.renderer.EuroRenderer;
+import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
+
+import de.cismet.lagis.thread.BackgroundUpdateThread;
+
+import de.cismet.lagis.validation.Validatable;
+import de.cismet.lagis.validation.Validator;
+
+import de.cismet.lagis.widget.AbstractWidget;
+
+import de.cismet.lagisEE.entity.core.Beschluss;
+import de.cismet.lagisEE.entity.core.Flurstueck;
+import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.lagisEE.entity.core.Kosten;
+import de.cismet.lagisEE.entity.core.Vertrag;
+import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
+import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
+import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
+import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
 
 /**
+ * DOCUMENT ME!
  *
- * @author  Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
-public class VertraegePanel extends AbstractWidget implements FlurstueckChangeListener, FlurstueckSaver, ListSelectionListener, MouseListener {
+public class VertraegePanel extends AbstractWidget implements FlurstueckChangeListener,
+    FlurstueckSaver,
+    ListSelectionListener,
+    MouseListener {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String WIDGET_NAME = "Verträge Panel";
+//    private DefaultComboBoxModel vertragsartComboBoxModel;
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddBeschluss;
+    private javax.swing.JButton btnAddExitingContract;
+    private javax.swing.JButton btnAddKosten;
+    private javax.swing.JButton btnAddVertrag;
+    private javax.swing.JButton btnRemoveBeschluss;
+    private javax.swing.JButton btnRemoveKosten;
+    private javax.swing.JButton btnRemoveVertrag;
+    private javax.swing.JComboBox cboVertragsart;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JLabel lblAktenzeichen;
+    private javax.swing.JLabel lblAuflassung;
+    private javax.swing.JLabel lblBemerkung;
+    private javax.swing.JLabel lblEintragung;
+    private javax.swing.JLabel lblKaufpreis;
+    private javax.swing.JLabel lblQuadPreis;
+    private javax.swing.JLabel lblVertragsart;
+    private javax.swing.JLabel lblVoreigentuemer;
+    private javax.swing.JList lstCrossRefs;
+    private javax.swing.JPanel panBemerkung;
+    private javax.swing.JPanel panBeschluss;
+    private javax.swing.JPanel panData;
+    private javax.swing.JPanel panKosten;
+    private javax.swing.JPanel panQuerverweise;
+    private javax.swing.JPanel panTab;
+    private javax.swing.JPanel panVertraege;
+    private javax.swing.JPanel pnlBeschluesseControls;
+    private javax.swing.JPanel pnlDetail;
+    private javax.swing.JPanel pnlKostenControls;
+    private javax.swing.JPanel pnlKostenControls1;
+    private javax.swing.JTabbedPane tabKB;
+    private javax.swing.JTable tblBeschluesse;
+    private javax.swing.JTable tblKosten;
+    private javax.swing.JTable tblVertraege;
+    private javax.swing.JTextField txtAktenzeichen;
+    private javax.swing.JTextField txtAuflassung;
+    private javax.swing.JTextArea txtBemerkung;
+    private javax.swing.JTextField txtEintragung;
+    private javax.swing.JTextField txtKaufpreis;
+    private javax.swing.JTextField txtQuadPreis;
+    private javax.swing.JTextField txtVoreigentuemer;
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Flurstueck currentFlurstueck = null;
     private VertraegeTableModel vTableModel = new VertraegeTableModel();
-    //private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
+    // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
     private KostenTableModel kTableModel = new KostenTableModel();
     private Vertrag currentSelectedVertrag;
     private VertragDocumentModelContainer documentContainer;
@@ -77,66 +152,68 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private Validator valTxtEintragung;
     private Vector<Validator> validators = new Vector<Validator>();
     private BackgroundUpdateThread<Flurstueck> updateThread;
-    private ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
+    private ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
     private boolean isInEditMode = false;
     private boolean isFlurstueckEditable = true;
-    private static final String WIDGET_NAME = "Verträge Panel";
-//    private DefaultComboBoxModel vertragsartComboBoxModel;
-    /** Creates new form RechteBelastungenPanel */
+
+    /**
+     * Creates new form RechteBelastungenPanel.
+     */
     public VertraegePanel() {
         setIsCoreWidget(true);
         initComponents();
         tabKB.setTitleAt(0, "Kosten");
         tabKB.setTitleAt(1, "Beschlüsse");
         tabKB.setTitleAt(2, "Querverweise");
-        //tblBeschluesse.setModel(bTableModel);
+        // tblBeschluesse.setModel(bTableModel);
         tblKosten.setModel(kTableModel);
         tblVertraege.setModel(vTableModel);
-        //tblVertraege.addMouseListener(this);
+        // tblVertraege.addMouseListener(this);
         documentContainer = new VertragDocumentModelContainer(vTableModel);
         tblVertraege.addMouseListener(documentContainer);
-        //log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
+        // log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
 
         txtKaufpreis.setDocument(documentContainer.getKaufpreisDocumentModel());
         valTxtKaufpreis = new Validator(txtKaufpreis);
-        valTxtKaufpreis.reSetValidator((Validatable) documentContainer.getKaufpreisDocumentModel());
+        valTxtKaufpreis.reSetValidator((Validatable)documentContainer.getKaufpreisDocumentModel());
 
         txtAuflassung.setDocument(documentContainer.getAuflassungDocumentModel());
         valTxtAuflassung = new Validator(txtAuflassung);
-        valTxtAuflassung.reSetValidator((Validatable) documentContainer.getAuflassungDocumentModel());
+        valTxtAuflassung.reSetValidator((Validatable)documentContainer.getAuflassungDocumentModel());
 
         txtVoreigentuemer.setDocument(documentContainer.getVoreigentuemerDocumentModel());
         valTxtVoreigentuemer = new Validator(txtVoreigentuemer);
-        valTxtVoreigentuemer.reSetValidator((Validatable) documentContainer.getVoreigentuemerDocumentModel());
+        valTxtVoreigentuemer.reSetValidator((Validatable)documentContainer.getVoreigentuemerDocumentModel());
 
         txtQuadPreis.setDocument(documentContainer.getQuadPreisDocumentModel());
         valTxtQuadPreis = new Validator(txtQuadPreis);
-        valTxtQuadPreis.reSetValidator((Validatable) documentContainer.getQuadPreisDocumentModel());
+        valTxtQuadPreis.reSetValidator((Validatable)documentContainer.getQuadPreisDocumentModel());
 
         txtAktenzeichen.setDocument(documentContainer.getAktenzeichenDocumentModel());
         valTxtAktenzeichen = new Validator(txtAktenzeichen);
-        valTxtAktenzeichen.reSetValidator((Validatable) documentContainer.getAktenzeichenDocumentModel());
+        valTxtAktenzeichen.reSetValidator((Validatable)documentContainer.getAktenzeichenDocumentModel());
 
         txtBemerkung.setDocument(documentContainer.getBemerkungDocumentModel());
         valTxtBemerkung = new Validator(txtBemerkung);
-        valTxtBemerkung.reSetValidator((Validatable) documentContainer.getBemerkungDocumentModel());
+        valTxtBemerkung.reSetValidator((Validatable)documentContainer.getBemerkungDocumentModel());
 
         txtEintragung.setDocument(documentContainer.getEintragungDocumentModel());
         valTxtEintragung = new Validator(txtEintragung);
-        valTxtEintragung.reSetValidator((Validatable) documentContainer.getEintragungDocumentModel());
+        valTxtEintragung.reSetValidator((Validatable)documentContainer.getEintragungDocumentModel());
 
         cboVertragsart.setModel(documentContainer.getVertragsartComboBoxModel());
         cboVertragsart.addActionListener(documentContainer);
 
         tblKosten.setModel(documentContainer.getKostenTableModel());
         tblBeschluesse.setModel(documentContainer.getBeschluesseTableModel());
-        //Set vertragsarten = null;
-//        if(vertragsarten != null){
-//            vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));
-//        } else {
-//            vertragsartComboBoxModel = new DefaultComboBoxModel();
-//        }
-//        cboVertragsart.setModel(vertragsartComboBoxModel);
+        // Set vertragsarten = null;
+// if(vertragsarten != null){
+// vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));
+// } else {
+// vertragsartComboBoxModel = new DefaultComboBoxModel();
+// }
+// cboVertragsart.setModel(vertragsartComboBoxModel);
         validators.add(valTxtAktenzeichen);
         validators.add(valTxtAuflassung);
         validators.add(valTxtBemerkung);
@@ -145,12 +222,12 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         validators.add(valTxtQuadPreis);
         validators.add(valTxtVoreigentuemer);
 
-        JComboBox cboBA = new JComboBox(new Vector<Beschlussart>(EJBroker.getInstance().getAllBeschlussarten()));
-        JComboBox cboKA = new JComboBox(new Vector<Kosten>(EJBroker.getInstance().getAllKostenarten()));
+        final JComboBox cboBA = new JComboBox(new Vector<Beschlussart>(EJBroker.getInstance().getAllBeschlussarten()));
+        final JComboBox cboKA = new JComboBox(new Vector<Kosten>(EJBroker.getInstance().getAllKostenarten()));
         tblBeschluesse.setDefaultEditor(Beschlussart.class, new DefaultCellEditor(cboBA));
         tblKosten.setDefaultEditor(Kostenart.class, new DefaultCellEditor(cboKA));
-        //tblBeschluesse.addMouseListener(this);
-        //tblKosten.addMouseListener(this);
+        // tblBeschluesse.addMouseListener(this);
+        // tblKosten.addMouseListener(this);
         tblKosten.setDefaultEditor(Double.class, new EuroEditor());
         tblKosten.setDefaultRenderer(Double.class, new EuroRenderer());
         tblKosten.getSelectionModel().addListSelectionListener(this);
@@ -163,13 +240,14 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         tblBeschluesse.setDefaultEditor(Date.class, new DateEditor());
         tblBeschluesse.setDefaultRenderer(Date.class, new DateRenderer());
 
-        //HighlighterPipeline hPipline = new HighlighterPipeline(new Highlighter[]{LagisBroker.ALTERNATE_ROW_HIGHLIGHTER});
-        ((JXTable) tblVertraege).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
-        ((JXTable) tblBeschluesse).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
-        ((JXTable) tblKosten).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
-        ((JXTable) tblVertraege).setSortOrder(0, SortOrder.ASCENDING);
-        ((JXTable) tblBeschluesse).setSortOrder(1, SortOrder.ASCENDING);
-        ((JXTable) tblKosten).setSortOrder(2, SortOrder.ASCENDING);
+        // HighlighterPipeline hPipline = new HighlighterPipeline(new
+        // Highlighter[]{LagisBroker.ALTERNATE_ROW_HIGHLIGHTER});
+        ((JXTable)tblVertraege).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
+        ((JXTable)tblBeschluesse).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
+        ((JXTable)tblKosten).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
+        ((JXTable)tblVertraege).setSortOrder(0, SortOrder.ASCENDING);
+        ((JXTable)tblBeschluesse).setSortOrder(1, SortOrder.ASCENDING);
+        ((JXTable)tblKosten).setSortOrder(2, SortOrder.ASCENDING);
         enableSlaveFlieds(false);
         btnRemoveBeschluss.setEnabled(false);
         btnRemoveKosten.setEnabled(false);
@@ -178,66 +256,79 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         lstCrossRefs.setModel(new DefaultUniqueListModel());
         lstCrossRefs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lstCrossRefs.addMouseListener(this);
-        ((JXTable) tblBeschluesse).packAll();
-        ((JXTable) tblKosten).packAll();
-        ((JXTable) tblVertraege).packAll();
+        ((JXTable)tblBeschluesse).packAll();
+        ((JXTable)tblKosten).packAll();
+        ((JXTable)tblVertraege).packAll();
         configBackgroundThread();
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     private void configBackgroundThread() {
         updateThread = new BackgroundUpdateThread<Flurstueck>() {
 
-            protected void update() {
-                try {
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
+                @Override
+                protected void update() {
+                    try {
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        clearComponent();
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        final FlurstueckArt flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
+                                    .getFlurstueckArt();
+                        if ((flurstueckArt != null)
+                                    && flurstueckArt.getBezeichnung().equals(
+                                        FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Flurstück ist städtisch und kann editiert werden");
+                            }
+                            isFlurstueckEditable = true;
+                        } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                            }
+                            isFlurstueckEditable = false;
+                        }
+                        vTableModel.refreshTableModel(getCurrentObject().getVertraege());
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        documentContainer.updateTableModel(vTableModel);
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        final Set<FlurstueckSchluessel> crossRefs = getCurrentObject().getVertraegeQuerverweise();
+                        if ((crossRefs != null) && (crossRefs.size() > 0)) {
+                            lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
+                        }
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
+                    } catch (Exception ex) {
+                        log.error("Fehler im refresh thread: ", ex);
+                        LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
                     }
-                    clearComponent();
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    FlurstueckArt flurstueckArt = getCurrentObject().getFlurstueckSchluessel().getFlurstueckArt();
-                    if (flurstueckArt != null && flurstueckArt.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                        log.debug("Flurstück ist städtisch und kann editiert werden");
-                        isFlurstueckEditable = true;
-                    } else {
-                        log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
-                        isFlurstueckEditable = false;
-                    }
-                    vTableModel.refreshTableModel(getCurrentObject().getVertraege());
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    documentContainer.updateTableModel(vTableModel);
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    Set<FlurstueckSchluessel> crossRefs = getCurrentObject().getVertraegeQuerverweise();
-                    if (crossRefs != null && crossRefs.size() > 0) {
-                        lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
-                    }
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
-                } catch (Exception ex) {
-                    log.error("Fehler im refresh thread: ", ex);
-                    LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
                 }
-            }
 
-            protected void cleanup() {
-            }
-        };
+                @Override
+                protected void cleanup() {
+                }
+            };
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
     }
-    //private Thread panelRefresherThread;
+    // private Thread panelRefresherThread;
+    @Override
     public void flurstueckChanged(final Flurstueck newFlurstueck) {
         try {
             log.info("FlurstueckChanged");
@@ -249,12 +340,15 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         }
     }
 
-    public void setComponentEditable(boolean isEditable) {
+    @Override
+    public void setComponentEditable(final boolean isEditable) {
         if (isFlurstueckEditable) {
-            log.debug("Vertrag --> setComponentEditable");
+            if (log.isDebugEnabled()) {
+                log.debug("Vertrag --> setComponentEditable");
+            }
             isInEditMode = isEditable;
             lstCrossRefs.setEnabled(!isEditable);
-            if (isEditable && tblVertraege.getSelectedRow() != -1) {
+            if (isEditable && (tblVertraege.getSelectedRow() != -1)) {
                 btnRemoveVertrag.setEnabled(true);
             } else if (!isEditable) {
                 btnRemoveVertrag.setEnabled(false);
@@ -281,6 +375,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             documentContainer.getKostenTableModel().setIsInEditMode(isEditable);
             tblKosten.setEnabled(isEditable);
             tblBeschluesse.setEnabled(isEditable);
+            if (log.isDebugEnabled()) {
 //        HighlighterPipeline pipeline1 = ((JXTable)tblVertraege).getHighlighters();
 //        HighlighterPipeline pipeline2 = ((JXTable)tblKosten).getHighlighters();
 //        HighlighterPipeline pipeline3 = ((JXTable)tblBeschluesse).getHighlighters();
@@ -299,58 +394,61 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 //            pipeline3.removeHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_EDIT);
 //            pipeline3.addHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_DEFAULT,false);
 //        }
-            log.debug("Vertrag --> setComponentEditable finished");
+                log.debug("Vertrag --> setComponentEditable finished");
+            }
         } else {
-            log.debug("Flurstück ist nicht städtisch Verwaltungen können nicht editiert werden");
+            if (log.isDebugEnabled()) {
+                log.debug("Flurstück ist nicht städtisch Verwaltungen können nicht editiert werden");
+            }
         }
     }
 
+    @Override
     public synchronized void clearComponent() {
-
 //tblBeschluesse.setModel(new BeschluesseTableModel());
-        //tblKosten.setModel(new KostenTableModel());
-        //tblVertraege.setModel(new VertraegeTableModel());
-        //vTableModel = new VertraegeTableModel();
+        // tblKosten.setModel(new KostenTableModel());
+        // tblVertraege.setModel(new VertraegeTableModel());
+        // vTableModel = new VertraegeTableModel();
         vTableModel.refreshTableModel(null);
         documentContainer.clearComponents();
-        //ocumentContainer.updateTableModel(vTableModel);
-        //tblVertraege.setModel(vTableModel);
+        // ocumentContainer.updateTableModel(vTableModel);
+        // tblVertraege.setModel(vTableModel);
         cboVertragsart.setSelectedItem(null);
         lstCrossRefs.setModel(new DefaultUniqueListModel());
-    //txtKaufpreis.setDocument(kaufpreisModel);
-    //txtAktenzeichen.setText("");
-    //txtAuflassung.setText("");
-    //txtBemerkung.setText("");
-    //txtEintragung.setText("");
-    //txtKaufpreis.setText("");
-    //txtQuadPreis.setText("");
-    //txtVertragsart.setText("");
+        // txtKaufpreis.setDocument(kaufpreisModel);
+        // txtAktenzeichen.setText("");
+        // txtAuflassung.setText("");
+        // txtBemerkung.setText("");
+        // txtEintragung.setText("");
+        // txtKaufpreis.setText("");
+        // txtQuadPreis.setText("");
+        // txtVertragsart.setText("");
     }
 
-    @Override()
+    @Override
     public int getStatus() {
-        if (tblBeschluesse.getCellEditor() != null || tblKosten.getCellEditor() != null) {
+        if ((tblBeschluesse.getCellEditor() != null) || (tblKosten.getCellEditor() != null)) {
             validationMessage = "Bitte vollenden Sie alle Änderungen bei den Kosten/Beschlüssen.";
             return Validatable.ERROR;
         }
-        Iterator<Validator> it = validators.iterator();
+        final Iterator<Validator> it = validators.iterator();
         while (it.hasNext()) {
-            Validator current = it.next();
+            final Validator current = it.next();
             if (current.getValidationState() != Validatable.VALID) {
                 validationMessage = current.getValidationMessage();
                 return Validatable.ERROR;
             }
         }
-        Vector<Vertrag> alleVertraege = vTableModel.getVertraege();
+        final Vector<Vertrag> alleVertraege = vTableModel.getVertraege();
         if (alleVertraege != null) {
-            for (Vertrag currentVertrag : alleVertraege) {
-                if (currentVertrag != null && currentVertrag.getVertragsart() == null) {
+            for (final Vertrag currentVertrag : alleVertraege) {
+                if ((currentVertrag != null) && (currentVertrag.getVertragsart() == null)) {
                     validationMessage = "Bei allen Verträgen muss eine Vertragsart ausgewählt werden";
                     return Validatable.ERROR;
                 }
 
-                if (currentVertrag != null && currentVertrag.getBeschluesse() != null) {
-                    for (Beschluss currentBeschluss : currentVertrag.getBeschluesse()) {
+                if ((currentVertrag != null) && (currentVertrag.getBeschluesse() != null)) {
+                    for (final Beschluss currentBeschluss : currentVertrag.getBeschluesse()) {
                         if (currentBeschluss.getBeschlussart() == null) {
                             validationMessage = "Bei allen Beschlüssen muss eine Beschlussart ausgewählt werden";
                             return Validatable.ERROR;
@@ -358,8 +456,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     }
                 }
 
-                if (currentVertrag != null && currentVertrag.getKosten() != null) {
-                    for (Kosten currentKosten : currentVertrag.getKosten()) {
+                if ((currentVertrag != null) && (currentVertrag.getKosten() != null)) {
+                    for (final Kosten currentKosten : currentVertrag.getKosten()) {
                         if (currentKosten.getKostenart() == null) {
                             validationMessage = "Bei allen Kosten muss eine Kostenart ausgewählt werden";
                             return Validatable.ERROR;
@@ -371,21 +469,25 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         return Validatable.VALID;
     }
 
-    public void validationStateChanged(Object validatedObject) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  validatedObject  DOCUMENT ME!
+     */
+    public void validationStateChanged(final Object validatedObject) {
         fireValidationStateChanged(validatedObject);
     }
 
-    public void refresh(Object refreshObject) {
+    @Override
+    public void refresh(final Object refreshObject) {
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
+     * content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         pnlDetail = new javax.swing.JPanel();
         panVertraege = new javax.swing.JPanel();
         pnlKostenControls1 = new javax.swing.JPanel();
@@ -436,50 +538,77 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         panVertraege.setMinimumSize(new java.awt.Dimension(300, 0));
 
-        btnAddVertrag.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddVertrag.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVertrag.setBorder(null);
         btnAddVertrag.setOpaque(false);
         btnAddVertrag.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddVertragActionPerformed(evt);
-            }
-        });
 
-        btnRemoveVertrag.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddVertragActionPerformed(evt);
+                }
+            });
+
+        btnRemoveVertrag.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVertrag.setBorder(null);
         btnRemoveVertrag.setOpaque(false);
         btnRemoveVertrag.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRemoveVertragActionPerformed(evt);
-            }
-        });
 
-        btnAddExitingContract.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemoveVertragActionPerformed(evt);
+                }
+            });
+
+        btnAddExitingContract.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
         btnAddExitingContract.setBorder(null);
         btnAddExitingContract.setOpaque(false);
         btnAddExitingContract.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddExitingContractActionPerformed(evt);
-            }
-        });
 
-        org.jdesktop.layout.GroupLayout pnlKostenControls1Layout = new org.jdesktop.layout.GroupLayout(pnlKostenControls1);
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddExitingContractActionPerformed(evt);
+                }
+            });
+
+        final org.jdesktop.layout.GroupLayout pnlKostenControls1Layout = new org.jdesktop.layout.GroupLayout(
+                pnlKostenControls1);
         pnlKostenControls1.setLayout(pnlKostenControls1Layout);
         pnlKostenControls1Layout.setHorizontalGroup(
-            pnlKostenControls1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, pnlKostenControls1Layout.createSequentialGroup()
-                .add(btnAddExitingContract, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(btnAddVertrag, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(btnRemoveVertrag, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
+            pnlKostenControls1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                pnlKostenControls1Layout.createSequentialGroup().add(
+                    btnAddExitingContract,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    btnAddVertrag,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    btnRemoveVertrag,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
         pnlKostenControls1Layout.setVerticalGroup(
-            pnlKostenControls1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(btnRemoveVertrag, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-            .add(btnAddVertrag, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-            .add(btnAddExitingContract, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-        );
+            pnlKostenControls1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                btnRemoveVertrag,
+                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                0,
+                Short.MAX_VALUE).add(
+                btnAddVertrag,
+                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                0,
+                Short.MAX_VALUE).add(
+                btnAddExitingContract,
+                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                0,
+                Short.MAX_VALUE));
 
         jLabel1.setText("Verträge:");
 
@@ -487,58 +616,68 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         tblVertraege.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tblVertraege.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Verkauf", "105.12-147545", "14€", "8.946€"}
-            },
-            new String [] {
-                "Vertragsart", "Aktenzeichen", "Quadratmeterpreis", "Kaufpreis (i. NK)"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
+                new Object[][] {
+                    { "Verkauf", "105.12-147545", "14€", "8.946€" }
+                },
+                new String[] { "Vertragsart", "Aktenzeichen", "Quadratmeterpreis", "Kaufpreis (i. NK)" }) {
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
+                Class[] types = new Class[] {
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class
+                    };
+                boolean[] canEdit = new boolean[] { false, false, false, false };
 
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
+                @Override
+                public Class getColumnClass(final int columnIndex) {
+                    return types[columnIndex];
+                }
+
+                @Override
+                public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+                    return canEdit[columnIndex];
+                }
+            });
         tblVertraege.setPreferredSize(new java.awt.Dimension(100, 16));
         jScrollPane1.setViewportView(tblVertraege);
 
-        org.jdesktop.layout.GroupLayout panVertraegeLayout = new org.jdesktop.layout.GroupLayout(panVertraege);
+        final org.jdesktop.layout.GroupLayout panVertraegeLayout = new org.jdesktop.layout.GroupLayout(panVertraege);
         panVertraege.setLayout(panVertraegeLayout);
         panVertraegeLayout.setHorizontalGroup(
-            panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panVertraegeLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(panVertraegeLayout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 550, Short.MAX_VALUE)
-                        .add(pnlKostenControls1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, panVertraegeLayout.createSequentialGroup()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 695, Short.MAX_VALUE)
-                        .add(10, 10, 10))))
-        );
+            panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panVertraegeLayout.createSequentialGroup().addContainerGap().add(
+                    panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        panVertraegeLayout.createSequentialGroup().add(jLabel1).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED,
+                            550,
+                            Short.MAX_VALUE).add(
+                            pnlKostenControls1,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        panVertraegeLayout.createSequentialGroup().add(
+                            jScrollPane1,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            695,
+                            Short.MAX_VALUE).add(10, 10, 10)))));
         panVertraegeLayout.setVerticalGroup(
-            panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panVertraegeLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(pnlKostenControls1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 172, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panVertraegeLayout.createSequentialGroup().addContainerGap().add(
+                    panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(
+                        pnlKostenControls1,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        jLabel1,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        24,
+                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane1,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    172,
+                    Short.MAX_VALUE).addContainerGap()));
 
         jScrollPane4.setPreferredSize(new java.awt.Dimension(0, 0));
 
@@ -550,35 +689,40 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         lblBemerkung.setText("Bemerkung:");
 
-        org.jdesktop.layout.GroupLayout panBemerkungLayout = new org.jdesktop.layout.GroupLayout(panBemerkung);
+        final org.jdesktop.layout.GroupLayout panBemerkungLayout = new org.jdesktop.layout.GroupLayout(panBemerkung);
         panBemerkung.setLayout(panBemerkungLayout);
         panBemerkungLayout.setHorizontalGroup(
-            panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panBemerkungLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(lblBemerkung)
-                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 695, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+            panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panBemerkungLayout.createSequentialGroup().addContainerGap().add(
+                    panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        lblBemerkung).add(
+                        jScrollPane4,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        695,
+                        Short.MAX_VALUE)).addContainerGap()));
         panBemerkungLayout.setVerticalGroup(
-            panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panBemerkungLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(lblBemerkung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panBemerkungLayout.createSequentialGroup().addContainerGap().add(
+                    lblBemerkung,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    24,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane4,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    88,
+                    Short.MAX_VALUE).addContainerGap()));
 
         lblEintragung.setText("Eintragung");
 
         txtEintragung.setText("16.03.05");
         txtEintragung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtEintragungActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    txtEintragungActionPerformed(evt);
+                }
+            });
 
         lblAktenzeichen.setText("Aktenzeichen");
 
@@ -589,10 +733,12 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         cboVertragsart.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Kauf" }));
         cboVertragsart.setMinimumSize(new java.awt.Dimension(6, 20));
         cboVertragsart.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cboVertragsartActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cboVertragsartActionPerformed(evt);
+                }
+            });
 
         lblQuadPreis.setText("Quadradmeterpreis");
 
@@ -610,143 +756,248 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         lblVoreigentuemer.setText("Voreigentümer");
 
-        org.jdesktop.layout.GroupLayout panDataLayout = new org.jdesktop.layout.GroupLayout(panData);
+        final org.jdesktop.layout.GroupLayout panDataLayout = new org.jdesktop.layout.GroupLayout(panData);
         panData.setLayout(panDataLayout);
         panDataLayout.setHorizontalGroup(
-            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panDataLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(txtVoreigentuemer, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
-                    .add(lblVoreigentuemer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 83, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(panDataLayout.createSequentialGroup()
-                        .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, txtQuadPreis, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, txtKaufpreis, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, lblQuadPreis, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, lblKaufpreis, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, lblVertragsart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, cboVertragsart, 0, 161, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(lblAuflassung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                            .add(txtAuflassung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                            .add(lblEintragung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                            .add(txtEintragung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                            .add(lblAktenzeichen, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                            .add(txtAktenzeichen, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))))
-                .addContainerGap())
-        );
+            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panDataLayout.createSequentialGroup().addContainerGap().add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        txtVoreigentuemer,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        252,
+                        Short.MAX_VALUE).add(
+                        lblVoreigentuemer,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        83,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        panDataLayout.createSequentialGroup().add(
+                            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                                org.jdesktop.layout.GroupLayout.LEADING,
+                                txtQuadPreis,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                161,
+                                Short.MAX_VALUE).add(
+                                org.jdesktop.layout.GroupLayout.LEADING,
+                                txtKaufpreis,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                161,
+                                Short.MAX_VALUE).add(
+                                org.jdesktop.layout.GroupLayout.LEADING,
+                                lblQuadPreis,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                161,
+                                Short.MAX_VALUE).add(
+                                org.jdesktop.layout.GroupLayout.LEADING,
+                                lblKaufpreis,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                161,
+                                Short.MAX_VALUE).add(
+                                org.jdesktop.layout.GroupLayout.LEADING,
+                                lblVertragsart,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                161,
+                                Short.MAX_VALUE).add(
+                                org.jdesktop.layout.GroupLayout.LEADING,
+                                cboVertragsart,
+                                0,
+                                161,
+                                Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                                lblAuflassung,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                85,
+                                Short.MAX_VALUE).add(
+                                txtAuflassung,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                85,
+                                Short.MAX_VALUE).add(
+                                lblEintragung,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                85,
+                                Short.MAX_VALUE).add(
+                                txtEintragung,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                85,
+                                Short.MAX_VALUE).add(
+                                lblAktenzeichen,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                85,
+                                Short.MAX_VALUE).add(
+                                txtAktenzeichen,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                85,
+                                Short.MAX_VALUE)))).addContainerGap()));
         panDataLayout.setVerticalGroup(
-            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panDataLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(lblVoreigentuemer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(txtVoreigentuemer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblAuflassung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lblKaufpreis, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(txtAuflassung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(txtKaufpreis, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblEintragung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lblQuadPreis, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(txtEintragung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(txtQuadPreis, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblAktenzeichen, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lblVertragsart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(txtAktenzeichen, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cboVertragsart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panDataLayout.createSequentialGroup().addContainerGap().add(
+                    lblVoreigentuemer,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    22,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    txtVoreigentuemer,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    20,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                        lblAuflassung,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        22,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        lblKaufpreis,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        22,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                        txtAuflassung,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        txtKaufpreis,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                        lblEintragung,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        22,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        lblQuadPreis,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        24,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                        txtEintragung,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        txtQuadPreis,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                        lblAktenzeichen,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        22,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        lblVertragsart,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                        txtAktenzeichen,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        22,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        cboVertragsart,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        21,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
 
-        btnAddKosten.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddKosten.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddKosten.setBorder(null);
         btnAddKosten.setOpaque(false);
         btnAddKosten.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddKostenActionPerformed(evt);
-            }
-        });
 
-        btnRemoveKosten.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddKostenActionPerformed(evt);
+                }
+            });
+
+        btnRemoveKosten.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveKosten.setBorder(null);
         btnRemoveKosten.setOpaque(false);
         btnRemoveKosten.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRemoveKostenActionPerformed(evt);
-            }
-        });
 
-        org.jdesktop.layout.GroupLayout pnlKostenControlsLayout = new org.jdesktop.layout.GroupLayout(pnlKostenControls);
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemoveKostenActionPerformed(evt);
+                }
+            });
+
+        final org.jdesktop.layout.GroupLayout pnlKostenControlsLayout = new org.jdesktop.layout.GroupLayout(
+                pnlKostenControls);
         pnlKostenControls.setLayout(pnlKostenControlsLayout);
         pnlKostenControlsLayout.setHorizontalGroup(
-            pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pnlKostenControlsLayout.createSequentialGroup()
-                .add(btnAddKosten, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(btnRemoveKosten, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
+            pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                pnlKostenControlsLayout.createSequentialGroup().add(
+                    btnAddKosten,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    Short.MAX_VALUE).add(
+                    btnRemoveKosten,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
         pnlKostenControlsLayout.setVerticalGroup(
-            pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE, false)
-                .add(btnRemoveKosten, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 27, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(btnAddKosten, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 27, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
+            pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE, false).add(
+                    btnRemoveKosten,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    27,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                    btnAddKosten,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    27,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
 
         jScrollPane5.setPreferredSize(new java.awt.Dimension(0, 0));
 
         tblKosten.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tblKosten.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Notar", "     120€", "27.10.03"},
-                {"Wiederbeschaffungskosten", "20.000€", "30.05.04"}
-            },
-            new String [] {
-                "Kostenart", "Betrag", "Datum"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
+                new Object[][] {
+                    { "Notar", "     120€", "27.10.03" },
+                    { "Wiederbeschaffungskosten", "20.000€", "30.05.04" }
+                },
+                new String[] { "Kostenart", "Betrag", "Datum" }) {
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+                Class[] types = new Class[] { java.lang.String.class, java.lang.String.class, java.lang.String.class };
+
+                @Override
+                public Class getColumnClass(final int columnIndex) {
+                    return types[columnIndex];
+                }
+            });
         jScrollPane5.setViewportView(tblKosten);
 
-        org.jdesktop.layout.GroupLayout panKostenLayout = new org.jdesktop.layout.GroupLayout(panKosten);
+        final org.jdesktop.layout.GroupLayout panKostenLayout = new org.jdesktop.layout.GroupLayout(panKosten);
         panKosten.setLayout(panKostenLayout);
         panKostenLayout.setHorizontalGroup(
-            panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, panKostenLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-                    .add(pnlKostenControls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+            panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                panKostenLayout.createSequentialGroup().addContainerGap().add(
+                    panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                        jScrollPane5,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        392,
+                        Short.MAX_VALUE).add(
+                        pnlKostenControls,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
         panKostenLayout.setVerticalGroup(
-            panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panKostenLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(pnlKostenControls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 186, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panKostenLayout.createSequentialGroup().addContainerGap().add(
+                    pnlKostenControls,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane5,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    186,
+                    Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("tab2", panKosten);
 
@@ -754,302 +1005,361 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         tblBeschluesse.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tblBeschluesse.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Rat der Stadt", "04.03.05"}
-            },
-            new String [] {
-                "Beschlussart", "Datum"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class
-            };
+                new Object[][] {
+                    { "Rat der Stadt", "04.03.05" }
+                },
+                new String[] { "Beschlussart", "Datum" }) {
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+                Class[] types = new Class[] { java.lang.String.class, java.lang.String.class };
+
+                @Override
+                public Class getColumnClass(final int columnIndex) {
+                    return types[columnIndex];
+                }
+            });
         jScrollPane6.setViewportView(tblBeschluesse);
 
-        btnAddBeschluss.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddBeschluss.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBeschluss.setBorder(null);
         btnAddBeschluss.setOpaque(false);
         btnAddBeschluss.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddBeschlussActionPerformed(evt);
-            }
-        });
 
-        btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddBeschlussActionPerformed(evt);
+                }
+            });
+
+        btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBeschluss.setBorder(null);
         btnRemoveBeschluss.setOpaque(false);
         btnRemoveBeschluss.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRemoveBeschlussActionPerformed(evt);
-            }
-        });
 
-        org.jdesktop.layout.GroupLayout pnlBeschluesseControlsLayout = new org.jdesktop.layout.GroupLayout(pnlBeschluesseControls);
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemoveBeschlussActionPerformed(evt);
+                }
+            });
+
+        final org.jdesktop.layout.GroupLayout pnlBeschluesseControlsLayout = new org.jdesktop.layout.GroupLayout(
+                pnlBeschluesseControls);
         pnlBeschluesseControls.setLayout(pnlBeschluesseControlsLayout);
         pnlBeschluesseControlsLayout.setHorizontalGroup(
-            pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pnlBeschluesseControlsLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(btnAddBeschluss, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(btnRemoveBeschluss, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 29, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-        );
+            pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                pnlBeschluesseControlsLayout.createSequentialGroup().addContainerGap().add(
+                    btnAddBeschluss,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    btnRemoveBeschluss,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    29,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
         pnlBeschluesseControlsLayout.setVerticalGroup(
-            pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pnlBeschluesseControlsLayout.createSequentialGroup()
-                .add(pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(btnRemoveBeschluss, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 27, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(btnAddBeschluss, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 27, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+            pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                pnlBeschluesseControlsLayout.createSequentialGroup().add(
+                    pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        btnRemoveBeschluss,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        27,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        btnAddBeschluss,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        27,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
 
-        org.jdesktop.layout.GroupLayout panBeschlussLayout = new org.jdesktop.layout.GroupLayout(panBeschluss);
+        final org.jdesktop.layout.GroupLayout panBeschlussLayout = new org.jdesktop.layout.GroupLayout(panBeschluss);
         panBeschluss.setLayout(panBeschlussLayout);
         panBeschlussLayout.setHorizontalGroup(
-            panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, panBeschlussLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-                    .add(pnlBeschluesseControls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
-        );
+            panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                panBeschlussLayout.createSequentialGroup().addContainerGap().add(
+                    panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                        org.jdesktop.layout.GroupLayout.LEADING,
+                        jScrollPane6,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        392,
+                        Short.MAX_VALUE).add(
+                        pnlBeschluesseControls,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
         panBeschlussLayout.setVerticalGroup(
-            panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panBeschlussLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(pnlBeschluesseControls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 26, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane6, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 187, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panBeschlussLayout.createSequentialGroup().addContainerGap().add(
+                    pnlBeschluesseControls,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    26,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane6,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    187,
+                    Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("tab1", panBeschluss);
 
         jScrollPane2.setViewportView(lstCrossRefs);
 
-        org.jdesktop.layout.GroupLayout panQuerverweiseLayout = new org.jdesktop.layout.GroupLayout(panQuerverweise);
+        final org.jdesktop.layout.GroupLayout panQuerverweiseLayout = new org.jdesktop.layout.GroupLayout(
+                panQuerverweise);
         panQuerverweise.setLayout(panQuerverweiseLayout);
         panQuerverweiseLayout.setHorizontalGroup(
-            panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panQuerverweiseLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
+                    jScrollPane2,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    392,
+                    Short.MAX_VALUE).addContainerGap()));
         panQuerverweiseLayout.setVerticalGroup(
-            panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, panQuerverweiseLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
+                    jScrollPane2,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    219,
+                    Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("tab3", panQuerverweise);
 
-        org.jdesktop.layout.GroupLayout panTabLayout = new org.jdesktop.layout.GroupLayout(panTab);
+        final org.jdesktop.layout.GroupLayout panTabLayout = new org.jdesktop.layout.GroupLayout(panTab);
         panTab.setLayout(panTabLayout);
         panTabLayout.setHorizontalGroup(
-            panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, panTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(tabKB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                panTabLayout.createSequentialGroup().addContainerGap().add(
+                    tabKB,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    417,
+                    Short.MAX_VALUE).addContainerGap()));
         panTabLayout.setVerticalGroup(
-            panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panTabLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(tabKB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panTabLayout.createSequentialGroup().addContainerGap().add(
+                    tabKB,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    269,
+                    Short.MAX_VALUE).addContainerGap()));
 
         tabKB.getAccessibleContext().setAccessibleName("Beschluesse");
 
-        org.jdesktop.layout.GroupLayout pnlDetailLayout = new org.jdesktop.layout.GroupLayout(pnlDetail);
+        final org.jdesktop.layout.GroupLayout pnlDetailLayout = new org.jdesktop.layout.GroupLayout(pnlDetail);
         pnlDetail.setLayout(pnlDetailLayout);
         pnlDetailLayout.setHorizontalGroup(
-            pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pnlDetailLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, panBemerkung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, pnlDetailLayout.createSequentialGroup()
-                        .add(panData, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(panTab, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, panVertraege, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+            pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                pnlDetailLayout.createSequentialGroup().addContainerGap().add(
+                    pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                        org.jdesktop.layout.GroupLayout.LEADING,
+                        panBemerkung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.LEADING,
+                        pnlDetailLayout.createSequentialGroup().add(
+                            panData,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            panTab,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE)).add(
+                        org.jdesktop.layout.GroupLayout.LEADING,
+                        panVertraege,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE)).addContainerGap()));
         pnlDetailLayout.setVerticalGroup(
-            pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(pnlDetailLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panVertraege, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(panTab, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(panData, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panBemerkung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
+            pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                pnlDetailLayout.createSequentialGroup().addContainerGap().add(
+                    panVertraege,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        panTab,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        panData,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panBemerkung,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()));
 
         add(pnlDetail, java.awt.BorderLayout.CENTER);
-    }// </editor-fold>//GEN-END:initComponents
-    private void txtEintragungActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEintragungActionPerformed
-// TODO add your handling code here:
-    }//GEN-LAST:event_txtEintragungActionPerformed
+    } // </editor-fold>//GEN-END:initComponents
 
-    private void cboVertragsartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboVertragsartActionPerformed
-        Object selectedItem = cboVertragsart.getSelectedItem();
-        if (selectedItem != null && selectedItem instanceof Vertragsart) {
-            Vertragsart art = (Vertragsart) selectedItem;
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_txtEintragungActionPerformed
+// TODO add your handling code here:
+    } //GEN-LAST:event_txtEintragungActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboVertragsartActionPerformed
+        final Object selectedItem = cboVertragsart.getSelectedItem();
+        if ((selectedItem != null) && (selectedItem instanceof Vertragsart)) {
+            final Vertragsart art = (Vertragsart)selectedItem;
             switch (art.getId()) {
-                case 1:
+                case 1: {
                     lblVoreigentuemer.setText("Voreigentümer");
                     break;
-                case 2:
+                }
+                case 2: {
                     lblVoreigentuemer.setText("Erweber");
                     break;
-                default:
+                }
+                default: {
                     lblVoreigentuemer.setText("Vertragspartner (Vertragsart nicht definiert)");
+                }
             }
         }
-    }//GEN-LAST:event_cboVertragsartActionPerformed
+    }                                                                                  //GEN-LAST:event_cboVertragsartActionPerformed
 
-    private void btnAddExitingContractActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingContractActionPerformed
-        JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingContractActionPerformed
+        final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
         dialog.add(new AddExistingVorgangPanel(currentFlurstueck, vTableModel, lstCrossRefs.getModel()));
         dialog.pack();
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         dialog.setLocationRelativeTo(LagisBroker.getInstance().getParentComponent());
         dialog.setVisible(true);
-    }//GEN-LAST:event_btnAddExitingContractActionPerformed
+    }                                                                                         //GEN-LAST:event_btnAddExitingContractActionPerformed
 
-    private void btnRemoveBeschlussActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveBeschlussActionPerformed
-        int currentRow = tblBeschluesse.getSelectedRow();
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnRemoveBeschlussActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveBeschlussActionPerformed
+        final int currentRow = tblBeschluesse.getSelectedRow();
         if (currentRow != -1) {
-            //VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            documentContainer.removeBeschluss(((JXTable) tblBeschluesse).getFilters().convertRowIndexToModel(currentRow));
+            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
+            documentContainer.removeBeschluss(((JXTable)tblBeschluesse).getFilters().convertRowIndexToModel(
+                    currentRow));
         }
-    }//GEN-LAST:event_btnRemoveBeschlussActionPerformed
+    } //GEN-LAST:event_btnRemoveBeschlussActionPerformed
 
-    private void btnAddBeschlussActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddBeschlussActionPerformed
-        //((JXTable)tblBeschluesse).setSortable(false);
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddBeschlussActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddBeschlussActionPerformed
+        // ((JXTable)tblBeschluesse).setSortable(false);
         documentContainer.addNewBeschluss();
-    //((JXTable)tblBeschluesse).setSortable(true);
-    }//GEN-LAST:event_btnAddBeschlussActionPerformed
+        // ((JXTable)tblBeschluesse).setSortable(true);
+    } //GEN-LAST:event_btnAddBeschlussActionPerformed
 
-    private void btnRemoveKostenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveKostenActionPerformed
-        int currentRow = tblKosten.getSelectedRow();
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnRemoveKostenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveKostenActionPerformed
+        final int currentRow = tblKosten.getSelectedRow();
         if (currentRow != -1) {
-            //VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            //documentContainer.getKostenTableModel().removeKosten(currentRow);
-            //documentContainer.removeKosten(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
-            documentContainer.removeKosten(((JXTable) tblKosten).getFilters().convertRowIndexToModel(currentRow));
+            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
+            // documentContainer.getKostenTableModel().removeKosten(currentRow);
+            // documentContainer.removeKosten(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
+            documentContainer.removeKosten(((JXTable)tblKosten).getFilters().convertRowIndexToModel(currentRow));
         }
-    }//GEN-LAST:event_btnRemoveKostenActionPerformed
+    } //GEN-LAST:event_btnRemoveKostenActionPerformed
 
-    private void btnAddKostenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddKostenActionPerformed
-        //((JXTable)tblKosten).setSortable(false);
-        //Kosten newKosten = new Kosten();
-//        documentContainer.getCurrentSelectedVertrag().get
-//        documentContainer.getKostenTableModel().addKosten(newKosten));
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddKostenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddKostenActionPerformed
+        // ((JXTable)tblKosten).setSortable(false);
+        // Kosten newKosten = new Kosten();
+// documentContainer.getCurrentSelectedVertrag().get
+// documentContainer.getKostenTableModel().addKosten(newKosten));
         documentContainer.addNewKosten();
-    //((JXTable)tblKosten).setSortable(true);
-    }//GEN-LAST:event_btnAddKostenActionPerformed
+        // ((JXTable)tblKosten).setSortable(true);
+    } //GEN-LAST:event_btnAddKostenActionPerformed
 
-    private void btnRemoveVertragActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveVertragActionPerformed
-        int currentRow = tblVertraege.getSelectedRow();
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVertragActionPerformed
+        final int currentRow = tblVertraege.getSelectedRow();
         if (currentRow != -1) {
-            //VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            vTableModel.removeVertrag(((JXTable) tblVertraege).getFilters().convertRowIndexToModel(currentRow));
+            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
+            vTableModel.removeVertrag(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
             updateCrossRefs();
-        //vTableModel.fireTableDataChanged();
+            // vTableModel.fireTableDataChanged();
         }
         documentContainer.clearComponents();
         enableSlaveFlieds(false);
-    }//GEN-LAST:event_btnRemoveVertragActionPerformed
+    } //GEN-LAST:event_btnRemoveVertragActionPerformed
 
-    private void btnAddVertragActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddVertragActionPerformed
-        //((JXTable)tblVertraege).setSortable(false);
-        Vertrag newVertrag = new Vertrag();
-        newVertrag.setVertragsart((Vertragsart) cboVertragsart.getItemAt(0));
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVertragActionPerformed
+        // ((JXTable)tblVertraege).setSortable(false);
+        final Vertrag newVertrag = new Vertrag();
+        newVertrag.setVertragsart((Vertragsart)cboVertragsart.getItemAt(0));
         vTableModel.addVertrag(newVertrag);
-    //((JXTable)tblVertraege).setSortable(true);
-    //vTableModel.fireTableDataChanged();
-    }//GEN-LAST:event_btnAddVertragActionPerformed
+        // ((JXTable)tblVertraege).setSortable(true);
+        // vTableModel.fireTableDataChanged();
+    } //GEN-LAST:event_btnAddVertragActionPerformed
 
+    /**
+     * DOCUMENT ME!
+     */
     private void updateCrossRefs() {
-        log.debug("Update der Querverweise");
-        Set<FlurstueckSchluessel> crossRefs = EJBroker.getInstance().getCrossreferencesForVertraege(new HashSet(vTableModel.getVertraege()));
-        DefaultUniqueListModel newModel = new DefaultUniqueListModel();
+        if (log.isDebugEnabled()) {
+            log.debug("Update der Querverweise");
+        }
+        final Set<FlurstueckSchluessel> crossRefs = EJBroker.getInstance()
+                    .getCrossreferencesForVertraege(new HashSet(vTableModel.getVertraege()));
+        final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {
-            log.debug("Es sind Querverweise auf Verträg vorhanden");
+            if (log.isDebugEnabled()) {
+                log.debug("Es sind Querverweise auf Verträg vorhanden");
+            }
             currentFlurstueck.setVertraegeQuerverweise(crossRefs);
-            Iterator<FlurstueckSchluessel> it = crossRefs.iterator();
+            final Iterator<FlurstueckSchluessel> it = crossRefs.iterator();
             while (it.hasNext()) {
-                log.debug("Ein Querverweis hinzugefügt");
+                if (log.isDebugEnabled()) {
+                    log.debug("Ein Querverweis hinzugefügt");
+                }
                 newModel.addElement(it.next());
             }
             newModel.removeElement(currentFlurstueck.getFlurstueckSchluessel());
         }
         lstCrossRefs.setModel(newModel);
     }
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddBeschluss;
-    private javax.swing.JButton btnAddExitingContract;
-    private javax.swing.JButton btnAddKosten;
-    private javax.swing.JButton btnAddVertrag;
-    private javax.swing.JButton btnRemoveBeschluss;
-    private javax.swing.JButton btnRemoveKosten;
-    private javax.swing.JButton btnRemoveVertrag;
-    private javax.swing.JComboBox cboVertragsart;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JScrollPane jScrollPane6;
-    private javax.swing.JLabel lblAktenzeichen;
-    private javax.swing.JLabel lblAuflassung;
-    private javax.swing.JLabel lblBemerkung;
-    private javax.swing.JLabel lblEintragung;
-    private javax.swing.JLabel lblKaufpreis;
-    private javax.swing.JLabel lblQuadPreis;
-    private javax.swing.JLabel lblVertragsart;
-    private javax.swing.JLabel lblVoreigentuemer;
-    private javax.swing.JList lstCrossRefs;
-    private javax.swing.JPanel panBemerkung;
-    private javax.swing.JPanel panBeschluss;
-    private javax.swing.JPanel panData;
-    private javax.swing.JPanel panKosten;
-    private javax.swing.JPanel panQuerverweise;
-    private javax.swing.JPanel panTab;
-    private javax.swing.JPanel panVertraege;
-    private javax.swing.JPanel pnlBeschluesseControls;
-    private javax.swing.JPanel pnlDetail;
-    private javax.swing.JPanel pnlKostenControls;
-    private javax.swing.JPanel pnlKostenControls1;
-    private javax.swing.JTabbedPane tabKB;
-    private javax.swing.JTable tblBeschluesse;
-    private javax.swing.JTable tblKosten;
-    private javax.swing.JTable tblVertraege;
-    private javax.swing.JTextField txtAktenzeichen;
-    private javax.swing.JTextField txtAuflassung;
-    private javax.swing.JTextArea txtBemerkung;
-    private javax.swing.JTextField txtEintragung;
-    private javax.swing.JTextField txtKaufpreis;
-    private javax.swing.JTextField txtQuadPreis;
-    private javax.swing.JTextField txtVoreigentuemer;
     // End of variables declaration//GEN-END:variables
+    @Override
     public String getWidgetName() {
         return WIDGET_NAME;
     }
@@ -1082,80 +1392,96 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 //            }
 //        }
 //    }
-    public void updateFlurstueckForSaving(Flurstueck flurstueck) {
-        Set<Vertrag> vertraege = flurstueck.getVertraege();
+    @Override
+    public void updateFlurstueckForSaving(final Flurstueck flurstueck) {
+        final Set<Vertrag> vertraege = flurstueck.getVertraege();
         if (vertraege != null) {
             vertraege.clear();
             vertraege.addAll(vTableModel.getVertraege());
         } else {
-            HashSet newSet = new HashSet();
+            final HashSet newSet = new HashSet();
             newSet.addAll(vTableModel.getVertraege());
             flurstueck.setVertraege(newSet);
         }
     }
 
-    public void valueChanged(ListSelectionEvent e) {
-        log.debug("geht generell: " + e.getSource());
-        DefaultListSelectionModel source = (DefaultListSelectionModel) e.getSource();
+    @Override
+    public void valueChanged(final ListSelectionEvent e) {
+        if (log.isDebugEnabled()) {
+            log.debug("geht generell: " + e.getSource());
+        }
+        final DefaultListSelectionModel source = (DefaultListSelectionModel)e.getSource();
 
         if (source.equals(tblVertraege.getSelectionModel())) {
-            log.debug("Verträge Tabelle");
-            log.debug("Mit maus auf Verträgetabelle geklickt");
-            int selecetdRow = tblVertraege.getSelectedRow();
-            if (selecetdRow != -1 && isInEditMode) {
+            if (log.isDebugEnabled()) {
+                log.debug("Verträge Tabelle");
+                log.debug("Mit maus auf Verträgetabelle geklickt");
+            }
+            final int selecetdRow = tblVertraege.getSelectedRow();
+            if ((selecetdRow != -1) && isInEditMode) {
                 btnRemoveVertrag.setEnabled(true);
             } else {
                 btnRemoveVertrag.setEnabled(false);
             }
         } else if (source.equals(tblKosten.getSelectionModel())) {
-            log.debug("Kosten Tabelle");
-            int selecetdRow = tblKosten.getSelectedRow();
-            if (selecetdRow != -1 && isInEditMode) {
+            if (log.isDebugEnabled()) {
+                log.debug("Kosten Tabelle");
+            }
+            final int selecetdRow = tblKosten.getSelectedRow();
+            if ((selecetdRow != -1) && isInEditMode) {
                 btnRemoveKosten.setEnabled(true);
             } else {
                 btnRemoveKosten.setEnabled(false);
             }
         } else if (source.equals(tblBeschluesse.getSelectionModel())) {
-            log.debug("Beschlüsse Tabelle");
-            int selecetdRow = tblBeschluesse.getSelectedRow();
-            if (selecetdRow != -1 && isInEditMode) {
+            if (log.isDebugEnabled()) {
+                log.debug("Beschlüsse Tabelle");
+            }
+            final int selecetdRow = tblBeschluesse.getSelectedRow();
+            if ((selecetdRow != -1) && isInEditMode) {
                 btnRemoveBeschluss.setEnabled(true);
             } else {
                 btnRemoveBeschluss.setEnabled(false);
             }
         }
-
     }
 
-   
-
-    public void mouseReleased(MouseEvent e) {
+    @Override
+    public void mouseReleased(final MouseEvent e) {
     }
 
-    public void mousePressed(MouseEvent e) {
+    @Override
+    public void mousePressed(final MouseEvent e) {
     }
 
-    public void mouseExited(MouseEvent e) {
+    @Override
+    public void mouseExited(final MouseEvent e) {
     }
 
-    public void mouseEntered(MouseEvent e) {
+    @Override
+    public void mouseEntered(final MouseEvent e) {
     }
 
-    public void mouseClicked(MouseEvent e) {
-        Object source = e.getSource();
-        log.debug("source: " + source);
+    @Override
+    public void mouseClicked(final MouseEvent e) {
+        final Object source = e.getSource();
+        if (log.isDebugEnabled()) {
+            log.debug("source: " + source);
+        }
         if (source instanceof JXTable) {
-            JXTable table = (JXTable) source;
-            int currentRow = table.getSelectedRow();
-            log.debug("Row: " + currentRow);
-            if (currentRow != -1 && isInEditMode) {
+            final JXTable table = (JXTable)source;
+            final int currentRow = table.getSelectedRow();
+            if (log.isDebugEnabled()) {
+                log.debug("Row: " + currentRow);
+            }
+            if ((currentRow != -1) && isInEditMode) {
                 enableSlaveFlieds(true);
             } else {
                 enableSlaveFlieds(false);
             }
         } else if (source instanceof JList) {
             if (e.getClickCount() > 1) {
-                FlurstueckSchluessel key = (FlurstueckSchluessel) lstCrossRefs.getSelectedValue();
+                final FlurstueckSchluessel key = (FlurstueckSchluessel)lstCrossRefs.getSelectedValue();
                 if (key != null) {
                     LagisBroker.getInstance().loadFlurstueck(key);
                 }
@@ -1163,7 +1489,12 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         }
     }
 
-    private void enableSlaveFlieds(boolean isEnabled) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isEnabled  DOCUMENT ME!
+     */
+    private void enableSlaveFlieds(final boolean isEnabled) {
         txtAktenzeichen.setEditable(isEnabled);
         txtAuflassung.setEditable(isEnabled);
         txtBemerkung.setEditable(isEnabled);
@@ -1177,7 +1508,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddBeschluss.setEnabled(isEnabled);
     }
 
-    //TODO USE
+    // TODO USE
+    @Override
     public Icon getWidgetIcon() {
         return null;
     }

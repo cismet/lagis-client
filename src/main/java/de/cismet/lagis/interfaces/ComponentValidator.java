@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ComponentValidator.java
  *
@@ -6,13 +13,22 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public interface ComponentValidator {
-    public boolean isInValidState();
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    boolean isInValidState();
 }

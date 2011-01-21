@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ReBeCboRenderer.java
  *
@@ -6,31 +13,41 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.renderer;
 
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
-public class ReBeCboRenderer extends DefaultTableCellRenderer{ 
-    
-    /** Creates a new instance of ReBeCboRenderer */
+public class ReBeCboRenderer extends DefaultTableCellRenderer {
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of ReBeCboRenderer.
+     */
     public ReBeCboRenderer() {
-        super();        
+        super();
         setHorizontalAlignment(SwingConstants.CENTER);
     }
-    
-     protected void setValue(Object value) {
-        if(value != null && value instanceof Boolean){            
-            if((Boolean)value == true){
-                setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override
+    protected void setValue(final Object value) {
+        if ((value != null) && (value instanceof Boolean)) {
+            if ((Boolean)value == true) {
+                setIcon(new javax.swing.ImageIcon(
+                        getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
                 setText("  Recht  ");
-            } else if((Boolean)value == false) {
-                setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png")));
+            } else if ((Boolean)value == false) {
+                setIcon(new javax.swing.ImageIcon(
+                        getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png")));
                 setText("Belastung");
             }
         }

@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ReBeTableModel.java
  *
@@ -6,182 +13,255 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.models;
 
-import de.cismet.cismap.commons.features.Feature;
-import de.cismet.lagis.broker.LagisBroker;
-import de.cismet.lagisEE.entity.core.Geom;
-import de.cismet.lagisEE.entity.core.ReBe;
-import de.cismet.lagisEE.entity.core.hardwired.ReBeArt;
+import org.apache.log4j.Logger;
 
 import java.text.DateFormat;
+
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+
+import de.cismet.cismap.commons.features.Feature;
+
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagisEE.entity.core.Geom;
+import de.cismet.lagisEE.entity.core.ReBe;
+import de.cismet.lagisEE.entity.core.hardwired.ReBeArt;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class ReBeTableModel extends AbstractTableModel {
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String[] COLUMN_HEADER = {
+            "ist Recht",
+            "Art",
+            "Art des Rechts",
+            "Nummer",
+            "Eintragung Datum",
+            "Löschung Datum",
+            "Bemerkung"
+        };
+
+    //~ Instance fields --------------------------------------------------------
+
     Vector<ReBe> resBes;
     Vector<ReBeArt> reBeArten;
-    private final static String[] COLUMN_HEADER = {"ist Recht","Art","Art des Rechts","Nummer","Eintragung Datum","Löschung Datum","Bemerkung"};
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private boolean isInEditMode = false;
-    private boolean isReBeKindSwitchAllowed=true;
-    /** Creates a new instance of ReBeTableModel */
+    private boolean isReBeKindSwitchAllowed = true;
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of ReBeTableModel.
+     */
     public ReBeTableModel() {
         resBes = new Vector<ReBe>();
     }
-    
-    public ReBeTableModel(Set<ReBe> reBe) {
+
+    /**
+     * Creates a new ReBeTableModel object.
+     *
+     * @param  reBe  DOCUMENT ME!
+     */
+    public ReBeTableModel(final Set<ReBe> reBe) {
         try {
             this.resBes = new Vector<ReBe>(reBe);
-        } catch(Exception ex){
-            log.error("Fehler beim anlegen des Models",ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim anlegen des Models", ex);
             this.resBes = new Vector<ReBe>();
         }
     }
-    
-    public void setReBeArtenList(Set<ReBeArt> reBeArten){
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  reBeArten  DOCUMENT ME!
+     */
+    public void setReBeArtenList(final Set<ReBeArt> reBeArten) {
         try {
             log.error("Versuche RebenArtenListe zu setzen");
             this.reBeArten = new Vector<ReBeArt>(reBeArten);
-        } catch(Exception ex){
-            log.error("Fehler beim anlegen des RebeArtenList",ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim anlegen des RebeArtenList", ex);
             this.reBeArten = new Vector<ReBeArt>();
         }
     }
-    
-    
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        try{
-            ReBe value = resBes.get(rowIndex);
-            switch(columnIndex){
-                case 0:
+
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
+        try {
+            final ReBe value = resBes.get(rowIndex);
+            switch (columnIndex) {
+                case 0: {
                     return value.getIstRecht();
-                case 1:
+                }
+                case 1: {
                     return value.getReBeArt();
-                case 2:
+                }
+                case 2: {
                     return value.getBeschreibung();
-                case 3:
+                }
+                case 3: {
                     return value.getNummer();
-                case 4:
+                }
+                case 4: {
                     return value.getDatumEintragung();
-                case 5:
+                }
+                case 5: {
                     return value.getDatumLoeschung();
-                case 6:
+                }
+                case 6: {
                     return value.getBemerkung();
-                default:
+                }
+                default: {
                     return "Spalte ist nicht definiert";
+                }
             }
-        }catch(Exception ex){
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
-        //   }
-//        try{
-//            ReBe value = resBes.get(rowIndex);
-//            switch(columnIndex){
-//                case 0:
-//                    return value.getIstRecht() == true ? "Recht" : "Belastung";
-//                case 1:
-//                    ReBeArt art = value.getArt();
-//                    if(art != null){
-//                        return art.getBezeichnung();
-//                    } else {
-//                        return null;
-//                    }
-//                case 2:
-//                    return value.getBeschreibung();
-//                case 3:
-//                    return value.getNummer();
-//                case 4:
-//                    Date eintragung = value.getDatumEintragung();
-//                    if(eintragung != null){
-//                        return DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(eintragung);
-//                    } else {
-//                        return null;
-//                    }
-//                case 5:
-//                    Date loeschung = value.getDatumLoeschung();
-//                    if(loeschung != null){
-//                        return DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(loeschung);
-//                    } else {
-//                        return null;
-//                    }
-//                default:
-//                    return "Spalte ist nicht definiert";
-//            }
-//        }catch(Exception ex){
-//            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);
-//            return null;
-//        }
+        // }
+// try{
+// ReBe value = resBes.get(rowIndex);
+// switch(columnIndex){
+// case 0:
+// return value.getIstRecht() == true ? "Recht" : "Belastung";
+// case 1:
+// ReBeArt art = value.getArt();
+// if(art != null){
+// return art.getBezeichnung();
+// } else {
+// return null;
+// }
+// case 2:
+// return value.getBeschreibung();
+// case 3:
+// return value.getNummer();
+// case 4:
+// Date eintragung = value.getDatumEintragung();
+// if(eintragung != null){
+// return DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(eintragung);
+// } else {
+// return null;
+// }
+// case 5:
+// Date loeschung = value.getDatumLoeschung();
+// if(loeschung != null){
+// return DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(loeschung);
+// } else {
+// return null;
+// }
+// default:
+// return "Spalte ist nicht definiert";
+// }
+// }catch(Exception ex){
+// log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);
+// return null;
+// }
     }
-    
-    
-    public void addReBe(ReBe reBe){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  reBe  DOCUMENT ME!
+     */
+    public void addReBe(final ReBe reBe) {
         resBes.add(reBe);
     }
-    
-    public ReBe getReBeAtRow(int rowIndex){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public ReBe getReBeAtRow(final int rowIndex) {
         return resBes.get(rowIndex);
     }
-    
-    public void removeReBe(int rowIndex){
-        ReBe reBe = resBes.get(rowIndex);
-        if(reBe != null && reBe.getGeometry() != null){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeReBe(final int rowIndex) {
+        final ReBe reBe = resBes.get(rowIndex);
+        if ((reBe != null) && (reBe.getGeometry() != null)) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(reBe);
         }
         resBes.remove(rowIndex);
     }
-    
+
+    @Override
     public int getRowCount() {
         return resBes.size();
     }
-    
+
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
-    
+
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
-    
+
 //    @Override
 //    public Class<?> getColumnClass(int columnIndex) {
 //        log.fatal("TMP FATAL: getColumn Class: "+ columnIndex);
 //        return getValueAt(0,columnIndex).getClass();
 //    }
-    
+
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if(columnIndex ==0){
-            return (COLUMN_HEADER.length > columnIndex)&&(resBes.size() >rowIndex) && isInEditMode && isReBeKindSwitchAllowed;
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        if (columnIndex == 0) {
+            return (COLUMN_HEADER.length > columnIndex) && (resBes.size() > rowIndex) && isInEditMode
+                        && isReBeKindSwitchAllowed;
         } else {
-            return (COLUMN_HEADER.length > columnIndex)&&(resBes.size() >rowIndex) && isInEditMode;
+            return (COLUMN_HEADER.length > columnIndex) && (resBes.size() > rowIndex) && isInEditMode;
         }
-        
     }
-    
-    public void setIsInEditMode(boolean isEditable){
-        isInEditMode=isEditable;
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isEditable  DOCUMENT ME!
+     */
+    public void setIsInEditMode(final boolean isEditable) {
+        isInEditMode = isEditable;
     }
-    
-    public Vector<Feature> getAllReBeFeatures(){
-        Vector<Feature> tmp = new Vector<Feature>();
-        if(resBes != null){
-            Iterator<ReBe> it = resBes.iterator();
-            while(it.hasNext()){
-                ReBe curReBe = it.next();
-                if(curReBe.getGeometry() != null){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Vector<Feature> getAllReBeFeatures() {
+        final Vector<Feature> tmp = new Vector<Feature>();
+        if (resBes != null) {
+            final Iterator<ReBe> it = resBes.iterator();
+            while (it.hasNext()) {
+                final ReBe curReBe = it.next();
+                if (curReBe.getGeometry() != null) {
                     tmp.add(curReBe);
                 }
             }
@@ -190,60 +270,79 @@ public class ReBeTableModel extends AbstractTableModel {
             return null;
         }
     }
-    
-    public void refreshTableModel(Set<ReBe> resBes){
-        try{
-            log.debug("Refresh des RebeTableModell");
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  resBes  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Set<ReBe> resBes) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Refresh des RebeTableModell");
+            }
             this.resBes = new Vector<ReBe>(resBes);
-        }catch(Exception ex){
-            log.error("Fehler beim refreshen des Models",ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim refreshen des Models", ex);
             this.resBes = new Vector<ReBe>();
         }
         fireTableDataChanged();
     }
-    
-    public Vector<ReBe> getResBes(){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Vector<ReBe> getResBes() {
         return resBes;
     }
-    
+
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        try{
-            ReBe value = resBes.get(rowIndex);
-            switch(columnIndex){
-                case 0:
+    public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
+        try {
+            final ReBe value = resBes.get(rowIndex);
+            switch (columnIndex) {
+                case 0: {
                     value.setIstRecht((Boolean)aValue);
                     break;
-                case 1:
+                }
+                case 1: {
                     value.setReBeArt((ReBeArt)aValue);
                     break;
-                case 2:
+                }
+                case 2: {
                     value.setBeschreibung((String)aValue);
                     break;
-                case 3:
+                }
+                case 3: {
                     value.setNummer((String)aValue);
                     break;
-                case 4:
-                    if(aValue instanceof Date || aValue == null){
+                }
+                case 4: {
+                    if ((aValue instanceof Date) || (aValue == null)) {
                         value.setDatumEintragung((Date)aValue);
                     }
                     break;
-                case 5:
-                    if(aValue instanceof Date || aValue == null){
+                }
+                case 5: {
+                    if ((aValue instanceof Date) || (aValue == null)) {
                         value.setDatumLoeschung((Date)aValue);
                     }
                     break;
-                case 6:
+                }
+                case 6: {
                     value.setBemerkung((String)aValue);
                     break;
-           default:
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: "+columnIndex);
+                }
+                default: {
+                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
+                }
             }
             fireTableDataChanged();
-        }catch(Exception ex){
-            log.error("Fehler beim setzen von Daten in dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);
-            
+        } catch (Exception ex) {
+            log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
 //        ReBe reBe = resBes.get(rowIndex);
 //        if(reBe != null){
@@ -299,34 +398,55 @@ public class ReBeTableModel extends AbstractTableModel {
 //        }
 //    }
     }
-    
-    public Class<?> getColumnClass(int columnIndex) {
-        switch(columnIndex){
-            case 0:
+
+    @Override
+    public Class<?> getColumnClass(final int columnIndex) {
+        switch (columnIndex) {
+            case 0: {
                 return Boolean.class;
-            case 1:
+            }
+            case 1: {
                 return ReBeArt.class;
-            case 2:
+            }
+            case 2: {
                 return String.class;
-            case 3:
+            }
+            case 3: {
                 return String.class;
-            case 4:
+            }
+            case 4: {
                 return Date.class;
-            case 5:
+            }
+            case 5: {
                 return Date.class;
-            case 6:
+            }
+            case 6: {
                 return String.class;
-            default:
+            }
+            default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
                 return null;
+            }
         }
     }
-    
-    public int getIndexOfReBe(ReBe rebe){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rebe  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public int getIndexOfReBe(final ReBe rebe) {
         return resBes.indexOf(rebe);
     }
-    
-    public void setIsReBeKindSwitchAllowed(boolean isReBeKindSwitchAllowed) {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isReBeKindSwitchAllowed  DOCUMENT ME!
+     */
+    public void setIsReBeKindSwitchAllowed(final boolean isReBeKindSwitchAllowed) {
         this.isReBeKindSwitchAllowed = isReBeKindSwitchAllowed;
     }
 }

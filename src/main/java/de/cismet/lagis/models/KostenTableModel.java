@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * KostenTableModel.java
  *
@@ -6,161 +13,230 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.models;
 
-import de.cismet.lagis.broker.LagisBroker;
-import de.cismet.lagisEE.entity.core.Kosten;
-import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
+import org.apache.log4j.Logger;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagisEE.entity.core.Kosten;
+import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class KostenTableModel extends AbstractTableModel {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String[] COLUMN_HEADER = { "Kostenart", "Betrag", "Anweisung" };
+
+    //~ Instance fields --------------------------------------------------------
+
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<Kosten> kosten;
-    private final static String[] COLUMN_HEADER = {"Kostenart","Betrag","Anweisung"};
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
-    private boolean isInEditMode=false;
-    
-    /** Creates a new instance of KostenTableModel */
+    private boolean isInEditMode = false;
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of KostenTableModel.
+     */
     public KostenTableModel() {
         kosten = new Vector<Kosten>();
     }
-    
-    public KostenTableModel(Set<Kosten> kosten) {
-        try{
+
+    /**
+     * Creates a new KostenTableModel object.
+     *
+     * @param  kosten  DOCUMENT ME!
+     */
+    public KostenTableModel(final Set<Kosten> kosten) {
+        try {
             this.kosten = new Vector<Kosten>(kosten);
-        }catch(Exception ex){
-            log.error("Fehler beim anlegen des Models",ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim anlegen des Models", ex);
             this.kosten = new Vector<Kosten>();
         }
     }
-    
-//    public void setKostenModelData(Set<Kosten> kosten){
-//        try{
-//            this.kosten = new Vector<Kosten>(kosten);
-//        }catch(Exception ex){
-//            log.error("Fehler beim aktualisieren der Modelldaten",ex);
-//            this.kosten = new Vector<Kosten>();
-//        }
-//    }
-    
-    public void refreshTableModel(Set<Kosten>  kosten){
-        try{
-            log.debug("Refresh des KostenTableModell");
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * public void setKostenModelData(Set<Kosten> kosten){ try{ this.kosten = new Vector<Kosten>(kosten);
+     * }catch(Exception ex){ log.error("Fehler beim aktualisieren der Modelldaten",ex); this.kosten = new
+     * Vector<Kosten>(); } }.
+     *
+     * @param  kosten  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Set<Kosten> kosten) {
+        try {
+            if (log.isDebugEnabled()) {
+                log.debug("Refresh des KostenTableModell");
+            }
             if (kosten != null) {
                 this.kosten = new Vector<Kosten>(kosten);
             } else {
-                log.debug("Kostenvektor == null --> Erstelle Vektor.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Kostenvektor == null --> Erstelle Vektor.");
+                }
                 this.kosten = new Vector<Kosten>();
             }
-        }catch(Exception ex){
-            log.error("Fehler beim refreshen des Models",ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim refreshen des Models", ex);
             this.kosten = new Vector<Kosten>();
         }
         fireTableDataChanged();
-    }        
-    
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        try{
-            Kosten value = kosten.get(rowIndex);
-            switch(columnIndex) {
-                case 0:                    
+    }
+
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
+        try {
+            final Kosten value = kosten.get(rowIndex);
+            switch (columnIndex) {
+                case 0: {
                     return value.getKostenart();
-                case 1:                    
+                }
+                case 1: {
                     return value.getBetrag();
-                case 2:                    
+                }
+                case 2: {
                     return value.getDatum();
-                default:
+                }
+                default: {
                     return "Spalte ist nicht definiert";
+                }
             }
-        }catch(Exception ex){
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);
+        } catch (Exception ex) {
+            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
     }
-    
+
+    @Override
     public int getRowCount() {
         return kosten.size();
     }
-    
+
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
-    
+
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
-    
+
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return (COLUMN_HEADER.length > columnIndex)&&(kosten.size() >rowIndex) && isInEditMode;
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        return (COLUMN_HEADER.length > columnIndex) && (kosten.size() > rowIndex) && isInEditMode;
     }
-    public void setIsInEditMode(boolean isEditable){
-        isInEditMode=isEditable;
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isEditable  DOCUMENT ME!
+     */
+    public void setIsInEditMode(final boolean isEditable) {
+        isInEditMode = isEditable;
     }
-    
-    public Class<?> getColumnClass(int columnIndex) {
-        switch(columnIndex){
-            case 0:
+
+    @Override
+    public Class<?> getColumnClass(final int columnIndex) {
+        switch (columnIndex) {
+            case 0: {
                 return Kostenart.class;
-            case 1:
-                return Double.class;           
-            case 2:
-                return Date.class;           
-            default:
+            }
+            case 1: {
+                return Double.class;
+            }
+            case 2: {
+                return Date.class;
+            }
+            default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
                 return null;
+            }
         }
     }
-    
-     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-         try{
-            Kosten value = kosten.get(rowIndex);
-                switch(columnIndex) {
-                    case 0:                        
-                        value.setKostenart((Kostenart)aValue);
-                        break;
-                    case 1:
-                        value.setBetrag((Double)aValue);
-                    case 2:
-                        //Date datum = beschluss.getDatum();
-                        //return datum != null ? DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
-                        value.setDatum((Date)aValue);                    
-                default:
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: "+columnIndex);
+
+    @Override
+    public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
+        try {
+            final Kosten value = kosten.get(rowIndex);
+            switch (columnIndex) {
+                case 0: {
+                    value.setKostenart((Kostenart)aValue);
+                    break;
+                }
+                case 1: {
+                    value.setBetrag((Double)aValue);
+                }
+                case 2: {
+                    // Date datum = beschluss.getDatum(); return datum != null ?
+                    // DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
+                    value.setDatum((Date)aValue);
+                }
+                default: {
+                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
+                }
             }
             fireTableDataChanged();
-        }catch(Exception ex){
-            log.error("Fehler beim setzem der Daten aus dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);            
+        } catch (Exception ex) {
+            log.error("Fehler beim setzem der Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
     }
-     
-      public Vector<Kosten> getKosten(){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Vector<Kosten> getKosten() {
         return kosten;
     }
-     
-      public void addKosten(Kosten beschluss){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  beschluss  DOCUMENT ME!
+     */
+    public void addKosten(final Kosten beschluss) {
         kosten.add(beschluss);
     }
-    
-    public Kosten getKostenAtRow(int rowIndex){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Kosten getKostenAtRow(final int rowIndex) {
         return kosten.get(rowIndex);
     }
-    
-    public void removeKosten(int rowIndex){             
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeKosten(final int rowIndex) {
         kosten.remove(rowIndex);
     }
 }

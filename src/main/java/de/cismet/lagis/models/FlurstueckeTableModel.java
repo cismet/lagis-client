@@ -1,51 +1,92 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
 package de.cismet.lagis.models;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import java.util.Set;
-import java.util.Vector;
-import javax.swing.Icon;
-import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
 
+import java.util.Set;
+import java.util.Vector;
+
+import javax.swing.Icon;
+import javax.swing.table.AbstractTableModel;
+
+import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
+
 /**
+ * DOCUMENT ME!
  *
- * @author spuhl
+ * @author   spuhl
+ * @version  $Revision$, $Date$
  */
 public class FlurstueckeTableModel extends AbstractTableModel {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    // ToDo umlaut entfernen
+    private static final String[] COLUMN_HEADER = { "Art", "Flurstück" };
+
+    //~ Instance fields --------------------------------------------------------
+
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<FlurstueckSchluessel> flurstueckSchluessel;
-    //ToDo umlaut entfernen
-    private final static String[] COLUMN_HEADER = {"Art", "Flurstück"};
     private boolean isInEditMode = false;
-    //ToDo in eigene Klasse auslagern
-    private final Icon icoStaedtisch = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/current.png"));
-    private final Icon icoStaedtischHistoric = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/historic.png"));
-    private final Icon icoAbteilungIX = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/abteilungIX.png"));
-    private final Icon icoAbteilungIXHistoric = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/historic_abteilungIX.png"));
-    private final Icon icoUnknownFlurstueck = new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/unkownFlurstueck.png"));
+    // ToDo in eigene Klasse auslagern
+    private final Icon icoStaedtisch = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/current.png"));
+    private final Icon icoStaedtischHistoric = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/historic.png"));
+    private final Icon icoAbteilungIX = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/abteilungIX.png"));
+    private final Icon icoAbteilungIXHistoric = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/historic_abteilungIX.png"));
+    private final Icon icoUnknownFlurstueck = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/unkownFlurstueck.png"));
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new FlurstueckeTableModel object.
+     */
     public FlurstueckeTableModel() {
         flurstueckSchluessel = new Vector<FlurstueckSchluessel>();
     }
 
-    public FlurstueckeTableModel(Set<FlurstueckSchluessel> flurstueckSchluessel) {
+    /**
+     * Creates a new FlurstueckeTableModel object.
+     *
+     * @param  flurstueckSchluessel  DOCUMENT ME!
+     */
+    public FlurstueckeTableModel(final Set<FlurstueckSchluessel> flurstueckSchluessel) {
         try {
             this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>(flurstueckSchluessel);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
             this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>();
-        }        
+        }
     }
 
-    public void refreshTableModel(Set<FlurstueckSchluessel> flurstueckSchluessel) {
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  flurstueckSchluessel  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Set<FlurstueckSchluessel> flurstueckSchluessel) {
         try {
-            log.debug("Refresh des FlurstueckTableModell");
+            if (log.isDebugEnabled()) {
+                log.debug("Refresh des FlurstueckTableModell");
+            }
             this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>(flurstueckSchluessel);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
@@ -54,19 +95,22 @@ public class FlurstueckeTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            FlurstueckSchluessel schluessel = flurstueckSchluessel.get(rowIndex);
+            final FlurstueckSchluessel schluessel = flurstueckSchluessel.get(rowIndex);
             switch (columnIndex) {
-                case 0:
-                    FlurstueckArt art = schluessel.getFlurstueckArt();
-                    if (art != null && art.getBezeichnung() != null && art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                case 0: {
+                    final FlurstueckArt art = schluessel.getFlurstueckArt();
+                    if ((art != null) && (art.getBezeichnung() != null)
+                                && art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                         if (schluessel.getGueltigBis() != null) {
                             return icoStaedtischHistoric;
                         } else {
                             return icoStaedtisch;
                         }
-                    } else if (art != null && art.getBezeichnung() != null && art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                    } else if ((art != null) && (art.getBezeichnung() != null)
+                                && art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                         if (schluessel.getGueltigBis() != null) {
                             return icoAbteilungIXHistoric;
                         } else {
@@ -75,11 +119,14 @@ public class FlurstueckeTableModel extends AbstractTableModel {
                     } else {
                         return icoUnknownFlurstueck;
                     }
+                }
 
-                case 1:
+                case 1: {
                     return schluessel;
-                default:
+                }
+                default: {
                     return "Spalte ist nicht definiert";
+                }
             }
         } catch (Exception ex) {
             log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
@@ -87,61 +134,97 @@ public class FlurstueckeTableModel extends AbstractTableModel {
         }
     }
 
+    @Override
     public int getRowCount() {
         return flurstueckSchluessel.size();
     }
 
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
 
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
 
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return false;
     }
 
-    public Class<?> getColumnClass(int columnIndex) {
+    @Override
+    public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
-            case 0:
+            case 0: {
                 return Icon.class;
-            case 1:
-                //return Date.class;
+            }
+            case 1: {
+                // return Date.class;
                 return FlurstueckSchluessel.class;
-            default:
+            }
+            default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
                 return null;
+            }
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Vector<FlurstueckSchluessel> getFlurstueckSchluessel() {
         return flurstueckSchluessel;
     }
 
-    public void addFlurstueckSchluessel(FlurstueckSchluessel schluessel) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  schluessel  DOCUMENT ME!
+     */
+    public void addFlurstueckSchluessel(final FlurstueckSchluessel schluessel) {
         flurstueckSchluessel.add(schluessel);
         fireTableDataChanged();
     }
 
-    public FlurstueckSchluessel getFlurstueckSchluesselAtRow(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public FlurstueckSchluessel getFlurstueckSchluesselAtRow(final int rowIndex) {
         return flurstueckSchluessel.get(rowIndex);
     }
 
-    public void removeFlurstueckSchluessel(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeFlurstueckSchluessel(final int rowIndex) {
         flurstueckSchluessel.remove(rowIndex);
         fireTableDataChanged();
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     public void removeAllFlurstueckSchluessel() {
         flurstueckSchluessel.clear();
         fireTableDataChanged();
     }
-    
-    public int getFlurstueckSchluesselCount(){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public int getFlurstueckSchluesselCount() {
         return flurstueckSchluessel.size();
     }
 }

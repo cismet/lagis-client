@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * GeometrySlotProvider.java
  *
@@ -6,17 +13,32 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
-import de.cismet.lagis.utillity.GeometrySlotInformation;
 import java.util.Vector;
 
+import de.cismet.lagis.utillity.GeometrySlotInformation;
+
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
-public interface GeometrySlotProvider  {    
-    public Vector<GeometrySlotInformation> getSlotInformation();    
-    public String getProviderName();    
+public interface GeometrySlotProvider {
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Vector<GeometrySlotInformation> getSlotInformation();
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    String getProviderName();
 }

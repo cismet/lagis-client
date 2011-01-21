@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * BeschluesseTableModel.java
  *
@@ -8,35 +15,55 @@
  */
 package de.cismet.lagis.models;
 
-import de.cismet.lagisEE.entity.core.Beschluss;
-import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
-import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
+import org.apache.log4j.Logger;
+
 import java.text.DateFormat;
+
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+
+import de.cismet.lagisEE.entity.core.Beschluss;
+import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
+import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
+import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class BeschluesseTableModel extends AbstractTableModel {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String[] COLUMN_HEADER = { "Beschlussart", "Datum" };
+
+    //~ Instance fields --------------------------------------------------------
+
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<Beschluss> beschluesse;
-    private final static String[] COLUMN_HEADER = {"Beschlussart", "Datum"};
     private boolean isInEditMode = false;
 
-    /** Creates a new instance of BeschluesseTableModel */
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of BeschluesseTableModel.
+     */
     public BeschluesseTableModel() {
         beschluesse = new Vector<Beschluss>();
     }
 
-    public BeschluesseTableModel(Set<Beschluss> beschluesse) {
+    /**
+     * Creates a new BeschluesseTableModel object.
+     *
+     * @param  beschluesse  DOCUMENT ME!
+     */
+    public BeschluesseTableModel(final Set<Beschluss> beschluesse) {
         try {
             this.beschluesse = new Vector<Beschluss>(beschluesse);
         } catch (Exception ex) {
@@ -45,21 +72,26 @@ public class BeschluesseTableModel extends AbstractTableModel {
         }
     }
 
-//    public void setBeschluesseModelData(Set<Beschluss> beschluesse) {
-//        try{
-//            this.beschluesse = new Vector<Beschluss>(beschluesse);
-//        }catch(Exception ex){
-//            log.error("Fehler beim aktualisieren der Modelldaten",ex);
-//            this.beschluesse = new Vector<Beschluss>();
-//        }
-//    }
-    public void refreshTableModel(Set<Beschluss> beschluesse) {
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * public void setBeschluesseModelData(Set<Beschluss> beschluesse) { try{ this.beschluesse = new
+     * Vector<Beschluss>(beschluesse); }catch(Exception ex){ log.error("Fehler beim aktualisieren der Modelldaten",ex);
+     * this.beschluesse = new Vector<Beschluss>(); } }.
+     *
+     * @param  beschluesse  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Set<Beschluss> beschluesse) {
         try {
-            log.debug("Refresh des BeschlussTableModell");
+            if (log.isDebugEnabled()) {
+                log.debug("Refresh des BeschlussTableModell");
+            }
             if (beschluesse != null) {
                 this.beschluesse = new Vector<Beschluss>(beschluesse);
             } else {
-                log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
+                }
                 this.beschluesse = new Vector<Beschluss>();
             }
         } catch (Exception ex) {
@@ -69,78 +101,97 @@ public class BeschluesseTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
-    public void setIsInEditMode(boolean isEditable) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isEditable  DOCUMENT ME!
+     */
+    public void setIsInEditMode(final boolean isEditable) {
         isInEditMode = isEditable;
     }
 
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            Beschluss beschluss = beschluesse.get(rowIndex);
+            final Beschluss beschluss = beschluesse.get(rowIndex);
             switch (columnIndex) {
-                case 0:
-                    //Beschlussart art = beschluss.getBeschlussart();
-                    //return art != null ? art.getBezeichnung() : null;
+                case 0: {
+                    // Beschlussart art = beschluss.getBeschlussart();
+                    // return art != null ? art.getBezeichnung() : null;
                     return beschluss.getBeschlussart();
-                case 1:
-                    //Date datum = beschluss.getDatum();
-                    //return datum != null ? DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
+                }
+                case 1: {
+                    // Date datum = beschluss.getDatum(); return datum != null ?
+                    // DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
                     return beschluss.getDatum();
-                default:
+                }
+                default: {
                     return "Spalte ist nicht definiert";
                 }
+            }
         } catch (Exception ex) {
             log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
     }
 
+    @Override
     public int getRowCount() {
         return beschluesse.size();
     }
 
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
 
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
 
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return (COLUMN_HEADER.length > columnIndex) && (beschluesse.size() > rowIndex) && isInEditMode;
     }
 
-    public Class<?> getColumnClass(int columnIndex) {
+    @Override
+    public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
-            case 0:
+            case 0: {
                 return Beschlussart.class;
-            case 1:
+            }
+            case 1: {
                 return Date.class;
-            default:
+            }
+            default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
                 return null;
+            }
         }
     }
 
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+    @Override
+    public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            Beschluss beschluss = beschluesse.get(rowIndex);
+            final Beschluss beschluss = beschluesse.get(rowIndex);
             switch (columnIndex) {
-                case 0:
-                    //Beschlussart art = beschluss.getBeschlussart();
-                    //return art != null ? art.getBezeichnung() : null;
-                    beschluss.setBeschlussart((Beschlussart) aValue);
+                case 0: {
+                    // Beschlussart art = beschluss.getBeschlussart();
+                    // return art != null ? art.getBezeichnung() : null;
+                    beschluss.setBeschlussart((Beschlussart)aValue);
                     break;
-                case 1:
-                    //Date datum = beschluss.getDatum();
-                    //return datum != null ? DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
-                    beschluss.setDatum((Date) aValue);
+                }
+                case 1: {
+                    // Date datum = beschluss.getDatum(); return datum != null ?
+                    // DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
+                    beschluss.setDatum((Date)aValue);
                     break;
-                default:
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: "+columnIndex);
-                    return;                    
+                }
+                default: {
+                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
+                    return;
+                }
             }
             fireTableDataChanged();
         } catch (Exception ex) {
@@ -148,19 +199,41 @@ public class BeschluesseTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Vector<Beschluss> getBeschluesse() {
         return beschluesse;
     }
 
-    public void addBeschluss(Beschluss beschluss) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  beschluss  DOCUMENT ME!
+     */
+    public void addBeschluss(final Beschluss beschluss) {
         beschluesse.add(beschluss);
     }
 
-    public Beschluss getBeschlussAtRow(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Beschluss getBeschlussAtRow(final int rowIndex) {
         return beschluesse.get(rowIndex);
     }
 
-    public void removeBeschluss(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeBeschluss(final int rowIndex) {
         beschluesse.remove(rowIndex);
     }
 }

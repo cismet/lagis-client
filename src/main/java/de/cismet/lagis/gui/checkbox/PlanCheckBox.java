@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * PlanCheckBox.java
  *
@@ -6,37 +13,50 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.gui.checkbox;
 
-import de.cismet.lagisEE.interfaces.Plan;
 import javax.swing.JCheckBox;
 
+import de.cismet.lagisEE.interfaces.Plan;
+
 /**
+ * DOCUMENT ME!
  *
- * @author hell
+ * @author   hell
+ * @version  $Revision$, $Date$
  */
 public class PlanCheckBox extends JCheckBox {
-    
+
+    //~ Instance fields --------------------------------------------------------
+
     Plan plan;
-    /** Creates a new instance of PlanCheckBox */
-    public PlanCheckBox(Plan plan) {
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of PlanCheckBox.
+     *
+     * @param  plan  DOCUMENT ME!
+     */
+    public PlanCheckBox(final Plan plan) {
         super(plan.getBezeichnung());
-        this.plan = plan;        
+        this.plan = plan;
     }
 
-    //TODO bad style to allow equality with other objects
-    public boolean equals(Object obj) {
-        if(obj instanceof PlanCheckBox){
-            PlanCheckBox other = (PlanCheckBox) obj;
+    //~ Methods ----------------------------------------------------------------
+
+    // TODO bad style to allow equality with other objects
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj instanceof PlanCheckBox) {
+            final PlanCheckBox other = (PlanCheckBox)obj;
             return plan.equals(other);
-        } if(obj instanceof Plan){
-            Plan other = (Plan) obj;
+        }
+        if (obj instanceof Plan) {
+            final Plan other = (Plan)obj;
             return plan.equals(other);
         } else {
             return false;
         }
-                
     }
-    
 }

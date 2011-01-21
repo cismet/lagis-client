@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * PlanTableModel.java
  *
@@ -8,63 +15,88 @@
  */
 package de.cismet.lagis.models;
 
-import de.cismet.lagis.utillity.BebauungsVector;
-import de.cismet.lagis.utillity.FlaechennutzungsVector;
-import de.cismet.lagisEE.entity.core.Beschluss;
-import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
-import de.cismet.lagisEE.interfaces.Plan;
+import org.apache.log4j.Logger;
+
 import java.util.Date;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+
+import de.cismet.lagis.utillity.BebauungsVector;
+import de.cismet.lagis.utillity.FlaechennutzungsVector;
+
+import de.cismet.lagisEE.entity.core.Beschluss;
+import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
+
+import de.cismet.lagisEE.interfaces.Plan;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class PlanTableModel extends AbstractTableModel {
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final String[] COLUMN_HEADER = { "Pläne" };
+
+    //~ Instance fields --------------------------------------------------------
+
     public int TABLE_MODEL_KIND;
+
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 //    private FlaechennutzungsVector fPlan;
 //    private BebauungsVector bPlan;
     private Vector<Plan> plaene;
-    private final static String[] COLUMN_HEADER = {"Pläne"};
     private boolean isInEditMode = false;
 
-    public PlanTableModel(Vector plaene) {
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new PlanTableModel object.
+     *
+     * @param  plaene  DOCUMENT ME!
+     */
+    public PlanTableModel(final Vector plaene) {
         if (plaene instanceof FlaechennutzungsVector) {
             TABLE_MODEL_KIND = Plan.PLAN_FLAECHENNUTZUNG;
-        //System.out.println("ist flaechenutzung");
-        //fPlan = (FlaechennutzungsVector) plaene;
+            // System.out.println("ist flaechenutzung");
+            // fPlan = (FlaechennutzungsVector) plaene;
         } else {
             TABLE_MODEL_KIND = Plan.PLAN_BEBAUUNG;
-        //System.out.println("ist Bebauung");
-        //bPlan = (BebauungsVector) plaene;
+            // System.out.println("ist Bebauung");
+            // bPlan = (BebauungsVector) plaene;
         }
-        this.plaene = (Vector<Plan>) plaene;
+        this.plaene = (Vector<Plan>)plaene;
     }
 
-//    public void refreshTableModel(Set plaene){
-//        try{
-//            log.debug("Refresh des PlaeneTableModell");
-//            this.plaene = new Vector(plaene);
-//        }catch(Exception ex){
-//            log.error("Fehler beim refreshen des Models",ex);
-//            this.plaene = new Vector();
-//        }
-//        fireTableDataChanged();
-//    }
-    public Object getValueAt(int rowIndex, int columnIndex) {
+    //~ Methods ----------------------------------------------------------------
+
+// public void refreshTableModel(Set plaene){
+// try{
+// log.debug("Refresh des PlaeneTableModell");
+// this.plaene = new Vector(plaene);
+// }catch(Exception ex){
+// log.error("Fehler beim refreshen des Models",ex);
+// this.plaene = new Vector();
+// }
+// fireTableDataChanged();
+// }
+    @Override
+    public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
             switch (columnIndex) {
-                case 0:
-                    //Beschlussart art = beschluss.getBeschlussart();
-                    //return art != null ? art.getBezeichnung() : null;
+                case 0: {
+                    // Beschlussart art = beschluss.getBeschlussart();
+                    // return art != null ? art.getBezeichnung() : null;
                     return plaene.get(rowIndex);
-                default:
+                }
+                default: {
                     return "Spalte ist nicht definiert";
+                }
             }
         } catch (Exception ex) {
             log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
@@ -72,45 +104,53 @@ public class PlanTableModel extends AbstractTableModel {
         }
     }
 
+    @Override
     public int getRowCount() {
         return plaene.size();
     }
 
+    @Override
     public int getColumnCount() {
         return COLUMN_HEADER.length;
     }
 
     @Override
-    public String getColumnName(int column) {
+    public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
     }
 
     @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return (COLUMN_HEADER.length > columnIndex) && (plaene.size() > rowIndex);
     }
 
-    public Class<?> getColumnClass(int columnIndex) {
+    @Override
+    public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
-            case 0:
+            case 0: {
                 return Plan.class;
-            default:
+            }
+            default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
                 return null;
+            }
         }
     }
 
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+    @Override
+    public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
             switch (columnIndex) {
-                case 0:
-                    //Beschlussart art = beschluss.getBeschlussart();
-                    //return art != null ? art.getBezeichnung() : null;
-                    plaene.set(rowIndex, (Plan) aValue);
+                case 0: {
+                    // Beschlussart art = beschluss.getBeschlussart();
+                    // return art != null ? art.getBezeichnung() : null;
+                    plaene.set(rowIndex, (Plan)aValue);
                     break;
-                default:
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: "+columnIndex);
+                }
+                default: {
+                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
+                }
             }
             fireTableDataChanged();
         } catch (Exception ex) {
@@ -118,22 +158,49 @@ public class PlanTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Vector<Plan> getPlaene() {
         return plaene;
     }
 
-    public void addPlan(Plan plan) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  plan  DOCUMENT ME!
+     */
+    public void addPlan(final Plan plan) {
         plaene.add(plan);
     }
 
-    public Plan getPlanAtRow(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Plan getPlanAtRow(final int rowIndex) {
         return plaene.get(rowIndex);
     }
 
-    public void removePlan(int rowIndex) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removePlan(final int rowIndex) {
         plaene.remove(rowIndex);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public boolean isFnpModel() {
         return TABLE_MODEL_KIND == Plan.PLAN_FLAECHENNUTZUNG;
     }

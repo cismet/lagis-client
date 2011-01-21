@@ -1,119 +1,163 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * SimpleDocumentModel.java
  *
  * Created on 24. Januar 2005, 16:26
  */
-
 package de.cismet.lagis.models.documents;
+import java.awt.Component;
+
+import javax.swing.text.*;
+
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-import java.awt.Component;
-import javax.swing.text.*;
 /**
+ * DOCUMENT ME!
  *
- * @author hell
+ * @author   hell
+ * @version  $Revision$, $Date$
  */
-public class SimpleDocumentModel extends PlainDocument implements Validatable{
-    java.util.Vector listeners=new java.util.Vector();
-    protected String statusDescription="";
-    protected String valueToCheck=null;
-    //Zum Überschreiben
-    public boolean acceptChanges(String newValue) {
+public class SimpleDocumentModel extends PlainDocument implements Validatable {
+
+    //~ Instance fields --------------------------------------------------------
+
+    protected String statusDescription = "";
+    protected String valueToCheck = null;
+    java.util.Vector listeners = new java.util.Vector();
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Zum Überschreiben.
+     *
+     * @param   newValue  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean acceptChanges(final String newValue) {
         return true;
     }
-    
-    public void assignValue(String newValue) {
-        
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  newValue  DOCUMENT ME!
+     */
+    public void assignValue(final String newValue) {
     }
-    
-    public void insertNewString(String string, AttributeSet attributes) throws BadLocationException {
-        if (string==null) {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   string      DOCUMENT ME!
+     * @param   attributes  DOCUMENT ME!
+     *
+     * @throws  BadLocationException  DOCUMENT ME!
+     */
+    public void insertNewString(final String string, final AttributeSet attributes) throws BadLocationException {
+        if (string == null) {
             return;
         }
-        super.remove(0,getLength());
-        insertString(0,string,null);
+        super.remove(0, getLength());
+        insertString(0, string, null);
     }
-    
-    
-    
-    public void insertString(int offset,String string, AttributeSet attributes) throws BadLocationException {
-        if (string==null) {
+
+    @Override
+    public void insertString(final int offset, final String string, final AttributeSet attributes)
+            throws BadLocationException {
+        if (string == null) {
             return;
         } else {
             String newValue;
-            int length = getLength();
+            final int length = getLength();
             if (length == 0) {
                 newValue = string;
             } else {
-                String currentContent = getText(0, length);
-                StringBuffer currentBuffer = new StringBuffer(currentContent);
+                final String currentContent = getText(0, length);
+                final StringBuffer currentBuffer = new StringBuffer(currentContent);
                 currentBuffer.insert(offset, string);
                 newValue = currentBuffer.toString();
             }
-            
+
             if (acceptChanges(newValue)) {
                 assignValue(newValue);
-                super.insertString(offset,string,attributes);
+                super.insertString(offset, string, attributes);
             }
         }
     }
-    public void remove(int offs,int len) throws BadLocationException {
-        StringBuffer currentBuffer = new StringBuffer(getText(0, getLength()));
-        currentBuffer.delete(offs,offs+len);
-        String newValue=currentBuffer.toString();
+    @Override
+    public void remove(final int offs, final int len) throws BadLocationException {
+        final StringBuffer currentBuffer = new StringBuffer(getText(0, getLength()));
+        currentBuffer.delete(offs, offs + len);
+        final String newValue = currentBuffer.toString();
         if (acceptChanges(newValue)) {
             assignValue(newValue);
-            super.remove(offs,len);
+            super.remove(offs, len);
         }
     }
-    
-    public void clear(int offs,int len) throws BadLocationException{
-        StringBuffer currentBuffer = new StringBuffer(getText(0, getLength()));
-        currentBuffer.delete(offs,offs+len);
-        String newValue=currentBuffer.toString();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   offs  DOCUMENT ME!
+     * @param   len   DOCUMENT ME!
+     *
+     * @throws  BadLocationException  DOCUMENT ME!
+     */
+    public void clear(final int offs, final int len) throws BadLocationException {
+        final StringBuffer currentBuffer = new StringBuffer(getText(0, getLength()));
+        currentBuffer.delete(offs, offs + len);
+        final String newValue = currentBuffer.toString();
         if (acceptChanges(newValue)) {
-            super.remove(offs,len);
+            super.remove(offs, len);
         }
     }
-    
-    public void removeValidationStateChangedListener(ValidationStateChangedListener l) {
+
+    @Override
+    public void removeValidationStateChangedListener(final ValidationStateChangedListener l) {
         listeners.remove(l);
     }
-    
-    public void addValidationStateChangedListener(ValidationStateChangedListener l) {
+
+    @Override
+    public void addValidationStateChangedListener(final ValidationStateChangedListener l) {
         listeners.add(l);
     }
-    
-    public String getValidationMessage(){
+
+    @Override
+    public String getValidationMessage() {
         return statusDescription;
     }
-    
+
+    @Override
     public int getStatus() {
-        if(valueToCheck != null && valueToCheck.length() <= 255){
-            statusDescription="";
+        if ((valueToCheck != null) && (valueToCheck.length() <= 255)) {
+            statusDescription = "";
             return Validatable.VALID;
-        } else if(valueToCheck == null) {
-            statusDescription="";
+        } else if (valueToCheck == null) {
+            statusDescription = "";
             return Validatable.VALID;
         } else {
-            statusDescription="Ein Text muss weniger als 255 Zeichen haben";
+            statusDescription = "Ein Text muss weniger als 255 Zeichen haben";
             return Validatable.ERROR;
         }
     }
-    
-    
-    public void fireValidationStateChanged(Object validatedObject) {
-        java.util.Iterator it=listeners.iterator();
+
+    @Override
+    public void fireValidationStateChanged(final Object validatedObject) {
+        final java.util.Iterator it = listeners.iterator();
         while (it.hasNext()) {
-            ValidationStateChangedListener v=(ValidationStateChangedListener)it.next();
+            final ValidationStateChangedListener v = (ValidationStateChangedListener)it.next();
             v.validationStateChanged(this);
         }
     }
-    
-    public void showAssistent(Component parent) {
-        
+
+    @Override
+    public void showAssistent(final Component parent) {
     }
-    
-    
-    
 }

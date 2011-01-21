@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * InformationPanel.java
  *
@@ -5,30 +12,39 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import de.cismet.lagis.broker.LagisBroker;
-import de.cismet.lagis.interfaces.FlurstueckChangeListener;
-import de.cismet.lagis.widget.AbstractWidget;
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import java.io.IOException;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.log4j.Logger;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.io.IOException;
+
+import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.interfaces.FlurstueckChangeListener;
+
+import de.cismet.lagis.widget.AbstractWidget;
+
+import de.cismet.lagisEE.entity.core.Flurstueck;
+import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
+
 /**
+ * DOCUMENT ME!
  *
- * @author  spuhl
+ * @author   spuhl
+ * @version  $Revision$, $Date$
  */
 public class InformationPanel extends AbstractWidget implements FlurstueckChangeListener {
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    protected Document doc;
+    //~ Static fields/initializers ---------------------------------------------
+
     private static final String UNKNOWN = "/de/cismet/lagis/ressource/svg/unknown.svg";
     private static final String STAEDTISCH = "/de/cismet/lagis/ressource/svg/staedtisch.svg";
     private static final String STAEDTISCH_HISTORIC = "/de/cismet/lagis/ressource/svg/staedtisch_historic.svg";
@@ -40,9 +56,29 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
     private static Document ABTEILUNG_IX_DOC;
     private static Document ABTEILUNG_IX_HISTORIC_DOC;
 
-    /** Creates new form InformationPanel */
+    //~ Instance fields --------------------------------------------------------
+
+    protected Document doc;
+
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel lblFlurstueckArt;
+    private javax.swing.JLabel lblFlurstueckStatus;
+    private javax.swing.JLabel lblModus;
+    private org.apache.batik.swing.JSVGCanvas panSVG;
+    // End of variables declaration//GEN-END:variables
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates new form InformationPanel.
+     */
     public InformationPanel() {
-        //ToDo How should the programmer know       
+        // ToDo How should the programmer know
         setIsCoreWidget(true);
         initComponents();
         lblFlurstueckArt.setText("");
@@ -83,7 +119,7 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
 //                    break;
 //                }
 //            }
-//            
+//
 //            panSVG.setDocumentState(JSVGCanvas.ALWAYS_STATIC);
 //            panSVG.setDocument(doc);
 //            panSVG.setDoubleBuffered(false);
@@ -97,96 +133,118 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
             panSVG.setEnableRotateInteractor(false);
             panSVG.setEnableZoomInteractor(false);
 
-            panSVG.setVisible(false);            
-
+            panSVG.setVisible(false);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des InformationPanel: ", ex);
         }
     }
 
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws  IOException  DOCUMENT ME!
+     */
     private void loadDocuments() throws IOException {
-        String parser = XMLResourceDescriptor.getXMLParserClassName();
-        SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
+        final String parser = XMLResourceDescriptor.getXMLParserClassName();
+        final SAXSVGDocumentFactory f = new SAXSVGDocumentFactory(parser);
         Element svg;
 
         UNKNOWN_DOC = f.createDocument(getClass().getResource(UNKNOWN).toString());
         svg = UNKNOWN_DOC.getDocumentElement();
-        svg.setAttributeNS(null, "viewBox", "0 0 64 64");        
+        svg.setAttributeNS(null, "viewBox", "0 0 64 64");
         svg.setAttributeNS(null, "text-rendering", "geometricPrecision");
 
         STAEDTISCH_DOC = f.createDocument(getClass().getResource(STAEDTISCH).toString());
         svg = STAEDTISCH_DOC.getDocumentElement();
-        svg.setAttributeNS(null, "viewBox", "0 0 64 64");        
+        svg.setAttributeNS(null, "viewBox", "0 0 64 64");
         svg.setAttributeNS(null, "text-rendering", "geometricPrecision");
 
         STAEDTISCH_HISTORIC_DOC = f.createDocument(getClass().getResource(STAEDTISCH_HISTORIC).toString());
         svg = STAEDTISCH_HISTORIC_DOC.getDocumentElement();
-        svg.setAttributeNS(null, "viewBox", "0 0 64 64");        
+        svg.setAttributeNS(null, "viewBox", "0 0 64 64");
         svg.setAttributeNS(null, "text-rendering", "geometricPrecision");
 
         ABTEILUNG_IX_DOC = f.createDocument(getClass().getResource(ABTEILUNG_IX).toString());
         svg = ABTEILUNG_IX_DOC.getDocumentElement();
-        svg.setAttributeNS(null, "viewBox", "0 0 64 64");        
+        svg.setAttributeNS(null, "viewBox", "0 0 64 64");
         svg.setAttributeNS(null, "text-rendering", "geometricPrecision");
 
         ABTEILUNG_IX_HISTORIC_DOC = f.createDocument(getClass().getResource(ABTEILUNG_IX_HISTORIC).toString());
         svg = ABTEILUNG_IX_HISTORIC_DOC.getDocumentElement();
-        svg.setAttributeNS(null, "viewBox", "0 0 64 64");        
+        svg.setAttributeNS(null, "viewBox", "0 0 64 64");
         svg.setAttributeNS(null, "text-rendering", "geometricPrecision");
     }
 
     @Override
     public void clearComponent() {
-        if(LagisBroker.getInstance().isUnkownFlurstueck()){            
+        if (LagisBroker.getInstance().isUnkownFlurstueck()) {
             lblFlurstueckArt.setVisible(false);
-            lblFlurstueckStatus.setText("  unbekannt"); 
+            lblFlurstueckStatus.setText("  unbekannt");
             lblFlurstueckStatus.setHorizontalAlignment(SwingConstants.CENTER);
             panSVG.setDocument(UNKNOWN_DOC);
-        }        
+        }
     }
 
     @Override
-    public void refresh(Object refreshObject) {
+    public void refresh(final Object refreshObject) {
     }
 
     @Override
-    public void setComponentEditable(boolean isEditable) {
-        log.debug("InformationPanel setEditable: "+isEditable);
-        if(isEditable==true){
+    public void setComponentEditable(final boolean isEditable) {
+        if (log.isDebugEnabled()) {
+            log.debug("InformationPanel setEditable: " + isEditable);
+        }
+        if (isEditable == true) {
             lblModus.setText("Bearbeitungsmodus");
         } else {
             lblModus.setText("Anzeigemodus");
         }
     }
 
-    public void flurstueckChanged(Flurstueck newFlurstueck) {
+    @Override
+    public void flurstueckChanged(final Flurstueck newFlurstueck) {
         FlurstueckSchluessel key = null;
-        if (newFlurstueck != null && (key = newFlurstueck.getFlurstueckSchluessel()) != null) {
+        if ((newFlurstueck != null) && ((key = newFlurstueck.getFlurstueckSchluessel()) != null)) {
             if (key.getFlurstueckArt().getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                log.debug("Flurstueck ist Staedtisch");
+                if (log.isDebugEnabled()) {
+                    log.debug("Flurstueck ist Staedtisch");
+                }
                 if (key.getGueltigBis() == null) {
-                    log.debug("Staedtisches Flurstueck ist aktuell");                    
+                    if (log.isDebugEnabled()) {
+                        log.debug("Staedtisches Flurstueck ist aktuell");
+                    }
                     panSVG.setDocument(STAEDTISCH_DOC);
-                    //todo umlaute ersetzen
+                    // todo umlaute ersetzen
                     lblFlurstueckArt.setText("städtisch");
                     lblFlurstueckStatus.setText("aktuell,");
                 } else {
-                    log.debug("Staedtisches Flurstueck ist historisch");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Staedtisches Flurstueck ist historisch");
+                    }
                     panSVG.setDocument(STAEDTISCH_HISTORIC_DOC);
                     lblFlurstueckArt.setText("städtisch");
                     lblFlurstueckStatus.setText("historisch,");
                 }
                 lblFlurstueckArt.setVisible(true);
                 lblFlurstueckStatus.setHorizontalAlignment(SwingConstants.RIGHT);
-            } else if (key.getFlurstueckArt().getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
-                log.debug("Flurstueck ist Abteilung IX");
+            } else if (key.getFlurstueckArt().getBezeichnung().equals(
+                            FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Flurstueck ist Abteilung IX");
+                }
                 if (key.getGueltigBis() == null) {
-                    log.debug("Abteilung IX Flurstueck ist aktuell");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Abteilung IX Flurstueck ist aktuell");
+                    }
                     panSVG.setDocument(ABTEILUNG_IX_DOC);
                     lblFlurstueckArt.setText("Abteilung IX");
                     lblFlurstueckStatus.setText("aktuell,");
                 } else {
-                    log.debug("Abteilung IX Flurstueck ist historisch");
+                    if (log.isDebugEnabled()) {
+                        log.debug("Abteilung IX Flurstueck ist historisch");
+                    }
                     panSVG.setDocument(ABTEILUNG_IX_HISTORIC_DOC);
                     lblFlurstueckArt.setText("Abteilung IX");
                     lblFlurstueckStatus.setText("historisch,");
@@ -195,15 +253,15 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
                 lblFlurstueckStatus.setHorizontalAlignment(SwingConstants.RIGHT);
             } else {
                 log.warn("Flurstückschlüssel ist weder städtisch noch Abteilung XI --> unbekannt");
-                panSVG.setDocument(UNKNOWN_DOC);                
-                lblFlurstueckStatus.setText("  unbekannt"); 
+                panSVG.setDocument(UNKNOWN_DOC);
+                lblFlurstueckStatus.setText("  unbekannt");
                 lblFlurstueckStatus.setHorizontalAlignment(SwingConstants.CENTER);
                 lblFlurstueckArt.setVisible(false);
             }
         } else {
             log.warn("Flurstück oder Schlüssel ist null --> unbekanntes ");
             panSVG.setDocument(UNKNOWN_DOC);
-            lblFlurstueckStatus.setText("  unbekannt"); 
+            lblFlurstueckStatus.setText("  unbekannt");
             lblFlurstueckStatus.setHorizontalAlignment(SwingConstants.CENTER);
             lblFlurstueckArt.setVisible(false);
         }
@@ -214,15 +272,13 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
         LagisBroker.getInstance().flurstueckChangeFinished(this);
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
+     * content of this method is always regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         jPanel1 = new javax.swing.JPanel();
         jSeparator1 = new javax.swing.JSeparator();
         lblModus = new javax.swing.JLabel();
@@ -241,21 +297,25 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
         lblModus.setMinimumSize(new java.awt.Dimension(50, 50));
         lblModus.setPreferredSize(new java.awt.Dimension(200, 50));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        final javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(lblModus, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
-            .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
-        );
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                lblModus,
+                javax.swing.GroupLayout.DEFAULT_SIZE,
+                302,
+                Short.MAX_VALUE).addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE));
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(12, 12, 12)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 3, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblModus, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                jPanel1Layout.createSequentialGroup().addGap(12, 12, 12).addComponent(
+                    jSeparator1,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    3,
+                    Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
+                    lblModus,
+                    javax.swing.GroupLayout.PREFERRED_SIZE,
+                    50,
+                    javax.swing.GroupLayout.PREFERRED_SIZE)));
 
         add(jPanel1, java.awt.BorderLayout.PAGE_END);
 
@@ -264,16 +324,18 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
 
         panSVG.setBackground(javax.swing.UIManager.getDefaults().getColor("Button.background"));
 
-        javax.swing.GroupLayout panSVGLayout = new javax.swing.GroupLayout(panSVG);
+        final javax.swing.GroupLayout panSVGLayout = new javax.swing.GroupLayout(panSVG);
         panSVG.setLayout(panSVGLayout);
         panSVGLayout.setHorizontalGroup(
-            panSVGLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 302, Short.MAX_VALUE)
-        );
+            panSVGLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(
+                0,
+                302,
+                Short.MAX_VALUE));
         panSVGLayout.setVerticalGroup(
-            panSVGLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 143, Short.MAX_VALUE)
-        );
+            panSVGLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(
+                0,
+                143,
+                Short.MAX_VALUE));
 
         jPanel2.add(panSVG, java.awt.BorderLayout.CENTER);
 
@@ -292,37 +354,34 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
         lblFlurstueckArt.setText("Städtisch");
         lblFlurstueckArt.setPreferredSize(new java.awt.Dimension(100, 50));
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        final javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblFlurstueckStatus, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblFlurstueckArt, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
-                .addGap(29, 29, 29))
-        );
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                jPanel3Layout.createSequentialGroup().addContainerGap().addComponent(
+                    lblFlurstueckStatus,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    133,
+                    Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
+                    lblFlurstueckArt,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    139,
+                    Short.MAX_VALUE).addGap(29, 29, 29)));
         jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblFlurstueckArt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblFlurstueckStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                jPanel3Layout.createSequentialGroup().addGroup(
+                    jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(
+                        lblFlurstueckArt,
+                        javax.swing.GroupLayout.PREFERRED_SIZE,
+                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                        javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(
+                        lblFlurstueckStatus,
+                        javax.swing.GroupLayout.PREFERRED_SIZE,
+                        javax.swing.GroupLayout.DEFAULT_SIZE,
+                        javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap(
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    Short.MAX_VALUE)));
 
         add(jPanel3, java.awt.BorderLayout.NORTH);
-    }// </editor-fold>//GEN-END:initComponents
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel lblFlurstueckArt;
-    private javax.swing.JLabel lblFlurstueckStatus;
-    private javax.swing.JLabel lblModus;
-    private org.apache.batik.swing.JSVGCanvas panSVG;
-    // End of variables declaration//GEN-END:variables
+    } // </editor-fold>//GEN-END:initComponents
 }
-

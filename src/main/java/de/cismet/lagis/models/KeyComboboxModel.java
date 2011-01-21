@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * GemarkungComboboxModel.java
  *
@@ -6,52 +13,73 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.models;
 
+import org.apache.log4j.Logger;
 
-
-import de.cismet.lagis.broker.LagisBroker;
-import de.cismet.lagisEE.util.Key;
 import java.io.Serializable;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.swing.AbstractListModel;
 import javax.swing.MutableComboBoxModel;
 import javax.swing.event.ListDataListener;
-import org.apache.log4j.Logger;
+
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagisEE.util.Key;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class KeyComboboxModel extends AbstractListModel implements MutableComboBoxModel, Serializable {
-    
+
+    //~ Instance fields --------------------------------------------------------
+
     private Vector<Key> keys = new Vector<Key>();
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<ListDataListener> listener = new Vector<ListDataListener>();
     private Object selectedObject = null;
-    
-    /** Creates a new instance of GemarkungComboboxModel */
-    public KeyComboboxModel(Set<Key> keySet) {
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new KeyComboboxModel object.
+     */
+    public KeyComboboxModel() {
+    }
+
+    /**
+     * Creates a new instance of GemarkungComboboxModel.
+     *
+     * @param  keySet  DOCUMENT ME!
+     */
+    public KeyComboboxModel(final Set<Key> keySet) {
         this(new Vector<Key>(keySet));
     }
-    
-    public KeyComboboxModel(Vector<Key> keyList) {
-        if(keyList == null){
-            this.keys=new Vector<Key>();
-        }else {
+
+    /**
+     * Creates a new KeyComboboxModel object.
+     *
+     * @param  keyList  DOCUMENT ME!
+     */
+    public KeyComboboxModel(final Vector<Key> keyList) {
+        if (keyList == null) {
+            this.keys = new Vector<Key>();
+        } else {
             this.keys = keyList;
         }
     }
-    
-    public KeyComboboxModel() {
-        
-    }
-    
-//    public KeyComboboxModel(final Key key,final JComboBox cbo){
-//        //if(key instanceof Gemarkung){
+
+    //~ Methods ----------------------------------------------------------------
+
+// public KeyComboboxModel(final Key key,final JComboBox cbo){
+// //if(key instanceof Gemarkung){
 ////            cbo.setEnabled(false);
 ////            Thread keyRetrieverThread=new Thread() {
 ////                public void run() {
@@ -81,12 +109,12 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
 ////            keyRetrieverThread.start();
 ////        }
 //    }
-    
+
 //    public void setSelectedItem(Object anItem) {
 //        //log.fatal("setSelected ITEM: "+anItem);
 //        selectedItem = anItem;
 //    }
-    
+
 //    public Object getElementAt(int index) {
 //        //log.fatal("getSelected ITEM: "+key.get(index));
 //        return key.get(index);
@@ -118,108 +146,123 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
 //            log.debug("keinObjekt aus der Liste selektiert");
 //        }
 //    }
-    
+
     // implements javax.swing.ComboBoxModel
     /**
      * Set the value of the selected item. The selected item may be null.
-     * <p>
-     * @param anObject The combo box value or null for no selection.
+     *
+     * @param  anObject  The combo box value or null for no selection.
      */
-    public void setSelectedItem(Object anObject) {
-        log.info("COMBOBOX SETSELECTED ITEM: "+anObject);
-        if ((selectedObject != null && !selectedObject.equals( anObject )) ||
-                selectedObject == null && anObject != null) {
+    @Override
+    public void setSelectedItem(final Object anObject) {
+        log.info("COMBOBOX SETSELECTED ITEM: " + anObject);
+        if (((selectedObject != null) && !selectedObject.equals(anObject))
+                    || ((selectedObject == null) && (anObject != null))) {
             selectedObject = anObject;
             fireContentsChanged(this, -1, -1);
         }
     }
-    
+
     // implements javax.swing.ComboBoxModel
+    @Override
     public Object getSelectedItem() {
         return selectedObject;
     }
-    
+
     // implements javax.swing.ListModel
+    @Override
     public int getSize() {
         return keys.size();
     }
-    
+
     // implements javax.swing.ListModel
-    public Object getElementAt(int index) {
-        if ( index >= 0 && index < keys.size() )
+    @Override
+    public Object getElementAt(final int index) {
+        if ((index >= 0) && (index < keys.size())) {
             return keys.elementAt(index);
-        else
+        } else {
             return null;
+        }
     }
-    
-    public boolean contains(Object key){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   key  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean contains(final Object key) {
         return keys.contains(key);
     }
-    
-    
+
     /**
      * Returns the index-position of the specified object in the list.
      *
-     * @param anObject
-     * @return an int representing the index position, where 0 is
-     *         the first position
+     * @param   anObject  DOCUMENT ME!
+     *
+     * @return  an int representing the index position, where 0 is the first position
      */
-    public int getIndexOf(Object anObject) {
+    public int getIndexOf(final Object anObject) {
         return keys.indexOf(anObject);
     }
-    
+
     // implements javax.swing.MutableComboBoxModel
-    public void addElement(Object keyToAdd) {        
+    @Override
+    public void addElement(final Object keyToAdd) {
         LagisBroker.warnIfThreadIsNotEDT();
-        if(keyToAdd != null && keyToAdd instanceof Key){
+        if ((keyToAdd != null) && (keyToAdd instanceof Key)) {
             keys.addElement((Key)keyToAdd);
             Collections.sort(keys);
-            fireContentsChanged(this,0,keys.size()-1);
-            //fireIntervalAdded(this,keys.size()-1, keys.size()-1);
-            if ( keys.size() == 1 && selectedObject == null && keyToAdd != null ) {
-                setSelectedItem( keyToAdd );
+            fireContentsChanged(this, 0, keys.size() - 1);
+            // fireIntervalAdded(this,keys.size()-1, keys.size()-1);
+            if ((keys.size() == 1) && (selectedObject == null) && (keyToAdd != null)) {
+                setSelectedItem(keyToAdd);
             }
         } else {
             log.warn("Es wurde versucht ein Object != Key zu adden");
         }
     }
-    
+
     // implements javax.swing.MutableComboBoxModel
-    public void insertElementAt(Object anObject,int index) {
-        keys.insertElementAt((Key)keys,index);
+    @Override
+    public void insertElementAt(final Object anObject, final int index) {
+        keys.insertElementAt((Key)keys, index);
         fireIntervalAdded(this, index, index);
     }
-    
+
     // implements javax.swing.MutableComboBoxModel
-    public void removeElementAt(int index) {
-        if ( getElementAt( index ) == selectedObject ) {
-            if ( index == 0 ) {
-                setSelectedItem( getSize() == 1 ? null : getElementAt( index + 1 ) );
+    @Override
+    public void removeElementAt(final int index) {
+        if (getElementAt(index) == selectedObject) {
+            if (index == 0) {
+                setSelectedItem((getSize() == 1) ? null : getElementAt(index + 1));
             } else {
-                setSelectedItem( getElementAt( index - 1 ) );
+                setSelectedItem(getElementAt(index - 1));
             }
         }
-        
+
         keys.removeElementAt(index);
-        
+
         fireIntervalRemoved(this, index, index);
     }
-    
+
     // implements javax.swing.MutableComboBoxModel
-    public void removeElement(Object anObject) {
-        int index = keys.indexOf(anObject);
-        if ( index != -1 ) {
+    @Override
+    public void removeElement(final Object anObject) {
+        final int index = keys.indexOf(anObject);
+        if (index != -1) {
             removeElementAt(index);
         }
     }
-    
+
     /**
      * Empties the list.
      */
     public void removeAllElements() {
-        if ( keys.size() > 0 ) {
-            int firstIndex = 0;
-            int lastIndex = keys.size() - 1;
+        if (keys.size() > 0) {
+            final int firstIndex = 0;
+            final int lastIndex = keys.size() - 1;
             keys.removeAllElements();
             selectedObject = null;
             fireIntervalRemoved(this, firstIndex, lastIndex);
@@ -227,7 +270,4 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
             selectedObject = null;
         }
     }
-    
-    
-    
 }

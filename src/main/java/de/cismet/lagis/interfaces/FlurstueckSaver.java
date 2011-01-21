@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * FlurstueckSaver.java
  *
@@ -6,15 +13,24 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public interface FlurstueckSaver extends EntitySaver {
-    public void updateFlurstueckForSaving(Flurstueck flurstueck);
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  flurstueck  DOCUMENT ME!
+     */
+    void updateFlurstueckForSaving(Flurstueck flurstueck);
 }

@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ExtendedSwingWorker.java
  *
@@ -6,49 +13,89 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.thread;
 
 import javax.swing.SwingWorker;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Sebastian Puhl
+ * @author   Sebastian Puhl
+ * @version  $Revision$, $Date$
  */
 public abstract class ExtendedSwingWorker<T, V> extends SwingWorker<T, V> {
-    
+
+    //~ Instance fields --------------------------------------------------------
+
     protected boolean hadErrors;
     protected String errorMessage;
     protected Object keyObject;
-    
-    /** Creates a new instance of ExtendedSwingWorker */
-    public ExtendedSwingWorker(Object keyObject) {
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of ExtendedSwingWorker.
+     *
+     * @param  keyObject  DOCUMENT ME!
+     */
+    public ExtendedSwingWorker(final Object keyObject) {
         super();
-        this.keyObject = keyObject;                
+        this.keyObject = keyObject;
     }
 
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public boolean hadErrors() {
         return hadErrors;
     }
 
-    public void setHadErrors(boolean hadErrors) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  hadErrors  DOCUMENT ME!
+     */
+    public void setHadErrors(final boolean hadErrors) {
         this.hadErrors = hadErrors;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public String getErrorMessage() {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  errorMessage  DOCUMENT ME!
+     */
+    public void setErrorMessage(final String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Object getKeyObject() {
         return keyObject;
     }
 
-    public void setKeyObject(Object keyObject) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  keyObject  DOCUMENT ME!
+     */
+    public void setKeyObject(final Object keyObject) {
         this.keyObject = keyObject;
     }
-    
 }

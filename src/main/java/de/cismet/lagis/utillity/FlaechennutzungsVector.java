@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * FlaechennutzungsVector.java
  *
@@ -6,24 +13,34 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.utillity;
 
 import java.util.Collection;
 import java.util.Vector;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
-//TODO UGLY BETTER SOLUTION THAN DIFFERENCIATING OVER INHERITANCE ??? 
+//TODO UGLY BETTER SOLUTION THAN DIFFERENCIATING OVER INHERITANCE ???
 public class FlaechennutzungsVector extends Vector {
-    public FlaechennutzungsVector(Collection<?> c){
-        super(c);
-    }
-    
-    public FlaechennutzungsVector(){
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new FlaechennutzungsVector object.
+     */
+    public FlaechennutzungsVector() {
         super();
     }
-    
+    /**
+     * Creates a new FlaechennutzungsVector object.
+     *
+     * @param  c  DOCUMENT ME!
+     */
+    public FlaechennutzungsVector(final Collection<?> c) {
+        super(c);
+    }
 }

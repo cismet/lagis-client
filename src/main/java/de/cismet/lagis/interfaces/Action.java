@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * Action.java
  *
@@ -6,14 +13,24 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
 /**
+ * DOCUMENT ME!
  *
- * @author hell
+ * @author   hell
+ * @version  $Revision$, $Date$
  */
 public interface Action {
-    public void stopAction();
-    public void startAction();
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    void stopAction();
+    /**
+     * DOCUMENT ME!
+     */
+    void startAction();
 }

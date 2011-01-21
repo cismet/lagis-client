@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * FlaecheDocumentModel.java
  *
@@ -6,59 +13,77 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.models.documents;
 
 import org.apache.log4j.Logger;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Sebastian Puhl
+ * @author   Sebastian Puhl
+ * @version  $Revision$, $Date$
  */
 public class FlaecheDocumentModel extends SimpleDocumentModel {
-   private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    
-    
-    /** Creates a new instance of FlaecheDocumentModel */
+
+    //~ Instance fields --------------------------------------------------------
+
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new instance of FlaecheDocumentModel.
+     */
     public FlaecheDocumentModel() {
     }
-    
-    public void assignValue(String newValue) {
-        log.debug("new Value: "+ newValue);
-        valueToCheck=newValue;
+
+    //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public void assignValue(final String newValue) {
+        if (log.isDebugEnabled()) {
+            log.debug("new Value: " + newValue);
+        }
+        valueToCheck = newValue;
         fireValidationStateChanged(this);
     }
-    
-    public void assignValue(Integer flaeche){
-        
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  flaeche  DOCUMENT ME!
+     */
+    public void assignValue(final Integer flaeche) {
     }
-    
-     public int getStatus() {
-        if(valueToCheck != null){
+
+    @Override
+    public int getStatus() {
+        if (valueToCheck != null) {
             try {
-                log.debug("ValueToCheck: "+valueToCheck);
-                Integer flaeche = Integer.parseInt(valueToCheck);
-                statusDescription="";
-                assignValue(flaeche);                
+                if (log.isDebugEnabled()) {
+                    log.debug("ValueToCheck: " + valueToCheck);
+                }
+                final Integer flaeche = Integer.parseInt(valueToCheck);
+                statusDescription = "";
+                assignValue(flaeche);
                 return VALID;
             } catch (Exception ex) {
-                if(valueToCheck.length() == 0){
-                statusDescription="";               
-                Integer nullDouble = 0;
-                assignValue(nullDouble);                
-                return VALID;                
+                if (valueToCheck.length() == 0) {
+                    statusDescription = "";
+                    final Integer nullDouble = 0;
+                    assignValue(nullDouble);
+                    return VALID;
                 }
-                log.error("Fehler  parsen: ",ex);
-                statusDescription="Unkorrektes Format. Bitte geben sie eine Fläche nach folgendem Format ein #.##";
+                log.error("Fehler  parsen: ", ex);
+                statusDescription = "Unkorrektes Format. Bitte geben sie eine Fläche nach folgendem Format ein #.##";
                 return ERROR;
             }
-        } else if(valueToCheck == null){
-            Integer tmp = 0;
+        } else if (valueToCheck == null) {
+            final Integer tmp = 0;
             assignValue(tmp);
-            statusDescription="";
+            statusDescription = "";
             return VALID;
         }
         return ERROR;
     }
-    
 }

@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * Resettable.java
  *
@@ -6,14 +13,20 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
 /**
+ * DOCUMENT ME!
  *
- * @author Puhl
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public interface Resettable extends Editable {
-    //Methoden getrennt weil die enableMethode später wieder zum enablen benutzt wird
-    public void clearComponent();    
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Methoden getrennt weil die enableMethode später wieder zum enablen benutzt wird.
+     */
+    void clearComponent();
 }

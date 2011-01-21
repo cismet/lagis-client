@@ -1,3 +1,10 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ProgressManger.java
  *
@@ -6,17 +13,36 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package de.cismet.lagis.interfaces;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
 
 /**
+ * DOCUMENT ME!
  *
- * @author hell
+ * @author   hell
+ * @version  $Revision$, $Date$
  */
 public interface FlurstueckChangeObserver {
-    public void fireFlurstueckChanged(Flurstueck newFlurstueck);    
-    public void flurstueckChangeFinished(FlurstueckChangeListener fcListener);
-    public boolean isFlurstueckChangeInProgress();
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  newFlurstueck  DOCUMENT ME!
+     */
+    void fireFlurstueckChanged(Flurstueck newFlurstueck);
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  fcListener  DOCUMENT ME!
+     */
+    void flurstueckChangeFinished(FlurstueckChangeListener fcListener);
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    boolean isFlurstueckChangeInProgress();
 }
