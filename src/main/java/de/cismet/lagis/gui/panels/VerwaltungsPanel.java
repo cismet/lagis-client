@@ -97,6 +97,7 @@ import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
 import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
+import de.cismet.tools.CismetThreadPool;
 import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
@@ -131,7 +132,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     //~ Instance fields --------------------------------------------------------
 
     protected boolean historyEnabled = true;
-
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private final Icon icoWFSSizeGood = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"));
@@ -304,13 +304,31 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                             log.debug("Gemarkungsretriever done --> setzte geometrie");
                                         }
                                         try {
-                                            currentGeometry = currentWFSRetriever.get();
-                                            if (currentGeometry == null) {
-                                                lblWFSInfo.setIcon(icoWFSWarn);
-                                                lblWFSInfo.setToolTipText("Keine WFS Geometrie vorhanden");
-                                                tableModel.setCurrentWFSSize(0);
-                                            }
-                                            tNutzung.repaint();
+                                            final SwingWorker worker = new SwingWorker<Geometry, Void>() {
+
+                                                    @Override
+                                                    protected Geometry doInBackground() throws Exception {
+                                                        return currentWFSRetriever.get();
+                                                    }
+
+                                                    @Override
+                                                    protected void done() {
+                                                        try {
+                                                            final Geometry result = get();
+                                                            currentGeometry = result;
+                                                            if (result == null) {
+                                                                lblWFSInfo.setIcon(icoWFSWarn);
+                                                                lblWFSInfo.setToolTipText(
+                                                                    "Keine WFS Geometrie vorhanden");
+                                                                tableModel.setCurrentWFSSize(0);
+                                                                tNutzung.repaint();
+                                                            }
+                                                        } catch (Exception e) {
+                                                            log.error("Exception in Background Thread", e);
+                                                        }
+                                                    }
+                                                };
+                                            CismetThreadPool.execute(worker);
                                         } catch (Exception ex) {
                                             log.error("Fehler beim abrufen der Geometrie", ex);
                                             currentGeometry = null;
@@ -406,6 +424,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         tmp.add(hbFwd);
         return tmp;
     }
+
     /**
      * Inserting in Interface functionalty (also VERDIS).
      */
@@ -1301,6 +1320,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             new java.awt.Component[] { btnAddVerwaltung, btnRemoveVerwaltung },
             org.jdesktop.layout.GroupLayout.VERTICAL);
     } // </editor-fold>//GEN-END:initComponents
+
     /**
      * DOCUMENT ME!
      *

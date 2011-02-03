@@ -244,7 +244,6 @@ public class NKFTableModel extends AbstractTableModel {
                         && (currentBuchungen.size() > rowIndex)
                         && isInEditMode
                         && (LagisBroker.getInstance().isNkfAdminPermission());
-
         }
     }
 
@@ -314,7 +313,7 @@ public class NKFTableModel extends AbstractTableModel {
             final Nutzung selectedNutzung = currentBuchungen.get(rowIndex).getNutzung();
             NutzungsBuchung selectedBuchung = currentBuchungen.get(rowIndex);
             NutzungsBuchung oldBuchung = null;
-            if (selectedBuchung.getGueltigbis() == null) {
+            if ((selectedBuchung.getGueltigbis() == null) && !LagisBroker.getInstance().isNkfAdminPermission()) {
                 if (selectedBuchung.getId() != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("neue Buchung wird angelegt");

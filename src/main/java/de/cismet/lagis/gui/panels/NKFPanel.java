@@ -479,16 +479,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][] {
-                    {
-                        "21-510",
-                        "Straße",
-                        "k0211100",
-                        "Grünfläche,Grünfläche,Wohnbaufläche",
-                        "",
-                        "842",
-                        "1€",
-                        "842€"
-                    },
+                    { "21-510", "Straße", "k0211100", "Grünfläche,Grünfläche,Wohnbaufläche", "", "842", "1€", "842€" },
                     { "21-740", "Gehölz", "k0211100", null, "", "2325", "1€", "2325" }
                 },
                 new String[] {

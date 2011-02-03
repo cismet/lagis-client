@@ -105,7 +105,7 @@ public class AnlagenklasseSumme implements Comparable {
                 return false;
             }
         } else {
-            log.warn("ist gar nix");
+            log.warn(obj + "ist gar nix");
             return false;
         }
     }
