@@ -400,5 +400,6 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      */
     public void setCurrentWFSSize(final double currentWFSSize) {
         this.currentWFSSize = currentWFSSize;
+        fireTableDataChanged();
     }
 }

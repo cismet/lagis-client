@@ -42,6 +42,7 @@ public class FlaecheEditor extends DefaultCellEditor {
 
     // JFormattedTextField ftf;
     JTextField txtFlaeche;
+    private final transient org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     // NumberFormat integerFormat;
     // DateFormat dateFormat = LagisBroker.getDateFormatter();
     private Integer minimum;
@@ -113,12 +114,14 @@ public class FlaecheEditor extends DefaultCellEditor {
     // Override to ensure that the value remains an Integer.
     @Override
     public Object getCellEditorValue() {
-        final JTextField txtFlaeche = (JTextField)getComponent();
-        final String t = txtFlaeche.getText();
+        String t = "";
+        try {
+            final JTextField txtFlaeche = (JTextField)getComponent();
+            t = txtFlaeche.getText();
 //        if (o instanceof Date) {
 //            return o;
 //        } else {
-        try {
+
             if (validator.getValidationState() == Validatable.VALID) {
                 return Integer.parseInt(t);
             } else {
@@ -127,6 +130,7 @@ public class FlaecheEditor extends DefaultCellEditor {
         } catch (NumberFormatException exc) {
             // System.err.println("getCellEditorValue: can't parse o: " + t);
             // exc.printStackTrace();
+            log.error("Error in getCellEditorValue()", exc);
             return t;
         }
         // }

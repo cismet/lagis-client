@@ -108,16 +108,16 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
                     if (log.isDebugEnabled()) {
                         log.debug("verwaltungsgebrauch != null");
                     }
-                    if (((farben = tmp.getFarben()) != null) && ((farbe = farben.iterator().next()) != null)) {
+                    if (((farben = tmp.getFarben()) != null) && !farben.isEmpty()) {
+                        farbe = farben.iterator().next();
                         setIcon(new ColorIcon(new Color(farbe.getRgbFarbwert())));
-                        setIconTextGap(5);
-                        setBorder(new EmptyBorder(0, 5, 0, 0));
-                        setText((value == null) ? "" : value.toString());
                     } else {
                         setIcon(new ColorIcon(Color.black));
-                        setIconTextGap(5);
-                        setBorder(new EmptyBorder(0, 5, 0, 0));
                     }
+
+                    setText((value == null) ? "" : value.toString());
+                    setIconTextGap(5);
+                    setBorder(new EmptyBorder(0, 5, 0, 0));
 
                     try {
                         final Element html = htmlTooltip.getChild("HTML");

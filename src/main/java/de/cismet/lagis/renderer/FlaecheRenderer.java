@@ -39,6 +39,7 @@ public class FlaecheRenderer extends DefaultTableCellRenderer {
                 "/de/cismet/lagis/ressource/icons/validation/orange.png"));
     javax.swing.ImageIcon error = new javax.swing.ImageIcon(this.getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/validation/red.png"));
+    private final transient org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
     //~ Constructors -----------------------------------------------------------
 
@@ -67,23 +68,27 @@ public class FlaecheRenderer extends DefaultTableCellRenderer {
 
     @Override
     protected void setValue(final Object value) {
-        // System.out.println("setValue Called");
-        // System.out.println(value);
-        iconContainer.setVisible(true);
-        if (value == null) {
-            setText("");
-            // return this;
-        } else if (value instanceof Integer) {
-            iconContainer.setIcon(valid);
-            iconContainer.putClientProperty("state", "VALID");
-            setText(((Integer)value).toString());
-            // return this;
-        } else {
-            Toolkit.getDefaultToolkit().beep();
-            iconContainer.setIcon(error);
-            iconContainer.putClientProperty("state", "ERROR");
-            setText("Ungültige Eingabe");
-            // return this;
+        try {
+            // System.out.println("setValue Called");
+            // System.out.println(value);
+            iconContainer.setVisible(true);
+            if (value == null) {
+                setText("");
+                // return this;
+            } else if (value instanceof Integer) {
+                iconContainer.setIcon(valid);
+                iconContainer.putClientProperty("state", "VALID");
+                setText(((Integer)value).toString());
+                // return this;
+            } else {
+                Toolkit.getDefaultToolkit().beep();
+                iconContainer.setIcon(error);
+                iconContainer.putClientProperty("state", "ERROR");
+                setText("Ungültige Eingabe");
+                // return this;
+            }
+        } catch (Exception e) {
+            log.error("Error in setValue()", e);
         }
     }
 
