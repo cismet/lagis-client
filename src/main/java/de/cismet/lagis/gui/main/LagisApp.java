@@ -918,7 +918,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                                 new Color(236, 233, 216),
                                                 LagisBroker.HISTORY_MODE_COLOR,
                                                 new Color(236, 233, 216)));
-                                btnSwitchInEditmode.setEnabled(false);
+
+                                btnSwitchInEditmode.setEnabled(LagisBroker.getInstance().isNkfAdminPermission());
+
                                 if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                                     btnOpenWizard.setEnabled(true);
                                 }
@@ -2397,6 +2399,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         pack();
     } // </editor-fold>//GEN-END:initComponents
+
     /**
      * DOCUMENT ME!
      *
@@ -2898,6 +2901,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     public void acceptChanges() {
         btnAcceptChangesActionPerformed(null);
     }
+
     /**
      * ToDO why not in LagisBroker??
      *
@@ -3384,7 +3388,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     for (int index = start; index < backPos.size(); ++index) {
                         final Object elem = backPos.get(index);
                         final JMenuItem item = new JMenuItem(elem.toString()); // +" :"+new
-                                                                               // Integer(backPos.size()-1-index));
+                        // Integer(backPos.size()-1-index));
 
                         item.setIcon(miniBack);
                         final int pos = backPos.size() - 1 - index;
@@ -3410,7 +3414,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     for (int index = forwPos.size() - 1; index >= 0; --index) {
                         final Object elem = forwPos.get(index);
                         final JMenuItem item = new JMenuItem(elem.toString()); // +":"+new
-                                                                               // Integer(forwPos.size()-1-index));
+                        // Integer(forwPos.size()-1-index));
 
                         item.setIcon(miniForward);
                         final int pos = forwPos.size() - 1 - index;
@@ -4229,6 +4233,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             return image;
         }
     }
+
     /**
      * TODO VERDIS COPY.
      *
