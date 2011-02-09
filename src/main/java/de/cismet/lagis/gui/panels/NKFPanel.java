@@ -1547,7 +1547,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             if (existingUnvalidCurrentNutzung) {
                 validationMessage = "Alle Nutzungen müssen eine Nutzungsart haben.";
                 return Validatable.ERROR;
-            } else if (!existsAtLeastOneValidCurrentNutzung) {
+            } else if (!existsAtLeastOneValidCurrentNutzung && !LagisBroker.getInstance().isNkfAdminPermission()) {
                 validationMessage =
                     "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
                 return Validatable.ERROR;
