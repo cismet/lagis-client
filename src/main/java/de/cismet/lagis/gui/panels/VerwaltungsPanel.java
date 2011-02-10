@@ -321,7 +321,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                                                 lblWFSInfo.setToolTipText(
                                                                     "Keine WFS Geometrie vorhanden");
                                                                 tableModel.setCurrentWFSSize(0);
-                                                                tNutzung.repaint();
+                                                            } else {
+                                                                tableModel.setCurrentWFSSize(currentGeometry.getArea());
                                                             }
                                                         } catch (Exception e) {
                                                             log.error("Exception in Background Thread", e);
@@ -540,7 +541,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             if (!lblWFSInfo.getIcon().equals(icoWFSWarn)) {
                                 lblWFSInfo.setIcon(icoWFSLoad);
                                 lblWFSInfo.setToolTipText("WFS Geometrie wird geladen");
-                                tableModel.setCurrentWFSSize(0);
+                                // tableModel.setCurrentWFSSize(0);//auskommentiert weil dadurch eine endlosschleife
+                                // entsteht (wird schon im PropertyChangeListener in dieser klasse zeile 318 gemacht)
                             }
                             return true;
                         } else {
@@ -564,7 +566,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                 log.debug(
                                     "es ist nur ein Verwaltungsbereich vorhanden --> automatische WFS größe --> keine Überprüfung");
                             }
-                            tableModel.setCurrentWFSSize(currentGeometrySize);
+                            // tableModel.setCurrentWFSSize(currentGeometrySize); //auskommentiert weil dadurch eine
+                            // endlosschleife entsteht (wird schon im PropertyChangeListener in dieser klasse zeile 318
+                            // gemacht)
                             lblWFSInfo.setIcon(icoWFSSizeGood);
                             lblWFSInfo.setToolTipText("Automatische Zuordnung");
                             return false;

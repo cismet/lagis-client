@@ -132,8 +132,6 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
                     } catch (Exception silent) {
                         setToolTipText("Objektnutzung");
                     }
-
-                    setText((value == null) ? "" : value.toString());
                 } else {
                     setIcon(new ColorIcon(Color.black));
                     setIconTextGap(5);
