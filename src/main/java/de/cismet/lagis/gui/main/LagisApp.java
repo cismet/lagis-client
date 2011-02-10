@@ -3283,6 +3283,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  args  the command line arguments
      */
     public static void main(final String[] args) {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
+                @Override
+                public void uncaughtException(final Thread t, final Throwable e) {
+                    LOG.error("Uncaught Exception in " + t, e);
+                }
+            });
+
         java.awt.EventQueue.invokeLater(new Runnable() {
 
                 @Override
