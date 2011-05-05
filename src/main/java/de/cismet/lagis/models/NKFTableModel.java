@@ -242,8 +242,8 @@ public class NKFTableModel extends AbstractTableModel {
         } else {
             return (COLUMN_HEADER.length > columnIndex)
                         && (currentBuchungen.size() > rowIndex)
-                        && isInEditMode
-                        && (LagisBroker.getInstance().isNkfAdminPermission());
+                        && isInEditMode;
+                // && (LagisBroker.getInstance().isNkfAdminPermission());
         }
     }
 
