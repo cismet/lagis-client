@@ -36,6 +36,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,7 +91,6 @@ import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
-import java.util.Date;
 
 /**
  * DOCUMENT ME!
@@ -616,7 +616,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cboFilterActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboFilterActionPerformed
+    private void cboFilterActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboFilterActionPerformed
         final String value = (String)cboFilter.getSelectedItem();
         if (value.equals(FILTER_ALL_NAME)) {
             log.info("Filter alle Flurstücke ausgewählt");
@@ -659,7 +659,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             doAutomaticRequest(AutomaticFlurstueckRetriever.SET_BOXES_ACCORDING_TO_CONTENT_MODE, null);
             // TODO what todo if no Flurstück is selected
         }
-    }//GEN-LAST:event_cboFilterActionPerformed
+    } //GEN-LAST:event_cboFilterActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1404,9 +1404,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnActionActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionActionPerformed
+    private void btnActionActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnActionActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnActionActionPerformed
+    } //GEN-LAST:event_btnActionActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2809,15 +2809,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     return;
                 }
 
-                
-                
-                
-                
-                
-                
-                
-                
-                
                 final Geometry result = worker.get();
                 LagisBroker.getInstance().setCurrentWFSGeometry(result);
                 if (worker.hadErrors()) {
@@ -2832,13 +2823,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 } else {
                     btnAction.setToolTipText("");
                 }
-                
-                
-                
-                
-                
-                
-                
 
                 if ((worker.getKeyObject() != null) && (worker.getKeyObject() instanceof FlurstueckSchluessel)) {
                     final FlurstueckSchluessel flurstueckKey = (FlurstueckSchluessel)worker.getKeyObject();
@@ -2880,87 +2864,53 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 tmpFeature = new DefaultStyledFeature();
                                 tmpFeature.setEditable(false);
                                 ((DefaultStyledFeature)tmpFeature).setCanBeSelected(false);
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                final FlurstueckArt        flurstueckArt    = flurstueckKey.getFlurstueckArt();
-                                final DefaultStyledFeature styledFeature    = (DefaultStyledFeature) tmpFeature;
-                                final String               flurstueckArtBez = flurstueckArt.getBezeichnung();
-                                final Date                 gueltigBis       = flurstueckKey.getGueltigBis();
-                                
-                                if(flurstueckArt == null)
-                                {
-                                    if (log.isDebugEnabled()) 
-                                    {
+
+                                final FlurstueckArt flurstueckArt = flurstueckKey.getFlurstueckArt();
+                                final DefaultStyledFeature styledFeature = (DefaultStyledFeature)tmpFeature;
+                                final String flurstueckArtBez = flurstueckArt.getBezeichnung();
+                                final Date gueltigBis = flurstueckKey.getGueltigBis();
+
+                                if (flurstueckArt == null) {
+                                    if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist unbekannt");
                                     }
-                                    
+
                                     styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
-                                }
-                                else if (FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(flurstueckArtBez) && 
-                                         gueltigBis == null) 
-                               {
-                                    if (log.isDebugEnabled()) 
-                                    {
+                                } else if (
+                                    FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(flurstueckArtBez)
+                                            && (gueltigBis == null)) {
+                                    if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist städtisch");
                                     }
-                                    
+
                                     styledFeature.setFillingPaint(LagisBroker.STADT_FILLING_COLOR);
-                                } 
-                                else if (gueltigBis != null && 
-                                         (FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(flurstueckArtBez) ||
-                                          FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(flurstueckArtBez)))   
-                                {
-                                    if (log.isDebugEnabled()) 
-                                    {
+                                } else if ((gueltigBis != null)
+                                            && (FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
+                                                    flurstueckArtBez)
+                                                || FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
+                                                    flurstueckArtBez))) {
+                                    if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist städtisch und historisch");
                                     }
                                     styledFeature.setFillingPaint(LagisBroker.HISTORIC_FLURSTUECK_COLOR);
-                                } 
-                                else if(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(flurstueckArtBez))
-                                {
-                                    if (log.isDebugEnabled()) 
-                                    {
+                                } else if (FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
+                                                flurstueckArtBez)) {
+                                    if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist nicht städtisch (Abteilung XI");
                                     }
                                     styledFeature.setFillingPaint(LagisBroker.ABTEILUNG_IX_FILLING_COLOR);
-                                } 
-                                else
-                                {
-                                    if (log.isDebugEnabled()) 
-                                    {
+                                } else {
+                                    if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist unbekannt");
                                     }
-                                    
+
                                     styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
                                 }
-                                
-                                
-                                
+
                                 // log.fatal("FeatureCollection"+featuresCollection); log.fatal("hoffentlich 2:
                                 // "+featuresCollection.getFeature(0).getGeometryPropertyValues().length);
                                 tmpFeature.setGeometry(result);
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                                
-                            } 
-                            else if (hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
+                            } else if (hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
                                 if (log.isDebugEnabled()) {
                                     log.debug("Mehr als 2 Verwaltungsbereiche & keine Geometrien zugeordnet");
                                     log.debug("Es wird eine neue Geometrie zum zuordnen in die Karte eingefügt");

@@ -147,10 +147,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"));
     private final Icon icoRecht = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"));
-    private final Icon icoBelastungExpired = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastungExpired.png"));
-    private final Icon icoRechtExpired = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/FlurstueckPanel/rechtExpired.png"));
+    private final Icon icoRebeExpired = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/FlurstueckPanel/rebeExpired.png"));
+
     private Flurstueck currentFlurstueck = null;
     private Validator valTxtBemerkung;
     private SimpleDocumentModel bemerkungDocumentModel;
@@ -711,14 +710,14 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 }
             }
             if (allBelastungenExpired) {
-                lblBelastungen.setIcon(icoBelastungExpired);
+                lblBelastungen.setIcon(this.icoRebeExpired);
                 lblBelastungen.setToolTipText("Alle Belastungen sind gelöscht");
             } else {
                 lblBelastungen.setIcon(icoBelastung);
                 lblBelastungen.setToolTipText("Es sind Belastungen vorhanden");
             }
             if (allRechteExpired) {
-                lblRechte.setIcon(icoRechtExpired);
+                lblRechte.setIcon(this.icoRebeExpired);
                 lblRechte.setToolTipText("Alle Rechte sind gelöscht");
             } else {
                 lblRechte.setIcon(icoRecht);
@@ -1330,21 +1329,21 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVerwaltungActionPerformed
+    private void btnRemoveVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveVerwaltungActionPerformed
         final int currentRow = tNutzung.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeVerwaltungsbereich(((JXTable)tNutzung).convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
-    } //GEN-LAST:event_btnRemoveVerwaltungActionPerformed
+    }//GEN-LAST:event_btnRemoveVerwaltungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
+    private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddVerwaltungActionPerformed
         // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
         final Verwaltungsbereich tmp = new Verwaltungsbereich();
         if (log.isDebugEnabled()) {
@@ -1352,14 +1351,14 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         }
         tableModel.addVerwaltungsbereich(tmp);
         tableModel.fireTableDataChanged();
-    } //GEN-LAST:event_btnAddVerwaltungActionPerformed
+    }//GEN-LAST:event_btnAddVerwaltungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1389,7 +1388,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             log.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    } //GEN-LAST:event_cbSperreActionPerformed
+    }//GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!
