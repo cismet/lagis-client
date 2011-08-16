@@ -316,7 +316,11 @@ public class WFSRetrieverFactory implements Configurable {
                     }
                     return null;
                 }
+
+                log.info("doInBackground: start communication with host " + httppost.getHostConfiguration());
+
                 client.executeMethod(httppost);
+
                 if (isCancelled()) {
                     if (log.isDebugEnabled()) {
                         log.debug("doInBackground (WFSRetriever) is canceled");
