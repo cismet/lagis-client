@@ -12,6 +12,8 @@
  */
 package de.cismet.lagis.gui.panels;
 
+import com.sun.tools.internal.xjc.api.J2SJAXBModel;
+import java.awt.event.ItemEvent;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
@@ -74,6 +76,11 @@ import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.ReBe;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.core.hardwired.ReBeArt;
+import java.awt.TextField;
+import java.awt.event.ItemListener;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 /**
  * DOCUMENT ME!
@@ -92,7 +99,16 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     private static final String WIDGET_NAME = "Rechte & Belastungen Panel";
     private static final String PROVIDER_NAME = "ReBe";
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    
+    
+    // Konstanten die zum Setzen von Standardwerten nach Auswahl von 
+    // DEF_REBE_TRIGGER_ART benötigt werden
+    private static final String DEF_REBE_TRIGGER_ART = "Dienstbarkeit";
+    private static final String DEF_TARGET_COL       = "Nummer";
+    private static final String DEF_COL_VALUE        = "Abt. II, lfd. Nr. ";
+    
+    
+    // Variables declaration - do not modify                     
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
     private javax.swing.JLabel jLabel1;
@@ -199,6 +215,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         updateThread.start();
     }
 
+    
+    
+    
     /**
      * DOCUMENT ME!
      */
@@ -206,10 +225,22 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         tReBe.setModel(tableModel);
         final Set<ReBeArt> reBeArten = EJBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
-        if (reBeArten != null) {
+        if (reBeArten != null) 
+        {
             final JComboBox cboRebeArt = new JComboBox(new Vector<ReBeArt>(reBeArten));
             tReBe.setDefaultEditor(ReBeArt.class, new DefaultCellEditor(cboRebeArt));
+        
+            cboRebeArt.addItemListener(new ItemListener() 
+            {
+                @Override
+                public void itemStateChanged(final ItemEvent e) 
+                {
+                    handleCboRebeArtItemStateChanged(e);
+                }
+            });
         }
+        
+        
         // tReBe.getDefaultEditor(Boolean.class).addCellEditorListener();
         // TableCellEditor editor = tReBe.getDefaultEditor(Boolean.class);
         final JCheckBox cboReBe = new JCheckBox();
@@ -277,6 +308,54 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         ((JXTable)tReBe).packAll();
     }
 
+    /**
+     * Umsetzung von Issue 2181: Wird in dem Dropdown-Menü des Feldes "Art" der 
+     * Eintrag "Dienstbarkeit" ausgewählt, wird als Standard der Wert 
+     * "Abt II, lfd. Nr." vorgegeben und der Cursor steht direkt dahinter, damit 
+     * nur noch die eigentliche Nummer eingegeben werden muss. Diese Aktion wird
+     * nur dann ausgeführt, wenn noch kein Wert angegeben wurde. 
+     * Diese Methode wird zur Umsetzung der Logik des enstprechenden 
+     * ItemListeners von der ComboBox cboRebeArt verwendet.
+     * 
+     * 
+     * @param e event
+     */
+    private void handleCboRebeArtItemStateChanged(final ItemEvent e) 
+    {
+        if(e.getStateChange() == ItemEvent.SELECTED)
+        {
+            final String rebeArt = e.getItem().toString();
+            if(DEF_REBE_TRIGGER_ART.equals(rebeArt))
+            {
+                final int colIndex = this.tableModel.findColumn(DEF_TARGET_COL);
+                final int rowIndex = this.tReBe.getSelectedRow();
+
+                final Object currentValueObj = tableModel.getValueAt(rowIndex, colIndex);
+                if(currentValueObj == null || currentValueObj.toString().trim().isEmpty())
+                {
+                     tableModel.setValueAt(DEF_COL_VALUE, rowIndex, colIndex);
+
+                     final TableCellEditor cellEditor = tReBe.getCellEditor(rowIndex, colIndex);
+                     final Component       c          = cellEditor.getTableCellEditorComponent(this.tReBe, null, true, rowIndex, colIndex);
+
+                     ((JXTable)tReBe).editCellAt(rowIndex, colIndex);
+                     
+                     final JTextField txtField = (JTextField) c;
+                     SwingUtilities.invokeLater( new Runnable() 
+                     { 
+                        @Override
+                        public void run() 
+                        { 
+                            txtField.requestFocus(); 
+                        } 
+                     }); 
+                }
+            }
+        }
+    }
+    
+    
+    
     // private Thread panelRefresherThread;
     @Override
     public void flurstueckChanged(final Flurstueck newFlurstueck) {
@@ -469,29 +548,29 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
+    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveReBeActionPerformed
         final int currentRow = tReBe.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
-    } //GEN-LAST:event_btnRemoveReBeActionPerformed
+    }//GEN-LAST:event_btnRemoveReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
+    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddReBeActionPerformed
         final ReBe tmpReBe = new ReBe();
         if (isInAbteilungIXModus) {
             tmpReBe.setIstRecht(true);
         }
         tableModel.addReBe(tmpReBe);
         tableModel.fireTableDataChanged();
-    }                                                                              //GEN-LAST:event_btnAddReBeActionPerformed
-    // End of variables declaration//GEN-END:variables
+    }//GEN-LAST:event_btnAddReBeActionPerformed
+    // End of variables declaration                   
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
