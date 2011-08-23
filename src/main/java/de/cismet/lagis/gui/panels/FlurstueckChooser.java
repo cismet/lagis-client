@@ -1453,6 +1453,15 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @return  DOCUMENT ME!
      */
+    public JComboBox getCboFlurstueck() {
+        return this.cboFlurstueck;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public Icon getStatusIcon() {
         return btnAction.getIcon();
     }
@@ -3093,6 +3102,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     currentFlurRetriever.cancel(false);
                     currentFlurRetriever = null;
                 }
+
                 final FlurKey newFlur = new FlurKey(key.getGemarkung(), key.getFlur());
                 cboFlur.setSelectedItem(newFlur);
                 currentFlurRetriever = new FlurRetriever(FlurRetriever.RETRIEVE_AUTOMATIC_MODE, null, newFlur);
@@ -3103,6 +3113,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 if (log.isDebugEnabled()) {
                     log.debug("Flur ist automatisch gesetzt worden --> setze Flurstueck ?");
                 }
+
                 if ((AutomaticFlurstueckRetriever.FLURSTUECK_REQUEST_MODE == mode)
                             || ((!isOnlyCurrentFilterEnabled && !isOnlyHistoricFilterEnabled)
                                 || (isOnlyCurrentFilterEnabled && (key.getGueltigBis() == null))
@@ -3116,6 +3127,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         currentWFSRetriever = null;
                     }
                     cboFlurstueck.setSelectedItem(key);
+                    cboGemarkung.setSelectedItem(key.getGemarkung());
+
                     if (AutomaticFlurstueckRetriever.FLURSTUECK_REQUEST_MODE == mode) {
                         if (log.isDebugEnabled()) {
                             log.debug("rufe Flurstueck ab");
@@ -3124,6 +3137,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 FlurstueckRetriever.RETRIEVE_AUTOMATIC_MODE,
                                 null,
                                 key);
+
                         setPropertyChangeListener(currentFlurstueckRetriever);
                         LagisBroker.getInstance().execute(currentFlurstueckRetriever);
                     } else {
