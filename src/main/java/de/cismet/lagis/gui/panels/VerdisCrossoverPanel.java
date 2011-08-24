@@ -51,6 +51,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cismap.commons.CrsTransformer;
+
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
@@ -686,9 +688,13 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                         .getInstance()
                         .getCurrentFlurstueckSchluessel();
             if (currentKey != null) {
-                final Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
+                Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
                 if (flurstueckGeom != null) {
-                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " + flurstueckGeom);
+                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen (vor Transformation): "
+                                + flurstueckGeom + ",SRS" + flurstueckGeom.getSRID());
+                    flurstueckGeom = CrsTransformer.transformToGivenCrs(flurstueckGeom, "EPSG:31466"); // Hardcoded FTW
+                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " + flurstueckGeom + ",SRS"
+                                + flurstueckGeom.getSRID());
                     final KassenzeichenFacadeRemote verdisServer = LagisBroker.getInstance().getVerdisServer();
                     if (verdisServer != null) {
                         final Set<KassenzeichenEntity> kassenzeichen;
