@@ -319,13 +319,17 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private void handleCboRebeArtItemStateChanged(final ItemEvent e) {
         if (e.getStateChange() == ItemEvent.SELECTED) {
             final String rebeArt = e.getItem().toString();
+
             if (DEF_REBE_TRIGGER_ART.equals(rebeArt)) {
+                final JXTable rebeJXTable = (JXTable)this.tReBe;
+
                 final int colIndex = this.tableModel.findColumn(DEF_TARGET_COL);
                 final int rowIndex = this.tReBe.getSelectedRow();
 
-                final Object currentValueObj = tableModel.getValueAt(rowIndex, colIndex);
-                if ((currentValueObj == null) || currentValueObj.toString().trim().isEmpty()) {
-                    tableModel.setValueAt(DEF_COL_VALUE, rowIndex, colIndex);
+                final String currentValueObj = rebeJXTable.getStringAt(rowIndex, colIndex);
+
+                if ((currentValueObj == null) || currentValueObj.trim().isEmpty()) {
+                    rebeJXTable.setValueAt(DEF_COL_VALUE, rowIndex, colIndex);
 
                     final TableCellEditor cellEditor = tReBe.getCellEditor(rowIndex, colIndex);
                     final Component c = cellEditor.getTableCellEditorComponent(
@@ -335,7 +339,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                             rowIndex,
                             colIndex);
 
-                    ((JXTable)tReBe).editCellAt(rowIndex, colIndex);
+                    rebeJXTable.editCellAt(rowIndex, colIndex);
 
                     final JTextField txtField = (JTextField)c;
                     SwingUtilities.invokeLater(new Runnable() {
@@ -540,28 +544,28 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
+    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveReBeActionPerformed
         final int currentRow = tReBe.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
-    } //GEN-LAST:event_btnRemoveReBeActionPerformed
+    }//GEN-LAST:event_btnRemoveReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
+    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddReBeActionPerformed
         final ReBe tmpReBe = new ReBe();
         if (isInAbteilungIXModus) {
             tmpReBe.setIstRecht(true);
         }
         tableModel.addReBe(tmpReBe);
         tableModel.fireTableDataChanged();
-    }                                                                              //GEN-LAST:event_btnAddReBeActionPerformed
+    }//GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {
