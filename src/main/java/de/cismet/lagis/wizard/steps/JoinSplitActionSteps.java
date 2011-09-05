@@ -27,6 +27,7 @@ import org.netbeans.spi.wizard.WizardPanelProvider;
 import java.awt.EventQueue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -39,6 +40,7 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SplitActionChoosePanel;
+import de.cismet.lagis.wizard.panels.SummaryPanel;
 
 import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
 
@@ -57,6 +59,11 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
     private ResultingPanel resultingPanel;
+    private SummaryPanel summaryPanel;
+    private JoinActionChoosePanel joinPanel;
+    private SplitActionChoosePanel splitPanel;
+
+    private final Map wizardData;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -66,8 +73,10 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
     public JoinSplitActionSteps() {
         super(
             "Flurstück zusammenlegen/teilen...",
-            new String[] { "Zusammenlegen", "Teilen", "Ergebnis" },
-            new String[] { "Zusammenlegen", "Teilen", "Anlegen" });
+            new String[] { "Zusammenlegen", "Teilen", "Ergebnis", "Zusammenfassung" },
+            new String[] { "Zusammenlegen", "Teilen", "Anlegen", "Zusammenfassung" });
+
+        this.wizardData = new HashMap();
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -76,20 +85,27 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
     protected JComponent createPanel(final WizardController wizardController, final String id, final Map wizardData) {
         switch (indexOfStep(id)) {
             case 0: {
-                return new JoinActionChoosePanel(wizardController, wizardData);
+                this.joinPanel = new JoinActionChoosePanel(wizardController, this.wizardData);
+                return this.joinPanel;
             }
             case 1: {
-                return new SplitActionChoosePanel(
+                this.splitPanel = new SplitActionChoosePanel(
                         wizardController,
-                        wizardData,
+                        this.wizardData,
                         SplitActionChoosePanel.SPLIT_JOIN_ACTION_MODE);
+                return this.splitPanel;
             }
             case 2: {
                 resultingPanel = new ResultingPanel(
                         wizardController,
-                        wizardData,
+                        this.wizardData,
                         ResultingPanel.SPLIT_JOIN_ACTION_MODE);
                 return resultingPanel;
+            }
+            case 3: {
+                this.summaryPanel = new SummaryPanel();
+                this.summaryPanel.refresh(this.wizardData);
+                return this.summaryPanel;
             }
             default: {
                 throw new IllegalArgumentException(id);
@@ -118,8 +134,20 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
         if (log.isDebugEnabled()) {
             log.debug("Recycle existing panel: " + id);
         }
-        if (resultingPanel != null) {
-            resultingPanel.refreshCount();
+
+        controller.setProblem(null);
+        controller.setBusy(false);
+
+        if (this.joinPanel == panel) {
+            this.joinPanel.refresh(this.wizardData);
+        } else if (this.splitPanel == panel) {
+            this.splitPanel.refresh(this.wizardData);
+        } else if (resultingPanel == panel) {
+            resultingPanel.refresh(this.wizardData);
+        } else if (this.summaryPanel == panel) {
+            this.summaryPanel.refresh(this.wizardData);
+        } else {
+            log.warn("recycleExistingPanel(): Unknown panel " + panel);
         }
     }
 
@@ -164,12 +192,12 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
                 // \n\t"+"\""+splitCandidate.getKeyString()+"\" \n\nkonnte erfolgreich in die Flurstücke\n");
                 final Iterator<FlurstueckSchluessel> joinIt = joinKeys.iterator();
                 while (joinIt.hasNext()) {
-                    resultString.append("\n\t\"" + joinIt.next().getKeyString() + "\"");
+                    resultString.append("\n\t\"").append(joinIt.next().getKeyString()).append("\"");
                 }
                 resultString.append("\n\nkonnten erfolgreich in die Flurstücke\n\n");
                 final Iterator<FlurstueckSchluessel> splitIt = splitKeys.iterator();
                 while (splitIt.hasNext()) {
-                    resultString.append("\n\t\"" + splitIt.next().getKeyString() + "\"");
+                    resultString.append("\n\t\"").append(splitIt.next().getKeyString()).append("\"");
                 }
                 resultString.append("\n\n aufgeteilt werden");
                 boolean isCurrentFlurstueckChanged = false;
@@ -227,12 +255,12 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
                 final StringBuffer buffer = new StringBuffer("Die Flurstücke:");
                 final Iterator<FlurstueckSchluessel> joinIt = joinKeys.iterator();
                 while (joinIt.hasNext()) {
-                    buffer.append("\n\t\"" + joinIt.next().getKeyString() + "\"");
+                    buffer.append("\n\t\"").append(joinIt.next().getKeyString()).append("\"");
                 }
                 buffer.append("\n\nkonnten nicht in die Flurstücke\n\n");
                 final Iterator<FlurstueckSchluessel> splitIt = splitKeys.iterator();
                 while (splitIt.hasNext()) {
-                    buffer.append("\n\t\"" + splitIt.next().getKeyString() + "\"");
+                    buffer.append("\n\t\"").append(splitIt.next().getKeyString()).append("\"");
                 }
                 buffer.append("\n\n aufgeteilt werden. Fehler:\n ");
                 if (e instanceof ActionNotSuccessfulException) {

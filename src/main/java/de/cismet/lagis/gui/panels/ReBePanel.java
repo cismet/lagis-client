@@ -544,28 +544,28 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveReBeActionPerformed
+    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
         final int currentRow = tReBe.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
-    }//GEN-LAST:event_btnRemoveReBeActionPerformed
+    } //GEN-LAST:event_btnRemoveReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddReBeActionPerformed
+    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
         final ReBe tmpReBe = new ReBe();
         if (isInAbteilungIXModus) {
             tmpReBe.setIstRecht(true);
         }
         tableModel.addReBe(tmpReBe);
         tableModel.fireTableDataChanged();
-    }//GEN-LAST:event_btnAddReBeActionPerformed
+    }                                                                              //GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {

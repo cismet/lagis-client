@@ -4456,6 +4456,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                             .createConnection(CONNECTION_CLASS, callServerURL);
                 ConnectionSession session = null;
                 ConnectionProxy proxy = null;
+                if (log.isDebugEnabled()) {
+                    log.debug("call server url: " + callServerURL);
+                    log.debug("call server host: " + callserverhost);
+                }
+
                 final ConnectionInfo connectionInfo = new ConnectionInfo();
                 connectionInfo.setCallserverURL(callServerURL);
                 connectionInfo.setPassword(new String(password));
@@ -4532,7 +4537,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //                    return false;
 //                }
             } catch (Throwable t) {
-                log.error("Fehler beim Anmelden", t);
+                log.error("call server url: " + callServerURL);
+                log.error("call server host: " + callserverhost);
+                log.error("Fehler beim Anmelden ", t);
                 return false;
             }
         }

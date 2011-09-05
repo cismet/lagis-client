@@ -1787,7 +1787,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         cboGemarkung.setModel(new KeyComboboxModel(get()));
 //                if(currentMode != CONTINUATION_MODE || (isDynamicCreated)){
                         cboGemarkung.setEnabled(true);
-//                }
+
+                        // }
                         if (log.isDebugEnabled()) {
                             log.debug("IsFullInitialized");
                         }
@@ -2773,7 +2774,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     fireValidationStateChanged(this);
                 }
             } catch (Exception ex) {
-                log.error("Fehler beim checken des Flurstücks (done)");
+                log.error("Fehler beim checken des Flurstücks (done)", ex);
                 isFlurstueckCreateable = false;
                 fireValidationStateChanged(this);
             }

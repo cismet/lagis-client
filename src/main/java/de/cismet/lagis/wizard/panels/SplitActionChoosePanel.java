@@ -107,9 +107,20 @@ public class SplitActionChoosePanel extends javax.swing.JPanel implements Change
 
     //~ Methods ----------------------------------------------------------------
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  wizardData  DOCUMENT ME!
+     */
+    public void refresh(final Map wizardData) {
+        this.wizardData = wizardData;
+        this.validationStateChanged(this);
+    }
+
     @Override
     public void validationStateChanged(final Object validatedObject) {
         int splitCount = 0;
+
         if (mode.equals(SPLIT_ACTION_MODE)) {
             if (!(panSplit.getStatus() == Validatable.VALID)) {
                 wizardController.setProblem(panSplit.getValidationMessage());

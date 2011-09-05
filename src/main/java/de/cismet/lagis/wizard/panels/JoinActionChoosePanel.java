@@ -12,34 +12,19 @@
  */
 package de.cismet.lagis.wizard.panels;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.CoordinateFilter;
-import com.vividsolutions.jts.geom.CoordinateSequenceComparator;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryComponentFilter;
-import com.vividsolutions.jts.geom.GeometryFilter;
-
 import org.apache.log4j.Logger;
 
 import org.netbeans.spi.wizard.WizardController;
 
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.EventQueue;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.SwingWorker;
-
 import de.cismet.lagis.broker.EJBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
-
-import de.cismet.lagis.thread.ExtendedSwingWorker;
-import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
@@ -67,7 +52,6 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
     private Map wizardData;
     private final ArrayList<FlurstueckChooser> joinCandidates = new ArrayList<FlurstueckChooser>();
     private ArrayList<FlurstueckSchluessel> joinKeys;
-    private SwingWorker currentGeometryChecker = null;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddJoinMember;
     private javax.swing.JButton btnRemoveJoinMember;
@@ -95,12 +79,18 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
 
     //~ Methods ----------------------------------------------------------------
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  wizardData  DOCUMENT ME!
+     */
+    public void refresh(final Map wizardData) {
+        this.wizardData = wizardData;
+        this.validationStateChanged(this);
+    }
+
     @Override
     public void validationStateChanged(final Object validatedObject) {
-        if ((currentGeometryChecker != null) && !currentGeometryChecker.isDone()) {
-            currentGeometryChecker.cancel(false);
-            currentGeometryChecker = null;
-        }
         final Iterator<FlurstueckChooser> joinMembers = joinCandidates.iterator();
         joinKeys = new ArrayList<FlurstueckSchluessel>();
         while (joinMembers.hasNext()) {
@@ -156,9 +146,9 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
         if (log.isDebugEnabled()) {
             log.debug("Alle Flurstücke haben dieselbe Art");
         }
-//        currentGeometryChecker = new GeometryChecker(joinKeys);
-//        currentGeometryChecker.execute();
+
         wizardData.put(KEY_JOIN_KEYS, joinKeys);
+
         wizardController.setProblem(null);
         wizardController.setForwardNavigationMode(wizardController.MODE_CAN_CONTINUE);
     }
@@ -308,6 +298,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
      */
     private void btnAddJoinMemberActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddJoinMemberActionPerformed
         final FlurstueckChooser tmp = new FlurstueckChooser(FlurstueckChooser.CONTINUATION_MODE);
+
         if (joinCandidates.size() > 0) {
             final FlurstueckChooser lastChooser = joinCandidates.get(joinCandidates.size() - 1);
             if (lastChooser != null) {
@@ -345,254 +336,5 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
         spJoinMembers.getViewport().repaint();
         spJoinMembers.revalidate();
         validationStateChanged(null);
-    }                                                                                    //GEN-LAST:event_btnAddJoinMemberActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  container  DOCUMENT ME!
-     * @param  isEnabled  DOCUMENT ME!
-     */
-    private void enableChildren(final Container container, final boolean isEnabled) {
-        // get an arry of all the components in this container
-        final Component[] components = container.getComponents();
-        // for each element in the container enable/disable it
-        for (int i = 0; i < components.length; i++) {
-            if (components[i] instanceof Container) {
-                enableChildren(((Container)components[i]), isEnabled);
-            }
-            components[i].setEnabled(isEnabled);
-        }
-    }
-
-    //~ Inner Classes ----------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @version  $Revision$, $Date$
-     */
-    class GeometryChecker extends ExtendedSwingWorker<Boolean, Void> {
-
-        //~ Instance fields ----------------------------------------------------
-
-        boolean isFinished = false;
-
-        private final ArrayList<FlurstueckSchluessel> joinCandidates;
-        private final ArrayList<WFSRetrieverFactory.WFSWorkerThread> wfsRetriever =
-            new ArrayList<WFSRetrieverFactory.WFSWorkerThread>();
-        private final ArrayList<Geometry> geometries = new ArrayList<Geometry>();
-
-        //~ Constructors -------------------------------------------------------
-
-        /**
-         * Creates a new GeometryChecker object.
-         *
-         * @param  joinCandidates  DOCUMENT ME!
-         */
-        public GeometryChecker(final ArrayList<FlurstueckSchluessel> joinCandidates) {
-            super(joinCandidates);
-            this.joinCandidates = joinCandidates;
-        }
-
-        //~ Methods ------------------------------------------------------------
-
-        @Override
-        protected Boolean doInBackground() throws Exception {
-            try {
-                EventQueue.invokeLater(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            wizardController.setBusy(true);
-                            enableChildren(JoinActionChoosePanel.this, false);
-                            wizardController.setProblem("prüfe Benachbarung...");
-                        }
-                    });
-                if (log.isDebugEnabled()) {
-                    log.debug("GeometryChecker started");
-                }
-                if (isCancelled()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("doInBackground (GeometryChecker) is canceled");
-                    }
-                    return false;
-                }
-
-                if ((joinCandidates != null) && (joinCandidates.size() > 1)) {
-                    for (final FlurstueckSchluessel currentKey : joinCandidates) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("WFSRequest gestellt");
-                        }
-                        final WFSRetrieverFactory.WFSWorkerThread currentWorker = (WFSRetrieverFactory.WFSWorkerThread)
-                            WFSRetrieverFactory.getInstance().getWFSRetriever(currentKey, null, null);
-                        wfsRetriever.add(currentWorker);
-                        currentWorker.execute();
-                    }
-                } else {
-                    return true;
-                }
-
-                if (isCancelled()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("doInBackground (GeometryChecker) is canceled --> cancele alle WFSRequests");
-                    }
-                    for (final WFSRetrieverFactory.WFSWorkerThread currentWorker : wfsRetriever) {
-                        currentWorker.cancel(false);
-                    }
-                    return false;
-                }
-
-                while (!isCancelled() && !isFinished) {
-                    if (isCancelled()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("doInBackground (GeometryChecker) is canceled --> cancele alle WFSRequests");
-                        }
-                        for (final WFSRetrieverFactory.WFSWorkerThread currentWorker : wfsRetriever) {
-                            currentWorker.cancel(false);
-                        }
-                        return false;
-                    }
-                    Thread.currentThread().sleep(100);
-                    for (final WFSRetrieverFactory.WFSWorkerThread currentWorker : wfsRetriever) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Checke ob alle worker fertig sind");
-                        }
-                        if (!currentWorker.isDone()) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Nicht alle Worker sind Fertig (GeometryChecker) --> gehe schlafen");
-                            }
-                            break;
-                        }
-                    }
-                    isFinished = true;
-                }
-                double areaSum = 0.0;
-                Geometry joinGeometry = null;
-                if (log.isDebugEnabled()) {
-                    log.debug("Prüfe geometrien");
-                }
-                for (final WFSRetrieverFactory.WFSWorkerThread currentWorker : wfsRetriever) {
-                    final Geometry currentGeom = currentWorker.get();
-                    if (currentGeom == null) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Eine Geometrie == null");
-                        }
-                        return false;
-                    }
-                    areaSum += currentGeom.getArea();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Gegenwärtige Gesamtfläche: " + areaSum);
-                    }
-                    geometries.add(currentGeom);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Gegenwärtige Geometrie ist ein: " + currentGeom.getClass());
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Anzahl Geometrien: " + currentGeom.getNumGeometries());
-                    }
-                    if (joinGeometry == null) {
-                        joinGeometry = currentGeom;
-                        if (joinGeometry.getNumGeometries() > 1) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Multipolygon mit mehr als einer Geometrie kann nicht zusammengelegt werden");
-                            }
-                            return false;
-                        }
-                    } else {
-                        if (currentGeom.getNumGeometries() > 1) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Multipolygon mit mehr als einer Geometrie kann nicht zusammengelegt werden");
-                            }
-                            return false;
-                        } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Versuche Geometrien zu Vereinigen");
-                            }
-                            joinGeometry = joinGeometry.union(currentGeom);
-                            if (log.isDebugEnabled()) {
-                                log.debug("Joinen der Geometry erfolgreich");
-                            }
-                            if (joinGeometry.getNumGeometries() > 1) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug(
-                                        "Neue Geometrie -->hat mehr als einer Geometrie kann nicht zusammengelegt werden");
-                                }
-                                return false;
-                            } else {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Neue Geometrie --> hat nicht mehr als eine Geometrie");
-                                }
-                            }
-                            if (log.isDebugEnabled()) {
-                                log.debug("Gejoinedte Flächengröße: " + joinGeometry.getArea());
-                            }
-                            final long epsilonSumme = (long)(areaSum * 1000);
-                            final long epsilonJoin = (long)(joinGeometry.getArea() * 1000);
-                            if (log.isDebugEnabled()) {
-                                log.debug("EpsilonSumme: " + epsilonSumme);
-                                log.debug("EpsilonJoin: " + epsilonJoin);
-                            }
-                            if (epsilonSumme != epsilonJoin) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Flächengrößen sind ungleich!");
-                                }
-                                return false;
-                            } else {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Flächengrößen sind gleich!");
-                                }
-                            }
-                        }
-                    }
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Alle Geometrien sind != null GesamteFläche: " + areaSum);
-                }
-                return true;
-            } catch (Exception ex) {
-                log.error("Fehler beim checken der Geometry: ", ex);
-                hadErrors = true;
-                errorMessage = "Fehler beim prüfen der Geometrien";
-                return false;
-            }
-        }
-
-        @Override
-        protected void done() {
-            try {
-                if (log.isDebugEnabled()) {
-                    log.debug("GeometryChecker done");
-                }
-                wizardController.setBusy(false);
-                enableChildren(JoinActionChoosePanel.this, true);
-                if (isCancelled()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("GeometryChecker was canceled (done)");
-                    }
-                    return;
-                }
-                if (hadErrors) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Es gab einen Fehler Geometrien konnten nicht geprüft werden");
-                    }
-                    wizardController.setProblem(errorMessage);
-
-                    return;
-                }
-                if (get()) {
-                    wizardData.put(KEY_JOIN_KEYS, joinKeys);
-                    wizardController.setProblem(null);
-
-                    wizardController.setForwardNavigationMode(wizardController.MODE_CAN_CONTINUE);
-                } else {
-                    wizardController.setProblem("Ausgewählte Flurstücke sind nicht benachbart");
-                }
-            } catch (Exception ex) {
-                log.error("Fehler beim checken der Geometrie (done)");
-
-                wizardController.setProblem("Fehler beim prüfen der Geometrien");
-            }
-        }
-    }
+    } //GEN-LAST:event_btnAddJoinMemberActionPerformed
 }

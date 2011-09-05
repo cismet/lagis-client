@@ -38,6 +38,7 @@ import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SplitActionChoosePanel;
+import de.cismet.lagis.wizard.panels.SummaryPanel;
 
 import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
 
@@ -55,7 +56,9 @@ public class SplitActionSteps extends WizardPanelProvider {
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
+    private SplitActionChoosePanel splitPanel;
     private ResultingPanel resultingPanel;
+    private SummaryPanel summaryPanel;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -65,8 +68,8 @@ public class SplitActionSteps extends WizardPanelProvider {
     public SplitActionSteps() {
         super(
             "Flurstück umbenennen...",
-            new String[] { "Teilung", "Ergebnis" },
-            new String[] { "Auswahl des Flurstücks", "Flurstücke anlegen" });
+            new String[] { "Teilung", "Ergebnis", "Zusammenfasusung" },
+            new String[] { "Auswahl des Flurstücks", "Flurstücke anlegen", "Zusammenfassung" });
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -75,14 +78,22 @@ public class SplitActionSteps extends WizardPanelProvider {
     protected JComponent createPanel(final WizardController wizardController, final String id, final Map wizardData) {
         switch (indexOfStep(id)) {
             case 0: {
-                return new SplitActionChoosePanel(
+                this.splitPanel = new SplitActionChoosePanel(
                         wizardController,
                         wizardData,
                         SplitActionChoosePanel.SPLIT_ACTION_MODE);
+                return this.splitPanel;
             }
             case 1: {
-                resultingPanel = new ResultingPanel(wizardController, wizardData, ResultingPanel.SPLIT_ACTION_MODE);
+                resultingPanel = new ResultingPanel(wizardController,
+                        wizardData,
+                        ResultingPanel.SPLIT_ACTION_MODE);
                 return resultingPanel;
+            }
+            case 2: {
+                this.summaryPanel = new SummaryPanel();
+                this.summaryPanel.refresh(wizardData);
+                return this.summaryPanel;
             }
             default: {
                 throw new IllegalArgumentException(id);
@@ -99,7 +110,7 @@ public class SplitActionSteps extends WizardPanelProvider {
     }
 
     @Override
-    protected Object finish(final Map settings) throws WizardException {
+    protected Object finish(final Map wizardData) throws WizardException {
         return new BackgroundResultCreator();
     }
 
@@ -111,8 +122,18 @@ public class SplitActionSteps extends WizardPanelProvider {
         if (log.isDebugEnabled()) {
             log.debug("Recycle existing panel: " + id);
         }
-        if (resultingPanel != null) {
-            resultingPanel.refreshCount();
+
+        controller.setProblem(null);
+        controller.setBusy(false);
+
+        if (this.splitPanel == panel) {
+            this.splitPanel.refresh(wizardData);
+        } else if (resultingPanel == panel) {
+            resultingPanel.refresh(wizardData);
+        } else if (this.summaryPanel == panel) {
+            this.summaryPanel.refresh(wizardData);
+        } else {
+            log.warn("recycleExistingPanel(): Unknown panel " + panel);
         }
     }
 
@@ -140,6 +161,7 @@ public class SplitActionSteps extends WizardPanelProvider {
             final FlurstueckSchluessel splitCandidate = (FlurstueckSchluessel)wizardData.get(
                     SplitActionChoosePanel.KEY_SPLIT_CANDIDATE);
             final ArrayList<FlurstueckSchluessel> splitKeys = (ArrayList)wizardData.get(ResultingPanel.KEY_SPLIT_KEYS);
+
             if (log.isDebugEnabled()) {
                 log.debug("Flurstück das gesplittet werden soll: " + splitCandidate.getKeyString());
             }
@@ -160,7 +182,7 @@ public class SplitActionSteps extends WizardPanelProvider {
                                 + splitCandidate.getKeyString() + "\" \n\nkonnte erfolgreich in die Flurstücke\n");
                 final Iterator<FlurstueckSchluessel> it = splitKeys.iterator();
                 while (it.hasNext()) {
-                    resultString.append("\n\t\"" + it.next().getKeyString() + "\"");
+                    resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }
                 resultString.append("\n\n aufgeteilt werden");
                 EventQueue.invokeLater(new Runnable() {
@@ -201,7 +223,7 @@ public class SplitActionSteps extends WizardPanelProvider {
                                 + splitCandidate.getKeyString() + "\" \n\nkonnte nicht in die Flurstücke\n");
                 final Iterator<FlurstueckSchluessel> it = splitKeys.iterator();
                 while (it.hasNext()) {
-                    resultString.append("\n\t\"" + it.next().getKeyString() + "\"");
+                    resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }
                 resultString.append("\n\n aufgeteilt werden. Fehler:\n");
                 if (e instanceof ActionNotSuccessfulException) {

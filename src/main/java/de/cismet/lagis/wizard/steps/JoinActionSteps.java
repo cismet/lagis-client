@@ -38,6 +38,7 @@ import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
 import de.cismet.lagis.wizard.panels.ResultingPanel;
+import de.cismet.lagis.wizard.panels.SummaryPanel;
 
 import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
 
@@ -57,6 +58,8 @@ public class JoinActionSteps extends WizardPanelProvider {
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
     private ResultingPanel resultingPanel;
+    private SummaryPanel summaryPanel;
+    private JoinActionChoosePanel joinPanel;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -66,8 +69,8 @@ public class JoinActionSteps extends WizardPanelProvider {
     public JoinActionSteps() {
         super(
             "Flurstück umbenennen...",
-            new String[] { "Zusammenlegen", "Ergebnis" },
-            new String[] { "Auswahl der Flurstücke", "Flurstück anlegen" });
+            new String[] { "Zusammenlegen", "Ergebnis", "Zusammenfassung" },
+            new String[] { "Auswahl der Flurstücke", "Flurstück anlegen", "Zusammenfassung" });
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -76,11 +79,17 @@ public class JoinActionSteps extends WizardPanelProvider {
     protected JComponent createPanel(final WizardController wizardController, final String id, final Map wizardData) {
         switch (indexOfStep(id)) {
             case 0: {
-                return new JoinActionChoosePanel(wizardController, wizardData);
+                this.joinPanel = new JoinActionChoosePanel(wizardController, wizardData);
+                return this.joinPanel;
             }
             case 1: {
                 resultingPanel = new ResultingPanel(wizardController, wizardData, ResultingPanel.JOIN_ACTION_MODE);
                 return resultingPanel;
+            }
+            case 2: {
+                this.summaryPanel = new SummaryPanel();
+                this.summaryPanel.refresh(wizardData);
+                return this.summaryPanel;
             }
             default: {
                 throw new IllegalArgumentException(id);
@@ -99,6 +108,29 @@ public class JoinActionSteps extends WizardPanelProvider {
     @Override
     protected Object finish(final Map settings) throws WizardException {
         return new BackgroundResultCreator();
+    }
+
+    @Override
+    protected void recycleExistingPanel(final String id,
+            final WizardController controller,
+            final Map wizardData,
+            final JComponent panel) {
+        if (log.isDebugEnabled()) {
+            log.debug("Recycle existing panel: " + id);
+        }
+
+        controller.setProblem(null);
+        controller.setBusy(false);
+
+        if (this.joinPanel == panel) {
+            this.joinPanel.refresh(wizardData);
+        } else if (resultingPanel == panel) {
+            resultingPanel.refresh(wizardData);
+        } else if (this.summaryPanel == panel) {
+            this.summaryPanel.refresh(wizardData);
+        } else {
+            log.warn("recycleExistingPanel(): Unknown panel " + panel);
+        }
     }
 
     //~ Inner Classes ----------------------------------------------------------
@@ -140,10 +172,11 @@ public class JoinActionSteps extends WizardPanelProvider {
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:\n");
                 final Iterator<FlurstueckSchluessel> it = joinKeys.iterator();
                 while (it.hasNext()) {
-                    resultString.append("\n\t\"" + it.next().getKeyString() + "\"");
+                    resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }
-                resultString.append("\n\nkonnten erfolgreich zu dem Flurstück:\n\n\t\"" + joinKey.getKeyString()
-                            + "\" \n\n vereinigt werden");
+                resultString.append("\n\nkonnten erfolgreich zu dem Flurstück:\n\n\t\"")
+                        .append(joinKey.getKeyString())
+                        .append("\" \n\n vereinigt werden");
 
                 if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
                             && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
@@ -215,10 +248,12 @@ public class JoinActionSteps extends WizardPanelProvider {
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:");
                 final Iterator<FlurstueckSchluessel> it = joinKeys.iterator(); //
                 while (it.hasNext()) {
-                    resultString.append("\n\t\"" + it.next().getKeyString() + "\"");
+                    resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }
-                resultString.append("\nkonnten nicht erfolgreich zu dem Flurstück:\n\t\"" + joinKey.getKeyString()
-                            + "\" \n\n vereinigt werden. Fehler:\n");
+                resultString.append("\nkonnten nicht erfolgreich zu dem Flurstück:\n\t\"")
+                        .append(joinKey.getKeyString())
+                        .append("\" \n\n vereinigt werden. Fehler:\n");
+
                 if (ex instanceof ActionNotSuccessfulException) {
                     final ActionNotSuccessfulException reason = (ActionNotSuccessfulException)ex;
                     if (reason.hasNestedExceptions()) {

@@ -18,12 +18,16 @@ import org.netbeans.spi.wizard.WizardController;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
+
+import de.cismet.lagis.wizard.GeometryAreaChecker;
+import de.cismet.lagis.wizard.GeometryWorker;
 
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
@@ -37,7 +41,7 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
 
     //~ Static fields/initializers ---------------------------------------------
 
-    public static final String KEY_RESULT = "result";
+// public static final String KEY_RESULT = "result";
     public static final String JOIN_ACTION_MODE = "joinAction";
     public static final String SPLIT_ACTION_MODE = "splitAction";
     public static final String SPLIT_JOIN_ACTION_MODE = "splitJoinAction";
@@ -155,17 +159,33 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
 
     /**
      * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
      */
-    public synchronized void refreshCount() {
+    public WizardController getWizardController() {
+        return this.wizardController;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  wizardData  DOCUMENT ME!
+     */
+    public synchronized void refresh(final Map wizardData) {
+        this.wizardData = wizardData;
+
         if (mode.equals(SPLIT_ACTION_MODE) || mode.equals(SPLIT_JOIN_ACTION_MODE)) {
             if (log.isDebugEnabled()) {
                 log.debug("Resultart: refresh Count");
             }
+
             final Integer splitCount = (Integer)wizardData.get(SplitActionChoosePanel.KEY_SPLIT_COUNT);
+
             if ((splitCount != null) && (resultCandidates != null) && (splitCount != resultCandidates.size())) {
                 if (log.isDebugEnabled()) {
                     log.debug("Anzahl neu erstellter Flurstücke: " + splitCount);
                 }
+
                 panAction.removeAll();
                 resultCandidates.clear();
                 splitKeys.clear();
@@ -180,15 +200,19 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
                 spAction.revalidate();
             }
         }
+
+        this.validationStateChanged(this);
     }
 
     @Override
     public void validationStateChanged(final Object validatedObject) {
         // TODO SCHLECHTER NAME WEIL ES AUCH EIN JOIN SEIN KANN
         splitKeys.clear();
+
         final Iterator<FlurstueckChooser> splitMembers = resultCandidates.iterator();
         while (splitMembers.hasNext()) {
             final FlurstueckChooser curSplitMember = splitMembers.next();
+
             if (curSplitMember.getStatus() == Validatable.ERROR) {
                 if (log.isDebugEnabled()) {
                     log.debug("Mindestens ein Flurstück ,dass aus dem Split entsteht, ist nicht valide");
@@ -196,8 +220,10 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
                 wizardController.setProblem(curSplitMember.getValidationMessage());
                 return;
             }
+
             splitKeys.add(curSplitMember.getCurrentFlurstueckSchluessel());
         }
+
         if (checkForDuplicatedFlurstuecke(resultCandidates)) {
             wizardController.setProblem("Es darf kein Flurstück doppelt ausgewählt werden.");
             return;
@@ -205,15 +231,91 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
         if (log.isDebugEnabled()) {
             log.debug("Alle Flurstücke für Result sind valide");
         }
-        if (mode.equals(JOIN_ACTION_MODE)) {
-            wizardData.put(KEY_JOIN_KEY, splitKeys.get(0));
-            wizardController.setProblem(null);
-            wizardController.setForwardNavigationMode(wizardController.MODE_CAN_FINISH);
-        } else if (mode.equals(SPLIT_ACTION_MODE) || mode.equals(SPLIT_JOIN_ACTION_MODE)) {
-            wizardData.put(KEY_SPLIT_KEYS, splitKeys);
-            wizardController.setProblem(null);
-            wizardController.setForwardNavigationMode(wizardController.MODE_CAN_FINISH);
+
+        if (JOIN_ACTION_MODE.equals(this.mode)) {
+            this.splitKeys.addAll((ArrayList<FlurstueckSchluessel>)wizardData.get(
+                    JoinActionChoosePanel.KEY_JOIN_KEYS));
+
+            if (this.checkGeometryAreas(this.splitKeys.get(0), this.splitKeys)) {
+                this.wizardData.put(KEY_JOIN_KEY, this.splitKeys.get(0));
+                this.wizardController.setProblem(null);
+                this.wizardController.setForwardNavigationMode(WizardController.MODE_CAN_CONTINUE);
+            }
+        } else if (SPLIT_ACTION_MODE.equals(this.mode)) {
+            final Object splitCandObj = this.wizardData.get(SplitActionChoosePanel.KEY_SPLIT_CANDIDATE);
+
+            if (splitCandObj instanceof FlurstueckSchluessel) {
+                final FlurstueckSchluessel targetKey = (FlurstueckSchluessel)splitCandObj;
+
+                final ArrayList<FlurstueckSchluessel> fsKeys = new ArrayList<FlurstueckSchluessel>(this.splitKeys);
+                fsKeys.add(targetKey);
+
+                if (this.checkGeometryAreas(targetKey, fsKeys)) {
+                    this.wizardData.put(KEY_SPLIT_KEYS, this.splitKeys);
+                    this.wizardController.setProblem(null);
+                    this.wizardController.setForwardNavigationMode(WizardController.MODE_CAN_CONTINUE);
+                }
+            } else {
+                log.error("Split candidate has not type FlurstueckSchluessel: " + splitCandObj);
+                this.wizardController.setProblem(
+                    "Ein interner Fehler ist aufgetreten. Bitte benachrichtigen Sie den Support.");
+            }
+        } else if (SPLIT_JOIN_ACTION_MODE.equals(this.mode)) {
+            final Object joinData = this.wizardData.get(JoinActionChoosePanel.KEY_JOIN_KEYS);
+            if (!(joinData instanceof List)) {
+                log.error("Join data does not have type 'List': " + joinData);
+                this.wizardController.setProblem(
+                    "Ein interner Fehler ist aufgetreten. Bitte benachrichtigen Sie den Support.");
+                return;
+            }
+            final List<FlurstueckSchluessel> joinKeys = (List)joinData;
+
+            final ArrayList<FlurstueckSchluessel> allKeys = new ArrayList<FlurstueckSchluessel>();
+            allKeys.addAll(splitKeys);
+            allKeys.addAll(joinKeys);
+
+            if (this.checkGeometryAreas(joinKeys, allKeys)) {
+                this.wizardData.put(JoinActionChoosePanel.KEY_JOIN_KEYS, joinKeys);
+                this.wizardData.put(KEY_SPLIT_KEYS, splitKeys);
+                this.wizardController.setProblem(null);
+                this.wizardController.setForwardNavigationMode(WizardController.MODE_CAN_CONTINUE);
+            }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   targetKeys  DOCUMENT ME!
+     * @param   fsKeys      DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean checkGeometryAreas(final List<FlurstueckSchluessel> targetKeys,
+            final List<FlurstueckSchluessel> fsKeys) {
+        final GeometryWorker gw = new GeometryWorker(fsKeys);
+        final GeometryAreaChecker checker = new GeometryAreaChecker(targetKeys, this, this.wizardController);
+        gw.addPreExecutionListener(checker);
+        gw.addPostExecutionListener(checker);
+        gw.call();
+
+        this.wizardData.put(SummaryPanel.GEOM_AREA_CHECKER, checker);
+
+        return !checker.hasProblem();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   targetKey  DOCUMENT ME!
+     * @param   fsKeys     DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean checkGeometryAreas(final FlurstueckSchluessel targetKey, final List<FlurstueckSchluessel> fsKeys) {
+        final ArrayList<FlurstueckSchluessel> targetKeys = new ArrayList<FlurstueckSchluessel>(1);
+        targetKeys.add(targetKey);
+        return this.checkGeometryAreas(targetKeys, fsKeys);
     }
 
     /**
@@ -250,7 +352,6 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
                                     }
                                     return true;
                                 }
-                                // flurstuecke.add(flurstueckToTest);
                             }
                             if (log.isDebugEnabled()) {
                                 log.debug("Schlüssel sind nicht gleich");

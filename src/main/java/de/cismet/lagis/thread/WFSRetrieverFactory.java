@@ -210,7 +210,6 @@ public class WFSRetrieverFactory implements Configurable {
 
         //~ Instance fields ----------------------------------------------------
 
-        private FlurstueckSchluessel key;
         private DoneDelegate doneDelegate;
         private HashMap<Integer, Boolean> properties;
         // private int mode;
@@ -239,6 +238,15 @@ public class WFSRetrieverFactory implements Configurable {
         }
 
         //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public FlurstueckSchluessel getFlurstueckKey() {
+            return flurstueckKey;
+        }
 
         @Override
         protected Geometry doInBackground() throws Exception {
