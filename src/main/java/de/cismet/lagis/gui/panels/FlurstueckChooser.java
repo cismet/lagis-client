@@ -2879,7 +2879,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
                                 final FlurstueckArt flurstueckArt = flurstueckKey.getFlurstueckArt();
                                 final DefaultStyledFeature styledFeature = (DefaultStyledFeature)tmpFeature;
-                                final String flurstueckArtBez = flurstueckArt.getBezeichnung();
+                                final String flurstueckArtBez = (flurstueckArt != null) ? flurstueckArt
+                                                .getBezeichnung() : null;
                                 final Date gueltigBis = flurstueckKey.getGueltigBis();
 
                                 if (flurstueckArt == null) {
