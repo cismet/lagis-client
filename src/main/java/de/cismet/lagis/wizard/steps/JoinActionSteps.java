@@ -27,6 +27,7 @@ import org.netbeans.spi.wizard.WizardPanelProvider;
 import java.awt.EventQueue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -61,6 +62,8 @@ public class JoinActionSteps extends WizardPanelProvider {
     private SummaryPanel summaryPanel;
     private JoinActionChoosePanel joinPanel;
 
+    private final Map wizardData;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -71,6 +74,8 @@ public class JoinActionSteps extends WizardPanelProvider {
             "Flurstück umbenennen...",
             new String[] { "Zusammenlegen", "Ergebnis", "Zusammenfassung" },
             new String[] { "Auswahl der Flurstücke", "Flurstück anlegen", "Zusammenfassung" });
+
+        wizardData = new HashMap();
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -79,16 +84,16 @@ public class JoinActionSteps extends WizardPanelProvider {
     protected JComponent createPanel(final WizardController wizardController, final String id, final Map wizardData) {
         switch (indexOfStep(id)) {
             case 0: {
-                this.joinPanel = new JoinActionChoosePanel(wizardController, wizardData);
+                this.joinPanel = new JoinActionChoosePanel(wizardController, this.wizardData);
                 return this.joinPanel;
             }
             case 1: {
-                resultingPanel = new ResultingPanel(wizardController, wizardData, ResultingPanel.JOIN_ACTION_MODE);
+                resultingPanel = new ResultingPanel(wizardController, this.wizardData, ResultingPanel.JOIN_ACTION_MODE);
                 return resultingPanel;
             }
             case 2: {
                 this.summaryPanel = new SummaryPanel();
-                this.summaryPanel.refresh(wizardData);
+                this.summaryPanel.refresh(this.wizardData);
                 return this.summaryPanel;
             }
             default: {
@@ -107,7 +112,7 @@ public class JoinActionSteps extends WizardPanelProvider {
 
     @Override
     protected Object finish(final Map settings) throws WizardException {
-        return new BackgroundResultCreator();
+        return new BackgroundResultCreator(this.wizardData);
     }
 
     @Override
@@ -123,11 +128,11 @@ public class JoinActionSteps extends WizardPanelProvider {
         controller.setBusy(false);
 
         if (this.joinPanel == panel) {
-            this.joinPanel.refresh(wizardData);
+            this.joinPanel.refresh(this.wizardData);
         } else if (resultingPanel == panel) {
-            resultingPanel.refresh(wizardData);
+            resultingPanel.refresh(this.wizardData);
         } else if (this.summaryPanel == panel) {
-            this.summaryPanel.refresh(wizardData);
+            this.summaryPanel.refresh(this.wizardData);
         } else {
             log.warn("recycleExistingPanel(): Unknown panel " + panel);
         }
@@ -144,12 +149,27 @@ public class JoinActionSteps extends WizardPanelProvider {
 
         //~ Instance fields ----------------------------------------------------
 
+        private final Map wizardData;
+
         private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new BackgroundResultCreator object.
+         *
+         * @param  wizardData  DOCUMENT ME!
+         */
+        public BackgroundResultCreator(final Map wizardData) {
+            this.wizardData = wizardData;
+        }
 
         //~ Methods ------------------------------------------------------------
 
         @Override
-        public void start(final Map wizardData, final ResultProgressHandle progress) {
+        public void start(Map wizardData, final ResultProgressHandle progress) {
+            wizardData = this.wizardData;
+
             if (log.isDebugEnabled()) {
                 log.debug("WizardFinisher: Flurstueck joinen: ");
             }
@@ -159,7 +179,7 @@ public class JoinActionSteps extends WizardPanelProvider {
                     JoinActionChoosePanel.KEY_JOIN_KEYS);
             if (log.isDebugEnabled()) {
                 log.debug("Flurstücke die gejoined werden sollen: " + joinKeys);
-                log.debug("Flurstück das entsteht : " + joinKey.getKeyString());
+                log.debug("Flurstück das entsteht : " + ((joinKey == null) ? "null" : joinKey.getKeyString()));
             }
             try {
                 progress.setBusy("Flurstück wird gejoined");

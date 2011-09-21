@@ -56,14 +56,14 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
 
     //~ Instance fields --------------------------------------------------------
 
+    private final Map wizardData;
+
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
     private ResultingPanel resultingPanel;
     private SummaryPanel summaryPanel;
     private JoinActionChoosePanel joinPanel;
     private SplitActionChoosePanel splitPanel;
-
-    private final Map wizardData;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -76,7 +76,7 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
             new String[] { "Zusammenlegen", "Teilen", "Ergebnis", "Zusammenfassung" },
             new String[] { "Zusammenlegen", "Teilen", "Anlegen", "Zusammenfassung" });
 
-        this.wizardData = new HashMap();
+        wizardData = new HashMap();
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -123,7 +123,7 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
 
     @Override
     protected Object finish(final Map settings) throws WizardException {
-        return new BackgroundResultCreator();
+        return new BackgroundResultCreator(this.wizardData);
     }
 
     @Override
@@ -162,12 +162,27 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
 
         //~ Instance fields ----------------------------------------------------
 
+        private final Map wizardData;
+
         private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new BackgroundResultCreator object.
+         *
+         * @param  wizardData  DOCUMENT ME!
+         */
+        public BackgroundResultCreator(final Map wizardData) {
+            this.wizardData = wizardData;
+        }
 
         //~ Methods ------------------------------------------------------------
 
         @Override
-        public void start(final Map wizardData, final ResultProgressHandle progress) {
+        public void start(Map wizardData, final ResultProgressHandle progress) {
+            wizardData = this.wizardData;
+
             if (log.isDebugEnabled()) {
                 log.debug("WizardFinisher: Flurstueck joinen/splitten: ");
             }
