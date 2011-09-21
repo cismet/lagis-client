@@ -37,8 +37,6 @@ import com.sun.net.httpserver.HttpServer;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-import java_cup.parser;
-
 import net.infonode.docking.DockingWindow;
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.SplitWindow;
@@ -59,7 +57,6 @@ import net.infonode.util.Direction;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -189,8 +186,8 @@ import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 
-import de.cismet.lagisEE.util.FlurKey;
-
+import de.cismet.lookupoptions.gui.OptionsClient;
+import de.cismet.lookupoptions.gui.OptionsDialog;
 import de.cismet.tools.StaticDecimalTools;
 
 import de.cismet.tools.configuration.Configurable;
@@ -199,6 +196,7 @@ import de.cismet.tools.configuration.NoWriteError;
 
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
+import de.cismet.tools.gui.downloadmanager.DownloadManagerAction;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
 
 /**
@@ -433,6 +431,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private javax.swing.JButton cmdCopyFlaeche;
     private javax.swing.JButton cmdPasteFlaeche;
     private javax.swing.JButton cmdPrint;
+    private javax.swing.JButton cmdDownloads;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator12;
     private javax.swing.JSeparator jSeparator13;
@@ -563,6 +562,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
 
             configManager.addConfigurable(this);
+            
+            configManager.addConfigurable(OptionsClient.getInstance());
+            configManager.configure(OptionsClient.getInstance());
+            
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Konfiguriere Karten Widget");
             }
@@ -1691,6 +1694,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         cmdCopyFlaeche = new javax.swing.JButton();
         cmdPasteFlaeche = new javax.swing.JButton();
         cmdPrint = new javax.swing.JButton();
+        cmdDownloads = new javax.swing.JButton();
         btnReloadFlurstueck = new javax.swing.JButton();
         btnOpenWizard = new javax.swing.JButton();
         btnAktenzeichenSuche = new javax.swing.JButton();
@@ -1863,6 +1867,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 }
             });
         toolbar.add(cmdPrint);
+        
+        cmdDownloads.setAction(new DownloadManagerAction(this));
+        cmdDownloads.setBorderPainted(false);
+        cmdDownloads.setFocusable(false);
+        cmdDownloads.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdDownloads.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdDownloads.setPreferredSize(new java.awt.Dimension(23, 23));
+        cmdDownloads.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/download.png")));
+        toolbar.add(cmdDownloads);
 
         btnReloadFlurstueck.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/reload.gif"))); // NOI18N
@@ -2150,7 +2163,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mniOptions.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/menue/tooloptions.png"))); // NOI18N
         mniOptions.setText("Optionen");
-        mniOptions.setEnabled(false);
+//        mniOptions.setEnabled(false);
         mniOptions.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
@@ -3226,7 +3239,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  evt  DOCUMENT ME!
      */
     private void mniOptionsActionPerformed(final java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
+        final OptionsDialog od = new OptionsDialog(this, true);
+        od.setLocationRelativeTo(this);
+        od.setVisible(true);
     }
 
     /**
