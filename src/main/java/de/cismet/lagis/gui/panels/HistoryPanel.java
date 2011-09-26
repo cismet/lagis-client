@@ -25,8 +25,12 @@ import att.grappa.Subgraph;
 
 import org.apache.log4j.Logger;
 
+import org.openide.util.Exceptions;
+
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -36,13 +40,10 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
 
 import javax.swing.Icon;
 import javax.swing.JScrollPane;
@@ -66,15 +67,6 @@ import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
-//import org.jgraph.JGraph;
-//import org.jgraph.graph.DefaultCellViewFactory;
-//import org.jgraph.graph.DefaultEdge;
-//import org.jgraph.graph.DefaultGraphCell;
-//import org.jgraph.graph.DefaultGraphModel;
-//import org.jgraph.graph.DefaultPort;
-//import org.jgraph.graph.GraphConstants;
-//import org.jgraph.graph.GraphLayoutCache;
-//import org.jgraph.graph.GraphModel;
 
 /**
  * DOCUMENT ME!
@@ -88,26 +80,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
     // TODO Auslagern in ConfigFile
     private static final String DEFAULT_DOT_HEADER = "digraph G{\n";
-    private static final String DEFAULT_DOT_FOOTER = "}";
-    // TODO UGLY WINNING --> better find encoding problem or use other framework
-    private static final String UE_UPPER_CASE_REPLACEMENT = "<cismap:UE>";
-    private static final String UE_LOWER_CASE_REPLACEMENT = "<cismap:ue>";
-    private static final String SS_LOWER_CASE_REPLACEMENT = "<cismap:ss>";
-    private static final String AE_UPPER_CASE_REPLACEMENT = "<cismap:AE>";
-    private static final String AE_LOWER_CASE_REPLACEMENT = "<cismap:ae>";
-    private static final String OE_UPPER_CASE_REPLACEMENT = "<cismap:OE>";
-    private static final String OE_LOWER_CASE_REPLACEMENT = "<cismap:oe>";
-    private static double CELL_WITDH = 200;
-    private static double CELL_HEIGHT = 20;
-    private static double DEFAULT_GAP_X = 20;
-    private static double DEFAULT_GAP_Y = 20;
+
+    private static HistoryPanel instance;
 
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private StringBuffer dotGraphRepresentation = new StringBuffer();
     private String encodedDotGraphRepresentation;
-    private String decodedDotGraphRepresentation;
     private Timer levelTimer = new Timer();
     private URL historyServerUrl = null;
     private HashMap<String, FlurstueckSchluessel> nodeToKeyMap = new HashMap<String, FlurstueckSchluessel>();
@@ -116,12 +96,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     // private Thread panelRefresherThread;
     private BackgroundUpdateThread<Flurstueck> updateThread;
     // TODO THREAD
-    private double currentCellXCoordinate = 100;
-    private double graphStartPosition = DEFAULT_GAP_Y;
-    private double currentCellYCoordinate = DEFAULT_GAP_Y;
-    private double maxBreadth = 1;
-    private Map changeMap = new Hashtable();
-    private Hashtable<Integer, Integer> nodePerLevel = new Hashtable<Integer, Integer>();
     // TODO NOT DIRECTLY OUTPUT THE ERRORS ON ERR
     // private double cellxcoordinate =
     private Graph graph = new Graph("Flurstück Historie");
@@ -426,10 +400,47 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             };
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
-        // jsp.getViewport().setBackingStoreEnabled(true);
+
+        instance = this;
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static HistoryPanel getInstance() {
+        if (instance == null) {
+            instance = new HistoryPanel();
+        }
+
+        return instance;
+    }
+
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @return  DOCUMENT ME!
+//     */
+//    public Image getImage() {
+//        final int width = this.gp.getWidth();
+//        final int height = this.gp.getHeight();
+//
+//        final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+//
+////        final Graphics imgGraphics = img.getGraphics();
+////        imgGraphics.setColor(gp.getBackground());
+////        imgGraphics.fillRect(0, 0, img.getWidth(), img.getHeight());
+//
+//        gp.print(img.getGraphics());
+//
+//
+//
+//
+//        return img;
+//    }
 
     @Override
     public void refresh(final Object refreshObject) {

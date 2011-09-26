@@ -121,9 +121,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     public static final int CREATION_MODE = 2;
     public static final int CONTINUATION_HISTORIC_MODE = 3;
 
-    //~ Instance fields --------------------------------------------------------
+    private static final Logger log = Logger.getLogger(FlurstueckChooser.class);
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    //~ Instance fields --------------------------------------------------------
 
     private GemarkungRetriever currentGemarkungsRetriever = null;
 
@@ -837,6 +837,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         try {
             wfsRequest = (Element)parent.getChild("WFSRequest").clone();
             wfsRequest.detach();
+
             final Format format = Format.getPrettyFormat();
             // TODO: WHY NOT USING UTF-8
             format.setEncoding("ISO-8859-1"); // NOI18N

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Notizen" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet">
+	<import value="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="param_notizen" class="java.lang.String"/>
+	<field name="notizen" class="java.lang.String"/>
+	<background>
+		<band/>
+	</background>
+	<columnHeader>
+		<band height="20">
+			<staticText>
+				<reportElement x="6" y="0" width="545" height="20"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Notizen]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="0" width="556" height="1">
+					<printWhenExpression><![CDATA[Boolean.valueOf($P{param_notizen} != null)]]></printWhenExpression>
+				</reportElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="66">
+			<textField>
+				<reportElement x="6" y="0" width="545" height="60"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{param_notizen}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band/>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>
