@@ -4918,11 +4918,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 }
             }
         }
-        System.out.println("BEFORE WRITE CONF");
-
         configManager.writeConfiguration();
-
-        System.out.println("END CLEANUP");
     }
 
     @Override
