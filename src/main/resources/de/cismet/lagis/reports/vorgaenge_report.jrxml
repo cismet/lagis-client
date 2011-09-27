@@ -20,7 +20,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font size="12" isBold="true"/>
+					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Vorgänge]]></text>
 			</staticText>
@@ -33,7 +33,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Aktz]]></text>
 			</staticText>
@@ -46,7 +46,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Preis / m²]]></text>
 			</staticText>
@@ -59,7 +59,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Art]]></text>
 			</staticText>
@@ -72,7 +72,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Vertragspartner]]></text>
 			</staticText>
@@ -85,7 +85,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Bem]]></text>
 			</staticText>
@@ -98,7 +98,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Auflassung]]></text>
 			</staticText>
@@ -111,7 +111,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Eintragung]]></text>
 			</staticText>
@@ -124,7 +124,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Kaufpreis NK]]></text>
 			</staticText>

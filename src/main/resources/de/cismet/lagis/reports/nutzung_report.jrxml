@@ -29,7 +29,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[B-W]]></text>
 			</staticText>
@@ -42,7 +42,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Bemerkung]]></text>
 			</staticText>
@@ -55,7 +55,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[B-Nr]]></text>
 			</staticText>
@@ -68,7 +68,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[A-kl]]></text>
 			</staticText>
@@ -81,7 +81,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[m²]]></text>
 			</staticText>
@@ -94,7 +94,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[€/m²]]></text>
 			</staticText>
@@ -107,7 +107,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Nutzung]]></text>
 			</staticText>
@@ -120,7 +120,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Wert]]></text>
 			</staticText>
@@ -133,14 +133,14 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Nutz]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font size="12" isBold="true"/>
+					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Nutzungen]]></text>
 			</staticText>
@@ -161,7 +161,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{b_wert}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -173,7 +175,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{nutz_arten_schluessel}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -185,7 +189,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{nutz_nr}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -197,7 +203,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{bem}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -209,7 +217,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{b_nr}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -221,7 +231,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{qm_preis}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -233,7 +245,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{anlageklasse}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -245,7 +259,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{flaeche}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -257,7 +273,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{wert}]]></textFieldExpression>
 				</textField>
 			</elementGroup>

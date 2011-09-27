@@ -12,9 +12,9 @@
 	<title>
 		<band height="21">
 			<staticText>
-				<reportElement x="0" y="0" width="802" height="20"/>
+				<reportElement x="0" y="0" width="555" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font size="12" isBold="true"/>
+					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[NKF-Übersicht]]></text>
 			</staticText>
@@ -34,7 +34,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Anlagenklasse]]></text>
 			</staticText>
@@ -47,7 +47,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Summe]]></text>
 			</staticText>
@@ -65,7 +65,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{anlagenklasse}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -77,7 +79,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{summe}]]></textFieldExpression>
 				</textField>
 			</elementGroup>

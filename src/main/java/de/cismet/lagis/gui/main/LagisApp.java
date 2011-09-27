@@ -172,8 +172,6 @@ import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.Widget;
 
-import de.cismet.lagis.report.FlurstueckDetailsReport;
-import de.cismet.lagis.report.FlurstueckDetailsReportDialog;
 import de.cismet.lagis.report.printing.ReportPrintingWidget;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
@@ -520,6 +518,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //        } catch (NamingException ex) {
 //            Exceptions.printStackTrace(ex);
 //        }
+
         this.context = context;
         try {
             EJBroker.setMainframe(this);
@@ -1780,7 +1779,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mniLisences = new javax.swing.JMenuItem();
         mniAbout = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+//        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         toolbar.setRollover(true);
         toolbar.setMinimumSize(new java.awt.Dimension(496, 33));
@@ -3618,6 +3618,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  evt  DOCUMENT ME!
      */
     private void mniCloseActionPerformed(final java.awt.event.ActionEvent evt) {
+        this.cleanUp();
         this.dispose();
     }
 
@@ -4917,7 +4918,11 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 }
             }
         }
+        System.out.println("BEFORE WRITE CONF");
+
         configManager.writeConfiguration();
+
+        System.out.println("END CLEANUP");
     }
 
     @Override

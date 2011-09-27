@@ -18,7 +18,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font size="12" isBold="true"/>
+					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Baumdatei]]></text>
 			</staticText>
@@ -31,7 +31,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Lage]]></text>
 			</staticText>
@@ -44,7 +44,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Baum-Nr.]]></text>
 			</staticText>
@@ -57,7 +57,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Baumbestand]]></text>
 			</staticText>
@@ -70,7 +70,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Fälldatum]]></text>
 			</staticText>
@@ -83,7 +83,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Auftragnehmer]]></text>
 			</staticText>
@@ -96,7 +96,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font size="10" isBold="true"/>
+					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
 				</textElement>
 				<text><![CDATA[Erfassung]]></text>
 			</staticText>

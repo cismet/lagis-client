@@ -12,8 +12,6 @@
  */
 package de.cismet.lagis.report.printing;
 
-import Sirius.navigator.ui.widget.CheckBoxComboBox;
-
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -25,7 +23,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Frame;
+import java.awt.EventQueue;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -36,8 +34,6 @@ import java.util.HashMap;
 import java.util.logging.Level;
 
 import javax.swing.JCheckBox;
-
-import de.cismet.cismap.commons.interaction.CismapBroker;
 
 import de.cismet.lagis.report.datasource.ADataSource;
 import de.cismet.lagis.report.datasource.BaumDateiDataSource;
@@ -76,6 +72,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private static final String PARAM_NOTIZEN = "param_notizen";     // NOI18N
 
     private static final String REPORT_MASTER = "/de/cismet/lagis/reports/FlurstueckDetailsReport.jasper"; // NOI18N
+// private static final String REPORT_MASTER = "/de/cismet/lagis/reports/current_flurstueck.jasper"; // NOI18N
 
     private static final String TARGET_FILE;
     private static final String TARGET_FILE_URL;
@@ -671,8 +668,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
                     }
                 }
             };
+
         CismetThreadPool.execute(r);
-        dispose();
+
+        setVisible(false);
     } //GEN-LAST:event_cmdOkActionPerformed
 
     /**
