@@ -28,7 +28,7 @@
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{gemarkung}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement stretchType="RelativeToTallestObject" x="79" y="24" width="67" height="12"/>
+					<reportElement stretchType="RelativeToTallestObject" x="79" y="23" width="67" height="12"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
 					</textElement>
@@ -49,7 +49,7 @@
 					<text><![CDATA[Gemarkung:]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="8" y="24" width="30" height="12"/>
+					<reportElement x="8" y="23" width="30" height="12"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="arial" size="10" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
 					</textElement>
