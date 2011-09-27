@@ -14,7 +14,7 @@
 			<staticText>
 				<reportElement x="0" y="0" width="555" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Verwaltungsbereich]]></text>
 			</staticText>
@@ -34,7 +34,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Dienststelle]]></text>
 			</staticText>
@@ -47,7 +47,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Fläche in m²]]></text>
 			</staticText>
@@ -66,7 +66,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{dienststelle}]]></textFieldExpression>
 				</textField>
@@ -80,7 +80,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{flaeche}]]></textFieldExpression>
 				</textField>

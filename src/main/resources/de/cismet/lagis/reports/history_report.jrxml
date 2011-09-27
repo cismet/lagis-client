@@ -12,7 +12,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Historie]]></text>
 			</staticText>

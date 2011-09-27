@@ -18,7 +18,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Vermietungen / Verpachtungen]]></text>
 			</staticText>
@@ -31,7 +31,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Lage]]></text>
 			</staticText>
@@ -44,7 +44,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Aktz]]></text>
 			</staticText>
@@ -57,7 +57,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Nutzung]]></text>
 			</staticText>
@@ -70,7 +70,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Beginn]]></text>
 			</staticText>
@@ -83,7 +83,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Ende]]></text>
 			</staticText>
@@ -96,7 +96,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Nutzer]]></text>
 			</staticText>
@@ -118,7 +118,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{ende}]]></textFieldExpression>
 				</textField>
@@ -132,7 +132,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{nutzung}]]></textFieldExpression>
 				</textField>
@@ -146,7 +146,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{lage}]]></textFieldExpression>
 				</textField>
@@ -160,7 +160,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{aktz}]]></textFieldExpression>
 				</textField>
@@ -174,7 +174,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{nutzer}]]></textFieldExpression>
 				</textField>
@@ -188,7 +188,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{beginn}]]></textFieldExpression>
 				</textField>

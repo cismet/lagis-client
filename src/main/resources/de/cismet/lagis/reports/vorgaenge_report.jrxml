@@ -20,7 +20,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Vorgänge]]></text>
 			</staticText>
@@ -33,7 +33,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Aktz]]></text>
 			</staticText>
@@ -46,7 +46,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Preis / m²]]></text>
 			</staticText>
@@ -59,7 +59,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Art]]></text>
 			</staticText>
@@ -72,7 +72,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Vertragspartner]]></text>
 			</staticText>
@@ -85,7 +85,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Bem]]></text>
 			</staticText>
@@ -98,7 +98,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Auflassung]]></text>
 			</staticText>
@@ -111,7 +111,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Eintragung]]></text>
 			</staticText>
@@ -124,7 +124,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Kaufpreis NK]]></text>
 			</staticText>
@@ -137,6 +137,48 @@
 		<band height="16">
 			<elementGroup>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="392" y="0" width="99" height="16"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{vertragspartner}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="322" y="0" width="70" height="16"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{eintragung}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="110" y="0" width="84" height="16"/>
+					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+						<pen lineWidth="0.25"/>
+						<topPen lineWidth="0.25"/>
+						<leftPen lineWidth="0.25"/>
+						<bottomPen lineWidth="0.25"/>
+						<rightPen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Right">
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{kaufpreis_nk}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 					<reportElement stretchType="RelativeToTallestObject" x="66" y="0" width="44" height="16"/>
 					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 						<pen lineWidth="0.25"/>
@@ -145,7 +187,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{aktz}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -157,7 +201,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{art}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -169,7 +215,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement textAlignment="Right"/>
+					<textElement textAlignment="Right">
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{qm_preis}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -181,7 +229,9 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{bemerkung}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
@@ -193,46 +243,12 @@
 						<bottomPen lineWidth="0.25"/>
 						<rightPen lineWidth="0.25"/>
 					</box>
-					<textElement/>
+					<textElement>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{auflassung}]]></textFieldExpression>
 				</textField>
 			</elementGroup>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement stretchType="RelativeToTallestObject" x="392" y="0" width="99" height="16"/>
-				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
-					<pen lineWidth="0.25"/>
-					<topPen lineWidth="0.25"/>
-					<leftPen lineWidth="0.25"/>
-					<bottomPen lineWidth="0.25"/>
-					<rightPen lineWidth="0.25"/>
-				</box>
-				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{vertragspartner}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement stretchType="RelativeToTallestObject" x="322" y="0" width="70" height="16"/>
-				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
-					<pen lineWidth="0.25"/>
-					<topPen lineWidth="0.25"/>
-					<leftPen lineWidth="0.25"/>
-					<bottomPen lineWidth="0.25"/>
-					<rightPen lineWidth="0.25"/>
-				</box>
-				<textElement/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{eintragung}]]></textFieldExpression>
-			</textField>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement stretchType="RelativeToTallestObject" x="110" y="0" width="84" height="16"/>
-				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
-					<pen lineWidth="0.25"/>
-					<topPen lineWidth="0.25"/>
-					<leftPen lineWidth="0.25"/>
-					<bottomPen lineWidth="0.25"/>
-					<rightPen lineWidth="0.25"/>
-				</box>
-				<textElement textAlignment="Right"/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{kaufpreis_nk}]]></textFieldExpression>
-			</textField>
 		</band>
 	</detail>
 	<columnFooter>

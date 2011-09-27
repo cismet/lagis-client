@@ -19,7 +19,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="DejaVu Sans" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Rechte und Belastungen]]></text>
 			</staticText>
@@ -32,7 +32,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Recht]]></text>
 			</staticText>
@@ -45,7 +45,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Art]]></text>
 			</staticText>
@@ -58,7 +58,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Art d. Rechts]]></text>
 			</staticText>
@@ -71,7 +71,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Nr]]></text>
 			</staticText>
@@ -84,7 +84,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Löschung]]></text>
 			</staticText>
@@ -97,7 +97,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Bemerkung]]></text>
 			</staticText>
@@ -110,7 +110,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="DejaVu Sans" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Eintragung]]></text>
 			</staticText>
@@ -132,7 +132,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{art_des_rechts}]]></textFieldExpression>
 				</textField>
@@ -146,7 +146,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{loeschung}]]></textFieldExpression>
 				</textField>
@@ -160,7 +160,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{recht}]]></textFieldExpression>
 				</textField>
@@ -174,7 +174,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{art}]]></textFieldExpression>
 				</textField>
@@ -188,7 +188,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{nr}]]></textFieldExpression>
 				</textField>
@@ -202,7 +202,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{bemerkung}]]></textFieldExpression>
 				</textField>
@@ -216,7 +216,7 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF"/>
+						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<textFieldExpression class="java.lang.String"><![CDATA[$F{eintragung}]]></textFieldExpression>
 				</textField>

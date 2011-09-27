@@ -33,35 +33,35 @@
 				<staticText>
 					<reportElement x="110" y="24" width="158" height="21"/>
 					<textElement>
-						<font fontName="SansSerif" size="12" isBold="true" pdfFontName="Helvetica"/>
+						<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<text><![CDATA[Katasteramt]]></text>
 				</staticText>
 				<staticText>
 					<reportElement x="307" y="3" width="240" height="42"/>
 					<textElement>
-						<font fontName="SansSerif" size="16" isBold="true" pdfFontName="Helvetica"/>
+						<font fontName="arial" size="16" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<text><![CDATA[Auszug aus dem Liegenschaftskataster]]></text>
 				</staticText>
 				<staticText>
 					<reportElement x="110" y="3" width="158" height="21"/>
 					<textElement>
-						<font fontName="SansSerif" size="16" isBold="true" pdfFontName="Helvetica"/>
+						<font fontName="arial" size="16" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<text><![CDATA[Stadt Wuppertal]]></text>
 				</staticText>
 				<staticText>
 					<reportElement x="110" y="45" width="158" height="20"/>
 					<textElement>
-						<font fontName="SansSerif" size="12" pdfFontName="Helvetica"/>
+						<font fontName="arial" size="12" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<text><![CDATA[Johannes-Rau-Platz 1]]></text>
 				</staticText>
 				<staticText>
 					<reportElement x="110" y="65" width="158" height="20"/>
 					<textElement>
-						<font fontName="SansSerif" size="12" pdfFontName="Helvetica"/>
+						<font fontName="arial" size="12" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<text><![CDATA[42275 Wuppertal]]></text>
 				</staticText>
@@ -188,7 +188,7 @@
 				<staticText>
 					<reportElement x="7" y="6" width="538" height="30" backcolor="#EBEBEB"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="SansSerif" size="8" pdfFontName="Helvetica"/>
+						<font fontName="arial" size="8" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
 					<text><![CDATA[Dieser Ausdruck ist gesetzlich geschützt. Vervielfältigungen, Umarbeiten, Veröffentlichungen oder die Weitergabe an Dritte nur mit Zustimmung des Herausgebers, ausgenommen Vervielfältigungen und Umarbeitungen zur ínnerbetrieblichen Verwendung bei Behörden.]]></text>
 				</staticText>
@@ -203,7 +203,7 @@
 			<textField>
 				<reportElement x="342" y="1" width="209" height="13"/>
 				<textElement textAlignment="Right">
-					<font fontName="SansSerif" pdfFontName="Helvetica"/>
+					<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA["Seite "+$V{PAGE_NUMBER}+" von " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>

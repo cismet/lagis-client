@@ -14,7 +14,7 @@
 			<staticText>
 				<reportElement x="6" y="0" width="545" height="20"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="DejaVu Sans" size="12" isBold="true" isPdfEmbedded="true"/>
+					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Notizen]]></text>
 			</staticText>
@@ -30,7 +30,7 @@
 			<textField>
 				<reportElement x="6" y="0" width="545" height="60"/>
 				<textElement>
-					<font fontName="DejaVu Sans" pdfFontName="de/cismet/lagis/reports/DEJAVUSANS.TTF" isPdfEmbedded="true"/>
+					<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{param_notizen}]]></textFieldExpression>
 			</textField>
