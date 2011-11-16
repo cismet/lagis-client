@@ -61,6 +61,9 @@ import javax.swing.event.DocumentListener;
 import de.cismet.cismap.commons.features.DefaultStyledFeature;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.PureNewFeature;
+import de.cismet.cismap.commons.features.StyledFeature;
+import de.cismet.cismap.commons.gui.FeatureGroupWrapper;
+import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -107,6 +110,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "Flurstueck Suchpanel";
+    public static final String FEATURE_GRP = "Flurstück";
 
     private static final String FILTER_CURRENT_NAME = "nur aktuelle";
     private static final String FILTER_HISTORIC_NAME = "nur historische";
@@ -2924,6 +2928,10 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 // log.fatal("FeatureCollection"+featuresCollection); log.fatal("hoffentlich 2:
                                 // "+featuresCollection.getFeature(0).getGeometryPropertyValues().length);
                                 tmpFeature.setGeometry(result);
+
+                                tmpFeature = new StyledFeatureGroupWrapper((StyledFeature)tmpFeature,
+                                        FEATURE_GRP,
+                                        FEATURE_GRP);
                             } else if (hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
                                 if (log.isDebugEnabled()) {
                                     log.debug("Mehr als 2 Verwaltungsbereiche & keine Geometrien zugeordnet");
@@ -2932,6 +2940,14 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 tmpFeature = new PureNewFeature(result);
                                 tmpFeature.setEditable(true);
                                 ((PureNewFeature)tmpFeature).setCanBeSelected(true);
+
+//                                tmpFeature = new FeatureGroupWrapper(
+//                                        tmpFeature,
+//                                        "Verwaltungsbereich",
+//                                        "Verwaltungsbereich");
+//
+//                                log.fatal("created FeatureGroupWrapper");
+
                             } else {
                                 log.warn("Nicht vorgesehner Fall !! --> Der Karte wird nichts hinzugefügt!");
                             }

@@ -24,12 +24,21 @@ import org.jdom.Element;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JSeparator;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollectionEvent;
@@ -37,7 +46,9 @@ import de.cismet.cismap.commons.features.FeatureCollectionListener;
 import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.features.WFSFeature;
+import de.cismet.cismap.commons.gui.FeatureGroupMember;
 import de.cismet.cismap.commons.gui.MappingComponent;
+import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 import de.cismet.cismap.commons.gui.piccolo.PFeature;
 import de.cismet.cismap.commons.gui.piccolo.eventlistener.AttachFeatureListener;
 import de.cismet.cismap.commons.gui.piccolo.eventlistener.CreateGeometryListener;
@@ -57,6 +68,7 @@ import de.cismet.lagis.interfaces.NoPermissionsWidget;
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
 import de.cismet.lagis.widget.AbstractWidget;
+import de.cismet.lagis.widget.RessortFactory;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
@@ -85,8 +97,18 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "Karten Panel";
+    private static final String PROVIDER_BAUM = "Baum";                   // NOI18N
+    private static final String PROVIDER_MIPA = "MiPa";                   // NOI18N
+    private static final String PERM_KEY_BAUM = "Baumdatei";              // NOI18N
+    private static final String PERM_KEY_MIPA = "Vermietung/Verpachtung"; // NOI18N
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    //~ Instance fields --------------------------------------------------------
+
+    // Variables declaration - do not modify
+
+    // NOI18N
+
+    // Variables declaration - do not modify
     private javax.swing.JButton cmdALB;
     private javax.swing.JButton cmdAdd;
     private javax.swing.JButton cmdAddHandle;
@@ -116,6 +138,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JToolBar jToolBar1;
+    // End of variables declaration
 
     private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private MappingComponent mappingComponent;
@@ -125,6 +148,17 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private String flurstueckZaehlerIdentifier = null;
     private String flurstueckNennerIdentifier = null;
     private boolean isEditable = true;
+
+    private final JButton cmdCopyFlaeche = new JButton();
+    private final JButton cmdPasteFlaeche = new JButton();
+
+    private Object clipboard = null;
+    private boolean clipboardPasted = true; // wegen des ersten mals
+    private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
+
+    private final Map<String, FeatureGroupActionListener> featureGroupButtonListenerMap;
+
+    //~ Constructors -----------------------------------------------------------
 
     /**
      * Creates new form KartenPanel.
@@ -191,6 +225,214 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         mappingComponent.setBackgroundEnabled(true);
         this.add(BorderLayout.CENTER, mappingComponent);
         // TODO make enumartion for InteractionModes
+
+        this.configureCopyPaste();
+
+        this.featureGroupButtonListenerMap = new HashMap<String, FeatureGroupActionListener>();
+
+        this.addFeatureGroupButton(
+            FlurstueckChooser.FEATURE_GRP,
+            "Flurstück",
+            "/de/cismet/lagis/ressource/icons/layer_flurstueck.png",
+            "/de/cismet/lagis/ressource/icons/layer_flurstueck_sw.png");
+
+        this.addFeatureGroupButton(
+            VerwaltungsPanel.PROVIDER_NAME,
+            "Verwaltungsbereiche",
+            "/de/cismet/lagis/ressource/icons/layer_vb.png",
+            "/de/cismet/lagis/ressource/icons/layer_vb_sw.png");
+
+        this.addFeatureGroupButton(
+            ReBePanel.PROVIDER_NAME,
+            "ReBe",
+            "/de/cismet/lagis/ressource/icons/layer_rebe.png",
+            "/de/cismet/lagis/ressource/icons/layer_rebe_sw.png");
+
+        final RessortFactory ressortFactory = RessortFactory.getInstance();
+        final HashMap<String, AbstractWidget> ressorts = ressortFactory.getRessorts();
+
+        if (ressorts.containsKey(PERM_KEY_BAUM)) {
+            this.addFeatureGroupButton(
+                PROVIDER_BAUM,
+                "Baumdatei",
+                "/de/cismet/lagis/ressource/icons/layer_baum.png",
+                "/de/cismet/lagis/ressource/icons/layer_baum_sw.png");
+        }
+
+        if (ressorts.containsKey(PERM_KEY_MIPA)) {
+            this.addFeatureGroupButton(
+                PROVIDER_MIPA,
+                "Vermietung/Verpachtung",
+                "/de/cismet/lagis/ressource/icons/layer_mipa.png",
+                "/de/cismet/lagis/ressource/icons/layer_mipa_sw.png");
+        }
+
+        this.addSeparator();
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void addSeparator() {
+        final JSeparator sep = new JSeparator(javax.swing.SwingConstants.VERTICAL);
+        sep.setMaximumSize(new java.awt.Dimension(2, 32767));
+        sep.setMinimumSize(new java.awt.Dimension(2, 10));
+        sep.setPreferredSize(new java.awt.Dimension(2, 10));
+
+        this.jToolBar1.add(sep);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  featureGroup  DOCUMENT ME!
+     * @param  tooltipText   DOCUMENT ME!
+     * @param  icon          DOCUMENT ME!
+     * @param  invisIcon     DOCUMENT ME!
+     */
+    private void addFeatureGroupButton(final String featureGroup,
+            final String tooltipText,
+            final String icon,
+            final String invisIcon) {
+        final JButton button = new JButton();
+
+        button.setIcon(new ImageIcon(getClass().getResource(icon)));
+        button.setPressedIcon(widgetIcon);
+
+        final FeatureGroupActionListener listener = new FeatureGroupActionListener(
+                button,
+                mappingComponent,
+                featureGroup,
+                tooltipText,
+                icon,
+                invisIcon);
+
+        button.addActionListener(listener);
+        button.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 3, 1, 3));
+        button.setIconTextGap(8);
+        button.setMargin(new java.awt.Insets(10, 14, 10, 14));
+
+        this.jToolBar1.add(button);
+        this.featureGroupButtonListenerMap.put(featureGroup, listener);
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void configureCopyPaste() {
+        cmdCopyFlaeche.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyFl16.png"))); // NOI18N
+        cmdCopyFlaeche.setToolTipText("Fläche kopieren");
+        cmdCopyFlaeche.setBorderPainted(false);
+        cmdCopyFlaeche.setEnabled(false);
+        cmdCopyFlaeche.setFocusPainted(false);
+        cmdCopyFlaeche.setFocusable(false);
+        cmdCopyFlaeche.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 3, 1, 3));
+        cmdCopyFlaeche.setIconTextGap(8);
+        cmdCopyFlaeche.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdCopyFlaeche.setPreferredSize(new java.awt.Dimension(23, 23));
+        cmdCopyFlaeche.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdCopyFlaeche.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdCopyFlaecheActionPerformed(evt);
+                }
+            });
+
+        cmdPasteFlaeche.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteFl16.png"))); // NOI18N
+        cmdPasteFlaeche.setToolTipText("Fläche einfügen");
+        cmdPasteFlaeche.setBorderPainted(false);
+        cmdPasteFlaeche.setEnabled(false);
+        cmdPasteFlaeche.setFocusPainted(false);
+        cmdPasteFlaeche.setFocusable(false);
+        cmdPasteFlaeche.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 3, 1, 3));
+        cmdPasteFlaeche.setIconTextGap(8);
+        cmdPasteFlaeche.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdPasteFlaeche.setPreferredSize(new java.awt.Dimension(23, 23));
+        cmdPasteFlaeche.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdPasteFlaeche.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdPasteFlaecheActionPerformed(evt);
+                }
+            });
+
+        jToolBar1.add(cmdCopyFlaeche, 21);
+        jToolBar1.add(cmdPasteFlaeche, 22);
+
+        cmdCopyFlaeche.setVisible(false);
+        cmdPasteFlaeche.setVisible(false);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdCopyFlaecheActionPerformed(final java.awt.event.ActionEvent evt) {
+        final int answer = JOptionPane.YES_OPTION;
+        copiedFeatures.clear();
+        clipboard = LagisBroker.getInstance().getMappingComponent().getFeatureCollection().getSelectedFeatures();
+        if (answer == JOptionPane.YES_OPTION) {
+            if (clipboard != null) {
+                if (clipboard instanceof Collection) {
+                    final Iterator it = ((Collection)clipboard).iterator();
+                    final boolean cutting = false;
+
+                    while (it.hasNext()) {
+                        final Feature clipboardFlaeche = (Feature)it.next();
+                        final PureNewFeature newFeature = new PureNewFeature((Geometry)clipboardFlaeche.getGeometry()
+                                        .clone());
+                        newFeature.setCanBeSelected(true);
+                        newFeature.setEditable(true);
+                        copiedFeatures.add(newFeature);
+                    }
+                }
+            }
+
+            // storeClipboardBackup();
+            if (copiedFeatures.size() > 0) {
+                clipboardPasted = false;
+                this.cmdPasteFlaeche.setEnabled(true);
+            } else {
+                this.cmdPasteFlaeche.setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * public Object getSelectedGeometries() { if
+     * (LagisBroker.getInstance().getMappingComponent().getFeatureCollection().getSelectedFeatures() != null &&
+     * LagisBroker.getInstance().getMappingComponent().getFeatureCollection().getSelectedFeatures().size() > 0) { //
+     * Vector clipboard = new Vector(); // int[] rows = flOverviewPanel.getJxtOverview().getSelectedRows(); // for (int
+     * i = 0; i < rows.length; ++i) { // int modelIndex =
+     * flOverviewPanel.getJxtOverview().getFilters().convertRowIndexToModel(rows[i]); // Flaeche f =
+     * flOverviewPanel.getTableModel().getFlaechebyIndex(modelIndex); // f.setClipboardStatus(Flaeche.COPIED); //
+     * Flaeche c = (Flaeche) f.clone(); // clipboard.add(c); // } // return clipboard; return new Vector(Vector
+     * clipboard = new Vector()); } else { Flaeche sf = flOverviewPanel.getModel().getSelectedFlaeche();
+     * sf.setClipboardStatus(Flaeche.COPIED); Flaeche c = (Flaeche) sf.clone(); c.setNewFlaeche(true); return c; } }.
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdPasteFlaecheActionPerformed(final java.awt.event.ActionEvent evt) {
+        if (copiedFeatures.size() > 0) {
+            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().unselectAll();
+            final Iterator it = copiedFeatures.iterator();
+            final boolean cutting = false;
+            while (it.hasNext()) {
+                final Feature clipboardFlaeche = (Feature)it.next();
+                final PureNewFeature newFeature = new PureNewFeature((Geometry)clipboardFlaeche.getGeometry().clone());
+                newFeature.setCanBeSelected(true);
+                newFeature.setEditable(true);
+                LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(newFeature);
+            }
+            clipboardPasted = true;
+        }
     }
 
     /**
@@ -685,9 +927,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         add(jPanel1, java.awt.BorderLayout.SOUTH);
     } // </editor-fold>//GEN-END:initComponents
-
-    //~ Methods ----------------------------------------------------------------
-
     /**
      * DOCUMENT ME!
      *
@@ -894,8 +1133,13 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     @Override
     public void flurstueckChanged(final Flurstueck newFlurstueck) {
+        for (final FeatureGroupActionListener listener : this.featureGroupButtonListenerMap.values()) {
+            listener.setVisible(true);
+        }
+
         LagisBroker.getInstance().flurstueckChangeFinished(this);
     }
+
     @Override
     public synchronized void setComponentEditable(final boolean isEditable) {
         if (this.isEditable == isEditable) {
@@ -936,6 +1180,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             cmdSplitPoly.setVisible(isEditable);
             cmdRaisePolygon.setVisible(isEditable);
             jSeparator6.setVisible(isEditable);
+
+            cmdCopyFlaeche.setVisible(isEditable);
+            cmdPasteFlaeche.setVisible(isEditable);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
@@ -972,6 +1219,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                         cmdSplitPoly.setVisible(isEditable);
                         cmdRaisePolygon.setVisible(isEditable);
                         jSeparator6.setVisible(isEditable);
+
+                        cmdCopyFlaeche.setVisible(isEditable);
+                        cmdPasteFlaeche.setVisible(isEditable);
                     }
                 });
         }
@@ -1274,6 +1524,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             }
         }
     }
+
     /**
      * TODO MEssage to the user if a area could not be attached for example wfs areas.
      *
@@ -1293,8 +1544,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 if (log.isDebugEnabled()) {
                     log.debug("Geometrie: " + slotInfo.getOpenSlot().getGeometry() + " wird hinzugefügt");
                 }
-                slotInfo.getOpenSlot().setEditable(true);
-                mappingComponent.getFeatureCollection().addFeature(slotInfo.getOpenSlot());
+
+                final String providerName = slotInfo.getProviderName();
+                final Feature openSlot = slotInfo.getOpenSlot();
+                final StyledFeatureGroupWrapper featureWrapper = new StyledFeatureGroupWrapper((StyledFeature)openSlot,
+                        providerName,
+                        providerName);
+
+                featureWrapper.setEditable(true);
+                mappingComponent.getFeatureCollection().addFeature(featureWrapper);
+
                 if (log.isDebugEnabled()) {
                     log.debug("Geometrie wurde an element: " + slotInfo.getSlotIdentifier() + " attached");
                 }
@@ -1332,6 +1591,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             }
         }
     }
+
     /**
      * ToDo implement.
      *
@@ -1349,7 +1609,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 //        //setgetlblCoord.setText(MappingComponent.getCoordinateString(x,y));
 //
 //    }
-
 ////        PFeature pf=((SimpleMoveListener)o).getUnderlyingPFeature();
 ////
 ////        if (pf!=null&&pf.getFeature() instanceof DefaultFeatureServiceFeature &&pf.getVisible()==true&&pf.getParent()!=null&&pf.getParent().getVisible()==true) {
@@ -1474,7 +1733,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     @Override
     public void refresh(final Object refreshObject) {
     }
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
+
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
@@ -1576,14 +1836,88 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     @Override
     public void featuresAdded(final FeatureCollectionEvent fce) {
+        if (log.isDebugEnabled()) {
+            log.debug("Features Added");
+        }
+
+        final Collection<Feature> features = fce.getEventFeatures();
+
+        FeatureGroupMember fgm;
+
+        final HashSet<String> groups = new HashSet<String>();
+        for (final Feature f : features) {
+            if (f instanceof FeatureGroupMember) {
+                fgm = (FeatureGroupMember)f;
+                groups.add(fgm.getGroupId());
+            }
+        }
+
+        FeatureGroupActionListener listener;
+        for (final String group : groups) {
+            listener = this.featureGroupButtonListenerMap.get(group);
+            if (listener != null) {
+                listener.setVisible(true);
+            }
+        }
     }
+
+//   public void featureSelectionChanged(final Collection<Feature> features) {
+//        if (LOG.isDebugEnabled()) {
+//            LOG.debug("FeatureSelectionChanged LagisApp: ");
+//        }
+//        if (LagisBroker.getInstance().isInEditMode() && (features != null) && (features.size() > 0)) {
+//            final Iterator<Feature> it = features.iterator();
+//            while (it.hasNext()) {
+//                final Feature curFeature = it.next();
+//                if (curFeature.canBeSelected()
+//                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
+//                                curFeature)) {
+//                    if (LOG.isDebugEnabled()) {
+//                        LOG.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
+//                    }
+//                    cmdCopyFlaeche.setEnabled(true);
+//                    return;
+//                }
+//            }
+//            cmdCopyFlaeche.setEnabled(false);
+//        } else {
+//            if (LOG.isDebugEnabled()) {
+//                LOG.debug("disable copy nicht alle vorraussetzungen erfüllt");
+//            }
+//            cmdCopyFlaeche.setEnabled(false);
+//        }
+//    }
 
     @Override
     public void featureSelectionChanged(final FeatureCollectionEvent fce) {
         if (log.isDebugEnabled()) {
             log.debug("FeatureSelection Changed");
         }
+
         final Collection<Feature> features = fce.getEventFeatures();
+
+        if (LagisBroker.getInstance().isInEditMode() && (features != null) && (features.size() > 0)) {
+            final Iterator<Feature> it = features.iterator();
+            while (it.hasNext()) {
+                final Feature curFeature = it.next();
+                if (curFeature.canBeSelected()
+                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
+                                curFeature)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
+                    }
+                    cmdCopyFlaeche.setEnabled(true);
+                    return;
+                }
+            }
+            cmdCopyFlaeche.setEnabled(false);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("disable copy nicht alle vorraussetzungen erfüllt");
+            }
+            cmdCopyFlaeche.setEnabled(false);
+        }
+
         LagisBroker.getInstance().fireChangeEvent(features);
     }
 
@@ -1603,5 +1937,82 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     @Override
     public void featureCollectionChanged() {
+    }
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class FeatureGroupActionListener implements ActionListener {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final JButton button;
+        private final MappingComponent mapComp;
+        private final String featureGroup;
+        private final String visibleText;
+        private final String invisibText;
+        private final Icon visibleIcon;
+        private final Icon invisibleIcon;
+
+        private boolean isVisible;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new FeatureGroupActionListener object.
+         *
+         * @param  button        DOCUMENT ME!
+         * @param  mapComp       DOCUMENT ME!
+         * @param  featureGroup  DOCUMENT ME!
+         * @param  tooltipText   DOCUMENT ME!
+         * @param  icon          DOCUMENT ME!
+         * @param  invisIcon     DOCUMENT ME!
+         */
+        public FeatureGroupActionListener(final JButton button,
+                final MappingComponent mapComp,
+                final String featureGroup,
+                final String tooltipText,
+                final String icon,
+                final String invisIcon) {
+            this.button = button;
+            this.mapComp = mapComp;
+            this.featureGroup = featureGroup;
+            this.visibleText = tooltipText + " ausblenden";
+            this.invisibText = tooltipText + " einblenden";
+            this.visibleIcon = new ImageIcon(getClass().getResource(icon));
+            this.invisibleIcon = new ImageIcon(getClass().getResource(invisIcon));
+            this.isVisible = true;
+
+            this.button.setToolTipText(visibleText);
+        }
+
+        //~ Methods ------------------------------------------------------------
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  isVisible  DOCUMENT ME!
+         */
+        public void setVisible(final boolean isVisible) {
+            if (isVisible) {
+                this.button.setIcon(this.visibleIcon);
+                this.button.setToolTipText(this.visibleText);
+            } else {
+                this.button.setIcon(this.invisibleIcon);
+                this.button.setToolTipText(this.invisibText);
+            }
+
+            this.isVisible = isVisible;
+            this.mapComp.setGroupLayerVisibility(this.featureGroup, this.isVisible);
+        }
+
+        @Override
+        public void actionPerformed(final ActionEvent ae) {
+            this.setVisible(!this.isVisible);
+        }
     }
 }

@@ -1,0 +1,442 @@
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
+/*
+ * PrintingWidget.java
+ *
+ * Created on 10. Juli 2006, 17:55
+ */
+package de.cismet.lagis.gui.copypaste;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import java.util.List;
+
+import javax.swing.Icon;
+
+import de.cismet.lagis.gui.checkbox.IconCheckBox;
+
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+
+import de.cismet.tools.gui.StaticSwingTools;
+
+/**
+ * FlurstueckInfoClipboardPasteWidget enables the the user to choose what she actually wants to paste (from the the
+ * recently copied data with geometry relations) to the current Flurstück.
+ *
+ * @author   Benjamin Friedrich (benjamin.friedrich@cismet.de)
+ * @version  1.0, 2011-10-25
+ */
+public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialog {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(
+            FlurstueckInfoClipboardPasteWidget.class);
+
+    //~ Instance fields --------------------------------------------------------
+
+    private final Component parentComponent;
+    private final FlurstueckInfoClipboard clipboard;
+
+    private final List<BasicEntity> copiedDataList;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton cmdCancel;
+    private javax.swing.JButton cmdOk;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JLabel lbl1;
+    private javax.swing.JLabel lbl2;
+    private javax.swing.JPanel panDesc;
+    private javax.swing.JPanel panLoadAndInscribe;
+    private javax.swing.JPanel recordsPanel;
+    private javax.swing.JTextField txt1;
+    private javax.swing.JTextField txt2;
+    // End of variables declaration//GEN-END:variables
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates new form PrintingWidget.
+     *
+     * @param  component  parent component
+     * @param  modal      determines if dialog is modal or not
+     * @param  clipboard  instance of FlurstueckInfoClipboard which manages the copy workflow
+     */
+    public FlurstueckInfoClipboardPasteWidget(final Component component,
+            final boolean modal,
+            final FlurstueckInfoClipboard clipboard) {
+        super(StaticSwingTools.getParentFrame(component), modal);
+
+        parentComponent = component;
+        this.clipboard = clipboard;
+
+        initComponents();
+        panDesc.setBackground(new Color(216, 228, 248));
+
+        this.setLocationRelativeTo(parentComponent);
+
+        getRootPane().setDefaultButton(cmdOk);
+
+        this.copiedDataList = this.clipboard.getCopiedData();
+
+        for (final BasicEntity copy : this.copiedDataList) {
+            for (final Copyable listener : clipboard.getCopyListeners()) {
+                if (listener.knowsDisplayName(copy)) {
+                    this.addRecord(listener.getDisplayIcon(), listener.getDisplayName(copy), this.copiedDataList, copy);
+                }
+            }
+        }
+
+        super.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosed(final WindowEvent e) {
+                    close();
+                }
+            });
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * Adds a new record to the widget.
+     *
+     * @param  icon      DOCUMENT ME!
+     * @param  text      checkBox DOCUMENT ME!
+     * @param  data      DOCUMENT ME!
+     * @param  dataItem  DOCUMENT ME!
+     */
+    private void addRecord(final Icon icon, final String text, final List data, final Object dataItem) {
+        final IconCheckBox checkBox = new IconCheckBox();
+
+        checkBox.addActionListener(new ClipboardCheckBoxListener(checkBox, data, dataItem));
+        checkBox.setIcon(icon);
+        checkBox.setText(text);
+        checkBox.setSelected(true);
+
+        this.recordsPanel.add(checkBox);
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void close() {
+        super.setVisible(false);
+        super.dispose();
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
+     * content of this method is always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        lbl1 = new javax.swing.JLabel();
+        txt1 = new javax.swing.JTextField();
+        lbl2 = new javax.swing.JLabel();
+        txt2 = new javax.swing.JTextField();
+        panDesc = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jSeparator2 = new javax.swing.JSeparator();
+        jSeparator3 = new javax.swing.JSeparator();
+        jLabel5 = new javax.swing.JLabel();
+        cmdOk = new javax.swing.JButton();
+        cmdCancel = new javax.swing.JButton();
+        panLoadAndInscribe = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator4 = new javax.swing.JSeparator();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
+        recordsPanel = new javax.swing.JPanel();
+
+        lbl1.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.lbl1.text")); // NOI18N
+
+        txt1.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.txt1.text")); // NOI18N
+
+        lbl2.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.lbl2.text")); // NOI18N
+
+        txt2.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.txt2.text")); // NOI18N
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.title")); // NOI18N
+        setResizable(false);
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+
+                @Override
+                public void componentShown(final java.awt.event.ComponentEvent evt) {
+                    formComponentShown(evt);
+                }
+            });
+
+        panDesc.setBackground(java.awt.SystemColor.inactiveCaptionText);
+
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.jLabel1.text")); // NOI18N
+
+        jLabel5.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/image/page_paste64.png"))); // NOI18N
+
+        final org.jdesktop.layout.GroupLayout panDescLayout = new org.jdesktop.layout.GroupLayout(panDesc);
+        panDesc.setLayout(panDescLayout);
+        panDescLayout.setHorizontalGroup(
+            panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panDescLayout.createSequentialGroup().addContainerGap().add(
+                    panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        panDescLayout.createSequentialGroup().add(
+                            jSeparator2,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            268,
+                            Short.MAX_VALUE).addContainerGap()).add(
+                        panDescLayout.createSequentialGroup().add(jLabel1).add(175, 175, 175)))).add(
+                jSeparator3,
+                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                292,
+                Short.MAX_VALUE).add(
+                panDescLayout.createSequentialGroup().add(52, 52, 52).add(jLabel5).addContainerGap(
+                    176,
+                    Short.MAX_VALUE)));
+        panDescLayout.setVerticalGroup(
+            panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panDescLayout.createSequentialGroup().addContainerGap().add(jLabel1).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jSeparator2,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    2,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED,
+                    231,
+                    Short.MAX_VALUE).add(jLabel5).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jSeparator3,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+
+        cmdOk.setMnemonic('O');
+        cmdOk.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.cmdOk.text")); // NOI18N
+        cmdOk.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdOkActionPerformed(evt);
+                }
+            });
+
+        cmdCancel.setMnemonic('A');
+        cmdCancel.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.cmdCancel.text")); // NOI18N
+        cmdCancel.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdCancelActionPerformed(evt);
+                }
+            });
+
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel6.setText(org.openide.util.NbBundle.getMessage(
+                FlurstueckInfoClipboardPasteWidget.class,
+                "FlurstueckInfoClipboardPasteWidget.jLabel6.text")); // NOI18N
+
+        jPanel1.setOpaque(false);
+        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
+
+        recordsPanel.setMaximumSize(new java.awt.Dimension(100, 100));
+        recordsPanel.setMinimumSize(new java.awt.Dimension(100, 100));
+        recordsPanel.setOpaque(false);
+        recordsPanel.setLayout(new javax.swing.BoxLayout(recordsPanel, javax.swing.BoxLayout.Y_AXIS));
+        jPanel1.add(recordsPanel);
+
+        jScrollPane1.setViewportView(jPanel1);
+
+        final org.jdesktop.layout.GroupLayout panLoadAndInscribeLayout = new org.jdesktop.layout.GroupLayout(
+                panLoadAndInscribe);
+        panLoadAndInscribe.setLayout(panLoadAndInscribeLayout);
+        panLoadAndInscribeLayout.setHorizontalGroup(
+            panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panLoadAndInscribeLayout.createSequentialGroup().add(
+                    panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        jSeparator4,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        410,
+                        Short.MAX_VALUE).add(
+                        jLabel6,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        jSeparator1,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        410,
+                        Short.MAX_VALUE).add(
+                        jScrollPane1,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        410,
+                        Short.MAX_VALUE)).addContainerGap()));
+        panLoadAndInscribeLayout.setVerticalGroup(
+            panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                panLoadAndInscribeLayout.createSequentialGroup().addContainerGap().add(jLabel6).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jSeparator1,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    6,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane1,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    285,
+                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jSeparator4,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+
+        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                layout.createSequentialGroup().add(
+                    panDesc,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    173,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    panLoadAndInscribe,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    418,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap(
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    Short.MAX_VALUE)).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                layout.createSequentialGroup().addContainerGap(328, Short.MAX_VALUE).add(
+                    cmdCancel,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    125,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.UNRELATED).add(
+                    cmdOk,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    126,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(18, 18, 18)));
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                layout.createSequentialGroup().add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        panLoadAndInscribe,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        panDesc,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(cmdCancel).add(cmdOk))
+                            .addContainerGap()));
+
+        pack();
+    } // </editor-fold>//GEN-END:initComponents
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
+    }                                                                          //GEN-LAST:event_formComponentShown
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
+        close();
+    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
+        this.clipboard.performPaste(copiedDataList);
+        close();
+    }                                                                         //GEN-LAST:event_cmdOkActionPerformed
+
+    //~ Inner Classes ----------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class ClipboardCheckBoxListener implements ActionListener {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final IconCheckBox chkBox;
+        private final List dataList;
+        private final Object item;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new ClipboardCheckBoxListener object.
+         *
+         * @param  chkBox    DOCUMENT ME!
+         * @param  dataList  DOCUMENT ME!
+         * @param  item      DOCUMENT ME!
+         */
+        public ClipboardCheckBoxListener(final IconCheckBox chkBox, final List dataList, final Object item) {
+            this.chkBox = chkBox;
+            this.dataList = dataList;
+            this.item = item;
+        }
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public void actionPerformed(final ActionEvent ae) {
+            if (this.chkBox.isSelected()) {
+                this.dataList.add(this.item);
+            } else {
+                this.dataList.remove(this.item);
+            }
+        }
+    }
+}

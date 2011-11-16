@@ -37,6 +37,7 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -59,14 +61,20 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.text.BadLocationException;
 
 import de.cismet.cismap.commons.features.Feature;
+import de.cismet.cismap.commons.features.FeatureCollection;
 import de.cismet.cismap.commons.features.FeatureCollectionEvent;
 import de.cismet.cismap.commons.features.FeatureCollectionListener;
+import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
+import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.FlaecheEditor;
+
+import de.cismet.lagis.gui.copypaste.Copyable;
+import de.cismet.lagis.gui.copypaste.Pasteable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -90,6 +98,7 @@ import de.cismet.lagis.validation.Validator;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
+import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.ReBe;
 import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
@@ -122,12 +131,16 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     Configurable,
     ValidationStateChangedListener,
     FeatureCollectionListener,
-    HistoryModelListener {
+    HistoryModelListener,
+    Copyable,
+    Pasteable {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String PROVIDER_NAME = "Verwaltende Dienstelle";
+    public static final String PROVIDER_NAME = "Verwaltende Dienstelle";
     private static final String WIDGET_NAME = "Verwaltungspanel";
+
+    private static final String COPY_DISPLAY_ICON = "/de/cismet/lagis/ressource/icons/verwaltungsbereich16.png";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -168,6 +181,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private DefaultHistoryModel historyModel = new DefaultHistoryModel();
     // ToDo Comboboxen selbst in Validatoren stecken und auswerten
     private Vector<Validator> validators = new Vector<Validator>();
+    private final Icon copyDisplayIcon;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnRemoveVerwaltung;
@@ -193,6 +208,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      * Creates new form VerwaltungsPanel.
      */
     public VerwaltungsPanel() {
+        this.copyDisplayIcon = new ImageIcon(this.getClass().getResource(COPY_DISPLAY_ICON));
         setIsCoreWidget(true);
         initComponents();
         // tNutzung.setModel(new VerwaltungsTableModel());
@@ -387,10 +403,15 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                                         ((Verwaltungsbereich)currentFeature).setModifiable(false);
                                                     }
 
+                                                    final Feature tmp = new StyledFeatureGroupWrapper(
+                                                            (StyledFeature)currentFeature,
+                                                            PROVIDER_NAME,
+                                                            PROVIDER_NAME);
+
                                                     LagisBroker.getInstance()
                                                             .getMappingComponent()
                                                             .getFeatureCollection()
-                                                            .addFeature(currentFeature);
+                                                            .addFeature(tmp);
                                                 }
                                             }
                                         }
@@ -410,6 +431,112 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             };
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @Override
+    public List<BasicEntity> getCopyData() {
+        final Vector<Verwaltungsbereich> allVBs = this.tableModel.getVerwaltungsbereiche();
+        final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allVBs.size());
+
+        for (final Verwaltungsbereich vb : allVBs) {
+            final Verwaltungsbereich tmp = new Verwaltungsbereich();
+
+            tmp.setGebrauch(vb.getGebrauch());
+            tmp.setDienststelle(vb.getDienststelle());
+
+            final Geometry geom = vb.getGeometry();
+            if (geom != null) {
+                tmp.setGeometry((Geometry)geom.clone());
+            }
+
+            tmp.setEditable(vb.isEditable());
+            tmp.hide(vb.isHidden());
+            tmp.setModifiable(vb.isModifiable());
+
+            result.add(tmp);
+        }
+
+        return result;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   item  vb DOCUMENT ME!
+     *
+     * @throws  NullPointerException  DOCUMENT ME!
+     */
+    @Override
+    public void paste(final BasicEntity item) {
+        if (item == null) {
+            throw new NullPointerException("Given data item must not be null");
+        }
+
+        if (item instanceof Verwaltungsbereich) {
+            final Vector<Verwaltungsbereich> residentVBs = this.tableModel.getVerwaltungsbereiche();
+
+            if (residentVBs.contains(item)) {
+                log.warn("Verwaltungsbereich " + item + " does already exist in Flurstück " + this.currentFlurstueck);
+            } else {
+                this.tableModel.addVerwaltungsbereich((Verwaltungsbereich)item);
+                this.tableModel.fireTableDataChanged();
+
+                final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
+                final Feature f = new StyledFeatureGroupWrapper((StyledFeature)item, PROVIDER_NAME, PROVIDER_NAME);
+                mc.getFeatureCollection().addFeature(f);
+                mc.setGroupLayerVisibility(PROVIDER_NAME, true);
+//                this.featureCollectionChanged();
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   dataList  vbList DOCUMENT ME!
+     *
+     * @throws  NullPointerException  DOCUMENT ME!
+     */
+    @Override
+    public void pasteAll(final List<BasicEntity> dataList) {
+        if (dataList == null) {
+            throw new NullPointerException("Given list of Verwaltungsbereich items must not be null");
+        }
+
+        if (dataList.isEmpty()) {
+            return;
+        }
+
+        final Vector<Verwaltungsbereich> residentVBs = this.tableModel.getVerwaltungsbereiche();
+        final int rowCountBefore = this.tableModel.getRowCount();
+
+        Feature f;
+        final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
+        final FeatureCollection featCollection = mc.getFeatureCollection();
+        for (final BasicEntity entity : dataList) {
+            if (entity instanceof Verwaltungsbereich) {
+                if (residentVBs.contains(entity)) {
+                    log.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
+                                + this.currentFlurstueck);
+                } else {
+                    this.tableModel.addVerwaltungsbereich((Verwaltungsbereich)entity);
+                    f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
+                    featCollection.addFeature(f);
+                }
+            }
+        }
+
+        if (rowCountBefore == this.tableModel.getRowCount()) {
+            log.warn("No Verwaltungsbereich items were added from input list " + dataList);
+        } else {
+            this.tableModel.fireTableDataChanged();
+            mc.setGroupLayerVisibility(PROVIDER_NAME, true);
+        }
     }
 
     /**
@@ -1349,8 +1476,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         if (log.isDebugEnabled()) {
             log.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
         }
-        tableModel.addVerwaltungsbereich(tmp);
-        tableModel.fireTableDataChanged();
+
+        this.tableModel.addVerwaltungsbereich(tmp);
+        this.tableModel.fireTableDataChanged();
     } //GEN-LAST:event_btnAddVerwaltungActionPerformed
 
     /**
@@ -1411,5 +1539,30 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     .getSelectedFeatures()) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().reconsiderFeature(feature);
         }
+    }
+
+    @Override
+    public String getDisplayName(final BasicEntity entity) {
+        if (entity instanceof Verwaltungsbereich) {
+            final Verwaltungsbereich vb = (Verwaltungsbereich)entity;
+            return "Verwaltende Dienststelle - "
+                        + vb.getDienststelle().toString()
+                        + " - "
+                        + vb.getGebrauch().toString()
+                        + " - "
+                        + vb.getFlaeche() + "m²";
+        }
+
+        return Copyable.UNKNOWN_ENTITY;
+    }
+
+    @Override
+    public Icon getDisplayIcon() {
+        return this.copyDisplayIcon;
+    }
+
+    @Override
+    public boolean knowsDisplayName(final BasicEntity entity) {
+        return entity instanceof Verwaltungsbereich;
     }
 }

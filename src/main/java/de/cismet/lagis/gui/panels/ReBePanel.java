@@ -12,7 +12,7 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import com.sun.tools.internal.xjc.api.J2SJAXBModel;
+import com.vividsolutions.jts.geom.Geometry;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +26,6 @@ import org.jdesktop.swingx.decorator.SortOrder;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -34,17 +33,19 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -54,12 +55,18 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 
 import de.cismet.cismap.commons.features.Feature;
+import de.cismet.cismap.commons.features.FeatureCollection;
+import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
+import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.DateEditor;
+
+import de.cismet.lagis.gui.copypaste.Copyable;
+import de.cismet.lagis.gui.copypaste.Pasteable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -78,6 +85,7 @@ import de.cismet.lagis.validation.Validatable;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
+import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 import de.cismet.lagisEE.entity.core.ReBe;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
@@ -94,18 +102,22 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     GeometrySlotProvider,
     FlurstueckSaver,
     FeatureSelectionChangedListener,
-    ListSelectionListener {
+    ListSelectionListener,
+    Copyable,
+    Pasteable {
 
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "Rechte & Belastungen Panel";
-    private static final String PROVIDER_NAME = "ReBe";
+    public static final String PROVIDER_NAME = "ReBe";
 
     // Konstanten die zum Setzen von Standardwerten nach Auswahl von
     // DEF_REBE_TRIGGER_ART benötigt werden
     private static final String DEF_REBE_TRIGGER_ART = "Dienstbarkeit";
     private static final String DEF_TARGET_COL = "Nummer";
     private static final String DEF_COL_VALUE = "Abt. II, lfd. Nr. ";
+
+    private static final String COPY_DISPLAY_ICON = "/de/cismet/lagis/ressource/icons/rebe.png";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -121,8 +133,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<Flurstueck> updateThread;
-    // private ReBe currentSelectedRebe = null;
     private boolean isInAbteilungIXModus = false;
+    private final Icon copyDisplayIcon;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -130,6 +142,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * Creates new form RechtenDetailPanel.
      */
     public ReBePanel() {
+        this.copyDisplayIcon = new ImageIcon((this.getClass().getResource(COPY_DISPLAY_ICON)));
         setIsCoreWidget(true);
         initComponents();
         btnRemoveReBe.setEnabled(false);
@@ -192,10 +205,17 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                                                 if (isWidgetReadOnly()) {
                                                     ((ReBe)currentFeature).setModifiable(false);
                                                 }
+
+                                                final StyledFeature sf = new StyledFeatureGroupWrapper(
+                                                        (StyledFeature)currentFeature,
+                                                        PROVIDER_NAME,
+                                                        PROVIDER_NAME);
+
                                                 LagisBroker.getInstance()
                                                         .getMappingComponent()
                                                         .getFeatureCollection()
-                                                        .addFeature(currentFeature);
+                                                        .addFeature(sf);
+//                                                        .addFeature(currentFeature);
                                             }
                                         }
                                     }
@@ -354,7 +374,126 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
     }
 
-    // private Thread panelRefresherThread;
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    @Override
+    public List<BasicEntity> getCopyData() {
+        final Vector<ReBe> allReBe = this.tableModel.getResBes();
+        final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allReBe.size());
+
+        for (final ReBe rebe : allReBe) {
+            final ReBe tmp = new ReBe();
+
+            final Date dateEintragung = rebe.getDatumEintragung();
+            final Date dateLoeschung = rebe.getDatumLoeschung();
+
+            tmp.setDatumEintragung((dateEintragung == null) ? null : (Date)dateEintragung.clone());
+            tmp.setDatumLoeschung((dateLoeschung == null) ? null : (Date)dateLoeschung.clone());
+            tmp.setBemerkung(rebe.getBemerkung());
+
+            final Geometry geom = rebe.getGeometry();
+            if (geom != null) {
+                tmp.setGeometry((Geometry)geom.clone());
+            }
+
+            tmp.setEditable(rebe.isEditable());
+            tmp.hide(rebe.isHidden());
+            tmp.setModifiable(rebe.isModifiable());
+            tmp.setNummer(rebe.getNummer());
+            tmp.setIstRecht(rebe.getIstRecht());
+            tmp.setBeschreibung(rebe.getBeschreibung());
+
+            result.add(tmp);
+        }
+
+        return result;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   entity  rebe DOCUMENT ME!
+     *
+     * @throws  NullPointerException  DOCUMENT ME!
+     */
+    @Override
+    public void paste(final BasicEntity entity) {
+        if (entity == null) {
+            throw new NullPointerException("Entity must not be null");
+        }
+
+        if (entity instanceof ReBe) {
+            final Vector<ReBe> residentReBe = this.tableModel.getResBes();
+            if (residentReBe.contains(entity)) {
+                log.warn("ReBe " + entity + " does already exist in Flurstück " + this.currentFlurstueck
+                            + ". -> ignored");
+            } else {
+                this.tableModel.addReBe((ReBe)entity);
+
+                final StyledFeatureGroupWrapper wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity,
+                        PROVIDER_NAME,
+                        PROVIDER_NAME);
+
+                final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
+                final FeatureCollection fc = mc.getFeatureCollection();
+                fc.addFeature(wrapper);
+
+                this.tableModel.fireTableDataChanged();
+                mc.setGroupLayerVisibility(PROVIDER_NAME, true);
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   dataList  rebeList DOCUMENT ME!
+     *
+     * @throws  NullPointerException  DOCUMENT ME!
+     */
+    @Override
+    public void pasteAll(final List<BasicEntity> dataList) {
+        if (dataList == null) {
+            throw new NullPointerException("Given list of data items must not be null");
+        }
+
+        if (dataList.isEmpty()) {
+            return;
+        }
+
+        final Vector<ReBe> residentReBe = this.tableModel.getResBes();
+        final int rowCountBefore = this.tableModel.getRowCount();
+
+        final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
+        final FeatureCollection fc = mc.getFeatureCollection();
+
+        StyledFeatureGroupWrapper wrapper;
+        for (final BasicEntity entity : dataList) {
+            if (entity instanceof ReBe) {
+                if (residentReBe.contains(entity)) {
+                    log.warn("ReBe " + entity + " does already exist in Flurstück " + this.currentFlurstueck
+                                + ". -> ignored");
+                } else {
+                    this.tableModel.addReBe((ReBe)entity);
+                    wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
+                    fc.addFeature(wrapper);
+                }
+            }
+        }
+
+        if (rowCountBefore == this.tableModel.getRowCount()) {
+            if (log.isDebugEnabled()) {
+                log.debug("No ReBe items were added from input list " + dataList);
+            }
+        } else {
+            this.tableModel.fireTableDataChanged();
+            mc.setGroupLayerVisibility(PROVIDER_NAME, true);
+        }
+    }
+
     @Override
     public void flurstueckChanged(final Flurstueck newFlurstueck) {
         try {
@@ -563,9 +702,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         if (isInAbteilungIXModus) {
             tmpReBe.setIstRecht(true);
         }
-        tableModel.addReBe(tmpReBe);
-        tableModel.fireTableDataChanged();
-    }                                                                              //GEN-LAST:event_btnAddReBeActionPerformed
+
+        this.tableModel.addReBe(tmpReBe);
+        this.tableModel.fireTableDataChanged();
+    } //GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {
@@ -761,5 +901,28 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     .getSelectedFeatures()) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().reconsiderFeature(feature);
         }
+    }
+
+    @Override
+    public String getDisplayName(final BasicEntity entity) {
+        if (entity instanceof ReBe) {
+            final ReBe rebe = (ReBe)entity;
+            return "ReBe - "
+                        + (rebe.isRecht() ? "Recht" : "Belastung")
+                        + " - "
+                        + rebe.getNummer();
+        }
+
+        return Copyable.UNKNOWN_ENTITY;
+    }
+
+    @Override
+    public Icon getDisplayIcon() {
+        return this.copyDisplayIcon;
+    }
+
+    @Override
+    public boolean knowsDisplayName(final BasicEntity entity) {
+        return entity instanceof ReBe;
     }
 }

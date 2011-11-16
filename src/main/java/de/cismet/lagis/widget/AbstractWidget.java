@@ -43,11 +43,13 @@ public abstract class AbstractWidget extends JPanel implements Widget {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    protected static final Icon DEFAULT_ICON = new javax.swing.ImageIcon(AbstractWidget.class.getResource(
+    protected static final Icon DEFAULT_ICON = new javax.swing.ImageIcon(
+            AbstractWidget.class.getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/ressort.png"));
-    protected static Icon widgetIcon;
 
     //~ Instance fields --------------------------------------------------------
+
+    protected Icon widgetIcon;
 
     protected String widgetName = "Ressort";
     protected String validationMessage = "Die Komponente ist valide";

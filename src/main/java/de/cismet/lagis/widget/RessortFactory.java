@@ -95,13 +95,23 @@ public class RessortFactory implements Configurable {
                     }
                     final String className = e.getChild("className").getText();
                     final Class formClass = Class.forName(className);
-                    final Constructor constructor = formClass.getConstructor(
-                            new Class[] { String.class, String.class });
+
+                    AbstractWidget ressort;
+                    Constructor constructor = formClass.getConstructor(new Class[] { String.class });
+
+                    if (constructor == null) {
+                        constructor = formClass.getConstructor(new Class[] { String.class, String.class });
+                        ressort = (AbstractWidget)constructor.newInstance(e.getChild("widgetName").getText(),
+                                e.getChild("widgetIcon").getText());
+                    } else {
+                        ressort = (AbstractWidget)constructor.newInstance(e.getChild("widgetName").getText());
+                    }
+
                     // Object[] constArgs = new
                     // Object[]{e.getChild("widgetName").getText(),e.getChild("widgetIcon").getText()};
-                    final AbstractWidget ressort = (AbstractWidget)constructor.newInstance(e.getChild("widgetName")
-                                    .getText(),
-                            e.getChild("widgetIcon").getText());
+// final AbstractWidget ressort = (AbstractWidget)constructor.newInstance(e.getChild("widgetName")
+// .getText()); // ,
+                    // e.getChild("widgetIcon").getText());
                     final Attribute isReadonly = e.getAttribute("readonly");
                     if (isReadonly != null) {
                         if ((isReadonly.getValue() != null) && isReadonly.getValue().equals("true")) {

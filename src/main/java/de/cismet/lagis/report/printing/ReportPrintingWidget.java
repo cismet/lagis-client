@@ -12,7 +12,6 @@
  */
 package de.cismet.lagis.report.printing;
 
-import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -23,17 +22,20 @@ import org.jdesktop.swingx.error.ErrorInfo;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import java.io.File;
 import java.io.InputStream;
 
 import java.util.HashMap;
 import java.util.logging.Level;
 
-import javax.swing.JCheckBox;
+import de.cismet.cismap.commons.gui.printing.JasperDownload;
+
+import de.cismet.lagis.gui.checkbox.IconCheckBox;
 
 import de.cismet.lagis.report.datasource.ADataSource;
 import de.cismet.lagis.report.datasource.BaumDateiDataSource;
@@ -49,6 +51,8 @@ import de.cismet.lagis.widget.RessortFactory;
 import de.cismet.tools.CismetThreadPool;
 
 import de.cismet.tools.gui.StaticSwingTools;
+import de.cismet.tools.gui.downloadmanager.DownloadManager;
+import de.cismet.tools.gui.downloadmanager.DownloadManagerDialog;
 
 /**
  * DOCUMENT ME!
@@ -72,20 +76,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private static final String PARAM_NOTIZEN = "param_notizen";     // NOI18N
 
     private static final String REPORT_MASTER = "/de/cismet/lagis/reports/FlurstueckDetailsReport.jasper"; // NOI18N
-// private static final String REPORT_MASTER = "/de/cismet/lagis/reports/current_flurstueck.jasper"; // NOI18N
-
-    private static final String TARGET_FILE;
-    private static final String TARGET_FILE_URL;
-
-    static {
-        final String home = System.getProperty("user.home");    // NOI18N
-        final String fs = System.getProperty("file.separator"); // NOI18N
-        TARGET_FILE = home + fs + "lagis.pdf";                  // TODO//NOI18N
-        String file = TARGET_FILE.replaceAll("\\\\", "/");      // NOI18N
-        file = file.replaceAll(" ", "%20");                     // NOI18N
-        TARGET_FILE_URL = "file:///" + file;                    // NOI18N
-    }
-
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ReportPrintingWidget.class);
 
     //~ Instance fields --------------------------------------------------------
@@ -97,30 +87,32 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private final HashMap<String, String> paramMap;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox baumdateiCheckBox;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox baumdateiCheckBox;
     private javax.swing.JButton cmdCancel;
     private javax.swing.JButton cmdOk;
-    private javax.swing.JCheckBox historieCheckBox;
+    private javax.swing.Box.Filler filler1;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox historieCheckBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JLabel lbl1;
     private javax.swing.JLabel lbl2;
-    private javax.swing.JCheckBox mipaCheckBox;
-    private javax.swing.JCheckBox notizenCheckBox;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox mipaCheckBox;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox notizenCheckBox;
     private javax.swing.JTextPane notizenTextArea;
-    private javax.swing.JCheckBox nutzungenCheckBox;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox nutzungenCheckBox;
     private javax.swing.JPanel panDesc;
     private javax.swing.JPanel panLoadAndInscribe;
-    private javax.swing.JCheckBox rebeCheckBox;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox rebeCheckBox;
     private javax.swing.JScrollPane scpLoadingStatus;
     private javax.swing.JTextField txt1;
     private javax.swing.JTextField txt2;
-    private javax.swing.JCheckBox vorgaengeCheckBox;
+    private de.cismet.lagis.gui.checkbox.IconCheckBox vorgaengeCheckBox;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -145,6 +137,8 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         getRootPane().setDefaultButton(cmdOk);
         this.notizenTextArea.requestFocus();
 
+        this.initCheckBoxes();
+
         super.addWindowListener(new WindowAdapter() {
 
                 @Override
@@ -162,6 +156,67 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void initCheckBoxes() {
+        this.baumdateiCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    baumdateiCheckBoxActionPerformed(ae);
+                }
+            });
+
+        this.historieCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    historieCheckBoxActionPerformed(ae);
+                }
+            });
+
+        this.mipaCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    mipaCheckBoxActionPerformed(ae);
+                }
+            });
+
+        this.notizenCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    notizenCheckBoxActionPerformed(ae);
+                }
+            });
+
+        this.nutzungenCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    nutzungenCheckBoxActionPerformed(ae);
+                }
+            });
+
+        this.rebeCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    rebeCheckBoxActionPerformed(ae);
+                }
+            });
+
+        this.vorgaengeCheckBox.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent ae) {
+                    vorgaengeCheckBoxActionPerformed(ae);
+                }
+            });
+    }
 
     /**
      * DOCUMENT ME!
@@ -194,7 +249,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      * @param  checkBox       DOCUMENT ME!
      * @param  hasPermission  DOCUMENT ME!
      */
-    private void handlePermission(final JCheckBox checkBox, final boolean hasPermission) {
+    private void handlePermission(final IconCheckBox checkBox, final boolean hasPermission) {
         final boolean released = checkBox.isSelected() && hasPermission;
 
         checkBox.setEnabled(released);
@@ -214,7 +269,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      * @param  checkBox  DOCUMENT ME!
      * @param  hasData   DOCUMENT ME!
      */
-    private void handleDetail(final String param, final JCheckBox checkBox, final boolean hasData) {
+    private void handleDetail(final String param, final IconCheckBox checkBox, final boolean hasData) {
         this.handleParamMap(param, hasData);
         checkBox.setEnabled(hasData);
         checkBox.setSelected(hasData);
@@ -267,30 +322,36 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         lbl1 = new javax.swing.JLabel();
         txt1 = new javax.swing.JTextField();
         lbl2 = new javax.swing.JLabel();
         txt2 = new javax.swing.JTextField();
         panDesc = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jSeparator2 = new javax.swing.JSeparator();
         jLabel5 = new javax.swing.JLabel();
-        jSeparator3 = new javax.swing.JSeparator();
-        cmdOk = new javax.swing.JButton();
-        cmdCancel = new javax.swing.JButton();
         panLoadAndInscribe = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
-        nutzungenCheckBox = new javax.swing.JCheckBox();
-        rebeCheckBox = new javax.swing.JCheckBox();
-        vorgaengeCheckBox = new javax.swing.JCheckBox();
-        mipaCheckBox = new javax.swing.JCheckBox();
-        baumdateiCheckBox = new javax.swing.JCheckBox();
-        historieCheckBox = new javax.swing.JCheckBox();
-        notizenCheckBox = new javax.swing.JCheckBox();
-        jSeparator4 = new javax.swing.JSeparator();
         scpLoadingStatus = new javax.swing.JScrollPane();
         notizenTextArea = new javax.swing.JTextPane();
+        nutzungenCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        rebeCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        vorgaengeCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        mipaCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        baumdateiCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        historieCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        notizenCheckBox = new de.cismet.lagis.gui.checkbox.IconCheckBox();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 32767));
+        jSeparator3 = new javax.swing.JSeparator();
+        jSeparator4 = new javax.swing.JSeparator();
+        jPanel1 = new javax.swing.JPanel();
+        cmdCancel = new javax.swing.JButton();
+        cmdOk = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jSeparator1 = new javax.swing.JSeparator();
+        jSeparator2 = new javax.swing.JSeparator();
+        jLabel1 = new javax.swing.JLabel();
 
         lbl1.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
@@ -310,6 +371,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(ReportPrintingWidget.class, "ReportPrintingWidget.title")); // NOI18N
+        setMinimumSize(new java.awt.Dimension(720, 0));
         setResizable(false);
         addComponentListener(new java.awt.event.ComponentAdapter() {
 
@@ -318,13 +380,11 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
                     formComponentShown(evt);
                 }
             });
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
         panDesc.setBackground(java.awt.SystemColor.inactiveCaptionText);
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.jLabel1.text")); // NOI18N
+        panDesc.setMaximumSize(new java.awt.Dimension(32767, 240));
+        panDesc.setPreferredSize(new java.awt.Dimension(160, 240));
 
         jLabel5.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/cismap/commons/gui/res/frameprint.png"))); // NOI18N
@@ -333,53 +393,186 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         panDesc.setLayout(panDescLayout);
         panDescLayout.setHorizontalGroup(
             panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panDescLayout.createSequentialGroup().addContainerGap().add(
-                    panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panDescLayout.createSequentialGroup().add(
-                            jSeparator2,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            205,
-                            Short.MAX_VALUE).addContainerGap()).add(
-                        panDescLayout.createSequentialGroup().add(jLabel1).add(175, 175, 175)))).add(
-                jSeparator3,
-                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                229,
-                Short.MAX_VALUE).add(
-                panDescLayout.createSequentialGroup().addContainerGap().add(jLabel5).addContainerGap(
-                    89,
+                panDescLayout.createSequentialGroup().add(23, 23, 23).add(jLabel5).addContainerGap(
+                    38,
                     Short.MAX_VALUE)));
         panDescLayout.setVerticalGroup(
             panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panDescLayout.createSequentialGroup().addContainerGap().add(jLabel1).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jSeparator2,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    2,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED,
-                    109,
-                    Short.MAX_VALUE).add(jLabel5).add(18, 18, 18).add(
-                    jSeparator3,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                panDescLayout.createSequentialGroup().addContainerGap(89, Short.MAX_VALUE).add(jLabel5).add(
+                    23,
+                    23,
+                    23)));
 
-        cmdOk.setMnemonic('O');
-        cmdOk.setText(org.openide.util.NbBundle.getMessage(
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.3;
+        getContentPane().add(panDesc, gridBagConstraints);
+
+        panLoadAndInscribe.setMaximumSize(new java.awt.Dimension(32767, 240));
+        panLoadAndInscribe.setPreferredSize(new java.awt.Dimension(450, 240));
+        panLoadAndInscribe.setLayout(new java.awt.GridBagLayout());
+
+        scpLoadingStatus.setMinimumSize(new java.awt.Dimension(26, 29));
+        scpLoadingStatus.setPreferredSize(new java.awt.Dimension(8, 29));
+
+        notizenTextArea.setBackground(java.awt.SystemColor.text);
+        notizenTextArea.setMinimumSize(new java.awt.Dimension(0, 50));
+        notizenTextArea.setPreferredSize(new java.awt.Dimension(6, 50));
+        scpLoadingStatus.setViewportView(notizenTextArea);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE;
+        gridBagConstraints.weighty = 0.6;
+        gridBagConstraints.insets = new java.awt.Insets(7, 5, 0, 5);
+        panLoadAndInscribe.add(scpLoadingStatus, gridBagConstraints);
+
+        nutzungenCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/sum.png"))); // NOI18N
+        nutzungenCheckBox.setSelected(true);
+        nutzungenCheckBox.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
-                "ReportPrintingWidget.cmdOk.text")); // NOI18N
-        cmdOk.addActionListener(new java.awt.event.ActionListener() {
+                "ReportPrintingWidget.nutzungenCheckBox.text"));                               // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.4;
+        panLoadAndInscribe.add(nutzungenCheckBox, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cmdOkActionPerformed(evt);
-                }
-            });
+        rebeCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/findgreen.png"))); // NOI18N
+        rebeCheckBox.setSelected(true);
+        rebeCheckBox.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget.rebeCheckBox.text"));                                          // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.4;
+        panLoadAndInscribe.add(rebeCheckBox, gridBagConstraints);
+
+        vorgaengeCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/documents.png"))); // NOI18N
+        vorgaengeCheckBox.setSelected(true);
+        vorgaengeCheckBox.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget.vorgaengeCheckBox.text"));                                     // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.4;
+        panLoadAndInscribe.add(vorgaengeCheckBox, gridBagConstraints);
+
+        mipaCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/ressort.png"))); // NOI18N
+        mipaCheckBox.setSelected(true);
+        mipaCheckBox.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget.mipaCheckBox.text"));                                        // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.4;
+        panLoadAndInscribe.add(mipaCheckBox, gridBagConstraints);
+
+        baumdateiCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/ressort.png"))); // NOI18N
+        baumdateiCheckBox.setSelected(true);
+        baumdateiCheckBox.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget.baumdateiCheckBox.text"));                                   // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.4;
+        panLoadAndInscribe.add(baumdateiCheckBox, gridBagConstraints);
+
+        historieCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/ressort.png"))); // NOI18N
+        historieCheckBox.setSelected(true);
+        historieCheckBox.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget.historieCheckBox.text"));                                    // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 0.4;
+        panLoadAndInscribe.add(historieCheckBox, gridBagConstraints);
+
+        notizenCheckBox.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/note_edit.png"))); // NOI18N
+        notizenCheckBox.setSelected(true);
+        notizenCheckBox.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget1.notizenCheckBox.text"));                                      // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.4;
+        gridBagConstraints.insets = new java.awt.Insets(22, 0, 0, 0);
+        panLoadAndInscribe.add(notizenCheckBox, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.weighty = 0.3;
+        panLoadAndInscribe.add(filler1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 0.3;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        getContentPane().add(panLoadAndInscribe, gridBagConstraints);
+
+        jSeparator3.setMinimumSize(new java.awt.Dimension(510, 6));
+        jSeparator3.setPreferredSize(new java.awt.Dimension(100, 6));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        getContentPane().add(jSeparator3, gridBagConstraints);
+
+        jSeparator4.setMinimumSize(new java.awt.Dimension(165, 6));
+        jSeparator4.setPreferredSize(new java.awt.Dimension(174, 6));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        getContentPane().add(jSeparator4, gridBagConstraints);
+
+        jPanel1.setMinimumSize(new java.awt.Dimension(400, 39));
+        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
         cmdCancel.setMnemonic('A');
         cmdCancel.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
                 "ReportPrintingWidget.cmdCancel.text")); // NOI18N
+        cmdCancel.setMaximumSize(new java.awt.Dimension(100, 29));
+        cmdCancel.setMinimumSize(new java.awt.Dimension(100, 29));
+        cmdCancel.setPreferredSize(new java.awt.Dimension(100, 29));
         cmdCancel.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
@@ -387,199 +580,78 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
                     cmdCancelActionPerformed(evt);
                 }
             });
+        jPanel1.add(cmdCancel);
+
+        cmdOk.setMnemonic('O');
+        cmdOk.setText(org.openide.util.NbBundle.getMessage(
+                ReportPrintingWidget.class,
+                "ReportPrintingWidget.cmdOk.text")); // NOI18N
+        cmdOk.setMaximumSize(new java.awt.Dimension(100, 29));
+        cmdOk.setMinimumSize(new java.awt.Dimension(100, 29));
+        cmdOk.setPreferredSize(new java.awt.Dimension(100, 29));
+        cmdOk.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdOkActionPerformed(evt);
+                }
+            });
+        jPanel1.add(cmdOk);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_TRAILING;
+        gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 9);
+        getContentPane().add(jPanel1, gridBagConstraints);
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel6.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
                 "ReportPrintingWidget.jLabel6.text")); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE_LEADING;
+        gridBagConstraints.weightx = 0.7;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        getContentPane().add(jLabel6, gridBagConstraints);
 
-        nutzungenCheckBox.setSelected(true);
-        nutzungenCheckBox.setText(org.openide.util.NbBundle.getMessage(
+        jSeparator1.setMinimumSize(new java.awt.Dimension(200, 6));
+        jSeparator1.setPreferredSize(new java.awt.Dimension(200, 6));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        getContentPane().add(jSeparator1, gridBagConstraints);
+
+        jSeparator2.setBackground(new java.awt.Color(216, 228, 248));
+        jSeparator2.setMaximumSize(new java.awt.Dimension(160, 32767));
+        jSeparator2.setMinimumSize(new java.awt.Dimension(160, 6));
+        jSeparator2.setOpaque(true);
+        jSeparator2.setPreferredSize(new java.awt.Dimension(160, 6));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = 5;
+        getContentPane().add(jSeparator2, gridBagConstraints);
+
+        jLabel1.setBackground(new java.awt.Color(216, 228, 248));
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
-                "ReportPrintingWidget.nutzungenCheckBox.text")); // NOI18N
-        nutzungenCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    nutzungenCheckBoxActionPerformed(evt);
-                }
-            });
-
-        rebeCheckBox.setSelected(true);
-        rebeCheckBox.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.rebeCheckBox.text")); // NOI18N
-        rebeCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    rebeCheckBoxActionPerformed(evt);
-                }
-            });
-
-        vorgaengeCheckBox.setSelected(true);
-        vorgaengeCheckBox.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.vorgaengeCheckBox.text")); // NOI18N
-        vorgaengeCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    vorgaengeCheckBoxActionPerformed(evt);
-                }
-            });
-
-        mipaCheckBox.setSelected(true);
-        mipaCheckBox.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.mipaCheckBox.text")); // NOI18N
-        mipaCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    mipaCheckBoxActionPerformed(evt);
-                }
-            });
-
-        baumdateiCheckBox.setSelected(true);
-        baumdateiCheckBox.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.baumdateiCheckBox.text")); // NOI18N
-        baumdateiCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    baumdateiCheckBoxActionPerformed(evt);
-                }
-            });
-
-        historieCheckBox.setSelected(true);
-        historieCheckBox.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.historieCheckBox.text")); // NOI18N
-        historieCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    historieCheckBoxActionPerformed(evt);
-                }
-            });
-
-        notizenCheckBox.setSelected(true);
-        notizenCheckBox.setText(org.openide.util.NbBundle.getMessage(
-                ReportPrintingWidget.class,
-                "ReportPrintingWidget.notizenCheckBox.text")); // NOI18N
-        notizenCheckBox.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    notizenCheckBoxActionPerformed(evt);
-                }
-            });
-
-        notizenTextArea.setBackground(java.awt.SystemColor.text);
-        scpLoadingStatus.setViewportView(notizenTextArea);
-
-        final org.jdesktop.layout.GroupLayout panLoadAndInscribeLayout = new org.jdesktop.layout.GroupLayout(
-                panLoadAndInscribe);
-        panLoadAndInscribe.setLayout(panLoadAndInscribeLayout);
-        panLoadAndInscribeLayout.setHorizontalGroup(
-            panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                panLoadAndInscribeLayout.createSequentialGroup().add(
-                    panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        jSeparator4,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        337,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        panLoadAndInscribeLayout.createSequentialGroup().add(24, 24, 24).add(
-                            panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                panLoadAndInscribeLayout.createSequentialGroup().add(
-                                    panLoadAndInscribeLayout.createParallelGroup(
-                                        org.jdesktop.layout.GroupLayout.LEADING).add(rebeCheckBox).add(
-                                        vorgaengeCheckBox).add(nutzungenCheckBox)).add(18, 18, 18).add(
-                                    panLoadAndInscribeLayout.createParallelGroup(
-                                        org.jdesktop.layout.GroupLayout.LEADING).add(historieCheckBox).add(
-                                        baumdateiCheckBox).add(mipaCheckBox))).add(notizenCheckBox).add(
-                                org.jdesktop.layout.GroupLayout.TRAILING,
-                                scpLoadingStatus,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                                313,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        jLabel6).add(
-                        jSeparator1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        337,
-                        Short.MAX_VALUE)).addContainerGap()));
-        panLoadAndInscribeLayout.setVerticalGroup(
-            panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panLoadAndInscribeLayout.createSequentialGroup().addContainerGap().add(jLabel6).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jSeparator1,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    6,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panLoadAndInscribeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panLoadAndInscribeLayout.createSequentialGroup().add(nutzungenCheckBox).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.UNRELATED).add(rebeCheckBox).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.UNRELATED).add(vorgaengeCheckBox).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            23,
-                            Short.MAX_VALUE).add(notizenCheckBox)).add(
-                        panLoadAndInscribeLayout.createSequentialGroup().add(mipaCheckBox).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.UNRELATED).add(baumdateiCheckBox).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.UNRELATED).add(historieCheckBox))).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    scpLoadingStatus,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    85,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(25, 25, 25).add(
-                    jSeparator4,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
-
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().add(
-                    panDesc,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    173,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panLoadAndInscribe,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                layout.createSequentialGroup().addContainerGap(247, Short.MAX_VALUE).add(
-                    cmdCancel,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    125,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(18, 18, 18).add(
-                    cmdOk,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    126,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(24, 24, 24)));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(
-                        panDesc,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        panLoadAndInscribe,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(cmdOk).add(cmdCancel))
-                            .addContainerGap()));
+                "ReportPrintingWidget.jLabel1.text"));       // NOI18N
+        jLabel1.setOpaque(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipady = 10;
+        gridBagConstraints.weightx = 0.3;
+        getContentPane().add(jLabel1, gridBagConstraints);
 
         pack();
     } // </editor-fold>//GEN-END:initComponents
@@ -611,40 +683,44 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
                 @Override
                 public void run() {
-                    java.awt.EventQueue.invokeLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                pdfWait.setLocationRelativeTo(parentComponent);
-                                pdfWait.setVisible(true);
-                            }
-                        });
-
                     try {
-                        if (notizenCheckBox.isSelected()) {
-                            paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
+                        if (DownloadManagerDialog.showAskingForUserTitle((Frame)parentComponent)) {
+                            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        pdfWait.setLocationRelativeTo(parentComponent);
+                                        pdfWait.setVisible(true);
+                                    }
+                                });
+
+                            if (notizenCheckBox.isSelected()) {
+                                paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
+                            }
+
+                            final InputStream in = getClass().getResourceAsStream(REPORT_MASTER);
+                            final JasperReport jasperReport = (JasperReport)JRLoader.loadObject(in);
+                            final JasperPrint jasperPrint = JasperFillManager.fillReport(
+                                    jasperReport,
+                                    paramMap,
+                                    new EmptyDataSource(1));
+
+                            final String jobname = DownloadManagerDialog.getJobname();
+                            DownloadManager.instance()
+                                    .add(new JasperDownload(
+                                            jasperPrint,
+                                            jobname,
+                                            "Lagis-Druck",
+                                            "lagis_flurstueck_details"));
+
+                            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        pdfWait.dispose();
+                                    }
+                                });
                         }
-
-                        final InputStream in = getClass().getResourceAsStream(REPORT_MASTER);
-                        final JasperReport jasperReport = (JasperReport)JRLoader.loadObject(in);
-                        final JasperPrint jasperPrint = JasperFillManager.fillReport(
-                                jasperReport,
-                                paramMap,
-                                new EmptyDataSource(1));
-
-                        final File f = new File(TARGET_FILE);
-                        JasperExportManager.exportReportToPdfFile(jasperPrint, f.toString());
-
-                        log.info("try to open pdf:" + TARGET_FILE_URL); // NOI18N
-                        de.cismet.tools.BrowserLauncher.openURL(TARGET_FILE_URL);
-
-                        java.awt.EventQueue.invokeLater(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    pdfWait.dispose();
-                                }
-                            });
                     } catch (final Exception tt) {
                         log.error("Error during Jaspern", tt); // NOI18N
 
@@ -679,34 +755,34 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void vorgaengeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_vorgaengeCheckBoxActionPerformed
+    private void vorgaengeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_VORGAENGE, this.vorgaengeCheckBox.isSelected());
-    }                                                                                     //GEN-LAST:event_vorgaengeCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void nutzungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_nutzungenCheckBoxActionPerformed
+    private void nutzungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_NUTZUNGEN, this.nutzungenCheckBox.isSelected());
-    }                                                                                     //GEN-LAST:event_nutzungenCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rebeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_rebeCheckBoxActionPerformed
+    private void rebeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_REBE, this.rebeCheckBox.isSelected());
-    }                                                                                //GEN-LAST:event_rebeCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void notizenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_notizenCheckBoxActionPerformed
+    private void notizenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         final boolean isSelected = this.notizenCheckBox.isSelected();
 
         this.notizenTextArea.setEnabled(isSelected);
@@ -717,34 +793,34 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         }
 
         this.handleParamMap(PARAM_NOTIZEN, isSelected);
-    } //GEN-LAST:event_notizenCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mipaCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mipaCheckBoxActionPerformed
+    private void mipaCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_MIPA, this.mipaCheckBox.isSelected());
-    }                                                                                //GEN-LAST:event_mipaCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void baumdateiCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_baumdateiCheckBoxActionPerformed
+    private void baumdateiCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_BAUMDATEI, this.baumdateiCheckBox.isSelected());
-    }                                                                                     //GEN-LAST:event_baumdateiCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void historieCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_historieCheckBoxActionPerformed
+    private void historieCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_HISTORY, this.historieCheckBox.isSelected());
-    }                                                                                    //GEN-LAST:event_historieCheckBoxActionPerformed
+    }
 
     /**
      * DOCUMENT ME!
@@ -756,7 +832,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
                 @Override
                 public void run() {
-                    new ReportPrintingWidget(new javax.swing.JFrame(), true).setVisible(true);
+                    final ReportPrintingWidget rpw = new ReportPrintingWidget(new javax.swing.JFrame(), true);
+                    rpw.pack();
+                    ;
+                    rpw.setVisible(true);
                 }
             });
     }
