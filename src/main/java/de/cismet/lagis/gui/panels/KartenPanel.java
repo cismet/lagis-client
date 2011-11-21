@@ -37,9 +37,12 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollectionEvent;
 import de.cismet.cismap.commons.features.FeatureCollectionListener;
@@ -158,6 +161,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     private final Map<String, FeatureGroupActionListener> featureGroupButtonListenerMap;
 
+    private final JLabel lblInfo;
+    private Object lastOverFeature;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -268,6 +274,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         }
 
         this.addSeparator();
+
+        this.lblInfo = new JLabel();
+
+        // nasty workaround as the GuiBuilder can not be used at the moment
+        this.remove(this.jPanel1);
+        final JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(this.lblInfo, BorderLayout.WEST);
+        panel.add(this.jPanel1, BorderLayout.EAST);
+        super.add(panel, java.awt.BorderLayout.SOUTH);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -1598,28 +1614,28 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  notification  DOCUMENT ME!
      */
     public void coordinatesChanged(final PNotification notification) {
-//    Object o=notification.getObject();
-//    if (o instanceof SimpleMoveListener) {
-//        double x=((SimpleMoveListener)o).getXCoord();
-//        double y=((SimpleMoveListener)o).getYCoord();
-//        double scale=((SimpleMoveListener)o).getCurrentOGCScale();
-//
-//        //double test= mappingComp.getWtst().getSourceX(36)-this.mappingComp.getWtst().getSourceX(0))/mappingComp.getCamera().getViewScale();
-//        //scale +" ... "+
-//        //setgetlblCoord.setText(MappingComponent.getCoordinateString(x,y));
-//
-//    }
-////        PFeature pf=((SimpleMoveListener)o).getUnderlyingPFeature();
-////
-////        if (pf!=null&&pf.getFeature() instanceof DefaultFeatureServiceFeature &&pf.getVisible()==true&&pf.getParent()!=null&&pf.getParent().getVisible()==true) {
-////            lblInfo.setText(((DefaultFeatureServiceFeature)pf.getFeature()).getObjectName());
-////        } else if (pf!=null&&pf.getFeature() instanceof Flaeche) {
-////            String name="Kassenzeichen: "+((Flaeche)pf.getFeature()).getKassenzeichen()+"::"+((Flaeche)pf.getFeature()).getBezeichnung();
-////            lblInfo.setText(name);
-////        } else {
-////            lblInfo.setText("");
-//        }
-        // }
+        final Object o = notification.getObject();
+        final PFeature pf = ((SimpleMoveListener)o).getUnderlyingPFeature();
+
+        if (pf != this.lastOverFeature) {
+            this.lastOverFeature = pf;
+
+            if ((pf != null) && (pf.getFeature() instanceof DefaultFeatureServiceFeature)
+                        && pf.getVisible()
+                        && (pf.getParent() != null) && pf.getParent().getVisible()) {
+                final DefaultFeatureServiceFeature sf = (DefaultFeatureServiceFeature)pf.getFeature();
+
+                final String gemarkung = (String)sf.getProperty("app:gem");
+                final String flur = (String)sf.getProperty("app:flur");
+                final String flurstz = (String)sf.getProperty("app:flurstz");
+                final String flurstn = (String)sf.getProperty("app:flurstn");
+
+                final Gemarkung gem = LagisBroker.getInstance().getGemarkungForKey(Integer.parseInt(gemarkung));
+                this.lblInfo.setText(gem.getBezeichnung() + ' ' + flur + ' ' + flurstz + '/' + flurstn);
+            } else {
+                this.lblInfo.setText("");
+            }
+        }
     }
 
     /**
