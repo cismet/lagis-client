@@ -23,7 +23,7 @@ import de.cismet.lagisEE.entity.basic.BasicEntity;
  */
 public interface Copyable {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     /**
      * Return value for {@link Copyable#getDisplayName(de.cismet.lagisEE.entity.basic.BasicEntity) } if display name can
