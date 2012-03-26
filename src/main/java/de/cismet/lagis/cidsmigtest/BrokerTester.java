@@ -5,6 +5,15 @@
 *              ... and it just works.
 *
 ****************************************************/
+package de.cismet.lagis.cidsmigtest;
+
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 
 import Sirius.navigator.connection.*;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
@@ -189,7 +198,7 @@ public class BrokerTester {
                     count++;
                     LOG.fatal(allFlurstueckKeys.size() + ": " + flurstueckKey);
                     final int from = 0;
-                    final int to = 30000; // > 20333 für alle
+                    final int to = 10; // > 20333 für alle
                     if ((count > from) && (count <= to)) {
                         allFlurstueckKeys.add(flurstueckKey);
                     }

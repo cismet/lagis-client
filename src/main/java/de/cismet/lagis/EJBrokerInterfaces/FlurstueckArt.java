@@ -14,7 +14,7 @@ package de.cismet.lagis.EJBrokerInterfaces;
  */
 public interface FlurstueckArt {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     String FLURSTUECK_ART_BEZEICHNUNG_PSEUDO = "pseudo";
     String FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH = "städtisch";
