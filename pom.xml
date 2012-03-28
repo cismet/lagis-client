@@ -18,13 +18,6 @@
     <description>!!! description pending !!!</description>
 
     <dependencies>
-         <dependency>
-            <groupId>org.jdesktop</groupId>
-            <artifactId>swing-worker</artifactId>
-            <version>1.1</version>
-            <scope>runtime</scope>
-        </dependency>
-
         <dependency>
             <groupId>de.cismet.cids.navigator.plugin</groupId>
             <artifactId>tim-easy</artifactId>
@@ -86,11 +79,6 @@
             <version>1.1.1</version>
         </dependency>-->
         <dependency>
-            <groupId>de.cismet.lagis</groupId>
-            <artifactId>lagis-ee-server-ejb</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>de.cismet.verdis</groupId>
             <artifactId>verdis-ee-server-ejb</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -137,6 +125,18 @@
             <groupId>org.jdesktop</groupId>
             <artifactId>beansbinding</artifactId>
             <version>1.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.swinglabs</groupId>
+            <artifactId>swingx</artifactId>
+            <version>0.9.7</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.1</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
     <build>
