@@ -17,19 +17,14 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.text.DateFormat;
-
+import java.util.Collection;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.lagisEE.entity.core.Beschluss;
-import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
-import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
+import de.cismet.cids.custom.beans.verdis_grundis.BeschlussCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.BeschlussartCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -46,7 +41,7 @@ public class BeschluesseTableModel extends AbstractTableModel {
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<Beschluss> beschluesse;
+    private Vector<BeschlussCustomBean> beschluesse;
     private boolean isInEditMode = false;
 
     //~ Constructors -----------------------------------------------------------
@@ -55,7 +50,7 @@ public class BeschluesseTableModel extends AbstractTableModel {
      * Creates a new instance of BeschluesseTableModel.
      */
     public BeschluesseTableModel() {
-        beschluesse = new Vector<Beschluss>();
+        beschluesse = new Vector<BeschlussCustomBean>();
     }
 
     /**
@@ -63,12 +58,12 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @param  beschluesse  DOCUMENT ME!
      */
-    public BeschluesseTableModel(final Set<Beschluss> beschluesse) {
+    public BeschluesseTableModel(final Collection<BeschlussCustomBean> beschluesse) {
         try {
-            this.beschluesse = new Vector<Beschluss>(beschluesse);
+            this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.beschluesse = new Vector<Beschluss>();
+            this.beschluesse = new Vector<BeschlussCustomBean>();
         }
     }
 
@@ -81,22 +76,22 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @param  beschluesse  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<Beschluss> beschluesse) {
+    public void refreshTableModel(final Collection<BeschlussCustomBean> beschluesse) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des BeschlussTableModell");
             }
             if (beschluesse != null) {
-                this.beschluesse = new Vector<Beschluss>(beschluesse);
+                this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
                 }
-                this.beschluesse = new Vector<Beschluss>();
+                this.beschluesse = new Vector<BeschlussCustomBean>();
             }
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.beschluesse = new Vector<Beschluss>();
+            this.beschluesse = new Vector<BeschlussCustomBean>();
         }
         fireTableDataChanged();
     }
@@ -113,10 +108,10 @@ public class BeschluesseTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final Beschluss beschluss = beschluesse.get(rowIndex);
+            final BeschlussCustomBean beschluss = beschluesse.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    // Beschlussart art = beschluss.getBeschlussart();
+                    // BeschlussartCustomBean art = beschluss.getBeschlussart();
                     // return art != null ? art.getBezeichnung() : null;
                     return beschluss.getBeschlussart();
                 }
@@ -159,7 +154,7 @@ public class BeschluesseTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
             case 0: {
-                return Beschlussart.class;
+                return BeschlussartCustomBean.class;
             }
             case 1: {
                 return Date.class;
@@ -174,12 +169,12 @@ public class BeschluesseTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            final Beschluss beschluss = beschluesse.get(rowIndex);
+            final BeschlussCustomBean beschluss = beschluesse.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    // Beschlussart art = beschluss.getBeschlussart();
+                    // BeschlussartCustomBean art = beschluss.getBeschlussart();
                     // return art != null ? art.getBezeichnung() : null;
-                    beschluss.setBeschlussart((Beschlussart)aValue);
+                    beschluss.setBeschlussart((BeschlussartCustomBean)aValue);
                     break;
                 }
                 case 1: {
@@ -204,7 +199,7 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<Beschluss> getBeschluesse() {
+    public Vector<BeschlussCustomBean> getBeschluesse() {
         return beschluesse;
     }
 
@@ -213,7 +208,7 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @param  beschluss  DOCUMENT ME!
      */
-    public void addBeschluss(final Beschluss beschluss) {
+    public void addBeschluss(final BeschlussCustomBean beschluss) {
         beschluesse.add(beschluss);
     }
 
@@ -224,7 +219,7 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Beschluss getBeschlussAtRow(final int rowIndex) {
+    public BeschlussCustomBean getBeschlussAtRow(final int rowIndex) {
         return beschluesse.get(rowIndex);
     }
 

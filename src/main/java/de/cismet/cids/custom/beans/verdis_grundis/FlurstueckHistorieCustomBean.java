@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.FlurstueckHistorie;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.FlurstueckHistorie;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class FlurstueckHistorieCustomBean extends CidsBean implements FlurstueckHistorie {
+public class FlurstueckHistorieCustomBean extends BasicEntity implements FlurstueckHistorie {
 
     //~ Instance fields --------------------------------------------------------
 

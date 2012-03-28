@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Kategorie;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Kategorie;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Kategorie;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class KategorieCustomBean extends CidsBean implements Kategorie {
+public class KategorieCustomBean extends BasicEntity implements Kategorie {
 
     //~ Instance fields --------------------------------------------------------
 

@@ -25,14 +25,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 
-import java.util.Set;
+import java.util.Collection;
 
 import javax.swing.Icon;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import de.cismet.lagisEE.entity.core.hardwired.Farbe;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
+import de.cismet.cids.custom.beans.verdis_grundis.FarbeCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.VerwaltungsgebrauchCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -100,10 +100,10 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
     @Override
     public void setValue(final Object value) {
         try {
-            if (value instanceof Verwaltungsgebrauch) {
-                final Verwaltungsgebrauch tmp = (Verwaltungsgebrauch)value;
-                final Set<Farbe> farben;
-                final Farbe farbe;
+            if (value instanceof VerwaltungsgebrauchCustomBean) {
+                final VerwaltungsgebrauchCustomBean tmp = (VerwaltungsgebrauchCustomBean)value;
+                final Collection<FarbeCustomBean> farben;
+                final FarbeCustomBean farbe;
                 if (tmp != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("verwaltungsgebrauch != null");

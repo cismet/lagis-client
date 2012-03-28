@@ -73,7 +73,7 @@ public class RessortFactory implements Configurable {
 
     // TODO warum etwas zurück geben könnte doch auch null ausgeben oder wegen config im Client ???
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         final Element ret = new Element("cismapWFSFormsPreferences");
         return ret;
     }

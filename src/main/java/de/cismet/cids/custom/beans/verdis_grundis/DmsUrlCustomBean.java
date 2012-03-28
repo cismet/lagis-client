@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.DmsUrl;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.DmsUrl;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.DmsUrl;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class DmsUrlCustomBean extends CidsBean implements DmsUrl {
+public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
 
     //~ Instance fields --------------------------------------------------------
 

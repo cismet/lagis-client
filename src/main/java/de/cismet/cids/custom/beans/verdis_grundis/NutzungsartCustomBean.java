@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Nutzungsart;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Nutzungsart;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class NutzungsartCustomBean extends CidsBean implements Nutzungsart {
+public class NutzungsartCustomBean extends BasicEntity implements Nutzungsart {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -111,7 +110,7 @@ public class NutzungsartCustomBean extends CidsBean implements Nutzungsart {
 
     @Override
     public int compareTo(final Object value) {
-        if (value instanceof de.cismet.lagisEE.entity.core.hardwired.Nutzungsart) {
+        if (value instanceof NutzungsartCustomBean) {
             final NutzungsartCustomBean other = (NutzungsartCustomBean)value;
             if ((other != null) && (other.getSchluessel() != null) && (getSchluessel() != null)) {
                 return getSchluessel().compareTo(other.getSchluessel());

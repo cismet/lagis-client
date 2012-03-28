@@ -13,12 +13,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
-import de.cismet.cids.dynamics.CidsBean;
+import de.cismet.lagis.Exception.BuchungNotInNutzungException;
+import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
-import de.cismet.lagis.EJBrokerInterfaces.NutzungsBuchung;
-
-import de.cismet.lagisEE.bean.Exception.BuchungNotInNutzungException;
-import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 
 /**
  * DOCUMENT ME!
@@ -26,7 +25,7 @@ import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class NutzungBuchungCustomBean extends CidsBean implements NutzungsBuchung {
+public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuchung {
 
     //~ Instance fields --------------------------------------------------------
 

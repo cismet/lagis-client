@@ -15,8 +15,6 @@
  */
 package de.cismet.lagis.interfaces;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-
 /**
  * DOCUMENT ME!
  *

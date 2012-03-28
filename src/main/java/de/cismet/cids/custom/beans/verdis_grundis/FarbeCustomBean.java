@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Farbe;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Farbe;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Farbe;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class FarbeCustomBean extends CidsBean implements Farbe {
+public class FarbeCustomBean extends BasicEntity implements Farbe {
 
     //~ Instance fields --------------------------------------------------------
 

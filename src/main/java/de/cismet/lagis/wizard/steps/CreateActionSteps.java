@@ -17,28 +17,23 @@ package de.cismet.lagis.wizard.steps;
 
 import org.apache.log4j.Logger;
 
-import org.netbeans.spi.wizard.DeferredWizardResult;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import org.netbeans.spi.wizard.Summary;
-import org.netbeans.spi.wizard.WizardController;
-import org.netbeans.spi.wizard.WizardException;
-import org.netbeans.spi.wizard.WizardPanelProvider;
+import org.netbeans.spi.wizard.*;
 
 import java.awt.EventQueue;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.CreateActionPanel;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 
 /**
  * DOCUMENT ME!
@@ -102,21 +97,24 @@ public class CreateActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck anlegen: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel key = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean key = (FlurstueckSchluesselCustomBean)wizardData.get(
                     CreateActionPanel.KEY_CREATE_CANDIDATE);
             final boolean isStaedtisch = (Boolean)wizardData.get(CreateActionPanel.KEY_IS_STAEDTISCH);
             try {
                 progress.setBusy("Flurstück wird angelegt");
-                final Set<FlurstueckArt> flurstueckArten = EJBroker.getInstance().getAllFlurstueckArten();
+                final Collection<FlurstueckArtCustomBean> flurstueckArten = EJBroker.getInstance()
+                            .getAllFlurstueckArten();
                 if (isStaedtisch) {
-                    for (final FlurstueckArt art : flurstueckArten) {
-                        if (art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                    for (final FlurstueckArtCustomBean art : flurstueckArten) {
+                        if (art.getBezeichnung().equals(
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                             key.setFlurstueckArt(art);
                         }
                     }
                 } else {
-                    for (final FlurstueckArt art : flurstueckArten) {
-                        if (art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                    for (final FlurstueckArtCustomBean art : flurstueckArten) {
+                        if (art.getBezeichnung().equals(
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                             key.setFlurstueckArt(art);
                         }
                     }
@@ -128,7 +126,7 @@ public class CreateActionSteps extends WizardPanelProvider {
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
 
                 if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                            && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                            && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                 LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                 key)) {
                     if (log.isDebugEnabled()) {

@@ -18,9 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import de.cismet.lagis.wizard.GeometryAreaChecker;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.lagis.wizard.GeometryAreaChecker;
 
 /**
  * DOCUMENT ME!
@@ -71,8 +71,8 @@ public class SummaryPanel extends JPanel {
      */
     private String buildHTML(final GeometryAreaChecker chk) {
         // print target Flurstücke
-        final Map<FlurstueckSchluessel, Geometry> targetGeomsMap = chk.getTargetGeometriesMap();
-        final Map<FlurstueckSchluessel, Geometry> map = chk.getResultGeometriesMap();
+        final Map<FlurstueckSchluesselCustomBean, Geometry> targetGeomsMap = chk.getTargetGeometriesMap();
+        final Map<FlurstueckSchluesselCustomBean, Geometry> map = chk.getResultGeometriesMap();
 
         if ((targetGeomsMap == null) || (map == null)) {
             return "";
@@ -81,7 +81,7 @@ public class SummaryPanel extends JPanel {
         final StringBuilder builder = new StringBuilder(HTML_BEGIN);
         Geometry tmpGeom;
 
-        for (final Map.Entry<FlurstueckSchluessel, Geometry> entry : targetGeomsMap.entrySet()) {
+        for (final Map.Entry<FlurstueckSchluesselCustomBean, Geometry> entry : targetGeomsMap.entrySet()) {
             tmpGeom = entry.getValue();
             if (tmpGeom == null) {
                 builder.append(String.format(HTML_FS_REC, entry.getKey().getKeyString(), 0.0));
@@ -92,7 +92,7 @@ public class SummaryPanel extends JPanel {
         builder.append(HTML_SEP);
 
         if (map != null) {
-            for (final Map.Entry<FlurstueckSchluessel, Geometry> entry : map.entrySet()) {
+            for (final Map.Entry<FlurstueckSchluesselCustomBean, Geometry> entry : map.entrySet()) {
                 tmpGeom = entry.getValue();
                 if (tmpGeom == null) {
                     builder.append(String.format(HTML_FS_REC, entry.getKey().getKeyString(), 0.0));

@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.FlurstueckArt;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.FlurstueckArt;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class FlurstueckArtCustomBean extends CidsBean implements FlurstueckArt {
+public class FlurstueckArtCustomBean extends BasicEntity implements FlurstueckArt {
 
     //~ Instance fields --------------------------------------------------------
 

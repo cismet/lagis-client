@@ -23,6 +23,8 @@ import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -30,9 +32,6 @@ import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -117,7 +116,7 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
                 rbStaedtisch.setEnabled(true);
                 rbAbteilungIX.setEnabled(true);
                 if (panChangeKind.getCurrentFlurstueckSchluessel().getFlurstueckArt().getBezeichnung().equals(
-                                FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                     rbAbteilungIX.setSelected(true);
                 } else {
                     rbStaedtisch.setSelected(true);
@@ -125,35 +124,35 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
             }
 
             if (rbStaedtisch.isSelected() || rbAbteilungIX.isSelected()) {
-                FlurstueckArt newArt = null;
+                FlurstueckArtCustomBean newArt = null;
                 if (rbStaedtisch.getModel().equals(rbGroup.getSelection())) {
                     if (panChangeKind.getCurrentFlurstueckSchluessel().getFlurstueckArt().getBezeichnung().equals(
-                                    FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                    FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                         if (log.isDebugEnabled()) {
                             log.debug("Flurstück ist städtisch");
                         }
                         wizardController.setProblem("Flurstück ist bereits städtisch");
                         return;
                     } else {
-                        for (final FlurstueckArt currentArt : EJBroker.getInstance().getAllFlurstueckArten()) {
+                        for (final FlurstueckArtCustomBean currentArt : EJBroker.getInstance().getAllFlurstueckArten()) {
                             if (currentArt.getBezeichnung().equals(
-                                            FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                                 newArt = currentArt;
                             }
                         }
                     }
                 } else if (rbAbteilungIX.getModel().equals(rbGroup.getSelection())) {
                     if (panChangeKind.getCurrentFlurstueckSchluessel().getFlurstueckArt().getBezeichnung().equals(
-                                    FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                                    FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                         if (log.isDebugEnabled()) {
                             log.debug("Flurstück ist Abteilung IX zugeordnet");
                         }
                         wizardController.setProblem("Flurstück ist bereits Abteilung IX zugeordnet");
                         return;
                     } else {
-                        for (final FlurstueckArt currentArt : EJBroker.getInstance().getAllFlurstueckArten()) {
+                        for (final FlurstueckArtCustomBean currentArt : EJBroker.getInstance().getAllFlurstueckArten()) {
                             if (currentArt.getBezeichnung().equals(
-                                            FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                                 newArt = currentArt;
                             }
                         }
@@ -163,7 +162,8 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
                     wizardController.setProblem("Gewählte Art kommt in der Datenbank nicht vor");
                     return;
                 }
-                final Sperre sperre = EJBroker.getInstance().isLocked(panChangeKind.getCurrentFlurstueckSchluessel());
+                final SperreCustomBean sperre = EJBroker.getInstance()
+                            .isLocked(panChangeKind.getCurrentFlurstueckSchluessel());
                 if (sperre != null) {
                     // TODO nicht ganz sichtbar
                     wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

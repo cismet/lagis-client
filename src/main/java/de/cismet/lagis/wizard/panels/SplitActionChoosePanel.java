@@ -26,13 +26,13 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -143,7 +143,8 @@ public class SplitActionChoosePanel extends javax.swing.JPanel implements Change
         }
         if (mode.equals(SPLIT_ACTION_MODE)) {
             if (panSplit.getStatus() == Validatable.VALID) {
-                final Sperre sperre = EJBroker.getInstance().isLocked(panSplit.getCurrentFlurstueckSchluessel());
+                final SperreCustomBean sperre = EJBroker.getInstance()
+                            .isLocked(panSplit.getCurrentFlurstueckSchluessel());
                 if (sperre != null) {
                     // TODO nicht ganz sichtbar
                     wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

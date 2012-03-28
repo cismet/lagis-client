@@ -9,15 +9,8 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-import org.openide.util.Exceptions;
-
-import java.sql.SQLException;
-
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.cismap.commons.jtsgeometryfactories.PostGisGeometryFactory;
-
-import de.cismet.lagis.EJBrokerInterfaces.Geom;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.Geom;
 
 /**
  * DOCUMENT ME!
@@ -25,7 +18,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Geom;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class GeomCustomBean extends CidsBean implements Geom {
+public class GeomCustomBean extends BasicEntity implements Geom {
 
     //~ Instance fields --------------------------------------------------------
 

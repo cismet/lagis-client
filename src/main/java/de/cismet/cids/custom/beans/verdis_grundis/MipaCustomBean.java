@@ -9,8 +9,6 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-import org.postgis.PGgeometry;
-
 import java.awt.Color;
 import java.awt.Paint;
 
@@ -19,12 +17,10 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
-import de.cismet.cismap.commons.jtsgeometryfactories.PostGisGeometryFactory;
 
-import de.cismet.lagis.EJBrokerInterfaces.MiPa;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
 
 /**
  * DOCUMENT ME!
@@ -32,7 +28,7 @@ import de.cismet.lagis.EJBrokerInterfaces.MiPa;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class MipaCustomBean extends CidsBean implements MiPa {
+public class MipaCustomBean extends BasicEntity implements MiPa {
 
     //~ Static fields/initializers ---------------------------------------------
 

@@ -15,14 +15,13 @@
  */
 package de.cismet.lagis.models;
 
+import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.AbstractListModel;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 /**
  * DOCUMENT ME!
  *
@@ -48,7 +47,7 @@ public class DefaultUniqueListModel extends AbstractListModel {
      *
      * @param  crossRefs  DOCUMENT ME!
      */
-    public DefaultUniqueListModel(final Set<FlurstueckSchluessel> crossRefs) {
+    public DefaultUniqueListModel(final Collection<FlurstueckSchluesselCustomBean> crossRefs) {
         if ((crossRefs != null) && (crossRefs.size() > 0)) {
             delegate = new Vector(crossRefs);
         }

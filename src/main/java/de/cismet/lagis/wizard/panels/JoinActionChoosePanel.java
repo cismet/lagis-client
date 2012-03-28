@@ -22,16 +22,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+
 import de.cismet.lagis.broker.EJBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -51,7 +51,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
     private WizardController wizardController;
     private Map wizardData;
     private final ArrayList<FlurstueckChooser> joinCandidates = new ArrayList<FlurstueckChooser>();
-    private ArrayList<FlurstueckSchluessel> joinKeys;
+    private ArrayList<FlurstueckSchluesselCustomBean> joinKeys;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddJoinMember;
     private javax.swing.JButton btnRemoveJoinMember;
@@ -92,7 +92,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
     @Override
     public void validationStateChanged(final Object validatedObject) {
         final Iterator<FlurstueckChooser> joinMembers = joinCandidates.iterator();
-        joinKeys = new ArrayList<FlurstueckSchluessel>();
+        joinKeys = new ArrayList<FlurstueckSchluesselCustomBean>();
         while (joinMembers.hasNext()) {
             final FlurstueckChooser curJoinMember = joinMembers.next();
             if (curJoinMember.getStatus() == Validatable.ERROR) {
@@ -102,7 +102,8 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
                 wizardController.setProblem(curJoinMember.getValidationMessage());
                 return;
             }
-            final Sperre sperre = EJBroker.getInstance().isLocked(curJoinMember.getCurrentFlurstueckSchluessel());
+            final SperreCustomBean sperre = EJBroker.getInstance()
+                        .isLocked(curJoinMember.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
                             + sperre.getBenutzerkonto());
@@ -126,19 +127,21 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
             }
         }
 
-        FlurstueckArt firstArt = null;
-        for (final FlurstueckSchluessel current : joinKeys) {
+        FlurstueckArtCustomBean firstArt = null;
+        for (final FlurstueckSchluesselCustomBean current : joinKeys) {
             if (firstArt == null) {
                 firstArt = current.getFlurstueckArt();
                 continue;
             }
             if (log.isDebugEnabled()) {
                 log.debug("Flurstückart ist == "
-                            + FlurstueckArt.FLURSTUECK_ART_EQUALATOR.pedanticEquals(
+                            + FlurstueckArtCustomBean.FLURSTUECK_ART_EQUALATOR.pedanticEquals(
                                 current.getFlurstueckArt(),
                                 firstArt));
             }
-            if (!FlurstueckArt.FLURSTUECK_ART_EQUALATOR.pedanticEquals(current.getFlurstueckArt(), firstArt)) {
+            if (!FlurstueckArtCustomBean.FLURSTUECK_ART_EQUALATOR.pedanticEquals(
+                            current.getFlurstueckArt(),
+                            firstArt)) {
                 wizardController.setProblem("Alle Flurstücke müssen dieselbe Art haben.");
                 return;
             }
@@ -305,7 +308,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
                 if (log.isDebugEnabled()) {
                     log.debug("Letzter Chooser ist != null");
                 }
-                final FlurstueckSchluessel currentKey = lastChooser.getCurrentFlurstueckSchluessel();
+                final FlurstueckSchluesselCustomBean currentKey = lastChooser.getCurrentFlurstueckSchluessel();
                 if (currentKey != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Neuer FlurstückChooser wird nach letztem gesetzt");

@@ -16,9 +16,6 @@
 package de.cismet.lagis.broker;
 
 import Sirius.navigator.connection.ConnectionSession;
-import Sirius.navigator.exception.ConnectionException;
-
-import Sirius.server.newuser.User;
 
 import bean.KassenzeichenFacadeRemote;
 
@@ -34,8 +31,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import org.jdom.Element;
 
-import org.openide.util.Exceptions;
-
 import java.awt.Color;
 import java.awt.EventQueue;
 
@@ -43,15 +38,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,21 +53,17 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.gui.main.LagisApp;
 
-import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
-import de.cismet.lagis.interfaces.FlurstueckChangeListener;
-import de.cismet.lagis.interfaces.FlurstueckChangeObserver;
-import de.cismet.lagis.interfaces.FlurstueckRequester;
-import de.cismet.lagis.interfaces.FlurstueckSaver;
-import de.cismet.lagis.interfaces.GeometrySlotProvider;
-import de.cismet.lagis.interfaces.Refreshable;
-import de.cismet.lagis.interfaces.Resettable;
-import de.cismet.lagis.interfaces.Widget;
+import de.cismet.lagis.interfaces.*;
 
 import de.cismet.lagis.utillity.EmailConfig;
 import de.cismet.lagis.utillity.GeometrySlotInformation;
@@ -88,21 +71,11 @@ import de.cismet.lagis.utillity.Message;
 
 import de.cismet.lagis.validation.Validatable;
 
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
-import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
-import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
-import de.cismet.lagisEE.entity.locking.Sperre;
-
 import de.cismet.lagisEE.interfaces.GeometrySlot;
 
 import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 
 import de.cismet.tools.gui.StaticSwingTools;
 
@@ -123,8 +96,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // private static DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY);
     private static DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
     private static Vector<Widget> widgets = new Vector<Widget>();
-    private static Flurstueck currentFlurstueck = null;
-    private static Sperre currentSperre = null;
+    private static FlurstueckCustomBean currentFlurstueck = null;
+    private static SperreCustomBean currentSperre = null;
     // COLORS
     private static final Color yellow = new Color(231, 223, 84);
     public static final Color red = new Color(219, 96, 96);
@@ -183,7 +156,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public static final Color HISTORY_MODE_COLOR = grey;
     public static final Color DEFAULT_MODE_COLOR = blue;
     // resolving Gemarkungen
-    private static HashMap<Integer, Gemarkung> gemarkungsHashMap;
+    private static HashMap<Integer, GemarkungCustomBean> gemarkungsHashMap;
     private static GregorianCalendar calender = new GregorianCalendar();
 
     //~ Instance fields --------------------------------------------------------
@@ -194,7 +167,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private boolean loggedIn = false;
     private MappingComponent mappingComponent;
     private RootWindow rootWindow;
-    private FlurstueckSchluessel currentFlurstueckSchluessel = null;
+    private FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = null;
     // private static String accountName = "sebastian.puhl@cismet.de";
     // private String username;
     // private String group;
@@ -659,12 +632,12 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public boolean acquireLock() {
         try {
             if ((currentFlurstueck != null) && (currentSperre == null)) {
-                final Sperre newSperre = new Sperre();
+                final SperreCustomBean newSperre = new SperreCustomBean();
                 // datamodell refactoring 22.10.07
                 newSperre.setFlurstueckSchluessel(currentFlurstueck.getFlurstueckSchluessel().getId());
                 newSperre.setBenutzerkonto(getAccountName());
                 newSperre.setZeitstempel(new Date());
-                final Sperre result = EJBroker.getInstance().createLock(newSperre);
+                final SperreCustomBean result = EJBroker.getInstance().createLock(newSperre);
                 if (result != null) {
                     if (result.getBenutzerkonto().equals(getAccountName())
                                 && result.getZeitstempel().equals(newSperre.getZeitstempel())) {
@@ -798,7 +771,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @param  key  DOCUMENT ME!
      */
-    public synchronized void loadFlurstueck(final FlurstueckSchluessel key) {
+    public synchronized void loadFlurstueck(final FlurstueckSchluesselCustomBean key) {
         // requester.requestFlurstueck(key);
         // requester.requestNewFlurstueck(key);
         if (isInEditMode()) {
@@ -849,18 +822,20 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 }
                 // TODO check if flurstück is changed at all
                 try {
-                    final Flurstueck origFlurstueck = EJBroker.getInstance()
+                    final FlurstueckCustomBean origFlurstueck = EJBroker.getInstance()
                                 .retrieveFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
 
                     // Checks the Dienstellen for changes
-                    final Set<Verwaltungsbereich> oldBereiche = origFlurstueck.getVerwaltungsbereiche();
-                    final Set<Verwaltungsbereich> newBereiche = currentFlurstueck.getVerwaltungsbereiche();
+                    final Collection<VerwaltungsbereichCustomBean> oldBereiche =
+                        origFlurstueck.getVerwaltungsbereiche();
+                    final Collection<VerwaltungsbereichCustomBean> newBereiche =
+                        currentFlurstueck.getVerwaltungsbereiche();
                     if (((oldBereiche == null) || (oldBereiche.size() == 0))
                                 && ((newBereiche == null) || (newBereiche.size() == 0))) {
                         log.info("Es existieren keine Verwaltungsbereiche --> keine Veränderung");
                     } else if (((oldBereiche == null) || (oldBereiche.size() == 0))) {
                         log.info("Es wurden nur neue Verwaltungsbereiche angelegt: " + newBereiche.size());
-                        for (final Verwaltungsbereich currentBereich : newBereiche) {
+                        for (final VerwaltungsbereichCustomBean currentBereich : newBereiche) {
                             try {
 //                                Message newMessage = new Message();
 //                                newMessage.setMessageReceiver(Message.RECEIVER_VERWALTUNGSSTELLE);
@@ -869,7 +844,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 //                                messageObjects.add(currentBereich);
 //                                newMessage.setMessageObjects(messageObjects);
                                 // TODO duplicated code see checkofdifferences
-                                final VerwaltendeDienststelle currentDienstelle = currentBereich.getDienststelle();
+                                final VerwaltendeDienststelleCustomBean currentDienstelle =
+                                    currentBereich.getDienststelle();
                                 if (currentDienstelle != null) {
                                     messages.add(Message.createNewMessage(
                                             Message.RECEIVER_VERWALTUNGSSTELLE,
@@ -893,7 +869,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         }
                     } else if (((newBereiche == null) || (newBereiche.size() == 0))) {
                         log.info("Es wurden alle alten Verwaltungsbereiche gelöscht: " + oldBereiche.size());
-                        for (final Verwaltungsbereich currentBereich : oldBereiche) {
+                        for (final VerwaltungsbereichCustomBean currentBereich : oldBereiche) {
                             try {
 //                                Message newMessage = new Message();
 //                                newMessage.setMessageReceiver(Message.RECEIVER_VERWALTUNGSSTELLE);
@@ -921,14 +897,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         final Vector modDienststellen = new Vector();
                         final Vector addedDienststellen = new Vector();
                         final Vector deletedDienststellen = new Vector();
-                        final Vector<Verwaltungsbereich> oldBereicheVector = new Vector(oldBereiche);
-                        final Vector<Verwaltungsbereich> newBereicheVector = new Vector(newBereiche);
-                        for (final Verwaltungsbereich currentBereich : newBereiche) {
+                        final Vector<VerwaltungsbereichCustomBean> oldBereicheVector = new Vector(oldBereiche);
+                        final Vector<VerwaltungsbereichCustomBean> newBereicheVector = new Vector(newBereiche);
+                        for (final VerwaltungsbereichCustomBean currentBereich : newBereiche) {
                             try {
                                 if ((currentBereich.getId() == null) && !oldBereiche.contains(currentBereich)) {
                                     log.info("Es wurden ein neuer Verwaltungsbereich angelegt: " + currentBereich);
                                     // TODO duplicated code see checkofdifferences
-                                    final VerwaltendeDienststelle currentDienstelle = currentBereich.getDienststelle();
+                                    final VerwaltendeDienststelleCustomBean currentDienstelle =
+                                        currentBereich.getDienststelle();
                                     if (currentDienstelle != null) {
                                         addedDienststellen.add(Message.createNewMessage(
                                                 Message.RECEIVER_VERWALTUNGSSTELLE,
@@ -943,9 +920,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                     final int index = oldBereicheVector.indexOf(currentBereich);
                                     log.info("Verwaltungsbereich war schon in Datenbank: " + currentBereich
                                                 + " index in altem Datenbestand=" + index);
-                                    final Verwaltungsbereich oldBereich = oldBereicheVector.get(index);
-                                    final VerwaltendeDienststelle oldDienststelle = oldBereich.getDienststelle();
-                                    final VerwaltendeDienststelle newDienststelle = currentBereich.getDienststelle();
+                                    final VerwaltungsbereichCustomBean oldBereich = oldBereicheVector.get(index);
+                                    final VerwaltendeDienststelleCustomBean oldDienststelle =
+                                        oldBereich.getDienststelle();
+                                    final VerwaltendeDienststelleCustomBean newDienststelle =
+                                        currentBereich.getDienststelle();
                                     if ((oldDienststelle != null) && (newDienststelle != null)) {
                                         if (log.isDebugEnabled()) {
                                             log.debug("AlteDienstelle=" + oldDienststelle + " NeueDienststelle="
@@ -1018,14 +997,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         if (log.isDebugEnabled()) {
                             log.debug("gelöschte Verwaltungsbereiche erfassen");
                         }
-                        for (final Verwaltungsbereich currentBereich : oldBereicheVector) {
+                        for (final VerwaltungsbereichCustomBean currentBereich : oldBereicheVector) {
                             try {
                                 if (!newBereiche.contains(currentBereich)) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Verwaltungsbereich existiert nicht mehr in neuem Datenbestand: "
                                                     + currentBereich);
                                     }
-                                    final VerwaltendeDienststelle oldDienststelle = currentBereich.getDienststelle();
+                                    final VerwaltendeDienststelleCustomBean oldDienststelle =
+                                        currentBereich.getDienststelle();
                                     if (oldDienststelle == null) {
                                         if (log.isDebugEnabled()) {
                                             log.debug("Für Verwaltungsbereich wurde keine Dienstelle zugeordnet");
@@ -1125,10 +1105,10 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                         // TODO OPTIMIZATION OVERALL CATEGORY
                                         if (currentMessage.getMessageType() == Message.VERWALTUNGSBEREICH_CHANGED) {
                                             final Vector messageObjects = currentMessage.getMessageObjects();
-                                            final VerwaltendeDienststelle oldDienststelle = (VerwaltendeDienststelle)
-                                                messageObjects.get(0);
-                                            final VerwaltendeDienststelle newDienststelle = (VerwaltendeDienststelle)
-                                                messageObjects.get(1);
+                                            final VerwaltendeDienststelleCustomBean oldDienststelle =
+                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
+                                            final VerwaltendeDienststelleCustomBean newDienststelle =
+                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(1);
                                             // TODO OPTIMIZE
                                             if ((oldDienststelle.getEmailAdresse() == null)
                                                         || (newDienststelle.getEmailAdresse() == null)) {
@@ -1156,8 +1136,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                                         + "wurde die Zuordnung zur unterhaltenden Dienststelle geändert.");
                                         } else if (currentMessage.getMessageType() == Message.VERWALTUNGSBEREICH_NEW) {
                                             final Vector messageObjects = currentMessage.getMessageObjects();
-                                            final VerwaltendeDienststelle newDienststelle = (VerwaltendeDienststelle)
-                                                messageObjects.get(0);
+                                            final VerwaltendeDienststelleCustomBean newDienststelle =
+                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
                                             // TODO OPTIMIZE
                                             if (newDienststelle.getEmailAdresse() == null) {
                                                 throw new Exception(
@@ -1174,8 +1154,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                         } else if (currentMessage.getMessageType()
                                                     == Message.VERWALTUNGSBEREICH_DELETED) {
                                             final Vector messageObjects = currentMessage.getMessageObjects();
-                                            final VerwaltendeDienststelle oldDienststelle = (VerwaltendeDienststelle)
-                                                messageObjects.get(0);
+                                            final VerwaltendeDienststelleCustomBean oldDienststelle =
+                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
                                             // TODO OPTIMIZE
                                             if (oldDienststelle.getEmailAdresse() == null) {
                                                 throw new Exception(
@@ -1258,7 +1238,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @return  DOCUMENT ME!
      */
-    public Flurstueck getCurrentFlurstueck() {
+    public FlurstueckCustomBean getCurrentFlurstueck() {
         return currentFlurstueck;
     }
 
@@ -1411,7 +1391,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
     // TODO REFACTOR --> gerneralize
     @Override
-    public synchronized void fireFlurstueckChanged(final Flurstueck newFlurstueck) {
+    public synchronized void fireFlurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         getMappingComponent().getFeatureCollection().unselectAll();
         if (log.isDebugEnabled()) {
             log.debug("FlurstueckChangeEvent");
@@ -1480,7 +1460,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @param  flurstueckSchluessel  DOCUMENT ME!
      * @param  isUnkown              DOCUMENT ME!
      */
-    public void setCurrentFlurstueckSchluessel(final FlurstueckSchluessel flurstueckSchluessel,
+    public void setCurrentFlurstueckSchluessel(final FlurstueckSchluesselCustomBean flurstueckSchluessel,
             final boolean isUnkown) {
         if (log.isDebugEnabled()) {
             log.debug("setCurrentFlurstueckSchluessel");
@@ -1503,7 +1483,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @return  DOCUMENT ME!
      */
-    public FlurstueckSchluessel getCurrentFlurstueckSchluessel() {
+    public FlurstueckSchluesselCustomBean getCurrentFlurstueckSchluessel() {
         return currentFlurstueckSchluessel;
     }
 
@@ -1648,7 +1628,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     }
 
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         return null;
     }
 
@@ -1823,8 +1803,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @return  DOCUMENT ME!
      */
-    public Gemarkung getGemarkungForKey(final Integer key) {
-        Gemarkung resolvedGemarkung = null;
+    public GemarkungCustomBean getGemarkungForKey(final Integer key) {
+        GemarkungCustomBean resolvedGemarkung = null;
         if (gemarkungsHashMap != null) {
             resolvedGemarkung = gemarkungsHashMap.get(key);
         } else {

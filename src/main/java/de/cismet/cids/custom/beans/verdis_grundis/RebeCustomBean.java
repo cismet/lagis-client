@@ -9,8 +9,6 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-import org.postgis.PGgeometry;
-
 import java.awt.Color;
 import java.awt.Paint;
 
@@ -19,12 +17,10 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
-import de.cismet.cismap.commons.jtsgeometryfactories.PostGisGeometryFactory;
 
-import de.cismet.lagis.EJBrokerInterfaces.ReBe;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.ReBe;
 
 /**
  * DOCUMENT ME!
@@ -32,7 +28,7 @@ import de.cismet.lagis.EJBrokerInterfaces.ReBe;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class RebeCustomBean extends CidsBean implements ReBe {
+public class RebeCustomBean extends BasicEntity implements ReBe {
 
     //~ Static fields/initializers ---------------------------------------------
 

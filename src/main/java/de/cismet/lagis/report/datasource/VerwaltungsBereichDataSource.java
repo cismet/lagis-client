@@ -12,18 +12,15 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
+import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.cismet.lagis.wizard.GeometryWorker;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
-import de.cismet.lagisEE.entity.core.hardwired.Ressort;
-import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
+import de.cismet.lagis.wizard.GeometryWorker;
 
 /**
  * DOCUMENT ME!
@@ -31,7 +28,7 @@ import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class VerwaltungsBereichDataSource extends ADataSource<Verwaltungsbereich> implements JRDataSource {
+public class VerwaltungsBereichDataSource extends ADataSource<VerwaltungsbereichCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -56,37 +53,37 @@ public class VerwaltungsBereichDataSource extends ADataSource<Verwaltungsbereich
      *
      * @param  vbList  buchungen DOCUMENT ME!
      */
-    public VerwaltungsBereichDataSource(final List<Verwaltungsbereich> vbList) {
+    public VerwaltungsBereichDataSource(final List<VerwaltungsbereichCustomBean> vbList) {
         super(vbList);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<Verwaltungsbereich> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<Verwaltungsbereich> vbSet = currentFlurstueck.getVerwaltungsbereiche();
-        final FlurstueckSchluessel fsKey = currentFlurstueck.getFlurstueckSchluessel();
+    protected List<VerwaltungsbereichCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<VerwaltungsbereichCustomBean> vbSet = currentFlurstueck.getVerwaltungsbereiche();
+        final FlurstueckSchluesselCustomBean fsKey = currentFlurstueck.getFlurstueckSchluessel();
 
-        final ArrayList<FlurstueckSchluessel> fsList = new ArrayList<FlurstueckSchluessel>(1);
+        final ArrayList<FlurstueckSchluesselCustomBean> fsList = new ArrayList<FlurstueckSchluesselCustomBean>(1);
         fsList.add(fsKey);
 
         final GeometryWorker worker = new GeometryWorker(fsList);
-        final Map<FlurstueckSchluessel, Geometry> result = worker.call();
+        final Map<FlurstueckSchluesselCustomBean, Geometry> result = worker.call();
         this.currentGeom = result.get(fsKey);
 
-        return new ArrayList<Verwaltungsbereich>(vbSet);
+        return new ArrayList<VerwaltungsbereichCustomBean>(vbSet);
     }
 
     @Override
     protected Object getFieldValue(final String fieldName) throws JRException {
         if (JR_DIENSTSTELLE.equals(fieldName)) {
-            final VerwaltendeDienststelle dienst = super.currentItem.getDienststelle();
+            final VerwaltendeDienststelleCustomBean dienst = super.currentItem.getDienststelle();
             if (dienst == null) {
                 return null;
             }
 
-            final Ressort ressort = dienst.getRessort();
+            final RessortCustomBean ressort = dienst.getRessort();
             if (ressort == null) {
                 return null;
             }

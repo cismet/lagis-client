@@ -19,23 +19,19 @@ import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import javax.swing.table.AbstractTableModel;
+
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
+
+import de.cismet.lagis.Exception.BuchungNotInNutzungException;
+import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
-
-import de.cismet.lagisEE.bean.Exception.BuchungNotInNutzungException;
-import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
-
-import de.cismet.lagisEE.entity.core.Nutzung;
-import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 
 /**
  * DOCUMENT ME!
@@ -51,7 +47,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 
     //~ Instance fields --------------------------------------------------------
 
-    private ArrayList<Nutzung> nutzungen = new ArrayList<Nutzung>();
+    private ArrayList<NutzungCustomBean> nutzungen = new ArrayList<NutzungCustomBean>();
     private ArrayList<AnlagenklasseSumme> data = new ArrayList<AnlagenklasseSumme>();
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
@@ -64,7 +60,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      * Creates a new instance of NKFOverviewTableModel.
      */
     public NKFOverviewTableModel() {
-        nutzungen = new ArrayList<Nutzung>();
+        nutzungen = new ArrayList<NutzungCustomBean>();
     }
 
     /**
@@ -72,16 +68,16 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      *
      * @param  nutzungen  DOCUMENT ME!
      */
-    public NKFOverviewTableModel(final ArrayList<Nutzung> nutzungen) {
+    public NKFOverviewTableModel(final ArrayList<NutzungCustomBean> nutzungen) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Konstruktor Nutzungen");
             }
-            this.nutzungen = new ArrayList<Nutzung>(nutzungen);
+            this.nutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.nutzungen = new ArrayList<Nutzung>();
+            this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
     }
 
@@ -92,9 +88,9 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      *
      * @param  nutzungen  DOCUMENT ME!
      */
-    public synchronized void refreshModel(final Set<Nutzung> nutzungen) {
+    public synchronized void refreshModel(final Collection<NutzungCustomBean> nutzungen) {
         if (nutzungen != null) {
-            refreshModel(new ArrayList<Nutzung>(nutzungen));
+            refreshModel(new ArrayList<NutzungCustomBean>(nutzungen));
         } else {
             refreshModel(new ArrayList());
         }
@@ -105,16 +101,16 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      *
      * @param  nutzungen  DOCUMENT ME!
      */
-    public synchronized void refreshModel(final ArrayList<Nutzung> nutzungen) {
+    public synchronized void refreshModel(final ArrayList<NutzungCustomBean> nutzungen) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh Nutzungen");
             }
-            this.nutzungen = new ArrayList<Nutzung>(nutzungen);
+            this.nutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.nutzungen = new ArrayList<Nutzung>();
+            this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
 
         fireTableDataChanged();
@@ -166,12 +162,12 @@ public class NKFOverviewTableModel extends AbstractTableModel {
         }
         stilleReserve = 0.0;
         data = new ArrayList<AnlagenklasseSumme>();
-        for (final Nutzung currentNutzung : nutzungen) {
+        for (final NutzungCustomBean currentNutzung : nutzungen) {
             if (log.isDebugEnabled()) {
                 log.debug("curNutzung:" + currentNutzung);
                 log.debug("tableModelDate:" + currentDate);
             }
-            final NutzungsBuchung currentBuchung = currentNutzung.getBuchungForDate(currentDate);
+            final NutzungBuchungCustomBean currentBuchung = currentNutzung.getBuchungForDate(currentDate);
             if (currentBuchung != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("currentBuchung: " + currentBuchung);
@@ -270,14 +266,14 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 //            Iterator<Nutzung> it = nutzungen.iterator();
 //            double stilleReservenSumme = 0.0;
 //            while (it.hasNext()) {
-//                Nutzung currentNutzung = it.next();
+//                NutzungCustomBean currentNutzung = it.next();
 //                //TODO NKF Benutzer muss benachrichtigt werden
 //                try {
 ////                if (tableModel.hasNutzungSuccessor(currentNutzung)) {
-////                    log.debug("Nutzung hat einen Nachfolger und wird für Stille Reserve nicht berücksichtigt");
+////                    log.debug("NutzungCustomBean hat einen Nachfolger und wird für Stille Reserve nicht berücksichtigt");
 ////                    continue;
 ////                } else {
-////                    log.debug("Nutzung hat keinen Nachfolger --> wird für Stille Reserve berücksichtigt");
+////                    log.debug("NutzungCustomBean hat keinen Nachfolger --> wird für Stille Reserve berücksichtigt");
 ////                }
 //                    if (currentNutzung.getStilleReserve() != null) {
 //                        stilleReservenSumme += currentNutzung.getStilleReserve();
@@ -319,9 +315,9 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 //    public boolean containsHistoricNutzung() {
 //        Iterator<Nutzung> it = nutzungen.iterator();
 //        while (it.hasNext()) {
-//            Nutzung currentNutzung = it.next();
+//            NutzungCustomBean currentNutzung = it.next();
 //            if (currentNutzung.getGueltigbis() != null) {
-//                System.out.println("Nutzung hat einen Nachfolger");
+//                System.out.println("NutzungCustomBean hat einen Nachfolger");
 //                return true;
 //            }
 //        }
@@ -337,7 +333,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public ArrayList<Nutzung> getAllNutzungen() {
+    public ArrayList<NutzungCustomBean> getAllNutzungen() {
         return nutzungen;
     }
 

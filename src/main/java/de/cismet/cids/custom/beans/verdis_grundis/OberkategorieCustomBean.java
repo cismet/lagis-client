@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Oberkategorie;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Oberkategorie;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Oberkategorie;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class OberkategorieCustomBean extends CidsBean implements Oberkategorie {
+public class OberkategorieCustomBean extends BasicEntity implements Oberkategorie {
 
     //~ Instance fields --------------------------------------------------------
 

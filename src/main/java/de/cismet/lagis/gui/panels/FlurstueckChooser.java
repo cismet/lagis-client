@@ -35,12 +35,12 @@ import java.awt.event.InputEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import java.util.*;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -57,6 +57,8 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.cismap.commons.features.DefaultStyledFeature;
 import de.cismet.cismap.commons.features.Feature;
@@ -81,14 +83,9 @@ import de.cismet.lagis.validation.Validatable;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
+import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.lagisEE.util.FlurKey;
-import de.cismet.lagisEE.util.Key;
 
 import de.cismet.tools.CurrentStackTrace;
 
@@ -202,15 +199,15 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
     private boolean isOnlyHistoricFilterEnabled = false;
     private boolean isOnlyCurrentFilterEnabled = false;
-    private final Vector<FlurstueckSchluessel> removeFilter = new Vector<FlurstueckSchluessel>();
+    private final Vector<FlurstueckSchluesselCustomBean> removeFilter = new Vector<FlurstueckSchluesselCustomBean>();
     private boolean isFullInitialized = false;
 
     private final javax.swing.JTextField txtFlurstueck = new JTextField();
     private final JProgressBar pbTxtFlurstueck = new JProgressBar();
     private final JPanel panTxtFlurstueck = new JPanel();
 
-    private Flurstueck currentFlurstueck;
-    private FlurstueckSchluessel currentyCreatedFlurstueckSchluessel;
+    private FlurstueckCustomBean currentFlurstueck;
+    private FlurstueckSchluesselCustomBean currentyCreatedFlurstueckSchluessel;
     private Color currentColor;
     // Validation
     // must be locked
@@ -387,14 +384,14 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             index,
                             isSelected,
                             cellHasFocus);
-                    if (value instanceof FlurstueckSchluessel) {
-                        final FlurstueckSchluessel tmpKey = (FlurstueckSchluessel)value;
+                    if (value instanceof FlurstueckSchluesselCustomBean) {
+                        final FlurstueckSchluesselCustomBean tmpKey = (FlurstueckSchluesselCustomBean)value;
                         if (tmpKey != null) {
                             if (tmpKey.getGueltigBis() == null) {
-                                final FlurstueckArt flurstueckArt = tmpKey.getFlurstueckArt();
+                                final FlurstueckArtCustomBean flurstueckArt = tmpKey.getFlurstueckArt();
                                 if ((flurstueckArt != null) && (flurstueckArt.getBezeichnung() != null)
                                             && flurstueckArt.getBezeichnung().equals(
-                                                FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                                FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                                     label.setIcon(icoCurrent);
                                 } else {
                                     label.setIcon(icoAbteilungIX);
@@ -412,7 +409,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         // Schöneres Icon cboGemarkung.setRenderer(new ListCellRenderer() { public Component
         // getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         // JLabel label=(JLabel)defaultListCellRendererGemarkung.getListCellRendererComponent(list, value, index,
-        // isSelected, cellHasFocus); //TODO Strings können auch bekannt sein if(value instanceof  Gemarkung){
+        // isSelected, cellHasFocus); //TODO Strings können auch bekannt sein if(value instanceof  GemarkungCustomBean){
         // label.setIcon(icoGemarkung); return label; } label.setIcon(icoUnknown); return label; } });
         // cboFlur.setRenderer(new ListCellRenderer() { public Component getListCellRendererComponent(JList list, Object
         // value, int index, boolean isSelected, boolean cellHasFocus) { JLabel
@@ -441,8 +438,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             if (isEditable) {
                 setHighlightColor(Color.WHITE);
             }
-            // ATTENTION UGLY WINNING Wenn in Editmodus oder wenn nicht und die Gemarkung ist disabled (komm nur vor
-            // wenn aus dem Editmodus heraus gewechselt wird)
+            // ATTENTION UGLY WINNING Wenn in Editmodus oder wenn nicht und die GemarkungCustomBean ist disabled (komm
+            // nur vor wenn aus dem Editmodus heraus gewechselt wird)
             if (LagisBroker.getInstance().isInEditMode()
                         || (!LagisBroker.getInstance().isInEditMode() && !cboGemarkung.isEnabled()
                             && isFullInitialized)) {
@@ -466,8 +463,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         if (isEditable) {
                             setHighlightColor(Color.WHITE);
                         }
-                        // ATTENTION UGLY WINNING Wenn in Editmodus oder wenn nicht und die Gemarkung ist disabled (komm
-                        // nur vor wenn aus dem Editmodus heraus gewechselt wird)
+                        // ATTENTION UGLY WINNING Wenn in Editmodus oder wenn nicht und die GemarkungCustomBean ist
+                        // disabled (komm nur vor wenn aus dem Editmodus heraus gewechselt wird)
                         if (LagisBroker.getInstance().isInEditMode()
                                     || (!LagisBroker.getInstance().isInEditMode() && !cboGemarkung.isEnabled()
                                         && isFullInitialized)) {
@@ -653,7 +650,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             isOnlyStaedtischFilterEnabled = false;
             isOnlyAbteilungIXFilterEnabled = false;
         }
-        final Flurstueck currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         // TODO what if it is unkown
         if (currentFlurstueck != null) {
             doAutomaticRequest(
@@ -763,7 +760,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     }
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             boolean isNoGeometryAssigned = true;
             boolean hasManyVerwaltungsbereiche = false;
@@ -775,12 +772,12 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         || (newFlurstueck.getFlurstueckSchluessel() != null)
                         || (newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt() != null)
                         || !newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt().equals(
-                            FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                 log.info("Keine Verwaltungsgeometrien oder weniger als 2 vorhanden --> WFS");
                 // TODO UGLY
                 if ((newFlurstueck.getVerwaltungsbereiche() != null)
                             && (newFlurstueck.getVerwaltungsbereiche().size() == 1)) {
-                    final Verwaltungsbereich verwaltungsbereich = newFlurstueck.getVerwaltungsbereiche()
+                    final VerwaltungsbereichCustomBean verwaltungsbereich = newFlurstueck.getVerwaltungsbereiche()
                                 .iterator()
                                 .next();
                     if ((verwaltungsbereich != null) && (verwaltungsbereich.getGeometry() != null)) {
@@ -795,7 +792,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 hasManyVerwaltungsbereiche = true;
                 log.info("mehr als 2 Verwaltungsbereiche");
                 isNoGeometryAssigned = true;
-                for (final Verwaltungsbereich currentBereich : newFlurstueck.getVerwaltungsbereiche()) {
+                for (final VerwaltungsbereichCustomBean currentBereich : newFlurstueck.getVerwaltungsbereiche()) {
                     if (currentBereich.getGeometry() != null) {
                         isNoGeometryAssigned = false;
                     }
@@ -832,7 +829,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     }
 
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         return null;
     }
 
@@ -990,7 +987,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      * @param  mode  DOCUMENT ME!
      * @param  key   DOCUMENT ME!
      */
-    public void doAutomaticRequest(final int mode, final FlurstueckSchluessel key) {
+    public void doAutomaticRequest(final int mode, final FlurstueckSchluesselCustomBean key) {
         final Color oldColor = currentColor;
         if (log.isDebugEnabled()) {
             log.debug("oldColor = " + oldColor);
@@ -1132,11 +1129,11 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @return  DOCUMENT ME!
      */
-    public FlurstueckSchluessel getCurrentFlurstueckSchluessel() {
+    public FlurstueckSchluesselCustomBean getCurrentFlurstueckSchluessel() {
         if (log.isDebugEnabled()) {
             log.debug("getCurrentFlurstueckSchluessel()", new CurrentStackTrace());
         }
-        final FlurstueckSchluessel key = new FlurstueckSchluessel();
+        final FlurstueckSchluesselCustomBean key = new FlurstueckSchluesselCustomBean();
         if ((currentMode == CREATION_MODE) && (currentyCreatedFlurstueckSchluessel != null)) {
             return currentyCreatedFlurstueckSchluessel;
         }
@@ -1151,8 +1148,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             }
         }
         final Object flurstueck = cboFlurstueck.getSelectedItem();
-        if ((flurstueck != null) && (flurstueck instanceof FlurstueckSchluessel)) {
-            final FlurstueckSchluessel tmpKey = ((FlurstueckSchluessel)flurstueck);
+        if ((flurstueck != null) && (flurstueck instanceof FlurstueckSchluesselCustomBean)) {
+            final FlurstueckSchluesselCustomBean tmpKey = ((FlurstueckSchluesselCustomBean)flurstueck);
             key.setGemarkung(tmpKey.getGemarkung());
             key.setFlur(tmpKey.getFlur());
             key.setFlurstueckZaehler(tmpKey.getFlurstueckZaehler());
@@ -1174,7 +1171,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     }
 
     @Override
-    public void requestFlurstueck(final FlurstueckSchluessel key) {
+    public void requestFlurstueck(final FlurstueckSchluesselCustomBean key) {
         if (log.isDebugEnabled()) {
             log.debug("Flurstück Request with key");
         }
@@ -1186,7 +1183,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         if (log.isDebugEnabled()) {
             log.debug("updateFlurstückKeys");
         }
-        final Flurstueck currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Object currentKey = cboFlurstueck.getSelectedItem();
         if (currentFlurstueck != null) {
             if (log.isDebugEnabled()) {
@@ -1195,11 +1192,13 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             doAutomaticRequest(
                 AutomaticFlurstueckRetriever.FILTER_ACTION_MODE,
                 currentFlurstueck.getFlurstueckSchluessel());
-        } else if ((currentKey != null) && (currentKey instanceof FlurstueckSchluessel)) {
+        } else if ((currentKey != null) && (currentKey instanceof FlurstueckSchluesselCustomBean)) {
             if (log.isDebugEnabled()) {
                 log.debug("currentFlurstück == null --> Flurstück unbekannt update Keys");
             }
-            doAutomaticRequest(AutomaticFlurstueckRetriever.FILTER_ACTION_MODE, (FlurstueckSchluessel)currentKey);
+            doAutomaticRequest(
+                AutomaticFlurstueckRetriever.FILTER_ACTION_MODE,
+                (FlurstueckSchluesselCustomBean)currentKey);
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("Kein Schlüssel vorhanden --> resete Keys");
@@ -1213,7 +1212,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  key  DOCUMENT ME!
      */
-    public void addRemoveFilter(final FlurstueckSchluessel key) {
+    public void addRemoveFilter(final FlurstueckSchluesselCustomBean key) {
         removeFilter.add(key);
     }
 
@@ -1222,7 +1221,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  key  DOCUMENT ME!
      */
-    public void removeRemoveFilter(final FlurstueckSchluessel key) {
+    public void removeRemoveFilter(final FlurstueckSchluesselCustomBean key) {
         removeFilter.remove(key);
     }
 
@@ -1231,7 +1230,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         if (log.isDebugEnabled()) {
             log.debug("Insert/Remove Update");
         }
-        currentyCreatedFlurstueckSchluessel = new FlurstueckSchluessel();
+        currentyCreatedFlurstueckSchluessel = new FlurstueckSchluesselCustomBean();
         final Object currentFlur = cboFlur.getSelectedItem();
         if (log.isDebugEnabled()) {
             log.debug("Flur: " + currentFlur);
@@ -1394,7 +1393,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      * @param  key                 DOCUMENT ME!
      * @param  isFlurstueckValide  DOCUMENT ME!
      */
-    private void checkIfFlurstueckIsAlreadyInDatabase(final FlurstueckSchluessel key,
+    private void checkIfFlurstueckIsAlreadyInDatabase(final FlurstueckSchluesselCustomBean key,
             final boolean isFlurstueckValide) {
         if ((currentFlurstueckChecker != null) && !currentFlurstueckChecker.isDone()) {
             currentFlurstueckChecker.cancel(false);
@@ -1501,7 +1500,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         private int mode;
         private ActionEvent event;
         private Object selectedItem;
-        private Gemarkung selectedGemarkung;
+        private GemarkungCustomBean selectedGemarkung;
         private boolean wasResolved = false;
         private boolean hadErrors = false;
         private boolean isAutoComplete = false;
@@ -1547,7 +1546,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         }
                         return null;
                     }
-                    final Set gemKeys = EJBroker.getInstance().getGemarkungsKeys();
+                    final Collection gemKeys = EJBroker.getInstance().getGemarkungsKeys();
                     if (isCancelled()) {
                         if (log.isDebugEnabled()) {
                             log.debug("doInBackground (Gemarkung) is canceled");
@@ -1584,7 +1583,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 } else if ((((RETRIEVE_FLURE_MODE == mode) || (RETRIEVE_WITH_RESOLVED_MODE == mode))
                                 && (event != null))
                             || (RETRIEVE_AUTOMATIC_MODE == mode)) {
-                    // Gemarkung wurde ausgewählt
+                    // GemarkungCustomBean wurde ausgewählt
                     if ((RETRIEVE_AUTOMATIC_MODE == mode) || (event.getSource() instanceof JComboBox)) {
                         if ((RETRIEVE_AUTOMATIC_MODE == mode) || event.getActionCommand().equals("comboBoxChanged")
                                     || (RETRIEVE_WITH_RESOLVED_MODE == mode)) {
@@ -1598,11 +1597,11 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                         || ((event.getModifiers() != 0)
                                             && ((event.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0))
                                         || (RETRIEVE_WITH_RESOLVED_MODE == mode)) {
-                                if (selectedItem instanceof Gemarkung) {
+                                if (selectedItem instanceof GemarkungCustomBean) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Instanz ist eine Gemarkung");
                                     }
-                                    selectedGemarkung = (Gemarkung)selectedItem;
+                                    selectedGemarkung = (GemarkungCustomBean)selectedItem;
                                     if (isCancelled()) {
                                         if (log.isDebugEnabled()) {
                                             log.debug("doInBackground (Gemarkung) is canceled");
@@ -1628,7 +1627,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                             }
                                         });
 
-                                    final Set flurKeys = EJBroker.getInstance()
+                                    final Collection flurKeys = EJBroker.getInstance()
                                                 .getDependingKeysForKey(selectedGemarkung);
                                     if (isCancelled()) {
                                         if (log.isDebugEnabled()) {
@@ -1713,7 +1712,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                     selectedGemarkung = null;
                                     return null;
                                 } else {
-                                    selectedGemarkung = new Gemarkung();
+                                    selectedGemarkung = new GemarkungCustomBean();
                                     selectedGemarkung.setBezeichnung(gemInput);
                                     if (isCancelled()) {
                                         if (log.isDebugEnabled()) {
@@ -1842,7 +1841,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         cboFlur.setModel(new KeyComboboxModel());
                         cboFlur.setEnabled(false);
                     }
-                    // Gemarkung wurde ausgewählt
+                    // GemarkungCustomBean wurde ausgewählt
                 } else {
                     log.warn("unkown mode");
                 }
@@ -1952,8 +1951,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 selectedFlur = null;
                                 return null;
                             }
-                            final Gemarkung currentGemarkung = (Gemarkung)cboGemarkung.getSelectedItem();
-                            if ((currentGemarkung != null) && (currentGemarkung instanceof Gemarkung)) {
+                            final GemarkungCustomBean currentGemarkung = (GemarkungCustomBean)
+                                cboGemarkung.getSelectedItem();
+                            if ((currentGemarkung != null) && (currentGemarkung instanceof GemarkungCustomBean)) {
                                 selectedFlur = new FlurKey(currentGemarkung, Integer.parseInt(flurInput));
                                 final KeyComboboxModel flurModel = ((KeyComboboxModel)cboFlur.getModel());
                                 if ((currentMode == SEARCH_MODE) || (currentMode == CREATION_MODE)) {
@@ -2030,7 +2030,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     selectedFlur.setHistoricFilterEnabled(isOnlyHistoricFilterEnabled);
                     selectedFlur.setAbteilungXIFilterEnabled(isOnlyAbteilungIXFilterEnabled);
                     selectedFlur.setStaedtischFilterEnabled(isOnlyStaedtischFilterEnabled);
-                    final Set flurKeys = EJBroker.getInstance().getDependingKeysForKey(selectedFlur);
+                    final Collection flurKeys = EJBroker.getInstance().getDependingKeysForKey(selectedFlur);
                     if (isCancelled()) {
                         if (log.isDebugEnabled()) {
                             log.debug("doInBackground (Flur) is canceled");
@@ -2119,7 +2119,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     }
                     setHighlightColor(LagisBroker.ACCEPTED_COLOR);
                     final KeyComboboxModel model = new KeyComboboxModel(get());
-                    final Iterator<FlurstueckSchluessel> it = removeFilter.iterator();
+                    final Iterator<FlurstueckSchluesselCustomBean> it = removeFilter.iterator();
                     while (it.hasNext()) {
                         model.removeElement(it.next());
                     }
@@ -2186,7 +2186,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @version  $Revision$, $Date$
      */
-    class FlurstueckRetriever extends SwingWorker<Flurstueck, Void> {
+    class FlurstueckRetriever extends SwingWorker<FlurstueckCustomBean, Void> {
 
         //~ Static fields/initializers -----------------------------------------
 
@@ -2197,7 +2197,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
         private int mode;
         private boolean isAutoComplete = false;
-        private FlurstueckSchluessel selectedFlurstueck;
+        private FlurstueckSchluesselCustomBean selectedFlurstueck;
         private String errorMessage = null;
         private boolean hadErrors = false;
         private boolean isFlurstueckInDatabase = true;
@@ -2222,7 +2222,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         //~ Methods ------------------------------------------------------------
 
         @Override
-        protected Flurstueck doInBackground() throws Exception {
+        protected FlurstueckCustomBean doInBackground() throws Exception {
             try {
                 if ((RETRIEVE_AUTOMATIC_MODE == mode) || (event.getSource() instanceof JComboBox)) {
                     if (RETRIEVE_AUTOMATIC_MODE != mode) {
@@ -2234,11 +2234,11 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         if ((RETRIEVE_AUTOMATIC_MODE == mode) || ((event.getModifiers() & InputEvent.BUTTON1_MASK) != 0)
                                     || ((event.getModifiers() != 0)
                                         && ((event.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0))) {
-                            if (selectedItem instanceof FlurstueckSchluessel) {
+                            if (selectedItem instanceof FlurstueckSchluesselCustomBean) {
                                 if (log.isDebugEnabled()) {
                                     log.debug("Instanz ist eine FlurstueckSchluessel");
                                 }
-                                selectedFlurstueck = (FlurstueckSchluessel)selectedItem;
+                                selectedFlurstueck = (FlurstueckSchluesselCustomBean)selectedItem;
                                 if (isCancelled()) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("doInBackground (FlurstueckRetriever) is canceled");
@@ -2265,13 +2265,13 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             log.debug("Flurstück wurde über Combobox editiert");
                             log.debug("FlurstueckKey != null");
                         }
-                        selectedFlurstueck = new FlurstueckSchluessel();
+                        selectedFlurstueck = new FlurstueckSchluesselCustomBean();
                         final Object tmpFlur = cboFlur.getSelectedItem();
                         final FlurKey currentFlur;
                         if (tmpFlur instanceof FlurKey) {
                             currentFlur = (FlurKey)tmpFlur;
                         } else if (tmpFlur instanceof String) {
-                            currentFlur = new FlurKey((Gemarkung)cboGemarkung.getSelectedItem(),
+                            currentFlur = new FlurKey((GemarkungCustomBean)cboGemarkung.getSelectedItem(),
                                     Integer.parseInt((String)tmpFlur));
                         } else {
                             log.warn("Unbekanntes Objekt in cboFlur");
@@ -2361,7 +2361,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         }
                         return null;
                     }
-                    final FlurstueckSchluessel tmpKey = EJBroker.getInstance()
+                    final FlurstueckSchluesselCustomBean tmpKey = EJBroker.getInstance()
                                 .completeFlurstueckSchluessel(selectedFlurstueck);
                     if (isCancelled()) {
                         if (log.isDebugEnabled()) {
@@ -2406,7 +2406,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (log.isDebugEnabled()) {
                                     log.debug("rufe Flurstück vom Server ab");
                                 }
-                                final Flurstueck flurstueck = EJBroker.getInstance()
+                                final FlurstueckCustomBean flurstueck = EJBroker.getInstance()
                                             .retrieveFlurstueck(selectedFlurstueck);
                                 if (isCancelled()) {
                                     if (log.isDebugEnabled()) {
@@ -2450,7 +2450,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 log.debug(
                                     "FlurstueckChooser ist nicht im SearchMode --> Flurstück wird nur abgefragt");
                             }
-                            final Flurstueck flurstueck = EJBroker.getInstance().retrieveFlurstueck(selectedFlurstueck);
+                            final FlurstueckCustomBean flurstueck = EJBroker.getInstance()
+                                        .retrieveFlurstueck(selectedFlurstueck);
                             if (flurstueck != null) {
                                 if (log.isDebugEnabled()) {
                                     log.debug("Flurstück abruf erfolgreich");
@@ -2476,7 +2477,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             errorMessage = "Das eingegebene Flurstück existiert nicht";
                             return null;
                         } else {
-                            final Flurstueck container = new Flurstueck();
+                            final FlurstueckCustomBean container = new FlurstueckCustomBean();
                             container.setFlurstueckSchluessel(selectedFlurstueck);
                             isFlurstueckInDatabase = false;
                             return container;
@@ -2518,7 +2519,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 }
 
                 if ((selectedFlurstueck != null) && !hadErrors) {
-                    final Flurstueck result = get();
+                    final FlurstueckCustomBean result = get();
                     currentFlurstueck = result;
                     if (result != null) {
                         if (isFlurstueckInDatabase) {
@@ -2591,20 +2592,21 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     }
 
     /**
-     * class WFSRetriever extends SwingWorker<Feature,Void>{ private int mode; private FlurstueckSchluessel
+     * class WFSRetriever extends SwingWorker<Feature,Void>{ private int mode; private FlurstueckSchluesselCustomBean
      * flurstueckKey; private org.deegree2.model.feature.FeatureCollection featuresCollection; //private boolean
      * hasManyVerwal private boolean hasManyVerwaltungsbereiche; private boolean isNoGeometryAssigned=true; private
      * boolean wasFeatureAdded; private Feature currentFeature; private String errorMessage=null; private boolean
-     * hadErrors=false; private boolean emptyResult=false; public WFSRetriever(final FlurstueckSchluessel flurstueckKey,
-     * final boolean hasManyVerwaltungsbereiche,final boolean isNoGeometryAssigned){ this.flurstueckKey = flurstueckKey;
-     * this.hasManyVerwaltungsbereiche = hasManyVerwaltungsbereiche; this.isNoGeometryAssigned =isNoGeometryAssigned; }
-     * protected Feature doInBackground() throws Exception { try{ if(flurstueckKey == null){ log.debug("WFS retrieval
-     * unterbrochen Schlüssel null"); return null; } if(!hasManyVerwaltungsbereiche && !isNoGeometryAssigned){
-     * log.warn("Weniger als 2 Verwaltungsbereiche & Geometrie zugeordnet --> darf an dieser Stelle nicht vorkommen");
-     * log.debug("Es wird keine Geometrie in die Karte eingefügt"); return null; } else if(hasManyVerwaltungsbereiche &&
-     * !isNoGeometryAssigned){ log.warn("Mehr als 2 Verwaltungsbereiche & keine Geometrien zugeordnet --> darf an dieser
-     * Stelle nicht vorkommen"); log.debug("Es wird keine Geometrie in die Karte eingefügt"); return null; } Document
-     * doc = new Document(); gemarkung.setText(flurstueckKey.getGemarkung().getSchluessel().toString());
+     * hadErrors=false; private boolean emptyResult=false; public WFSRetriever(final FlurstueckSchluesselCustomBean
+     * flurstueckKey, final boolean hasManyVerwaltungsbereiche,final boolean isNoGeometryAssigned){ this.flurstueckKey =
+     * flurstueckKey; this.hasManyVerwaltungsbereiche = hasManyVerwaltungsbereiche; this.isNoGeometryAssigned
+     * =isNoGeometryAssigned; } protected Feature doInBackground() throws Exception { try{ if(flurstueckKey == null){
+     * log.debug("WFS retrieval unterbrochen Schlüssel null"); return null; } if(!hasManyVerwaltungsbereiche &&
+     * !isNoGeometryAssigned){ log.warn("Weniger als 2 Verwaltungsbereiche & Geometrie zugeordnet --> darf an dieser
+     * Stelle nicht vorkommen"); log.debug("Es wird keine Geometrie in die Karte eingefügt"); return null; } else
+     * if(hasManyVerwaltungsbereiche && !isNoGeometryAssigned){ log.warn("Mehr als 2 Verwaltungsbereiche & keine
+     * Geometrien zugeordnet --> darf an dieser Stelle nicht vorkommen"); log.debug("Es wird keine Geometrie in die
+     * Karte eingefügt"); return null; } Document doc = new Document();
+     * gemarkung.setText(flurstueckKey.getGemarkung().getSchluessel().toString());
      * flur.setText(flurstueckKey.getFlur().toString());
      * flurstZaehler.setText(flurstueckKey.getFlurstueckZaehler().toString());
      * flurstNenner.setText(flurstueckKey.getFlurstueckNenner().toString()); if(isCancelled()){
@@ -2672,7 +2674,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
         //~ Instance fields ----------------------------------------------------
 
-        private FlurstueckSchluessel keyToCheck;
+        private FlurstueckSchluesselCustomBean keyToCheck;
         private boolean isFlurstueckCandidateValide;
         private boolean hadErrors;
         private String errorMessage;
@@ -2685,7 +2687,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
          * @param  keyToCheck                   DOCUMENT ME!
          * @param  isFlurstueckCandidateValide  DOCUMENT ME!
          */
-        public FlurstueckChecker(final FlurstueckSchluessel keyToCheck, final boolean isFlurstueckCandidateValide) {
+        public FlurstueckChecker(final FlurstueckSchluesselCustomBean keyToCheck,
+                final boolean isFlurstueckCandidateValide) {
             this.keyToCheck = keyToCheck;
             this.isFlurstueckCandidateValide = isFlurstueckCandidateValide;
         }
@@ -2841,8 +2844,10 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     btnAction.setToolTipText("");
                 }
 
-                if ((worker.getKeyObject() != null) && (worker.getKeyObject() instanceof FlurstueckSchluessel)) {
-                    final FlurstueckSchluessel flurstueckKey = (FlurstueckSchluessel)worker.getKeyObject();
+                if ((worker.getKeyObject() != null)
+                            && (worker.getKeyObject() instanceof FlurstueckSchluesselCustomBean)) {
+                    final FlurstueckSchluesselCustomBean flurstueckKey = (FlurstueckSchluesselCustomBean)
+                        worker.getKeyObject();
                     if (log.isDebugEnabled()) {
                         log.debug("FlurstueckKey != null (done)");
                     }
@@ -2882,7 +2887,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 tmpFeature.setEditable(false);
                                 ((DefaultStyledFeature)tmpFeature).setCanBeSelected(false);
 
-                                final FlurstueckArt flurstueckArt = flurstueckKey.getFlurstueckArt();
+                                final FlurstueckArtCustomBean flurstueckArt = flurstueckKey.getFlurstueckArt();
                                 final DefaultStyledFeature styledFeature = (DefaultStyledFeature)tmpFeature;
                                 final String flurstueckArtBez = (flurstueckArt != null) ? flurstueckArt
                                                 .getBezeichnung() : null;
@@ -2895,7 +2900,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
                                     styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
                                 } else if (
-                                    FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(flurstueckArtBez)
+                                    FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
+                                                flurstueckArtBez)
                                             && (gueltigBis == null)) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist städtisch");
@@ -2903,15 +2909,16 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
                                     styledFeature.setFillingPaint(LagisBroker.STADT_FILLING_COLOR);
                                 } else if ((gueltigBis != null)
-                                            && (FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
+                                            && (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
                                                     flurstueckArtBez)
-                                                || FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
+                                                || FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX
+                                                .equals(
                                                     flurstueckArtBez))) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist städtisch und historisch");
                                     }
                                     styledFeature.setFillingPaint(LagisBroker.HISTORIC_FLURSTUECK_COLOR);
-                                } else if (FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
+                                } else if (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
                                                 flurstueckArtBez)) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Flurstück ist nicht städtisch (Abteilung XI");
@@ -2943,8 +2950,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
 //                                tmpFeature = new FeatureGroupWrapper(
 //                                        tmpFeature,
-//                                        "Verwaltungsbereich",
-//                                        "Verwaltungsbereich");
+//                                        "VerwaltungsbereichCustomBean",
+//                                        "VerwaltungsbereichCustomBean");
 //
 //                                log.fatal("created FeatureGroupWrapper");
 
@@ -3005,7 +3012,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
         private final Color initialColor;
         private int mode;
-        private FlurstueckSchluessel key;
+        private FlurstueckSchluesselCustomBean key;
         private boolean isFinished = false;
 
         //~ Constructors -------------------------------------------------------
@@ -3016,7 +3023,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
          * @param  mode  DOCUMENT ME!
          * @param  key   DOCUMENT ME!
          */
-        public AutomaticFlurstueckRetriever(final int mode, final FlurstueckSchluessel key) {
+        public AutomaticFlurstueckRetriever(final int mode, final FlurstueckSchluesselCustomBean key) {
             this(mode, key, null);
         }
 
@@ -3027,7 +3034,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
          * @param  key           DOCUMENT ME!
          * @param  initialColor  DOCUMENT ME!
          */
-        public AutomaticFlurstueckRetriever(final int mode, final FlurstueckSchluessel key, final Color initialColor) {
+        public AutomaticFlurstueckRetriever(final int mode,
+                final FlurstueckSchluesselCustomBean key,
+                final Color initialColor) {
             this.key = key;
             this.mode = mode;
             this.initialColor = initialColor;

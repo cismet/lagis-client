@@ -14,7 +14,7 @@ package de.cismet.lagis.util;
 import java.util.ArrayList;
 import java.util.Date;
 
-import de.cismet.lagisEE.entity.core.Nutzung;
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -26,7 +26,7 @@ public class NutzungsContainer {
 
     //~ Instance fields --------------------------------------------------------
 
-    private ArrayList<Nutzung> nutzungen;
+    private ArrayList<NutzungCustomBean> nutzungen;
     private Date currentDate;
 
     //~ Constructors -----------------------------------------------------------
@@ -37,7 +37,7 @@ public class NutzungsContainer {
      * @param  nutzungen    DOCUMENT ME!
      * @param  currentDate  DOCUMENT ME!
      */
-    public NutzungsContainer(final ArrayList<Nutzung> nutzungen, final Date currentDate) {
+    public NutzungsContainer(final ArrayList<NutzungCustomBean> nutzungen, final Date currentDate) {
         this.nutzungen = nutzungen;
         this.currentDate = currentDate;
     }
@@ -67,7 +67,7 @@ public class NutzungsContainer {
      *
      * @return  DOCUMENT ME!
      */
-    public ArrayList<Nutzung> getNutzungen() {
+    public ArrayList<NutzungCustomBean> getNutzungen() {
         return nutzungen;
     }
 
@@ -76,7 +76,7 @@ public class NutzungsContainer {
      *
      * @param  nutzungen  DOCUMENT ME!
      */
-    public void setNutzungen(final ArrayList<Nutzung> nutzungen) {
+    public void setNutzungen(final ArrayList<NutzungCustomBean> nutzungen) {
         this.nutzungen = nutzungen;
     }
 }

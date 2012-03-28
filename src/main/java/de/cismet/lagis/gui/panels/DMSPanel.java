@@ -17,23 +17,22 @@ import org.apache.log4j.Logger;
 import java.applet.AppletContext;
 
 import java.awt.FlowLayout;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
+import de.cismet.cids.custom.beans.verdis_grundis.DmsUrlCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.UrlBaseCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.UrlCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -41,18 +40,10 @@ import de.cismet.lagis.gui.tools.DocPanel;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
-import de.cismet.lagis.interfaces.Widget;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.widget.AbstractWidget;
-
-import de.cismet.lagisEE.entity.core.DmsUrl;
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.Url;
-import de.cismet.lagisEE.entity.core.UrlBase;
-
-import de.cismet.tools.URLSplitter;
 
 import de.cismet.tools.gui.StaticSwingTools;
 
@@ -71,9 +62,9 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Flurstueck currentFlurstueck;
+    private FlurstueckCustomBean currentFlurstueck;
     private java.applet.AppletContext ac = null;
-    private Collection<DmsUrl> dmsUrls;
+    private Collection<DmsUrlCustomBean> dmsUrls;
     // TODO
     private boolean inEditMode = true;
     private Vector newLinks = new Vector();
@@ -81,7 +72,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     private Vector allPanels = new Vector();
 
     // private Thread panelRefresherThread;
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -93,7 +84,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
         initComponents();
         final DropTarget dt = new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                 //J-
                 protected void clear() {
@@ -116,13 +107,13 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
                         }
                         setCursor(java.awt.Cursor.getDefaultCursor());
                         dmsUrls = getCurrentObject().getDokumente();
-                        for (final DmsUrl elem : dmsUrls) {
+                        for (final DmsUrlCustomBean elem : dmsUrls) {
                             if (this.isInterrupted()) {
                                 return;
                             }
                             try {
-                                final Url urlEntity = elem.getUrl();
-                                final UrlBase urlBase = urlEntity.getUrlBase();
+                                final UrlCustomBean urlEntity = elem.getUrl();
+                                final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
                                 final String url = urlBase.getProtPrefix() + urlBase.getServer() + urlBase.getPfad()
                                             + urlEntity.getObjektname();
                                 final int typ = elem.getTyp();
@@ -153,7 +144,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             currentFlurstueck = newFlurstueck;
 //            if(panelRefresherThread != null && panelRefresherThread.isAlive()){
@@ -165,12 +156,12 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 //                    clearComponent();
 //                    setCursor(java.awt.Cursor.getDefaultCursor());
 //                    dmsUrls = newFlurstueck.getDokumente();
-//                    for (DmsUrl elem : dmsUrls) {
+//                    for (DmsUrlCustomBean elem : dmsUrls) {
 //                        if(this.isInterrupted()){
 //                            return;
 //                        }
 //                        try{
-//                            Url urlEntity = elem.getUrl();
+//                            UrlCustomBean urlEntity = elem.getUrl();
 //                            UrlBase urlBase = urlEntity.getUrlBase();
 //                            String url =  urlBase.getProtPrefix()+urlBase.getServer()+urlBase.getPfad()+urlEntity.getObjektname();
 //                            int typ=elem.getTyp();
@@ -207,9 +198,9 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
         if (log.isDebugEnabled()) {
             log.debug("addNewDocPanel Method");
         }
-        final DmsUrl dmsUrlEntity = new DmsUrl();
-        final Url url = new Url();
-        final UrlBase base = new UrlBase();
+        final DmsUrlCustomBean dmsUrlEntity = new DmsUrlCustomBean();
+        final UrlCustomBean url = new UrlCustomBean();
+        final UrlBaseCustomBean base = new UrlBaseCustomBean();
         url.setUrlBase(base);
         if (log.isDebugEnabled()) {
             log.debug("UrlEntity(dokPanek): " + url);
@@ -236,13 +227,13 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
             final String description,
             final String u,
             final int typ,
-            final DmsUrl dms_URL) {
+            final DmsUrlCustomBean dms_URL) {
         final String url = u;
         log.info("AddNewDocPanel: " + url);
         ImageIcon ic = null;
         boolean deletable = true;
         if (typ == 0) {
-            // Setze WMS Icon und h?nge Kassenzeichen an
+            // Collectionze WMS Icon und h?nge Kassenzeichen an
             ic = new javax.swing.ImageIcon(getClass().getResource(
                         "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
             // TODO
@@ -251,7 +242,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
         }
         if (typ == 1) {
             if (log.isDebugEnabled()) {
-                // Setze das Icon nach der Dateiendung
+                // Collectionze das Icon nach der Dateiendung
                 log.debug("suche nach Bild für link");
             }
             final int pPos = url.lastIndexOf(".");
@@ -419,11 +410,11 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     }
 
     @Override
-    public void updateFlurstueckForSaving(final Flurstueck flurstueck) {
+    public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         if (log.isDebugEnabled()) {
             log.debug("Dokumente werden gespeichert");
         }
-        final Set<DmsUrl> vDMSUrls = flurstueck.getDokumente();
+        final Collection<DmsUrlCustomBean> vDMSUrls = flurstueck.getDokumente();
         if (vDMSUrls != null) {
             vDMSUrls.clear();
             if (log.isDebugEnabled()) {
@@ -435,7 +426,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
                     try {
                         final DocPanel doc = (DocPanel)next;
                         vDMSUrls.add(doc.getDMSUrlEntity());
-//                        DmsUrl tmpDMS = new DmsUrl();
+//                        DmsUrlCustomBean tmpDMS = new DmsUrlCustomBean();
 //                        tmpDMS.setName(doc.getDesc());
 //                        tmpDMS.setTyp(1);
 //                        UrlBase tmpBase = new UrlBase();
@@ -443,7 +434,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 //                        tmpBase.setPfad(splitter.getPath().replaceAll("\\\\","\\\\\\\\"));
 //                        tmpBase.setProtPrefix(splitter.getProt_prefix().replaceAll("\\\\","\\\\\\\\"));
 //                        tmpBase.setServer(splitter.getServer().replaceAll("\\\\","\\\\\\\\"));
-//                        Url tmpUrl = new Url();
+//                        UrlCustomBean tmpUrl = new UrlCustomBean();
 //                        tmpUrl.setUrlBase(tmpBase);
 //                        tmpUrl.setObjektname(splitter.getObject_name().replaceAll("\\\\","\\\\\\\\"));
 //                        tmpDMS.setUrl(tmpUrl);
@@ -464,13 +455,13 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 //                }
 //                }
         } else {
-            final HashSet newSet = new HashSet();
+            final HashSet newCollection = new HashSet();
             for (final Object next : allPanels) {
                 if (next instanceof DocPanel) {
                     try {
                         final DocPanel doc = (DocPanel)next;
                         vDMSUrls.add(doc.getDMSUrlEntity());
-//                        DmsUrl tmpDMS = new DmsUrl();
+//                        DmsUrlCustomBean tmpDMS = new DmsUrlCustomBean();
 //                        tmpDMS.setName(doc.getDesc());
 //                        tmpDMS.setTyp(1);
 //                        UrlBase tmpBase = new UrlBase();
@@ -478,17 +469,17 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 //                        tmpBase.setPfad(splitter.getPath().replaceAll("\\\\","\\\\\\\\"));
 //                        tmpBase.setProtPrefix(splitter.getProt_prefix().replaceAll("\\\\","\\\\\\\\"));
 //                        tmpBase.setServer(splitter.getServer().replaceAll("\\\\","\\\\\\\\"));
-//                        Url tmpUrl = new Url();
+//                        UrlCustomBean tmpUrl = new UrlCustomBean();
 //                        tmpUrl.setUrlBase(tmpBase);
 //                        tmpUrl.setObjektname(splitter.getObject_name().replaceAll("\\\\","\\\\\\\\"));
 //                        tmpDMS.setUrl(tmpUrl);
-//                        newSet.add(tmpDMS);
+//                        newCollection.add(tmpDMS);
                     } catch (Exception ex) {
                         log.warn("Fehler beim speichern eines Dokumentes", ex);
                     }
                 }
             }
-            flurstueck.setVerwaltungsbereiche(newSet);
+            flurstueck.setVerwaltungsbereiche(newCollection);
         }
         allPanels = new Vector();
     }

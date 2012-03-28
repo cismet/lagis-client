@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Gemarkung;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Gemarkung;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class GemarkungCustomBean extends CidsBean implements Gemarkung {
+public class GemarkungCustomBean extends BasicEntity implements Gemarkung {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -108,7 +107,7 @@ public class GemarkungCustomBean extends CidsBean implements Gemarkung {
     // TODO UGLY AND FALSE
     @Override
     public int compareTo(final Object value) {
-        if (value instanceof de.cismet.lagisEE.entity.core.hardwired.Gemarkung) {
+        if (value instanceof GemarkungCustomBean) {
             final GemarkungCustomBean other = (GemarkungCustomBean)value;
             if ((other != null) && (other.toString() != null) && (toString() != null)) {
                 return toString().compareTo(other.toString());

@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
 import de.cismet.lagis.validation.Validatable;
@@ -28,8 +30,6 @@ import de.cismet.lagis.validation.ValidationStateChangedListener;
 
 import de.cismet.lagis.wizard.GeometryAreaChecker;
 import de.cismet.lagis.wizard.GeometryWorker;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -56,7 +56,7 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
     private Map wizardData;
     private String mode;
     private final ArrayList<FlurstueckChooser> resultCandidates = new ArrayList<FlurstueckChooser>();
-    private final ArrayList<FlurstueckSchluessel> splitKeys = new ArrayList<FlurstueckSchluessel>();
+    private final ArrayList<FlurstueckSchluesselCustomBean> splitKeys = new ArrayList<FlurstueckSchluesselCustomBean>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel2;
@@ -82,11 +82,12 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
         this.wizardData = wizardData;
         initComponents();
         mode = resultMode;
-        FlurstueckSchluessel splitCandidate = (FlurstueckSchluessel)wizardData.get(
+        FlurstueckSchluesselCustomBean splitCandidate = (FlurstueckSchluesselCustomBean)wizardData.get(
                 SplitActionChoosePanel.KEY_SPLIT_CANDIDATE);
         if (splitCandidate == null) {
             try {
-                final ArrayList<FlurstueckSchluessel> joinKeys = (ArrayList<FlurstueckSchluessel>)wizardData.get(
+                final ArrayList<FlurstueckSchluesselCustomBean> joinKeys = (ArrayList<FlurstueckSchluesselCustomBean>)
+                    wizardData.get(
                         JoinActionChoosePanel.KEY_JOIN_KEYS);
                 splitCandidate = joinKeys.get(joinKeys.size() - 1);
             } catch (Exception ex) {
@@ -233,7 +234,7 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
         }
 
         if (JOIN_ACTION_MODE.equals(this.mode)) {
-            this.splitKeys.addAll((ArrayList<FlurstueckSchluessel>)wizardData.get(
+            this.splitKeys.addAll((ArrayList<FlurstueckSchluesselCustomBean>)wizardData.get(
                     JoinActionChoosePanel.KEY_JOIN_KEYS));
 
             if (this.checkGeometryAreas(this.splitKeys.get(0), this.splitKeys)) {
@@ -244,10 +245,11 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
         } else if (SPLIT_ACTION_MODE.equals(this.mode)) {
             final Object splitCandObj = this.wizardData.get(SplitActionChoosePanel.KEY_SPLIT_CANDIDATE);
 
-            if (splitCandObj instanceof FlurstueckSchluessel) {
-                final FlurstueckSchluessel targetKey = (FlurstueckSchluessel)splitCandObj;
+            if (splitCandObj instanceof FlurstueckSchluesselCustomBean) {
+                final FlurstueckSchluesselCustomBean targetKey = (FlurstueckSchluesselCustomBean)splitCandObj;
 
-                final ArrayList<FlurstueckSchluessel> fsKeys = new ArrayList<FlurstueckSchluessel>(this.splitKeys);
+                final ArrayList<FlurstueckSchluesselCustomBean> fsKeys = new ArrayList<FlurstueckSchluesselCustomBean>(
+                        this.splitKeys);
                 fsKeys.add(targetKey);
 
                 if (this.checkGeometryAreas(targetKey, fsKeys)) {
@@ -268,9 +270,9 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
                     "Ein interner Fehler ist aufgetreten. Bitte benachrichtigen Sie den Support.");
                 return;
             }
-            final List<FlurstueckSchluessel> joinKeys = (List)joinData;
+            final List<FlurstueckSchluesselCustomBean> joinKeys = (List)joinData;
 
-            final ArrayList<FlurstueckSchluessel> allKeys = new ArrayList<FlurstueckSchluessel>();
+            final ArrayList<FlurstueckSchluesselCustomBean> allKeys = new ArrayList<FlurstueckSchluesselCustomBean>();
             allKeys.addAll(splitKeys);
             allKeys.addAll(joinKeys);
 
@@ -291,8 +293,8 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
      *
      * @return  DOCUMENT ME!
      */
-    private boolean checkGeometryAreas(final List<FlurstueckSchluessel> targetKeys,
-            final List<FlurstueckSchluessel> fsKeys) {
+    private boolean checkGeometryAreas(final List<FlurstueckSchluesselCustomBean> targetKeys,
+            final List<FlurstueckSchluesselCustomBean> fsKeys) {
         final GeometryWorker gw = new GeometryWorker(fsKeys);
         final GeometryAreaChecker checker = new GeometryAreaChecker(targetKeys, this, this.wizardController);
         gw.addPreExecutionListener(checker);
@@ -312,8 +314,9 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
      *
      * @return  DOCUMENT ME!
      */
-    private boolean checkGeometryAreas(final FlurstueckSchluessel targetKey, final List<FlurstueckSchluessel> fsKeys) {
-        final ArrayList<FlurstueckSchluessel> targetKeys = new ArrayList<FlurstueckSchluessel>(1);
+    private boolean checkGeometryAreas(final FlurstueckSchluesselCustomBean targetKey,
+            final List<FlurstueckSchluesselCustomBean> fsKeys) {
+        final ArrayList<FlurstueckSchluesselCustomBean> targetKeys = new ArrayList<FlurstueckSchluesselCustomBean>(1);
         targetKeys.add(targetKey);
         return this.checkGeometryAreas(targetKeys, fsKeys);
     }
@@ -336,13 +339,15 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
                     // flurstuecke.remove(flurstueckToTest);
                     counter = 0;
                     for (final FlurstueckChooser curFlurstueck : flurstuecke) {
-                        final FlurstueckSchluessel schluesselToTest = flurstueckToTest.getCurrentFlurstueckSchluessel();
-                        final FlurstueckSchluessel curSchluessel = curFlurstueck.getCurrentFlurstueckSchluessel();
+                        final FlurstueckSchluesselCustomBean schluesselToTest =
+                            flurstueckToTest.getCurrentFlurstueckSchluessel();
+                        final FlurstueckSchluesselCustomBean curSchluessel =
+                            curFlurstueck.getCurrentFlurstueckSchluessel();
                         if ((schluesselToTest != null) && (curSchluessel != null)) {
                             if (log.isDebugEnabled()) {
                                 log.debug("Zu testende Schluessel sind != null");
                             }
-                            if (FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                            if (FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                             schluesselToTest,
                                             curSchluessel)) {
                                 counter++;

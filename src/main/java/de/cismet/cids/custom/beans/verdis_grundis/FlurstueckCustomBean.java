@@ -11,16 +11,10 @@ import Sirius.server.middleware.types.MetaObject;
 
 import org.jdesktop.observablecollections.ObservableCollections;
 
-import org.openide.util.Exceptions;
-
 import java.util.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Flurstueck;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.Flurstueck;
 
 /**
  * DOCUMENT ME!
@@ -28,7 +22,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Flurstueck;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class FlurstueckCustomBean extends CidsBean implements Flurstueck {
+public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
 
     //~ Instance fields --------------------------------------------------------
 

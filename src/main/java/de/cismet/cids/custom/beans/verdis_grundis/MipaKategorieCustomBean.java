@@ -9,9 +9,8 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import java.util.Collection;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.MiPaKategorie;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorie;
 
 /**
  * DOCUMENT ME!
@@ -19,7 +18,7 @@ import de.cismet.lagis.EJBrokerInterfaces.MiPaKategorie;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class MipaKategorieCustomBean extends CidsBean implements MiPaKategorie {
+public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategorie {
 
     //~ Instance fields --------------------------------------------------------
 

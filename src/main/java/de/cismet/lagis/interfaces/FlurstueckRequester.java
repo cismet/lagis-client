@@ -15,7 +15,7 @@
  */
 package de.cismet.lagis.interfaces;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -32,7 +32,7 @@ public interface FlurstueckRequester {
      *
      * @param  key  DOCUMENT ME!
      */
-    void requestFlurstueck(FlurstueckSchluessel key);
+    void requestFlurstueck(FlurstueckSchluesselCustomBean key);
     /**
      * DOCUMENT ME!
      */

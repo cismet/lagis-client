@@ -12,25 +12,13 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import att.grappa.Element;
-import att.grappa.Graph;
-import att.grappa.GraphEnumeration;
-import att.grappa.Grappa;
-import att.grappa.GrappaAdapter;
-import att.grappa.GrappaPanel;
-import att.grappa.GrappaSupport;
+import att.grappa.*;
 import att.grappa.MultiClickListener.MultiClickListener;
-import att.grappa.Parser;
-import att.grappa.Subgraph;
 
 import org.apache.log4j.Logger;
 
-import org.openide.util.Exceptions;
-
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -39,15 +27,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.swing.Icon;
 import javax.swing.JScrollPane;
 import javax.swing.SpinnerNumberModel;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckHistorieCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -58,12 +46,8 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
-import de.cismet.lagisEE.bean.LagisServerBean.HistoryLevel;
-import de.cismet.lagisEE.bean.LagisServerBean.HistoryType;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
+import de.cismet.lagisEE.bean.LagisServer.HistoryLevel;
+import de.cismet.lagisEE.bean.LagisServer.HistoryType;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
@@ -90,11 +74,12 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     private String encodedDotGraphRepresentation;
     private Timer levelTimer = new Timer();
     private URL historyServerUrl = null;
-    private HashMap<String, FlurstueckSchluessel> nodeToKeyMap = new HashMap<String, FlurstueckSchluessel>();
+    private HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMap =
+        new HashMap<String, FlurstueckSchluesselCustomBean>();
     private HashMap<String, String> pseudoKeys = new HashMap<String, String>();
-    private Flurstueck currentFlurstueck;
+    private FlurstueckCustomBean currentFlurstueck;
     // private Thread panelRefresherThread;
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     // TODO THREAD
     // TODO NOT DIRECTLY OUTPUT THE ERRORS ON ERR
     // private double cellxcoordinate =
@@ -140,7 +125,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         graph.setEditable(false);
         currentSP = new JScrollPane(gp);
         add(currentSP, BorderLayout.CENTER);
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                 @Override
                 protected void update() {
@@ -155,7 +140,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             return;
                         }
                         log.info("Konstruiere Flurstückhistoriengraph");
-                        nodeToKeyMap = new HashMap<String, FlurstueckSchluessel>();
+                        nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
                         pseudoKeys = new HashMap<String, String>();
                         if (isUpdateAvailable()) {
                             cleanup();
@@ -202,7 +187,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             }
                         }
 
-                        final Set<FlurstueckHistorie> allEdges = EJBroker.getInstance()
+                        final Collection<FlurstueckHistorieCustomBean> allEdges = EJBroker.getInstance()
                                     .getHistoryEntries(getCurrentObject().getFlurstueckSchluessel(),
                                         level,
                                         type,
@@ -212,13 +197,13 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             if (log.isDebugEnabled()) {
                                 log.debug("Historie Graph hat: " + allEdges.size() + " Kanten");
                             }
-                            final Iterator<FlurstueckHistorie> it = allEdges.iterator();
+                            final Iterator<FlurstueckHistorieCustomBean> it = allEdges.iterator();
                             while (it.hasNext()) {
                                 if (isUpdateAvailable()) {
                                     cleanup();
                                     return;
                                 }
-                                final FlurstueckHistorie currentEdge = it.next();
+                                final FlurstueckHistorieCustomBean currentEdge = it.next();
                                 final String currentVorgaenger = currentEdge.getVorgaenger().toString();
                                 final String currentNachfolger = currentEdge.getNachfolger().toString();
                                 if (currentVorgaenger.startsWith("pseudo")) {
@@ -329,7 +314,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                         if (log.isDebugEnabled()) {
                             log.debug("Aktueller Graphknoten: " + curNode);
                         }
-                        final FlurstueckSchluessel curUserObjectForNode = nodeToKeyMap.get(curNode.toString());
+                        final FlurstueckSchluesselCustomBean curUserObjectForNode = nodeToKeyMap.get(curNode
+                                        .toString());
                         if (log.isDebugEnabled()) {
                             log.debug("UserObjektForNode: " + curUserObjectForNode);
                         }
@@ -490,7 +476,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     }
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         levelTimer.cancel();
         currentFlurstueck = newFlurstueck;
         updateInformation();
@@ -525,7 +511,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      */
     private void updateInformation() {
         if ((currentFlurstueck != null) && (currentFlurstueck.getFlurstueckSchluessel() != null)) {
-            final FlurstueckSchluessel currentKey = currentFlurstueck.getFlurstueckSchluessel();
+            final FlurstueckSchluesselCustomBean currentKey = currentFlurstueck.getFlurstueckSchluessel();
             if (currentKey.getDatumLetzterStadtbesitz() != null) {
 //                lblDatumLSBWert.setText(LagisBroker.getDateFormatter().format(currentKey.getDatumLetzterStadtbesitz()));
 //                lblDatumLSBWert.setToolTipText(currentKey.getDatumLetzterStadtbesitz().toString());
@@ -565,11 +551,11 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         if (log.isDebugEnabled()) {
             log.debug("MutliClick on Graphobject: " + actionObject);
         }
-        if ((actionObject != null) && (actionObject instanceof FlurstueckSchluessel)) {
+        if ((actionObject != null) && (actionObject instanceof FlurstueckSchluesselCustomBean)) {
             if (log.isDebugEnabled()) {
                 log.debug("Flurstück wurde aus Historie ausgewählt");
             }
-            final FlurstueckSchluessel newKey = (FlurstueckSchluessel)actionObject;
+            final FlurstueckSchluesselCustomBean newKey = (FlurstueckSchluesselCustomBean)actionObject;
             if (!currentFlurstueck.getFlurstueckSchluessel().equals(newKey) && (newKey != null)
                         && (newKey.toString() != null) && newKey.isEchterSchluessel()) {
                 if (log.isDebugEnabled()) {
@@ -887,7 +873,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     }
 
     @Override
-    public org.jdom.Element getConfiguration() throws NoWriteError {
+    public org.jdom.Element getConfiguration() {
         return null;
     }
 

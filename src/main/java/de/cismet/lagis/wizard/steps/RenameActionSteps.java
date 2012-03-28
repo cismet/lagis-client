@@ -17,12 +17,7 @@ package de.cismet.lagis.wizard.steps;
 
 import org.apache.log4j.Logger;
 
-import org.netbeans.spi.wizard.DeferredWizardResult;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import org.netbeans.spi.wizard.Summary;
-import org.netbeans.spi.wizard.WizardController;
-import org.netbeans.spi.wizard.WizardException;
-import org.netbeans.spi.wizard.WizardPanelProvider;
+import org.netbeans.spi.wizard.*;
 
 import java.awt.EventQueue;
 
@@ -31,15 +26,14 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagis.wizard.panels.CreateActionPanel;
 import de.cismet.lagis.wizard.panels.RenameActionPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -102,9 +96,9 @@ public class RenameActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck renamen: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel createdKey = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean createdKey = (FlurstueckSchluesselCustomBean)wizardData.get(
                     RenameActionPanel.KEY_CREATE_CANDIDATE);
-            final FlurstueckSchluessel renamedKey = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean renamedKey = (FlurstueckSchluesselCustomBean)wizardData.get(
                     RenameActionPanel.KEY_RENAME_CANDIDATE);
             if (log.isDebugEnabled()) {
                 log.debug("Flurstück das umbenannt werden soll: " + renamedKey.getKeyString());
@@ -120,10 +114,10 @@ public class RenameActionSteps extends WizardPanelProvider {
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
 
                 if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                            && (FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                            && (FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                     LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                     renamedKey)
-                                || FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                || FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                     LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                     createdKey))) {
                     if (log.isDebugEnabled()) {
@@ -134,11 +128,11 @@ public class RenameActionSteps extends WizardPanelProvider {
                         renamedKey.setId(null);
                         renamedKey.setFlurstueckArt(null);
                         //
-                        if (FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                        if (FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                         renamedKey)) {
                             LagisBroker.getInstance().loadFlurstueck(renamedKey);
-                        } else if (FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                        } else if (FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                         createdKey)) {
                             LagisBroker.getInstance().loadFlurstueck(createdKey);
@@ -151,7 +145,7 @@ public class RenameActionSteps extends WizardPanelProvider {
                 }
 
                 if (
-                    !FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                    !FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                 LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                 createdKey)) {
                     final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()

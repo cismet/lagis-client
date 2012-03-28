@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import de.cismet.lagis.thread.WFSRetrieverFactory;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 /**
  * DOCUMENT ME!
@@ -27,7 +27,7 @@ import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geometry>> {
+public class GeometryWorker implements Callable<Map<FlurstueckSchluesselCustomBean, Geometry>> {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -38,10 +38,10 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geomet
     //~ Instance fields --------------------------------------------------------
 
     private Exception lastException;
-    private final List<FlurstueckSchluessel> fsKeys;
+    private final List<FlurstueckSchluesselCustomBean> fsKeys;
     private final ArrayList<Runnable> preExeListeners;
     private final ArrayList<IPostExecutionListener> postExeListeners;
-    private final HashMap<FlurstueckSchluessel, Geometry> geometriesMap;
+    private final HashMap<FlurstueckSchluesselCustomBean, Geometry> geometriesMap;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -53,7 +53,7 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geomet
      * @throws  NullPointerException      DOCUMENT ME!
      * @throws  IllegalArgumentException  DOCUMENT ME!
      */
-    public GeometryWorker(final List<FlurstueckSchluessel> fsKeys) {
+    public GeometryWorker(final List<FlurstueckSchluesselCustomBean> fsKeys) {
         if (fsKeys == null) {
             throw new NullPointerException("Given list of FlurstueckSchluesser must not be null");
         }
@@ -62,8 +62,8 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geomet
             throw new IllegalArgumentException("Given list of FlurstueckSchluesser must be greater than zero");
         }
 
-        this.fsKeys = new ArrayList<FlurstueckSchluessel>(fsKeys);
-        this.geometriesMap = new HashMap<FlurstueckSchluessel, Geometry>(fsKeys.size());
+        this.fsKeys = new ArrayList<FlurstueckSchluesselCustomBean>(fsKeys);
+        this.geometriesMap = new HashMap<FlurstueckSchluesselCustomBean, Geometry>(fsKeys.size());
         this.preExeListeners = new ArrayList<Runnable>();
         this.postExeListeners = new ArrayList<IPostExecutionListener>();
     }
@@ -142,7 +142,7 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geomet
     }
 
     @Override
-    public Map<FlurstueckSchluessel, Geometry> call() {
+    public Map<FlurstueckSchluesselCustomBean, Geometry> call() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("GeometryWorker doInBackground");
         }
@@ -152,7 +152,7 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geomet
 
             WFSRetrieverFactory.WFSWorkerThread currentWorker;
 
-            for (final FlurstueckSchluessel currentKey : this.fsKeys) {
+            for (final FlurstueckSchluesselCustomBean currentKey : this.fsKeys) {
                 currentWorker = (WFSRetrieverFactory.WFSWorkerThread)WFS_RETR_FACTORY.getWFSRetriever(
                         currentKey,
                         null,
@@ -190,7 +190,7 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluessel, Geomet
          *
          * @param  geometriesMap  DOCUMENT ME!
          */
-        void done(final Map<FlurstueckSchluessel, Geometry> geometriesMap);
+        void done(final Map<FlurstueckSchluesselCustomBean, Geometry> geometriesMap);
         /**
          * DOCUMENT ME!
          *

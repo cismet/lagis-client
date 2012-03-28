@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Ressort;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Ressort;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Ressort;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class RessortCustomBean extends CidsBean implements Ressort {
+public class RessortCustomBean extends BasicEntity implements Ressort {
 
     //~ Instance fields --------------------------------------------------------
 

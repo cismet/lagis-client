@@ -15,16 +15,7 @@ import java.util.Map;
 
 import javax.swing.JFrame;
 
-import de.cismet.lagis.report.datasource.BaumDateiDataSource;
 import de.cismet.lagis.report.datasource.EmptyDataSource;
-import de.cismet.lagis.report.datasource.MiPaDataSource;
-import de.cismet.lagis.report.datasource.NKFUebersichtDataSource;
-import de.cismet.lagis.report.datasource.NutzungenDataSource;
-import de.cismet.lagis.report.datasource.ReBeDataSource;
-import de.cismet.lagis.report.datasource.VerwaltungsBereichDataSource;
-import de.cismet.lagis.report.datasource.VorgaengeDataSource;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
 
 /**
  * DOCUMENT ME!

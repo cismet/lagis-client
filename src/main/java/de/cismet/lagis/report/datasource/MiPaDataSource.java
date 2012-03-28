@@ -11,13 +11,13 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
-import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorie;
-import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.MipaCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.MipaKategorieCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.MipaNutzungCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -25,7 +25,7 @@ import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class MiPaDataSource extends ADataSource<MiPa> implements JRDataSource {
+public class MiPaDataSource extends ADataSource<MipaCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -50,18 +50,18 @@ public class MiPaDataSource extends ADataSource<MiPa> implements JRDataSource {
      *
      * @param  mipaList  buchungen DOCUMENT ME!
      */
-    public MiPaDataSource(final List<MiPa> mipaList) {
+    public MiPaDataSource(final List<MipaCustomBean> mipaList) {
         super(mipaList);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<MiPa> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<MiPa> mipaSet = currentFlurstueck.getMiPas();
+    protected List<MipaCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<MipaCustomBean> mipaSet = currentFlurstueck.getMiPas();
 
-        return new ArrayList<MiPa>(mipaSet);
+        return new ArrayList<MipaCustomBean>(mipaSet);
     }
 
     @Override
@@ -71,12 +71,12 @@ public class MiPaDataSource extends ADataSource<MiPa> implements JRDataSource {
         } else if (JR_AKTZ.equals(fieldName)) {
             return super.currentItem.getAktenzeichen();
         } else if (JR_NUTZUNG.equals(fieldName)) {
-            final MiPaNutzung nutzung = super.currentItem.getMiPaNutzung();
+            final MipaNutzungCustomBean nutzung = super.currentItem.getMiPaNutzung();
             if (nutzung == null) {
                 return null;
             }
 
-            final MiPaKategorie category = nutzung.getMiPaKategorie();
+            final MipaKategorieCustomBean category = nutzung.getMiPaKategorie();
             if (category == null) {
                 return null;
             }

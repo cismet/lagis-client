@@ -13,8 +13,8 @@ import net.sf.jasperreports.engine.JRException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -22,7 +22,8 @@ import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class FlurstueckSchluesselDataSource extends ADataSource<FlurstueckSchluessel> implements JRDataSource {
+public class FlurstueckSchluesselDataSource extends ADataSource<FlurstueckSchluesselCustomBean>
+        implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -44,17 +45,17 @@ public class FlurstueckSchluesselDataSource extends ADataSource<FlurstueckSchlue
      *
      * @param  fsKeyList  baeumeList buchungen DOCUMENT ME!
      */
-    public FlurstueckSchluesselDataSource(final List<FlurstueckSchluessel> fsKeyList) {
+    public FlurstueckSchluesselDataSource(final List<FlurstueckSchluesselCustomBean> fsKeyList) {
         super(fsKeyList);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<FlurstueckSchluessel> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+    protected List<FlurstueckSchluesselCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
 
-        final ArrayList<FlurstueckSchluessel> fsKeys = new ArrayList<FlurstueckSchluessel>(1);
+        final ArrayList<FlurstueckSchluesselCustomBean> fsKeys = new ArrayList<FlurstueckSchluesselCustomBean>(1);
         fsKeys.add(currentFlurstueck.getFlurstueckSchluessel());
 
         return fsKeys;

@@ -12,9 +12,8 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Vertrag;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.Vertrag;
 
 /**
  * DOCUMENT ME!
@@ -22,7 +21,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Vertrag;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class VertragCustomBean extends CidsBean implements Vertrag {
+public class VertragCustomBean extends BasicEntity implements Vertrag {
 
     //~ Instance fields --------------------------------------------------------
 

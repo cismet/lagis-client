@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Bebauung;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Bebauung;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Bebauung;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class BebauungCustomBean extends CidsBean implements Bebauung {
+public class BebauungCustomBean extends BasicEntity implements Bebauung {
 
     //~ Instance fields --------------------------------------------------------
 

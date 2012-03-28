@@ -10,18 +10,13 @@ package de.cismet.lagis.report.datasource;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
-import org.openide.util.Exceptions;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import de.cismet.lagisEE.bean.Exception.BuchungNotInNutzungException;
-import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.Nutzung;
-import de.cismet.lagisEE.entity.core.NutzungsBuchung;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -29,7 +24,7 @@ import de.cismet.lagisEE.entity.core.NutzungsBuchung;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class NutzungenDataSource extends ADataSource<NutzungsBuchung> implements JRDataSource {
+public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -45,7 +40,7 @@ public class NutzungenDataSource extends ADataSource<NutzungsBuchung> implements
 
     //~ Instance fields --------------------------------------------------------
 
-    private Nutzung currentNutzung;
+    private NutzungCustomBean currentNutzung;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -61,21 +56,21 @@ public class NutzungenDataSource extends ADataSource<NutzungsBuchung> implements
      *
      * @param  buchungen  DOCUMENT ME!
      */
-    public NutzungenDataSource(final List<NutzungsBuchung> buchungen) {
+    public NutzungenDataSource(final List<NutzungBuchungCustomBean> buchungen) {
         super(buchungen);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<NutzungsBuchung> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<Nutzung> nutzungen = currentFlurstueck.getNutzungen();
+    protected List<NutzungBuchungCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<NutzungCustomBean> nutzungen = currentFlurstueck.getNutzungen();
 
-        final ArrayList<NutzungsBuchung> buchungen = new ArrayList<NutzungsBuchung>(nutzungen.size());
-        for (final Nutzung tmpNutzung : nutzungen) {
+        final ArrayList<NutzungBuchungCustomBean> buchungen = new ArrayList<NutzungBuchungCustomBean>(nutzungen.size());
+        for (final NutzungCustomBean tmpNutzung : nutzungen) {
             if (tmpNutzung.getBuchungsCount() > 0) {
-                for (final NutzungsBuchung buchung : tmpNutzung.getNutzungsBuchungen()) {
+                for (final NutzungBuchungCustomBean buchung : tmpNutzung.getNutzungsBuchungen()) {
                     if (buchung.getGueltigbis() == null) {
                         buchungen.add(buchung);
                     }
@@ -105,14 +100,14 @@ public class NutzungenDataSource extends ADataSource<NutzungsBuchung> implements
      *
      * @throws  RuntimeException  DOCUMENT ME!
      */
-    private double calculateGesamtPreis(final NutzungsBuchung buchung) {
+    private double calculateGesamtPreis(final NutzungBuchungCustomBean buchung) {
         final Double gesamtPreis = buchung.getGesamtpreis();
         if (gesamtPreis == null) {
             return 0.0;
         }
 
         try {
-            final Nutzung nutzung = buchung.getNutzung();
+            final NutzungCustomBean nutzung = buchung.getNutzung();
             Double stilleReserve = nutzung.getStilleReserveForBuchung(buchung);
 
             if (stilleReserve == null) {

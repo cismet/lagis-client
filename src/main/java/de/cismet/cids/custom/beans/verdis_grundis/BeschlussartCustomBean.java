@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Beschlussart;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Beschlussart;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class BeschlussartCustomBean extends CidsBean implements Beschlussart {
+public class BeschlussartCustomBean extends BasicEntity implements Beschlussart {
 
     //~ Instance fields --------------------------------------------------------
 

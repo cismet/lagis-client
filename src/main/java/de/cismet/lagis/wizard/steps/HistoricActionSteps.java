@@ -17,12 +17,7 @@ package de.cismet.lagis.wizard.steps;
 
 import org.apache.log4j.Logger;
 
-import org.netbeans.spi.wizard.DeferredWizardResult;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import org.netbeans.spi.wizard.Summary;
-import org.netbeans.spi.wizard.WizardController;
-import org.netbeans.spi.wizard.WizardException;
-import org.netbeans.spi.wizard.WizardPanelProvider;
+import org.netbeans.spi.wizard.*;
 
 import java.awt.EventQueue;
 
@@ -32,15 +27,15 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.HistoricActionPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -103,7 +98,7 @@ public class HistoricActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck historisch setzen: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel historicKey = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean historicKey = (FlurstueckSchluesselCustomBean)wizardData.get(
                     HistoricActionPanel.KEY_HISTORIC_CANDIDATE);
             final Date histDate = (Date)wizardData.get(
                     HistoricActionPanel.KEY_HISTORIC_DATE);
@@ -111,24 +106,26 @@ public class HistoricActionSteps extends WizardPanelProvider {
                 log.debug("Flurstück das historisch gesetzt werden soll: " + historicKey.getKeyString());
             }
 
-            Sperre sperre = null;
+            SperreCustomBean sperre = null;
             try {
                 progress.setBusy("Flurstück wird historisch gesetzt");
                 // EJBroker.getInstance().createFlurstueck(key);
                 // HistoricResult result = EJBroker.getInstance().setFlurstueckHistoric(historicKey);
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 // TODO besser setHistoric mit sperre versehen als immer die sperre vorher zu setzen
-                final Sperre other = EJBroker.getInstance().isLocked(historicKey);
+                final SperreCustomBean other = EJBroker.getInstance().isLocked(historicKey);
                 if (other == null) {
                     sperre = EJBroker.getInstance()
-                                .createLock(new Sperre(historicKey, LagisBroker.getInstance().getAccountName()));
+                                .createLock(new SperreCustomBean(
+                                            historicKey,
+                                            LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         System.out.println("datum:" + histDate);
                         if (EJBroker.getInstance().setFlurstueckHistoric(historicKey, histDate)) {
                             final Summary summary;
                             EJBroker.getInstance().releaseLock(sperre);
                             if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                        && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                        && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                             LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                             historicKey)) {
                                 if (log.isDebugEnabled()) {

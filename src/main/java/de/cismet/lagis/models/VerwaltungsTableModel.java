@@ -17,20 +17,18 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
 import de.cismet.cismap.commons.features.Feature;
 
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagisEE.entity.core.Geom;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
-import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
 /**
  * DOCUMENT ME!
@@ -47,9 +45,9 @@ public class VerwaltungsTableModel extends AbstractTableModel {
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<Verwaltungsbereich> verwaltungsbereiche;
-    private Vector<Verwaltungsgebrauch> verwaltungsgebraeuche;
-    private Vector<VerwaltendeDienststelle> verwaltendeDienstellen;
+    private Vector<VerwaltungsbereichCustomBean> verwaltungsbereiche;
+    private Vector<VerwaltungsgebrauchCustomBean> verwaltungsgebraeuche;
+    private Vector<VerwaltendeDienststelleCustomBean> verwaltendeDienstellen;
     private boolean isInEditMode = false;
     private double currentWFSSize = 0;
 
@@ -59,7 +57,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      * Creates a new VerwaltungsTableModel object.
      */
     public VerwaltungsTableModel() {
-        verwaltungsbereiche = new Vector<Verwaltungsbereich>();
+        verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
     }
 
     /**
@@ -67,15 +65,15 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      *
      * @param  verwaltungsbereiche  DOCUMENT ME!
      */
-    public VerwaltungsTableModel(final Set<Verwaltungsbereich> verwaltungsbereiche) {
+    public VerwaltungsTableModel(final Set<VerwaltungsbereichCustomBean> verwaltungsbereiche) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Initialisierung des VerwaltungsbereichTableModell");
             }
-            this.verwaltungsbereiche = new Vector<Verwaltungsbereich>(verwaltungsbereiche);
+            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>(verwaltungsbereiche);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.verwaltungsbereiche = new Vector<Verwaltungsbereich>();
+            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
         }
     }
 
@@ -105,7 +103,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
             if (log.isDebugEnabled()) {
                 log.debug("ausgewählte zeile/spalte" + rowIndex + "/" + columnIndex);
             }
-            final Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+            final VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     return vBereich.getDienststelle();
@@ -119,7 +117,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
                 }
 
                 case 2: {
-                    // if there is only one Verwaltungsbereich & the WFS Geometry is used
+                    // if there is only one VerwaltungsbereichCustomBean & the WFS Geometry is used
                     if (verwaltungsbereiche.size() == 1) {
                         return (int)Math.round(currentWFSSize);
                     } else {
@@ -141,16 +139,16 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      *
      * @param  verwaltungsbereiche  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<Verwaltungsbereich> verwaltungsbereiche) {
+    public void refreshTableModel(final Collection<VerwaltungsbereichCustomBean> verwaltungsbereiche) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des VerwaltungsbereichTableModell");
             }
-            this.verwaltungsbereiche = new Vector<Verwaltungsbereich>(verwaltungsbereiche);
+            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>(verwaltungsbereiche);
             // updateAreaInformation(null);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.verwaltungsbereiche = new Vector<Verwaltungsbereich>();
+            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
         }
         fireTableDataChanged();
     }
@@ -191,17 +189,17 @@ public class VerwaltungsTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            final Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+            final VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    vBereich.setDienststelle((VerwaltendeDienststelle)aValue);
+                    vBereich.setDienststelle((VerwaltendeDienststelleCustomBean)aValue);
                     break;
                 }
                 case 1: {
                     if (log.isDebugEnabled()) {
                         log.debug("Setze Wert: " + aValue);
                     }
-                    vBereich.setGebrauch((Verwaltungsgebrauch)aValue);
+                    vBereich.setGebrauch((VerwaltungsgebrauchCustomBean)aValue);
                     break;
                 }
 //                case 2:
@@ -216,17 +214,17 @@ public class VerwaltungsTableModel extends AbstractTableModel {
         } catch (Exception ex) {
             log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
-//        Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+//        VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
 //        if(vBereich != null){
 //            switch(columnIndex){
 //                case 0:
-//                    if(aValue instanceof VerwaltendeDienststelle ){
+//                    if(aValue instanceof VerwaltendeDienststelleCustomBean ){
 //                        log.debug("Dienstelle gesetzt");
 //                    } else if(aValue instanceof String){
 //                        log.debug("Versuche VerwaltendeDienstelle zu setzen");
 //                        Iterator<VerwaltendeDienststelle> it = verwaltendeDienstellen.iterator();
 //                        while(it.hasNext()){
-//                            VerwaltendeDienststelle curVD = it.next();
+//                            VerwaltendeDienststelleCustomBean curVD = it.next();
 //                            if(curVD.toString().equals(((String) aValue).trim())){
 //                                vBereich.setDienststelle(curVD);
 //                                log.debug("Übereinstimmung gefunden, neuer Wert: "+curVD);
@@ -235,14 +233,14 @@ public class VerwaltungsTableModel extends AbstractTableModel {
 //                    }
 //                    break;
 //                case 1:
-//                    if(aValue instanceof Verwaltungsgebrauch){
-//                        log.debug("Verwaltungsgebrauch gesetzt");
+//                    if(aValue instanceof VerwaltungsgebrauchCustomBean){
+//                        log.debug("VerwaltungsgebrauchCustomBean gesetzt");
 //                    } else if(aValue instanceof  String){
-//                        log.debug("Versuche Verwaltungsgebrauch zu setzen");
+//                        log.debug("Versuche VerwaltungsgebrauchCustomBean zu setzen");
 //                        //TODO ugly
 //                        Iterator<Verwaltungsgebrauch> it = verwaltungsgebraeuche.iterator();
 //                        while(it.hasNext()){
-//                            Verwaltungsgebrauch curVG = it.next();
+//                            VerwaltungsgebrauchCustomBean curVG = it.next();
 //                            if(curVG.toString().equals(((String) aValue).trim())){
 //                                vBereich.setGebrauch(curVG);
 //                                log.debug("Übereinstimmung gefunden, neuer Wert: "+curVG);
@@ -268,19 +266,20 @@ public class VerwaltungsTableModel extends AbstractTableModel {
     }
     /**
      * public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-     * int row, int column) { JLabel label = new JLabel(); if(value instanceof VerwaltendeDienststelle){
-     * VerwaltendeDienststelle dienststelle = (VerwaltendeDienststelle) value; label.setText(dienststelle.toString()); }
-     * else if(value instanceof Verwaltungsgebrauch){ Verwaltungsgebrauch nutzung = (Verwaltungsgebrauch) value;
-     * label.setText(nutzung.toString()); } else{ log.debug("Object ist vom Typ: "+value.getClass()); } return label; }
+     * int row, int column) { JLabel label = new JLabel(); if(value instanceof VerwaltendeDienststelleCustomBean){
+     * VerwaltendeDienststelleCustomBean dienststelle = (VerwaltendeDienststelleCustomBean) value;
+     * label.setText(dienststelle.toString()); } else if(value instanceof VerwaltungsgebrauchCustomBean){
+     * VerwaltungsgebrauchCustomBean nutzung = (VerwaltungsgebrauchCustomBean) value; label.setText(nutzung.toString());
+     * } else{ log.debug("Object ist vom Typ: "+value.getClass()); } return label; }
      *
      * @return  DOCUMENT ME!
      */
     public Vector<Feature> getAllVerwaltungsFeatures() {
         final Vector<Feature> tmp = new Vector<Feature>();
         if (verwaltungsbereiche != null) {
-            final Iterator<Verwaltungsbereich> it = verwaltungsbereiche.iterator();
+            final Iterator<VerwaltungsbereichCustomBean> it = verwaltungsbereiche.iterator();
             while (it.hasNext()) {
-                final Verwaltungsbereich curVB = it.next();
+                final VerwaltungsbereichCustomBean curVB = it.next();
                 if (curVB.getGeometry() != null) {
                     tmp.add(curVB);
                 }
@@ -296,7 +295,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      *
      * @param  vBereich  DOCUMENT ME!
      */
-    public void addVerwaltungsbereich(final Verwaltungsbereich vBereich) {
+    public void addVerwaltungsbereich(final VerwaltungsbereichCustomBean vBereich) {
         verwaltungsbereiche.add(vBereich);
         fireTableDataChanged();
         // updateAreaInformation(null);
@@ -309,7 +308,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Verwaltungsbereich getVerwaltungsbereichAtRow(final int rowIndex) {
+    public VerwaltungsbereichCustomBean getVerwaltungsbereichAtRow(final int rowIndex) {
         if (rowIndex < verwaltungsbereiche.size()) {
             return verwaltungsbereiche.get(rowIndex);
         } else {
@@ -323,7 +322,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      * @param  rowIndex  DOCUMENT ME!
      */
     public void removeVerwaltungsbereich(final int rowIndex) {
-        final Verwaltungsbereich vBereich = verwaltungsbereiche.get(rowIndex);
+        final VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
         if ((vBereich != null) && (vBereich.getGeometry() != null)) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(vBereich);
         }
@@ -336,41 +335,42 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      * final int verwaltungsbereicheSize = verwaltungsbereiche.size(); log.debug("Flächeninformation wird geupdated");
      * log.debug("Anzahl Verwaltungsbereiche: "+verwaltungsbereicheSize); try{ Iterator<Verwaltungsbereich> it =
      * verwaltungsbereiche.iterator(); if(verwaltungsbereicheSize == 1 && singleSizeUpdate != null){ log.debug("Nur ein
-     * Verwaltungsbereich vorhanden"); Verwaltungsbereich currentVerwaltungsbereich = it.next();
+     * VerwaltungsbereichCustomBean vorhanden"); VerwaltungsbereichCustomBean currentVerwaltungsbereich = it.next();
      * if(currentVerwaltungsbereich != null && (currentVerwaltungsbereich.getFlaeche() ==null ||
      * !currentVerwaltungsbereich.getFlaeche().equals(singleSizeUpdate.intValue()))){ log.debug("Fläche hat sich
      * geändert"); currentVerwaltungsbereich.setFlaeche(singleSizeUpdate.intValue()); fireTableDataChanged(); //TODO
      * setSelection on new Entry } else { log.debug("Fläche hat sich nicht geändert"); } } else
-     * if(verwaltungsbereicheSize == 1){ log.debug("Nur ein Verwaltungsbereich vorhanden"); log.warn("Es war nicht
-     * möglich die Fläche zu updaten weil keine Größe mitgeliefert wurde"); Verwaltungsbereich currentVerwaltungsbereich
-     * = it.next(); if(currentVerwaltungsbereich != null && (currentVerwaltungsbereich.getFlaeche() ==null ||
-     * !currentVerwaltungsbereich.getFlaeche().equals(0))){ log.debug("Fläche hat sich geändert");
-     * currentVerwaltungsbereich.setFlaeche(0); fireTableDataChanged(); //TODO setSelection on new Entry } else {
-     * log.debug("Fläche hat sich nicht geändert"); } return; }else { log.debug("mehrere Verwaltungsbereiche
-     * vorhanden"); while(it.hasNext()){ Verwaltungsbereich curBereich = it.next(); if(curBereich.getGeometry() !=
-     * null){ log.debug("Verwaltungsbereich: "+curBereich+" hat eine Fläche --> wird geupdated"); final int area =
-     * (int)Math.round(curBereich.getGeometry().getArea()); if(curBereich.getFlaeche() ==null ||
-     * !curBereich.getFlaeche().equals(area)){ log.debug("Fläche hat sich geändert"); curBereich.setFlaeche(area);
-     * fireTableDataChanged(); //TODO setSelection on new Entry } else { log.debug("Fläche hat sich nicht geändert"); }}
-     * else if(curBereich.getGeometry() == null) { log.debug("Verwaltungsbereich: "+curBereich+" hat keine Fläche -->
-     * wird geupdated"); if(curBereich.getFlaeche() ==null || !curBereich.getFlaeche().equals(0)){ log.debug("Fläche hat
-     * sich geändert"); curBereich.setFlaeche(0); fireTableDataChanged(); //TODO setSelection on new Entry } else {
-     * log.debug("Fläche hat sich nicht geändert"); } } else { log.warn("Keiner der Fälle trifft zu"); } } }
-     * }catch(Exception ex){ log.error("Fehler beim updaten der Flächeninformation",ex); } }
+     * if(verwaltungsbereicheSize == 1){ log.debug("Nur ein VerwaltungsbereichCustomBean vorhanden"); log.warn("Es war
+     * nicht möglich die Fläche zu updaten weil keine Größe mitgeliefert wurde"); VerwaltungsbereichCustomBean
+     * currentVerwaltungsbereich = it.next(); if(currentVerwaltungsbereich != null &&
+     * (currentVerwaltungsbereich.getFlaeche() ==null || !currentVerwaltungsbereich.getFlaeche().equals(0))){
+     * log.debug("Fläche hat sich geändert"); currentVerwaltungsbereich.setFlaeche(0); fireTableDataChanged(); //TODO
+     * setSelection on new Entry } else { log.debug("Fläche hat sich nicht geändert"); } return; }else {
+     * log.debug("mehrere Verwaltungsbereiche vorhanden"); while(it.hasNext()){ VerwaltungsbereichCustomBean curBereich
+     * = it.next(); if(curBereich.getGeometry() != null){ log.debug("VerwaltungsbereichCustomBean: "+curBereich+" hat
+     * eine Fläche --> wird geupdated"); final int area = (int)Math.round(curBereich.getGeometry().getArea());
+     * if(curBereich.getFlaeche() ==null || !curBereich.getFlaeche().equals(area)){ log.debug("Fläche hat sich
+     * geändert"); curBereich.setFlaeche(area); fireTableDataChanged(); //TODO setSelection on new Entry } else {
+     * log.debug("Fläche hat sich nicht geändert"); }} else if(curBereich.getGeometry() == null) {
+     * log.debug("VerwaltungsbereichCustomBean: "+curBereich+" hat keine Fläche --> wird geupdated");
+     * if(curBereich.getFlaeche() ==null || !curBereich.getFlaeche().equals(0)){ log.debug("Fläche hat sich geändert");
+     * curBereich.setFlaeche(0); fireTableDataChanged(); //TODO setSelection on new Entry } else { log.debug("Fläche hat
+     * sich nicht geändert"); } } else { log.warn("Keiner der Fälle trifft zu"); } } } }catch(Exception ex){
+     * log.error("Fehler beim updaten der Flächeninformation",ex); } }
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<Verwaltungsbereich> getVerwaltungsbereiche() {
+    public Vector<VerwaltungsbereichCustomBean> getVerwaltungsbereiche() {
         return verwaltungsbereiche;
     }
     /**
-     * public void selectVerwaltungsbereich(Verwaltungsbereich vBereich){ }.
+     * public void selectVerwaltungsbereich(VerwaltungsbereichCustomBean vBereich){ }.
      *
      * @param   vBereich  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    public int getIndexOfVerwaltungsbereich(final Verwaltungsbereich vBereich) {
+    public int getIndexOfVerwaltungsbereich(final VerwaltungsbereichCustomBean vBereich) {
         return verwaltungsbereiche.indexOf(vBereich);
     }
 
@@ -378,10 +378,10 @@ public class VerwaltungsTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
             case 0: {
-                return VerwaltendeDienststelle.class;
+                return VerwaltendeDienststelleCustomBean.class;
             }
             case 1: {
-                return Verwaltungsgebrauch.class;
+                return VerwaltungsgebrauchCustomBean.class;
             }
             case 2: {
                 return Integer.class;

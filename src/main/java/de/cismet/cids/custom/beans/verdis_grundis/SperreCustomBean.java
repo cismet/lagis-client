@@ -11,9 +11,8 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Sperre;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -21,7 +20,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Sperre;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class SperreCustomBean extends CidsBean implements Sperre {
+public class SperreCustomBean extends BasicEntity implements Sperre {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -37,6 +36,26 @@ public class SperreCustomBean extends CidsBean implements Sperre {
             "informationen",
             "zeitstempel"
         };
+
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new SperreCustomBean object.
+     */
+    public SperreCustomBean() {
+    }
+
+    /**
+     * Creates a new SperreCustomBean object.
+     *
+     * @param  flurstueckSchluessel  DOCUMENT ME!
+     * @param  benutzerkonto         DOCUMENT ME!
+     */
+    public SperreCustomBean(final FlurstueckSchluesselCustomBean flurstueckSchluessel, final String benutzerkonto) {
+        setFlurstueckSchluessel(flurstueckSchluessel.getId());
+        setBenutzerkonto(benutzerkonto);
+        setZeitstempel(new Date());
+    }
 
     //~ Methods ----------------------------------------------------------------
 

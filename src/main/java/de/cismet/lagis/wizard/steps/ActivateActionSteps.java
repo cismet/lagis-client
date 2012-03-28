@@ -31,15 +31,14 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ActivateActionPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -101,17 +100,17 @@ public class ActivateActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck aktivieren: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel activationCandidate = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean activationCandidate = (FlurstueckSchluesselCustomBean)wizardData.get(
                     ActivateActionPanel.KEY_ACTIVATE_CANDIDATE);
             if (log.isDebugEnabled()) {
                 log.debug("Flurstück das aktiviert werden soll: " + activationCandidate.getKeyString());
             }
-            Sperre sperre = null;
+            SperreCustomBean sperre = null;
             try {
-                final Sperre other = EJBroker.getInstance().isLocked(activationCandidate);
+                final SperreCustomBean other = EJBroker.getInstance().isLocked(activationCandidate);
                 if (other == null) {
                     sperre = EJBroker.getInstance()
-                                .createLock(new Sperre(
+                                .createLock(new SperreCustomBean(
                                             activationCandidate,
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
@@ -121,7 +120,7 @@ public class ActivateActionSteps extends WizardPanelProvider {
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                         EJBroker.getInstance().releaseLock(sperre);
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                    && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                    && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                         activationCandidate)) {
                             if (log.isDebugEnabled()) {

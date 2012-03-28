@@ -15,24 +15,23 @@ package de.cismet.lagis.gui.panels;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.table.ColumnFactory;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
-import javax.swing.JTable;
 import javax.swing.SwingWorker;
 
-import de.cismet.lagis.broker.*;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
+import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.FlurstueckeTableModel;
 
 import de.cismet.lagis.renderer.FlurstueckSchluesselCellRenderer;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -99,7 +98,7 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
                 public void mouseClicked(final MouseEvent e) {
                     final Object source = e.getSource();
                     if (e.getClickCount() > 1) {
-                        final FlurstueckSchluessel key = tableModel.getFlurstueckSchluesselAtRow(
+                        final FlurstueckSchluesselCustomBean key = tableModel.getFlurstueckSchluesselAtRow(
                                 ((JXTable)tblAktenzeichen).convertRowIndexToModel(tblAktenzeichen.getSelectedRow()));
                         if (key != null) {
                             LagisBroker.getInstance().loadFlurstueck(key);
@@ -123,7 +122,9 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
                 public void mouseExited(final MouseEvent e) {
                 }
             });
-        tblAktenzeichen.setDefaultRenderer(FlurstueckSchluessel.class, new FlurstueckSchluesselCellRenderer());
+        tblAktenzeichen.setDefaultRenderer(
+            FlurstueckSchluesselCustomBean.class,
+            new FlurstueckSchluesselCellRenderer());
         ((JXTable)tblAktenzeichen).getColumnModel().getColumn(0).setPreferredWidth(50);
         ((JXTable)tblAktenzeichen).getColumnModel().getColumn(0).setMaxWidth(50);
         ((JXTable)tblAktenzeichen).getColumnModel().getColumn(0).setMinWidth(50);
@@ -387,7 +388,7 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
      *
      * @version  $Revision$, $Date$
      */
-    class FlurstueckSchluesselSearcher extends SwingWorker<Set<FlurstueckSchluessel>, Void> {
+    class FlurstueckSchluesselSearcher extends SwingWorker<Collection<FlurstueckSchluesselCustomBean>, Void> {
 
         //~ Instance fields ----------------------------------------------------
 
@@ -410,12 +411,12 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
         /**
          * This method does the search.
          *
-         * @return  the set of founded FlurstueckSchluessel
+         * @return  the set of founded FlurstueckSchluesselCustomBean
          *
          * @throws  Exception  java.lang.Exception
          */
         @Override
-        protected Set<FlurstueckSchluessel> doInBackground() throws Exception {
+        protected Collection<FlurstueckSchluesselCustomBean> doInBackground() throws Exception {
             if (log.isDebugEnabled()) {
                 log.debug("Suche nach Flurstücken mit dem Aktenzeichen: " + aktenzeichen);
             }
@@ -425,7 +426,7 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
             if (log.isDebugEnabled()) {
                 log.debug("Replaced Aktenzeichen String: " + replacedAktenzeichen);
             }
-            final Set<FlurstueckSchluessel> result = EJBroker.getInstance()
+            final Collection<FlurstueckSchluesselCustomBean> result = EJBroker.getInstance()
                         .getFlurstueckSchluesselByAktenzeichen(replacedAktenzeichen);
             if ((result != null) && (result.size() > 0)) {
                 if (log.isDebugEnabled()) {
@@ -436,7 +437,7 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
                 if (log.isDebugEnabled()) {
                     log.debug("Suche brachte kein Ergebnis");
                 }
-                return new HashSet<FlurstueckSchluessel>();
+                return new HashSet<FlurstueckSchluesselCustomBean>();
             }
         }
 

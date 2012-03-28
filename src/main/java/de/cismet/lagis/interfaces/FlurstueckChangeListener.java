@@ -15,7 +15,7 @@
  */
 package de.cismet.lagis.interfaces;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -32,5 +32,5 @@ public interface FlurstueckChangeListener extends ChangeListener {
      *
      * @param  newFlurstueck  DOCUMENT ME!
      */
-    void flurstueckChanged(Flurstueck newFlurstueck);
+    void flurstueckChanged(FlurstueckCustomBean newFlurstueck);
 }

@@ -9,7 +9,7 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.EJBrokerInterfaces.BaumMerkmal;
+import de.cismet.lagisEE.entity.extension.baum.BaumMerkmal;
 
 /**
  * DOCUMENT ME!
@@ -86,7 +86,7 @@ public class BaumMerkmalCustomBean extends CidsBean implements BaumMerkmal {
     @Override
     public boolean equals(final Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof de.cismet.lagisEE.entity.extension.baum.BaumMerkmal)) {
+        if (!(object instanceof BaumMerkmalCustomBean)) {
             return false;
         }
         final BaumMerkmalCustomBean other = (BaumMerkmalCustomBean)object;

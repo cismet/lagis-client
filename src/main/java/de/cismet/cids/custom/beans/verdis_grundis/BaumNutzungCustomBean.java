@@ -9,7 +9,7 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.EJBrokerInterfaces.BaumNutzung;
+import de.cismet.lagisEE.entity.extension.baum.BaumNutzung;
 
 /**
  * DOCUMENT ME!

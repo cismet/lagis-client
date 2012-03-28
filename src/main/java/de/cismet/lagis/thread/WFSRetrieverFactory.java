@@ -42,12 +42,11 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
 import de.cismet.lagis.interfaces.DoneDelegate;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 /**
  * TODO Alternative wäre Die Klasse WFS... direkt zubenutzen und über einen Configurator zu konfigurieren IDEE einen
  * Pool anlegen damit es schneller geht sollte genereller sein $Name: not supported by cvs2svn $ $Id:
@@ -106,14 +105,14 @@ public class WFSRetrieverFactory implements Configurable {
      *
      * @return  DOCUMENT ME!
      */
-    public SwingWorker getWFSRetriever(final FlurstueckSchluessel key,
+    public SwingWorker getWFSRetriever(final FlurstueckSchluesselCustomBean key,
             final DoneDelegate doneDelegate,
             final HashMap<Integer, Boolean> properties) {
         return new WFSWorkerThread(key, doneDelegate, properties);
     }
 
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         return null;
     }
 
@@ -213,7 +212,7 @@ public class WFSRetrieverFactory implements Configurable {
         private DoneDelegate doneDelegate;
         private HashMap<Integer, Boolean> properties;
         // private int mode;
-        private FlurstueckSchluessel flurstueckKey;
+        private FlurstueckSchluesselCustomBean flurstueckKey;
         private org.deegree.model.feature.FeatureCollection featuresCollection;
         // private boolean hasManyVerwal private boolean hasManyVerwaltungsbereiche; private boolean
         // isNoGeometryAssigned=true; private boolean wasFeatureAdded; private Feature currentFeature; private boolean
@@ -228,7 +227,7 @@ public class WFSRetrieverFactory implements Configurable {
          * @param  doneDelegate  DOCUMENT ME!
          * @param  properties    DOCUMENT ME!
          */
-        public WFSWorkerThread(final FlurstueckSchluessel key,
+        public WFSWorkerThread(final FlurstueckSchluesselCustomBean key,
                 final DoneDelegate doneDelegate,
                 final HashMap<Integer, Boolean> properties) {
             super(key);
@@ -244,7 +243,7 @@ public class WFSRetrieverFactory implements Configurable {
          *
          * @return  DOCUMENT ME!
          */
-        public FlurstueckSchluessel getFlurstueckKey() {
+        public FlurstueckSchluesselCustomBean getFlurstueckKey() {
             return flurstueckKey;
         }
 

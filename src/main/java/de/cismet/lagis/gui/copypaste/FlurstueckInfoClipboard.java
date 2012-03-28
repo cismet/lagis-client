@@ -17,6 +17,8 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+
 import de.cismet.cismap.commons.gui.MappingComponent;
 
 import de.cismet.lagis.broker.LagisBroker;
@@ -26,7 +28,6 @@ import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
-import de.cismet.lagisEE.entity.core.Flurstueck;
 
 /**
  * Clipboard implementation for copying and pasting Flurstück related information.
@@ -46,8 +47,8 @@ public final class FlurstueckInfoClipboard implements FlurstueckChangeListener {
     private final JButton copyButton;
     private final JButton pasteButton;
 
-    private Flurstueck copyFS;
-    private Flurstueck pasteFS;
+    private FlurstueckCustomBean copyFS;
+    private FlurstueckCustomBean pasteFS;
 
     private boolean wasCopyPastedOnce;
 
@@ -150,7 +151,7 @@ public final class FlurstueckInfoClipboard implements FlurstueckChangeListener {
      * Implementation of copying mechanism.
      */
     private void copy() {
-        final Flurstueck oldCopyFS = this.copyFS;
+        final FlurstueckCustomBean oldCopyFS = this.copyFS;
         this.copyFS = LagisBroker.getInstance().getCurrentFlurstueck();
 
         if (this.copyFS.equals(oldCopyFS)) {
@@ -260,7 +261,7 @@ public final class FlurstueckInfoClipboard implements FlurstueckChangeListener {
      * {@inheritDoc}
      */
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         // only enable copy button, if the currently chosen Flurstück is not the one which is already copied
         this.copyButton.setToolTipText("Kopiere Daten aus Flurstück " + newFlurstueck);
         this.copyButton.setEnabled(true);

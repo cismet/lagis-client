@@ -15,7 +15,7 @@
  */
 package de.cismet.lagis.utillity;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 /**
  * DOCUMENT ME!
@@ -27,7 +27,7 @@ public class WFSUpdateContainer {
 
     //~ Instance fields --------------------------------------------------------
 
-    private FlurstueckSchluessel flurstueckSchluessel;
+    private FlurstueckSchluesselCustomBean flurstueckSchluessel;
     private boolean noGeometryAssigned = true;
     private boolean manyVerwaltungsbereiche;
 
@@ -46,7 +46,7 @@ public class WFSUpdateContainer {
      *
      * @return  DOCUMENT ME!
      */
-    public FlurstueckSchluessel getFlurstueckSchluessel() {
+    public FlurstueckSchluesselCustomBean getFlurstueckSchluessel() {
         return flurstueckSchluessel;
     }
 
@@ -55,7 +55,7 @@ public class WFSUpdateContainer {
      *
      * @param  flurstueckSchluessel  DOCUMENT ME!
      */
-    public void setFlurstueckSchluessel(final FlurstueckSchluessel flurstueckSchluessel) {
+    public void setFlurstueckSchluessel(final FlurstueckSchluesselCustomBean flurstueckSchluessel) {
         this.flurstueckSchluessel = flurstueckSchluessel;
     }
 

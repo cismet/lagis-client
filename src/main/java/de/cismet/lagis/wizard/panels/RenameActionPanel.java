@@ -16,12 +16,13 @@ import org.apache.log4j.Logger;
 
 import org.netbeans.spi.wizard.WizardController;
 
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.Map;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
 
 import de.cismet.lagis.broker.EJBroker;
 
@@ -29,9 +30,6 @@ import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -99,7 +97,7 @@ public class RenameActionPanel extends javax.swing.JPanel implements ValidationS
                 if (log.isDebugEnabled()) {
                     log.debug("Rename valid");
                 }
-                final FlurstueckSchluessel key = panRename.getCurrentFlurstueckSchluessel();
+                final FlurstueckSchluesselCustomBean key = panRename.getCurrentFlurstueckSchluessel();
                 if (key != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Vorauswahl kann getroffen werden");
@@ -122,7 +120,7 @@ public class RenameActionPanel extends javax.swing.JPanel implements ValidationS
         }
 
         if ((panCreate.getStatus() == Validatable.VALID) && (panRename.getStatus() == Validatable.VALID)) {
-            final Sperre sperre = EJBroker.getInstance().isLocked(panRename.getCurrentFlurstueckSchluessel());
+            final SperreCustomBean sperre = EJBroker.getInstance().isLocked(panRename.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

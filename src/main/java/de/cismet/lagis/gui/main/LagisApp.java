@@ -12,18 +12,10 @@
  */
 package de.cismet.lagis.gui.main;
 
-import Sirius.navigator.connection.Connection;
-import Sirius.navigator.connection.ConnectionFactory;
-import Sirius.navigator.connection.ConnectionInfo;
-import Sirius.navigator.connection.ConnectionSession;
-import Sirius.navigator.connection.SessionManager;
+import Sirius.navigator.connection.*;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
 import Sirius.navigator.plugin.context.PluginContext;
-import Sirius.navigator.plugin.interfaces.FloatingPluginUI;
-import Sirius.navigator.plugin.interfaces.PluginMethod;
-import Sirius.navigator.plugin.interfaces.PluginProperties;
-import Sirius.navigator.plugin.interfaces.PluginSupport;
-import Sirius.navigator.plugin.interfaces.PluginUI;
+import Sirius.navigator.plugin.interfaces.*;
 
 import Sirius.server.newuser.User;
 
@@ -35,11 +27,7 @@ import com.sun.jersey.api.container.ContainerFactory;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import net.infonode.docking.DockingWindow;
-import net.infonode.docking.RootWindow;
-import net.infonode.docking.SplitWindow;
-import net.infonode.docking.TabWindow;
-import net.infonode.docking.View;
+import net.infonode.docking.*;
 import net.infonode.docking.mouse.DockingWindowActionMouseButtonListener;
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.theme.DockingWindowsTheme;
@@ -69,71 +57,30 @@ import org.netbeans.api.wizard.WizardDisplayer;
 
 import java.applet.AppletContext;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
 import java.net.InetSocketAddress;
 
 import java.rmi.Remote;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileFilter;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.features.Feature;
@@ -156,18 +103,7 @@ import de.cismet.lagis.broker.LagisCrossover;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.FlurstueckInfoClipboard;
 import de.cismet.lagis.gui.copypaste.Pasteable;
-import de.cismet.lagis.gui.panels.AktenzeichenSearch;
-import de.cismet.lagis.gui.panels.DMSPanel;
-import de.cismet.lagis.gui.panels.FlurstueckChooser;
-import de.cismet.lagis.gui.panels.HistoryPanel;
-import de.cismet.lagis.gui.panels.InformationPanel;
-import de.cismet.lagis.gui.panels.KartenPanel;
-import de.cismet.lagis.gui.panels.NKFOverviewPanel;
-import de.cismet.lagis.gui.panels.NKFPanel;
-import de.cismet.lagis.gui.panels.ReBePanel;
-import de.cismet.lagis.gui.panels.VerdisCrossoverPanel;
-import de.cismet.lagis.gui.panels.VertraegePanel;
-import de.cismet.lagis.gui.panels.VerwaltungsPanel;
+import de.cismet.lagis.gui.panels.*;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -186,10 +122,6 @@ import de.cismet.lagis.widget.RessortFactory;
 
 import de.cismet.lagis.wizard.ContinuationWizard;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-
 import de.cismet.lookupoptions.gui.OptionsClient;
 import de.cismet.lookupoptions.gui.OptionsDialog;
 
@@ -197,7 +129,6 @@ import de.cismet.tools.StaticDecimalTools;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.ConfigurationManager;
-import de.cismet.tools.configuration.NoWriteError;
 
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
@@ -375,7 +306,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private Dimension windowSize = null;
     private Point windowLocation = null;
     // private Thread refresherThread;
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     // Validation
     private final ArrayList<ValidationStateChangedListener> validationListeners =
         new ArrayList<ValidationStateChangedListener>();
@@ -466,7 +397,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     public LagisApp(final PluginContext context) {
         this.context = context;
         try {
-            EJBroker.setMainframe(this);
+//            EJBroker.setMainframe(this);
             isPlugin = !(context == null);
             setTitle("LagIS");
 
@@ -781,7 +712,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         .getProgressObserver()
                         .setProgress(850, "Initialisieren und Starten des Hintergrundthreads...");
             }
-            updateThread = new BackgroundUpdateThread<Flurstueck>() {
+            updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                     @Override
                     protected void update() {
@@ -796,10 +727,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                 return;
                             }
                             try {
-                                final FlurstueckArt flurstuecksArt = getCurrentObject().getFlurstueckSchluessel()
-                                            .getFlurstueckArt();
+                                final FlurstueckArtCustomBean flurstuecksArt = getCurrentObject()
+                                            .getFlurstueckSchluessel().getFlurstueckArt();
                                 if (flurstuecksArt.getBezeichnung().equals(
-                                                FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                                FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                                     if (LOG.isDebugEnabled()) {
                                         LOG.debug("Art des Flurstücks ist Städtisch");
                                     }
@@ -809,7 +740,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                         pFlurstueckChooser.setStatusIcon(icoStaedtisch);
                                     }
                                 } else if (flurstuecksArt.getBezeichnung().equals(
-                                                FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                                                FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                                     if (LOG.isDebugEnabled()) {
                                         LOG.debug("Art des Flurstücks ist Abteilung IX");
                                     }
@@ -914,7 +845,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
             pKarte.setInteractionMode();
             setVisible(true);
-            EJBroker.setMainframe(this);
+//            EJBroker.setMainframe(this);
             // check if there ist at least one editable Widget
             if (LagisBroker.getInstance().isCoreReadOnlyMode()
                         && (RessortFactory.getInstance().getRessortPermissions() != null)) {
@@ -1177,7 +1108,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     LOG.debug("Anzahl Ressort Widget: " + ressorts.size());
                 }
                 final JMenu ressortMenue = new JMenu("Ressorts");
-                final Set<String> keySet = ressorts.keySet();
+                final Collection<String> keySet = ressorts.keySet();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Ressort Keyset: " + keySet);
                 }
@@ -2489,8 +2420,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     oIn = new ObjectInputStream(bIn);
 
                     final Object obj = oIn.readObject();
-                    if (obj instanceof FlurstueckSchluessel) {
-                        final FlurstueckSchluessel fs = (FlurstueckSchluessel)obj;
+                    if (obj instanceof FlurstueckSchluesselCustomBean) {
+                        final FlurstueckSchluesselCustomBean fs = (FlurstueckSchluesselCustomBean)obj;
                         this.pFlurstueckChooser.requestFlurstueck(fs);
                     } else {
                         this.showErrorMessage("Daten aus letzter Sitzung haben "
@@ -2656,7 +2587,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     public void saveAppData(final String fileName) {
         final LagisBroker lb = LagisBroker.getInstance();
-        final FlurstueckSchluessel fs = lb.getCurrentFlurstueckSchluessel();
+        final FlurstueckSchluesselCustomBean fs = lb.getCurrentFlurstueckSchluessel();
 
         if (fs == null) {
             // nothing to do
@@ -3068,18 +2999,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                             LOG.error("Keine Domain spezifiziert, bitte mit -d setzen");
                             System.exit(1);
                         }
-                        if (cmd.hasOption("g")) {
-                            EJBroker.setServer(cmd.getOptionValue("g"));
-                            LOG.info(
-                                "Glassfish Server wurder über Kommandozeile gesetzt, dieser "
-                                        + "Wert überschreibt den Konfigurationswert");
-                        }
-                        if (cmd.hasOption("p")) {
-                            EJBroker.setOrbPort(cmd.getOptionValue("p"));
-                            LOG.info(
-                                "Glassfish Server Port wurder über Kommandozeile gesetzt, dieser "
-                                        + "Wert überschreibt den Konfigurationswert");
-                        }
                     } catch (Exception ex) {
                         LOG.error("Fehler beim auslesen der Kommandozeilen Parameter", ex);
                         System.exit(1);
@@ -3283,30 +3202,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
-            try {
-                if (EJBroker.getServer() == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Glassfishhost: " + prefs.getChildText("host"));
-                    }
-                    EJBroker.setServer(prefs.getChildText("host"));
-                } else {
-                    LOG.info("Glassfish Server wurde bereits über die Kommandozeile gesetzt. Keine Konfiguration");
-                }
-            } catch (Exception ex) {
-                LOG.warn("Fehler beim lesen des Glassfish Hosts", ex);
-            }
-            try {
-                if (EJBroker.getOrbPort() == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Glassfisport: " + prefs.getChildText("orbPort"));
-                    }
-                    EJBroker.setOrbPort(prefs.getChildText("orbPort"));
-                } else {
-                    LOG.info("Glassfish Serverport wurde bereits über die Kommandozeile gesetzt. Keine Konfiguration");
-                }
-            } catch (Exception ex) {
-                LOG.warn("Fehler beim lesen des Glassfish Ports", ex);
-            }
             EJBroker.getInstance();
             try {
                 final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
@@ -3334,12 +3229,13 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Crossover: verdisCrossoverPort: " + LagisBroker.getInstance().getVerdisCrossoverPort());
                 }
-                final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(
-                            verdisHost,
-                            verdisORBPort,
-                            KassenzeichenFacadeRemote.class)
-                            .getEjbInterface();
-                LagisBroker.getInstance().setVerdisServer(verdisServer);
+                // TODO Jean : verdisServer mit cids nachbilden
+// final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(
+// verdisHost,
+// verdisORBPort,
+// KassenzeichenFacadeRemote.class)
+// .getEjbInterface();
+// LagisBroker.getInstance().setVerdisServer(verdisServer);
             } catch (Exception ex) {
                 LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
             }
@@ -3357,7 +3253,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     }
 
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         final Element ret = new Element("cismapPluginUIPreferences");
         final Element window = new Element("window");
         final int windowHeight = this.getHeight();
@@ -3389,7 +3285,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     }
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         LOG.info("Flurstueck Changed");
         updateThread.notifyThread(newFlurstueck);
 
@@ -3413,14 +3309,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public EJBAccessor<KassenzeichenFacadeRemote> getVerdisCrossoverAccessor() {
-        return verdisCrossoverAccessor;
-    }
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @return  DOCUMENT ME!
+//     */
+//    public EJBAccessor<KassenzeichenFacadeRemote> getVerdisCrossoverAccessor() {
+//        return verdisCrossoverAccessor;
+//    }
 
     @Override
     public void refresh(final Object refreshObject) {

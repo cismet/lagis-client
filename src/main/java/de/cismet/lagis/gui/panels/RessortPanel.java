@@ -14,14 +14,13 @@ package de.cismet.lagis.gui.panels;
 
 import javax.swing.Icon;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
-import de.cismet.lagis.interfaces.Widget;
 
 import de.cismet.lagis.widget.AbstractWidget;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
 
 /**
  * DOCUMENT ME!
@@ -48,7 +47,7 @@ public class RessortPanel extends AbstractWidget implements FlurstueckChangeList
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         LagisBroker.getInstance().flurstueckChangeFinished(this);
     }
 

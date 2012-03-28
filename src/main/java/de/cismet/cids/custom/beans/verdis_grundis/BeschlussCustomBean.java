@@ -11,9 +11,8 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Beschluss;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.Beschluss;
 
 /**
  * DOCUMENT ME!
@@ -21,7 +20,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Beschluss;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class BeschlussCustomBean extends CidsBean implements Beschluss {
+public class BeschlussCustomBean extends BasicEntity implements Beschluss {
 
     //~ Instance fields --------------------------------------------------------
 

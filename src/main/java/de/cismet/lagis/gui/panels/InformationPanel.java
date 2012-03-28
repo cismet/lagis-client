@@ -22,18 +22,17 @@ import org.w3c.dom.Element;
 
 import java.io.IOException;
 
-import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagis.widget.AbstractWidget;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 
 /**
  * DOCUMENT ME!
@@ -204,10 +203,11 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
     }
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
-        FlurstueckSchluessel key = null;
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
+        FlurstueckSchluesselCustomBean key = null;
         if ((newFlurstueck != null) && ((key = newFlurstueck.getFlurstueckSchluessel()) != null)) {
-            if (key.getFlurstueckArt().getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+            if (key.getFlurstueckArt().getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Flurstueck ist Staedtisch");
                 }
@@ -230,7 +230,7 @@ public class InformationPanel extends AbstractWidget implements FlurstueckChange
                 lblFlurstueckArt.setVisible(true);
                 lblFlurstueckStatus.setHorizontalAlignment(SwingConstants.RIGHT);
             } else if (key.getFlurstueckArt().getBezeichnung().equals(
-                            FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Flurstueck ist Abteilung IX");
                 }

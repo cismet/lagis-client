@@ -16,13 +16,17 @@ import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
 
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.VertragCustomBean;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -31,10 +35,6 @@ import de.cismet.lagis.models.DefaultUniqueListModel;
 import de.cismet.lagis.models.VertraegeTableModel;
 
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Vertrag;
 
 /**
  * DOCUMENT ME!
@@ -51,7 +51,7 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
 
     private VertraegeTableModel tblModel = new VertraegeTableModel();
     private VertraegeTableModel currentVertraegeTabelModel;
-    private Flurstueck currentFlurstueck;
+    private FlurstueckCustomBean currentFlurstueck;
     private DefaultUniqueListModel currentListModel;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -74,7 +74,7 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
      * @param  currentVertraegeTabelModel  DOCUMENT ME!
      * @param  currentListModel            DOCUMENT ME!
      */
-    public AddExistingVorgangPanel(final Flurstueck currentFlurstueck,
+    public AddExistingVorgangPanel(final FlurstueckCustomBean currentFlurstueck,
             final VertraegeTableModel currentVertraegeTabelModel,
             final ListModel currentListModel) {
         this.currentFlurstueck = currentFlurstueck;
@@ -86,7 +86,7 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
         btnOK.setEnabled(false);
         tblVorgang.setModel(tblModel);
         tblVorgang.getSelectionModel().addListSelectionListener(this);
-        final Flurstueck selectedFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
+        final FlurstueckCustomBean selectedFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         if ((selectedFlurstueck != null) && (selectedFlurstueck.getFlurstueckSchluessel() != null)) {
             if (log.isDebugEnabled()) {
                 log.debug("Vorauswahl kann getroffen werden");
@@ -112,14 +112,14 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
             log.debug("Validation Status: " + flurstueckChooser1.getStatus());
         }
         if (flurstueckChooser1.getStatus() == flurstueckChooser1.VALID) {
-            final FlurstueckSchluessel currentKey = flurstueckChooser1.getCurrentFlurstueckSchluessel();
-            final Set<Vertrag> vertraege = EJBroker.getInstance().getVertraegeForKey(currentKey);
+            final FlurstueckSchluesselCustomBean currentKey = flurstueckChooser1.getCurrentFlurstueckSchluessel();
+            final Collection<VertragCustomBean> vertraege = EJBroker.getInstance().getVertraegeForKey(currentKey);
             if (vertraege != null) {
                 // Check if the Contract ist already  added
                 // if(currentFlurstueck != null && currentFlurstueck.getVertraege() != null){
-                final Iterator<Vertrag> it = currentVertraegeTabelModel.getVertraege().iterator();
+                final Iterator<VertragCustomBean> it = currentVertraegeTabelModel.getVertraege().iterator();
                 while (it.hasNext()) {
-                    final Vertrag curVertrag = it.next();
+                    final VertragCustomBean curVertrag = it.next();
                     if (vertraege.contains(curVertrag)) {
                         vertraege.remove(curVertrag);
                     }
@@ -265,15 +265,16 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
     private void btnOKActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnOKActionPerformed
         final int[] selectedRows = tblVorgang.getSelectedRows();
         for (int i = 0; i < selectedRows.length; i++) {
-            final Vertrag curVertrag = tblModel.getVertragAtRow(((JXTable)tblVorgang).convertRowIndexToModel(
+            final VertragCustomBean curVertrag = tblModel.getVertragAtRow(((JXTable)tblVorgang).convertRowIndexToModel(
                         selectedRows[i]));
             currentVertraegeTabelModel.addVertrag(curVertrag);
-            final Set<FlurstueckSchluessel> crossRefs = EJBroker.getInstance().getCrossReferencesForVertrag(curVertrag);
+            final Collection<FlurstueckSchluesselCustomBean> crossRefs = EJBroker.getInstance()
+                        .getCrossReferencesForVertrag(curVertrag);
             if (crossRefs != null) {
                 if (log.isDebugEnabled()) {
                     log.debug("Es sind Querverweise auf diesen Vertrag vorhanden");
                 }
-                final Iterator<FlurstueckSchluessel> it = crossRefs.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> it = crossRefs.iterator();
                 while (it.hasNext()) {
                     if (log.isDebugEnabled()) {
                         log.debug("Ein Querverweis hinzugefügt");

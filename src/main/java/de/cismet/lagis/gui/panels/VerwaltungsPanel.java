@@ -18,10 +18,7 @@ import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
-import org.jdesktop.swingx.decorator.ColorHighlighter;
-import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.SortOrder;
 
 import org.jdom.Element;
@@ -37,34 +34,18 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.BadLocationException;
 
-import de.cismet.cismap.commons.features.Feature;
-import de.cismet.cismap.commons.features.FeatureCollection;
-import de.cismet.cismap.commons.features.FeatureCollectionEvent;
-import de.cismet.cismap.commons.features.FeatureCollectionListener;
-import de.cismet.cismap.commons.features.StyledFeature;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
@@ -99,18 +80,11 @@ import de.cismet.lagis.validation.Validator;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.ReBe;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
 import de.cismet.tools.CismetThreadPool;
 import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 
 import de.cismet.tools.gui.historybutton.DefaultHistoryModel;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
@@ -163,12 +137,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private final Icon icoRebeExpired = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/rebeExpired.png"));
 
-    private Flurstueck currentFlurstueck = null;
+    private FlurstueckCustomBean currentFlurstueck = null;
     private Validator valTxtBemerkung;
     private SimpleDocumentModel bemerkungDocumentModel;
     private VerwaltungsTableModel tableModel = new VerwaltungsTableModel();
     private boolean isInEditMode = false;
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private VerwaltungsgebrauchRenderer vgRenderer = new VerwaltungsgebrauchRenderer();
     private JComboBox cboVD;
     private WFSRetrieverFactory.WFSWorkerThread currentWFSRetriever;
@@ -230,7 +204,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                 @Override
                 protected void update() {
@@ -259,11 +233,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         if (getCurrentObject().getFlurstueckSchluessel() != null) {
                             historyModel.addToHistory(getCurrentObject());
                         }
-                        final FlurstueckArt flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
+                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
                                     .getFlurstueckArt();
                         if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                             if (log.isDebugEnabled()) {
                                 log.debug("Flurstück ist städtisch und kann editiert werden");
                             }
@@ -272,7 +246,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 //                        cbKind.setVisible(true);
                         } else if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                             if (log.isDebugEnabled()) {
                                 log.debug(
                                     "Flurstück ist nicht städtisch und kann nicht editiert werden (Abteilung IX)");
@@ -400,7 +374,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                             for (final Feature currentFeature : features) {
                                                 if (currentFeature != null) {
                                                     if (isWidgetReadOnly()) {
-                                                        ((Verwaltungsbereich)currentFeature).setModifiable(false);
+                                                        ((VerwaltungsbereichCustomBean)currentFeature).setModifiable(
+                                                            false);
                                                     }
 
                                                     final Feature tmp = new StyledFeatureGroupWrapper(
@@ -440,11 +415,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final Vector<Verwaltungsbereich> allVBs = this.tableModel.getVerwaltungsbereiche();
+        final Vector<VerwaltungsbereichCustomBean> allVBs = this.tableModel.getVerwaltungsbereiche();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allVBs.size());
 
-        for (final Verwaltungsbereich vb : allVBs) {
-            final Verwaltungsbereich tmp = new Verwaltungsbereich();
+        for (final VerwaltungsbereichCustomBean vb : allVBs) {
+            final VerwaltungsbereichCustomBean tmp = new VerwaltungsbereichCustomBean();
 
             tmp.setGebrauch(vb.getGebrauch());
             tmp.setDienststelle(vb.getDienststelle());
@@ -477,13 +452,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             throw new NullPointerException("Given data item must not be null");
         }
 
-        if (item instanceof Verwaltungsbereich) {
-            final Vector<Verwaltungsbereich> residentVBs = this.tableModel.getVerwaltungsbereiche();
+        if (item instanceof VerwaltungsbereichCustomBean) {
+            final Vector<VerwaltungsbereichCustomBean> residentVBs = this.tableModel.getVerwaltungsbereiche();
 
             if (residentVBs.contains(item)) {
                 log.warn("Verwaltungsbereich " + item + " does already exist in Flurstück " + this.currentFlurstueck);
             } else {
-                this.tableModel.addVerwaltungsbereich((Verwaltungsbereich)item);
+                this.tableModel.addVerwaltungsbereich((VerwaltungsbereichCustomBean)item);
                 this.tableModel.fireTableDataChanged();
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -512,19 +487,19 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        final Vector<Verwaltungsbereich> residentVBs = this.tableModel.getVerwaltungsbereiche();
+        final Vector<VerwaltungsbereichCustomBean> residentVBs = this.tableModel.getVerwaltungsbereiche();
         final int rowCountBefore = this.tableModel.getRowCount();
 
         Feature f;
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
         final FeatureCollection featCollection = mc.getFeatureCollection();
         for (final BasicEntity entity : dataList) {
-            if (entity instanceof Verwaltungsbereich) {
+            if (entity instanceof VerwaltungsbereichCustomBean) {
                 if (residentVBs.contains(entity)) {
                     log.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
                                 + this.currentFlurstueck);
                 } else {
-                    this.tableModel.addVerwaltungsbereich((Verwaltungsbereich)entity);
+                    this.tableModel.addVerwaltungsbereich((VerwaltungsbereichCustomBean)entity);
                     f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     featCollection.addFeature(f);
                 }
@@ -595,7 +570,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                     LagisBroker.getInstance().getCurrentFlurstueck())))) {
                 // historyEnabled=false;
                 LagisBroker.getInstance()
-                        .loadFlurstueck(((Flurstueck)historyModel.getCurrentElement()).getFlurstueckSchluessel());
+                        .loadFlurstueck(((FlurstueckCustomBean)historyModel.getCurrentElement())
+                            .getFlurstueckSchluessel());
             }
         }
     }
@@ -608,13 +584,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // tableModel.setVerwaltendenDienstellenList(allVerwaltendeDienstellen);
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
         tNutzung.setModel(tableModel);
-        cboVD = new JComboBox(new Vector<VerwaltendeDienststelle>(
+        cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
                     EJBroker.getInstance().getAllVerwaltendeDienstellen()));
-        tNutzung.setDefaultRenderer(Verwaltungsgebrauch.class, vgRenderer);
-        tNutzung.setDefaultEditor(VerwaltendeDienststelle.class, new DefaultCellEditor(cboVD));
+        tNutzung.setDefaultRenderer(VerwaltungsgebrauchCustomBean.class, vgRenderer);
+        tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new DefaultCellEditor(cboVD));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
-        final JComboBox cboVG = new JComboBox(new Vector<Verwaltungsgebrauch>(
+        final JComboBox cboVG = new JComboBox(new Vector<VerwaltungsgebrauchCustomBean>(
                     EJBroker.getInstance().getAllVerwaltenungsgebraeuche()));
         cboVG.addActionListener(new ActionListener() {
 
@@ -627,7 +603,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         cboVG.setEditable(true);
         final ComboBoxCellEditor cellEditor = new ComboBoxCellEditor(cboVG);
         // AutoCompleteDecorator.decorate(cboVG);
-        // tNutzung.setDefaultEditor(Verwaltungsgebrauch.class,new ComboBoxCellEditor(cboVG));
+        // tNutzung.setDefaultEditor(VerwaltungsgebrauchCustomBean.class,new ComboBoxCellEditor(cboVG));
         tNutzung.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cboVG));
         tNutzung.addMouseListener(this);
         // (LagisBroker.grey, null, 0, -1)
@@ -638,7 +614,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     try {
                         final int displayedIndex = componentAdapter.row;
                         final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
-                        final Verwaltungsbereich g = tableModel.getVerwaltungsbereichAtRow(modelIndex);
+                        final VerwaltungsbereichCustomBean g = tableModel.getVerwaltungsbereichAtRow(modelIndex);
                         // TODO warum muss g != null sein muss nicht geodert werden?
                         return (((g == null) || ((g != null) && (g.getGeometry() == null)))
                                         && ((tableModel.getVerwaltungsbereiche() != null)
@@ -784,7 +760,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     // private Thread panelRefresherThread;
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             log.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
@@ -800,15 +776,15 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      */
     private void refreshReBeIcons() {
         try {
-            final Set<ReBe> reBe = currentFlurstueck.getRechteUndBelastungen();
-            final Iterator<ReBe> it = reBe.iterator();
+            final Collection<RebeCustomBean> reBe = currentFlurstueck.getRechteUndBelastungen();
+            final Iterator<RebeCustomBean> it = reBe.iterator();
             boolean allRechteExpired = true;
             boolean oneRechtExisiting = false;
             boolean allBelastungenExpired = true;
             boolean oneBelastungExisiting = false;
             final Date currentDate = new Date();
             while (it.hasNext()) {
-                final ReBe curReBe = it.next();
+                final RebeCustomBean curReBe = it.next();
                 final Boolean curReBeArt = curReBe.getIstRecht();
                 if ((curReBeArt != null) && (curReBeArt.booleanValue() == true)) {
                     if ((curReBe.getDatumLoeschung() == null)
@@ -925,7 +901,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             log.warn("Fehler beim cleanen der Komponente", ex);
         }
         lblBemSperre.setText("");
-        tableModel.refreshTableModel(new HashSet<Verwaltungsbereich>());
+        tableModel.refreshTableModel(new HashSet<VerwaltungsbereichCustomBean>());
         if (log.isDebugEnabled()) {
             log.debug("Clear Verwaltungspanel beendet");
         }
@@ -977,7 +953,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 return result;
             }
             for (int i = 0; i < rowCount; i++) {
-                final Verwaltungsbereich currentBereich = tableModel.getVerwaltungsbereichAtRow(i);
+                final VerwaltungsbereichCustomBean currentBereich = tableModel.getVerwaltungsbereichAtRow(i);
 
                 if ((currentBereich != null) && (currentBereich.getGeometry() == null)) {
                     final Object idValue1 = tableModel.getValueAt(i, 0);
@@ -1022,9 +998,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     }
 
     @Override
-    public void updateFlurstueckForSaving(final Flurstueck flurstueck) {
+    public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         // tableModel.updateAreaInformation(null);
-        final Set<Verwaltungsbereich> vBereiche = flurstueck.getVerwaltungsbereiche();
+        final Collection<VerwaltungsbereichCustomBean> vBereiche = flurstueck.getVerwaltungsbereiche();
         if (vBereiche != null) {
             vBereiche.clear();
             vBereiche.addAll(tableModel.getVerwaltungsbereiche());
@@ -1056,12 +1032,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 log.debug("Features Selected :" + features.size());
             }
             for (final Feature feature : features) {
-                if (feature instanceof Verwaltungsbereich) {
+                if (feature instanceof VerwaltungsbereichCustomBean) {
                     if (log.isDebugEnabled()) {
                         log.debug("Feature ist Verwaltungsbereich");
                     }
                     // TODO Refactor Name
-                    final int index = tableModel.getIndexOfVerwaltungsbereich((Verwaltungsbereich)feature);
+                    final int index = tableModel.getIndexOfVerwaltungsbereich((VerwaltungsbereichCustomBean)feature);
                     final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
                     if ((index != -1)
                                 && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
@@ -1113,7 +1089,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             }
             final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
             if ((index != -1) && (tNutzung.getSelectedRowCount() <= 1)) {
-                final Verwaltungsbereich selectedVerwaltungsbereich = tableModel.getVerwaltungsbereichAtRow(index);
+                final VerwaltungsbereichCustomBean selectedVerwaltungsbereich = tableModel.getVerwaltungsbereichAtRow(
+                        index);
                 if ((selectedVerwaltungsbereich != null) && (selectedVerwaltungsbereich.getGeometry() != null)
                             && !mappingComp.getFeatureCollection().isSelected(selectedVerwaltungsbereich)) {
                     mappingComp.getFeatureCollection().select(selectedVerwaltungsbereich);
@@ -1127,7 +1104,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     }
 
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         return null;
     }
 
@@ -1175,10 +1152,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     return Validatable.ERROR;
                 }
             }
-            final Vector<Verwaltungsbereich> allVerwaltung = tableModel.getVerwaltungsbereiche();
-            final Iterator<Verwaltungsbereich> itVerwaltung = allVerwaltung.iterator();
+            final Vector<VerwaltungsbereichCustomBean> allVerwaltung = tableModel.getVerwaltungsbereiche();
+            final Iterator<VerwaltungsbereichCustomBean> itVerwaltung = allVerwaltung.iterator();
             while (itVerwaltung.hasNext()) {
-                final Verwaltungsbereich current = itVerwaltung.next();
+                final VerwaltungsbereichCustomBean current = itVerwaltung.next();
                 if ((allVerwaltung.size() == 1) && ((current != null) && (current.getGeometry() != null))) {
                     validationMessage = "Wenn ein Verwaltungsbereich vorhanden ist, dann darf\n"
                                 + "diesem keine Geometrie zugeordnet sein.";
@@ -1472,7 +1449,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      */
     private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
         // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-        final Verwaltungsbereich tmp = new Verwaltungsbereich();
+        final VerwaltungsbereichCustomBean tmp = new VerwaltungsbereichCustomBean();
         if (log.isDebugEnabled()) {
             log.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
         }
@@ -1543,8 +1520,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public String getDisplayName(final BasicEntity entity) {
-        if (entity instanceof Verwaltungsbereich) {
-            final Verwaltungsbereich vb = (Verwaltungsbereich)entity;
+        if (entity instanceof VerwaltungsbereichCustomBean) {
+            final VerwaltungsbereichCustomBean vb = (VerwaltungsbereichCustomBean)entity;
             return "Verwaltende Dienststelle - "
                         + vb.getDienststelle().toString()
                         + " - "
@@ -1563,6 +1540,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
-        return entity instanceof Verwaltungsbereich;
+        return entity instanceof VerwaltungsbereichCustomBean;
     }
 }

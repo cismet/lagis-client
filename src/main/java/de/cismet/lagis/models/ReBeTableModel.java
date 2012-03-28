@@ -17,23 +17,19 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.text.DateFormat;
-
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
+
 import de.cismet.cismap.commons.features.Feature;
 
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagisEE.entity.core.Geom;
-import de.cismet.lagisEE.entity.core.ReBe;
-import de.cismet.lagisEE.entity.core.hardwired.ReBeArt;
 
 /**
  * DOCUMENT ME!
@@ -57,8 +53,8 @@ public class ReBeTableModel extends AbstractTableModel {
 
     //~ Instance fields --------------------------------------------------------
 
-    Vector<ReBe> resBes;
-    Vector<ReBeArt> reBeArten;
+    Vector<RebeCustomBean> resBes;
+    Vector<RebeArtCustomBean> reBeArten;
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private boolean isInEditMode = false;
     private boolean isReBeKindSwitchAllowed = true;
@@ -69,7 +65,7 @@ public class ReBeTableModel extends AbstractTableModel {
      * Creates a new instance of ReBeTableModel.
      */
     public ReBeTableModel() {
-        resBes = new Vector<ReBe>();
+        resBes = new Vector<RebeCustomBean>();
     }
 
     /**
@@ -77,12 +73,12 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @param  reBe  DOCUMENT ME!
      */
-    public ReBeTableModel(final Set<ReBe> reBe) {
+    public ReBeTableModel(final Collection<RebeCustomBean> reBe) {
         try {
-            this.resBes = new Vector<ReBe>(reBe);
+            this.resBes = new Vector<RebeCustomBean>(reBe);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.resBes = new Vector<ReBe>();
+            this.resBes = new Vector<RebeCustomBean>();
         }
     }
 
@@ -93,20 +89,20 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @param  reBeArten  DOCUMENT ME!
      */
-    public void setReBeArtenList(final Set<ReBeArt> reBeArten) {
+    public void setReBeArtenList(final Collection<RebeArtCustomBean> reBeArten) {
         try {
             log.error("Versuche RebenArtenListe zu setzen");
-            this.reBeArten = new Vector<ReBeArt>(reBeArten);
+            this.reBeArten = new Vector<RebeArtCustomBean>(reBeArten);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des RebeArtenList", ex);
-            this.reBeArten = new Vector<ReBeArt>();
+            this.reBeArten = new Vector<RebeArtCustomBean>();
         }
     }
 
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final ReBe value = resBes.get(rowIndex);
+            final RebeCustomBean value = resBes.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     return value.getIstRecht();
@@ -139,12 +135,12 @@ public class ReBeTableModel extends AbstractTableModel {
         }
         // }
 // try{
-// ReBe value = resBes.get(rowIndex);
+// RebeCustomBean value = resBes.get(rowIndex);
 // switch(columnIndex){
 // case 0:
 // return value.getIstRecht() == true ? "Recht" : "Belastung";
 // case 1:
-// ReBeArt art = value.getArt();
+// RebeArtCustomBean art = value.getArt();
 // if(art != null){
 // return art.getBezeichnung();
 // } else {
@@ -182,7 +178,7 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @param  reBe  DOCUMENT ME!
      */
-    public void addReBe(final ReBe reBe) {
+    public void addReBe(final RebeCustomBean reBe) {
         resBes.add(reBe);
     }
 
@@ -193,7 +189,7 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public ReBe getReBeAtRow(final int rowIndex) {
+    public RebeCustomBean getReBeAtRow(final int rowIndex) {
         return resBes.get(rowIndex);
     }
 
@@ -203,7 +199,7 @@ public class ReBeTableModel extends AbstractTableModel {
      * @param  rowIndex  DOCUMENT ME!
      */
     public void removeReBe(final int rowIndex) {
-        final ReBe reBe = resBes.get(rowIndex);
+        final RebeCustomBean reBe = resBes.get(rowIndex);
         if ((reBe != null) && (reBe.getGeometry() != null)) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(reBe);
         }
@@ -258,9 +254,9 @@ public class ReBeTableModel extends AbstractTableModel {
     public Vector<Feature> getAllReBeFeatures() {
         final Vector<Feature> tmp = new Vector<Feature>();
         if (resBes != null) {
-            final Iterator<ReBe> it = resBes.iterator();
+            final Iterator<RebeCustomBean> it = resBes.iterator();
             while (it.hasNext()) {
-                final ReBe curReBe = it.next();
+                final RebeCustomBean curReBe = it.next();
                 if (curReBe.getGeometry() != null) {
                     tmp.add(curReBe);
                 }
@@ -276,15 +272,15 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @param  resBes  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<ReBe> resBes) {
+    public void refreshTableModel(final Collection<RebeCustomBean> resBes) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des RebeTableModell");
             }
-            this.resBes = new Vector<ReBe>(resBes);
+            this.resBes = new Vector<RebeCustomBean>(resBes);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.resBes = new Vector<ReBe>();
+            this.resBes = new Vector<RebeCustomBean>();
         }
         fireTableDataChanged();
     }
@@ -294,21 +290,21 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<ReBe> getResBes() {
+    public Vector<RebeCustomBean> getResBes() {
         return resBes;
     }
 
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            final ReBe value = resBes.get(rowIndex);
+            final RebeCustomBean value = resBes.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     value.setIstRecht((Boolean)aValue);
                     break;
                 }
                 case 1: {
-                    value.setReBeArt((ReBeArt)aValue);
+                    value.setReBeArt((RebeArtCustomBean)aValue);
                     break;
                 }
                 case 2: {
@@ -344,7 +340,7 @@ public class ReBeTableModel extends AbstractTableModel {
         } catch (Exception ex) {
             log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
-//        ReBe reBe = resBes.get(rowIndex);
+//        RebeCustomBean reBe = resBes.get(rowIndex);
 //        if(reBe != null){
 //            switch(columnIndex){
 //                case 0:
@@ -358,7 +354,7 @@ public class ReBeTableModel extends AbstractTableModel {
 //                        //((String)(aValue)).equals("Recht")
 //                        Iterator<ReBeArt> it = reBeArten.iterator();
 //                        while(it.hasNext()){
-//                            ReBeArt curRBA = it.next();
+//                            RebeArtCustomBean curRBA = it.next();
 //                            if(curRBA.toString().equals(((String) aValue).trim())){
 //                                reBe.setArt(curRBA);
 //                                log.debug("Übereinstimmung gefunden, neuer Wert: "+curRBA);
@@ -406,7 +402,7 @@ public class ReBeTableModel extends AbstractTableModel {
                 return Boolean.class;
             }
             case 1: {
-                return ReBeArt.class;
+                return RebeArtCustomBean.class;
             }
             case 2: {
                 return String.class;
@@ -437,7 +433,7 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public int getIndexOfReBe(final ReBe rebe) {
+    public int getIndexOfReBe(final RebeCustomBean rebe) {
         return resBes.indexOf(rebe);
     }
 

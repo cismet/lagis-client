@@ -12,9 +12,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Verwaltungsgebrauch;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
 /**
  * DOCUMENT ME!
@@ -22,7 +21,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Verwaltungsgebrauch;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class VerwaltungsgebrauchCustomBean extends CidsBean implements Verwaltungsgebrauch {
+public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwaltungsgebrauch {
 
     //~ Static fields/initializers ---------------------------------------------
 

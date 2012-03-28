@@ -18,16 +18,16 @@ import org.netbeans.spi.wizard.WizardController;
 
 import java.util.Map;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -74,7 +74,8 @@ public class ActivateActionPanel extends javax.swing.JPanel implements Validatio
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panActivate.getStatus() == Validatable.VALID) {
-            final Sperre sperre = EJBroker.getInstance().isLocked(panActivate.getCurrentFlurstueckSchluessel());
+            final SperreCustomBean sperre = EJBroker.getInstance()
+                        .isLocked(panActivate.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

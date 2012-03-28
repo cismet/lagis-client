@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -35,12 +35,12 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
 
     private WizardController wizardCtrl;
     private JPanel panel;
-    private List<FlurstueckSchluessel> targetKeys;
+    private List<FlurstueckSchluesselCustomBean> targetKeys;
 
-    private Map<FlurstueckSchluessel, Geometry> resultGeomsMap;
+    private Map<FlurstueckSchluesselCustomBean, Geometry> resultGeomsMap;
     private double sumArea;
     private double sumTargets;
-    private Map<FlurstueckSchluessel, Geometry> targetGeomsMap;
+    private Map<FlurstueckSchluesselCustomBean, Geometry> targetGeomsMap;
 
     private boolean hasProblem;
 
@@ -53,7 +53,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
      * @param  panel       DOCUMENT ME!
      * @param  wizardCtrl  DOCUMENT ME!
      */
-    public GeometryAreaChecker(final List<FlurstueckSchluessel> targetKeys,
+    public GeometryAreaChecker(final List<FlurstueckSchluesselCustomBean> targetKeys,
             final JPanel panel,
             final WizardController wizardCtrl) {
         this.init(targetKeys, panel, wizardCtrl);
@@ -66,10 +66,10 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
      * @param  panel       DOCUMENT ME!
      * @param  wizardCtrl  DOCUMENT ME!
      */
-    public GeometryAreaChecker(final FlurstueckSchluessel targetKey,
+    public GeometryAreaChecker(final FlurstueckSchluesselCustomBean targetKey,
             final JPanel panel,
             final WizardController wizardCtrl) {
-        final ArrayList<FlurstueckSchluessel> targetKeys = new ArrayList<FlurstueckSchluessel>(1);
+        final ArrayList<FlurstueckSchluesselCustomBean> targetKeys = new ArrayList<FlurstueckSchluesselCustomBean>(1);
         targetKeys.add(targetKey);
         this.init(targetKeys, panel, wizardCtrl);
     }
@@ -85,7 +85,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
      *
      * @throws  NullPointerException  DOCUMENT ME!
      */
-    private void init(final List<FlurstueckSchluessel> targetKeys,
+    private void init(final List<FlurstueckSchluesselCustomBean> targetKeys,
             final JPanel panel,
             final WizardController wizardCtrl) {
         if ((wizardCtrl == null) || (panel == null) || (targetKeys == null)) {
@@ -95,7 +95,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
         this.wizardCtrl = wizardCtrl;
         this.panel = panel;
         this.targetKeys = targetKeys;
-        this.targetGeomsMap = new HashMap<FlurstueckSchluessel, Geometry>(targetKeys.size());
+        this.targetGeomsMap = new HashMap<FlurstueckSchluesselCustomBean, Geometry>(targetKeys.size());
         this.hasProblem = true;
         this.sumArea = 0.0;
         this.sumTargets = 0.0;
@@ -133,7 +133,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
      *
      * @return  DOCUMENT ME!
      */
-    public List<FlurstueckSchluessel> getTargetFlurstueckKeys() {
+    public List<FlurstueckSchluesselCustomBean> getTargetFlurstueckKeys() {
         return this.targetKeys;
     }
 
@@ -142,7 +142,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
      *
      * @return  DOCUMENT ME!
      */
-    public Map<FlurstueckSchluessel, Geometry> getTargetGeometriesMap() {
+    public Map<FlurstueckSchluesselCustomBean, Geometry> getTargetGeometriesMap() {
         return this.targetGeomsMap;
     }
 
@@ -151,7 +151,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
      *
      * @return  DOCUMENT ME!
      */
-    public Map<FlurstueckSchluessel, Geometry> getResultGeometriesMap() {
+    public Map<FlurstueckSchluesselCustomBean, Geometry> getResultGeometriesMap() {
         return resultGeomsMap;
     }
 
@@ -181,7 +181,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
     }
 
     @Override
-    public void done(final Map<FlurstueckSchluessel, Geometry> geometriesMap) {
+    public void done(final Map<FlurstueckSchluesselCustomBean, Geometry> geometriesMap) {
         this.resultGeomsMap = geometriesMap;
 
         this.wizardCtrl.setBusy(false);
@@ -191,7 +191,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
         double sumTargets = 0.0;
         Geometry geom;
 
-        for (final FlurstueckSchluessel targetKey : this.targetKeys) {
+        for (final FlurstueckSchluesselCustomBean targetKey : this.targetKeys) {
             geom = geometriesMap.remove(targetKey);
 
             if (geom == null) {
@@ -209,7 +209,7 @@ public final class GeometryAreaChecker implements GeometryWorker.IPostExecutionL
         this.sumTargets = sumTargets;
         double sumArea = 0.0;
         Geometry geom2;
-        for (final Map.Entry<FlurstueckSchluessel, Geometry> entry : geometriesMap.entrySet()) {
+        for (final Map.Entry<FlurstueckSchluesselCustomBean, Geometry> entry : geometriesMap.entrySet()) {
             geom2 = entry.getValue();
             if (geom2 == null) {
                 this.wizardCtrl.setProblem(String.format(

@@ -14,20 +14,11 @@ package de.cismet.lagis.cidsmigtest;
 *              ... and it just works.
 *
 ****************************************************/
-import org.hibernate.collection.PersistentBag;
-
 import java.util.*;
 
-import de.cismet.lagisEE.entity.basic.BasicEntity;
-import de.cismet.lagisEE.entity.core.*;
-import de.cismet.lagisEE.entity.core.hardwired.*;
-import de.cismet.lagisEE.entity.extension.baum.*;
-import de.cismet.lagisEE.entity.extension.spielplatz.Spielplatz;
-import de.cismet.lagisEE.entity.extension.vermietung.*;
-import de.cismet.lagisEE.entity.history.FlurstueckAktion;
-import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.lagisEE.util.Key;
+import de.cismet.lagisEE.interfaces.Key;
 
 /*
  * Copyright (C) 2012 cismet GmbH
@@ -67,7 +58,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Geom object) {
+    public static String getStringOf(final GeomCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -83,7 +74,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Anlageklasse object) {
+    public static String getStringOf(final AnlageklasseCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -102,7 +93,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final BaumKategorie object) {
+    public static String getStringOf(final BaumKategorieCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -121,7 +112,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final BaumMerkmal object) {
+    public static String getStringOf(final BaumMerkmalCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -140,7 +131,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Bebauung object) {
+    public static String getStringOf(final BebauungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -159,7 +150,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Beschlussart object) {
+    public static String getStringOf(final BeschlussartCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -177,7 +168,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Flaechennutzung object) {
+    public static String getStringOf(final FlaechennutzungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -195,7 +186,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final FlurstueckArt object) {
+    public static String getStringOf(final FlurstueckArtCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -213,7 +204,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final FlurstueckHistorie object) {
+    public static String getStringOf(final FlurstueckHistorieCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -234,7 +225,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final FlurstueckAktion object) {
+    public static String getStringOf(final FlurstueckAktionCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -252,7 +243,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Kosten object) {
+    public static String getStringOf(final KostenCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -271,7 +262,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Kostenart object) {
+    public static String getStringOf(final KostenartCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -291,7 +282,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final MiPa object) {
+    public static String getStringOf(final MipaCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -318,7 +309,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final MiPaNutzung object) {
+    public static String getStringOf(final MipaNutzungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -338,7 +329,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final MiPaKategorie object) {
+    public static String getStringOf(final MipaKategorieCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -358,7 +349,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final MiPaKategorieAuspraegung object) {
+    public static String getStringOf(final MipaKategorieAuspraegungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -376,7 +367,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final MiPaMerkmal object) {
+    public static String getStringOf(final MipaMerkmalCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -394,7 +385,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Nutzung object) {
+    public static String getStringOf(final NutzungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -417,7 +408,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Nutzungsart object) {
+    public static String getStringOf(final NutzungsartCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -437,7 +428,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final NutzungsBuchung object) {
+    public static String getStringOf(final NutzungBuchungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -451,7 +442,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "Gueltigbis: " + getStringOf(object.getGueltigbis())
                     + "\n" + t() + "Gueltigvon: " + getStringOf(object.getGueltigvon())
                     + "\n" + t() + "IstBuchwert: " + getStringOf(object.getIstBuchwert())
-                    // + "Nutzung: " + getStringOf(object.getNutzung())
+                    // + "NutzungCustomBean: " + getStringOf(object.getNutzung())
                     + "\n" + t() + "Nutzungsart: " + getStringOf(object.getNutzungsart())
                     + "\n" + t() + "PrettyString: " + getStringOf(object.getPrettyString())
                     + "\n" + t() + "Quadratmeterpreis: " + getStringOf(object.getQuadratmeterpreis())
@@ -467,7 +458,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final ReBe object) {
+    public static String getStringOf(final RebeCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -491,7 +482,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final ReBeArt object) {
+    public static String getStringOf(final RebeArtCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -509,7 +500,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Vertragsart object) {
+    public static String getStringOf(final VertragsartCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -527,7 +518,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Verwaltungsbereich object) {
+    public static String getStringOf(final VerwaltungsbereichCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -547,7 +538,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final VerwaltendeDienststelle object) {
+    public static String getStringOf(final VerwaltendeDienststelleCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -568,15 +559,15 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Verwaltungsgebrauch object) {
+    public static String getStringOf(final VerwaltungsgebrauchCustomBean object) {
         if (object == null) {
             return "null";
         }
-        final List<Farbe> farben = Arrays.asList(object.getFarben().toArray(new Farbe[0]));
-        Collections.sort((List<Farbe>)farben, new Comparator<Farbe>() {
+        final List<FarbeCustomBean> farben = Arrays.asList(object.getFarben().toArray(new FarbeCustomBean[0]));
+        Collections.sort((List<FarbeCustomBean>)farben, new Comparator<FarbeCustomBean>() {
 
                 @Override
-                public int compare(final Farbe o1, final Farbe o2) {
+                public int compare(final FarbeCustomBean o1, final FarbeCustomBean o2) {
                     return (int)(o1.getId() - o2.getId());
                 }
             });
@@ -585,7 +576,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
                     + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
                     + "\n" + t() + "UnterAbschnitt: " + getStringOf(object.getUnterAbschnitt())
-                    + "\n" + t() + "Farben: " + getStringOf(new HashSet<Farbe>(farben))
+                    + "\n" + t() + "Farben: " + getStringOf(new HashSet<FarbeCustomBean>(farben))
                     + "\n" + t() + "Kategorie: " + getStringOf(object.getKategorie())
                     + "\n" + t() + "toString: " + getStringOf(object.toString())
                     + "\n" + untab() + "]";
@@ -598,7 +589,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Farbe object) {
+    public static String getStringOf(final FarbeCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -616,7 +607,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Stil object) {
+    public static String getStringOf(final StilCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -633,7 +624,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Baum object) {
+    public static String getStringOf(final BaumCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -660,7 +651,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final BaumNutzung object) {
+    public static String getStringOf(final BaumNutzungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -679,7 +670,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final BaumKategorieAuspraegung object) {
+    public static String getStringOf(final BaumKategorieAuspraegungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -697,7 +688,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Spielplatz object) {
+    public static String getStringOf(final SpielplatzCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -727,7 +718,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Flurstueck object) {
+    public static String getStringOf(final FlurstueckCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -757,7 +748,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final FlurstueckSchluessel object) {
+    public static String getStringOf(final FlurstueckSchluesselCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -790,7 +781,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Oberkategorie object) {
+    public static String getStringOf(final OberkategorieCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -808,7 +799,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Kategorie object) {
+    public static String getStringOf(final KategorieCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -827,7 +818,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Ressort object) {
+    public static String getStringOf(final RessortCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -849,52 +840,41 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
         final StringBuilder sb = new StringBuilder("\n" + tab() + "[Collection |");
         if ((objects != null) && !objects.isEmpty()) {
             final Object object = objects.toArray()[0];
-            if (object instanceof BasicEntity) {
-                final List<BasicEntity> sortedList = new ArrayList<BasicEntity>();
-                Collections.addAll(sortedList, (BasicEntity[])objects.toArray(new BasicEntity[0]));
-                Collections.sort(sortedList, new Comparator<BasicEntity>() {
+            if (object instanceof BaumMerkmalCustomBean) {
+                final List<BaumMerkmalCustomBean> sortedList = new ArrayList<BaumMerkmalCustomBean>();
+                Collections.addAll(sortedList, (BaumMerkmalCustomBean[])objects.toArray(new BaumMerkmalCustomBean[0]));
+                Collections.sort(sortedList, new Comparator<BaumMerkmalCustomBean>() {
 
                         @Override
-                        public int compare(final BasicEntity o1, final BasicEntity o2) {
-                            return o1.getId() - o2.getId();
-                        }
-                    });
-                for (final Object item : sortedList) {
-                    sb.append(getStringOf(item)).append("\n");
-                }
-            } else if (object instanceof BaumMerkmal) {
-                final List<BaumMerkmal> sortedList = new ArrayList<BaumMerkmal>();
-                Collections.addAll(sortedList, (BaumMerkmal[])objects.toArray(new BaumMerkmal[0]));
-                Collections.sort(sortedList, new Comparator<BaumMerkmal>() {
-
-                        @Override
-                        public int compare(final BaumMerkmal o1, final BaumMerkmal o2) {
+                        public int compare(final BaumMerkmalCustomBean o1, final BaumMerkmalCustomBean o2) {
                             return (int)(o1.getId() - o2.getId());
                         }
                     });
                 for (final Object item : sortedList) {
                     sb.append(getStringOf(item)).append("\n");
                 }
-            } else if (object instanceof BaumKategorie) {
-                final List<BaumKategorie> sortedList = new ArrayList<BaumKategorie>();
-                Collections.addAll(sortedList, (BaumKategorie[])objects.toArray(new BaumKategorie[0]));
-                Collections.sort(sortedList, new Comparator<BaumKategorie>() {
+            } else if (object instanceof BaumKategorieCustomBean) {
+                final List<BaumKategorieCustomBean> sortedList = new ArrayList<BaumKategorieCustomBean>();
+                Collections.addAll(
+                    sortedList,
+                    (BaumKategorieCustomBean[])objects.toArray(new BaumKategorieCustomBean[0]));
+                Collections.sort(sortedList, new Comparator<BaumKategorieCustomBean>() {
 
                         @Override
-                        public int compare(final BaumKategorie o1, final BaumKategorie o2) {
+                        public int compare(final BaumKategorieCustomBean o1, final BaumKategorieCustomBean o2) {
                             return (int)(o1.getId() - o2.getId());
                         }
                     });
                 for (final Object item : sortedList) {
                     sb.append(getStringOf(item)).append("\n");
                 }
-            } else if (object instanceof BaumNutzung) {
-                final List<BaumNutzung> sortedList = new ArrayList<BaumNutzung>();
-                Collections.addAll(sortedList, (BaumNutzung[])objects.toArray(new BaumNutzung[0]));
-                Collections.sort(sortedList, new Comparator<BaumNutzung>() {
+            } else if (object instanceof BaumNutzungCustomBean) {
+                final List<BaumNutzungCustomBean> sortedList = new ArrayList<BaumNutzungCustomBean>();
+                Collections.addAll(sortedList, (BaumNutzungCustomBean[])objects.toArray(new BaumNutzungCustomBean[0]));
+                Collections.sort(sortedList, new Comparator<BaumNutzungCustomBean>() {
 
                         @Override
-                        public int compare(final BaumNutzung o1, final BaumNutzung o2) {
+                        public int compare(final BaumNutzungCustomBean o1, final BaumNutzungCustomBean o2) {
                             return (int)(o1.getId() - o2.getId());
                         }
                     });
@@ -907,21 +887,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
         }
         sb.append("\n").append(untab()).append("]");
         return sb.toString();
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static String getStringOf(final PersistentBag object) {
-        final Set set = new HashSet();
-        if (object != null) {
-            set.addAll(Arrays.asList(object.toArray()));
-        }
-        return getStringOf(set);
     }
 
     /**
@@ -947,7 +912,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Vertrag object) {
+    public static String getStringOf(final VertragCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -973,7 +938,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Gemarkung object) {
+    public static String getStringOf(final GemarkungCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -992,7 +957,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final DmsUrl object) {
+    public static String getStringOf(final DmsUrlCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -1012,7 +977,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Url object) {
+    public static String getStringOf(final UrlCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -1030,7 +995,7 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final UrlBase object) {
+    public static String getStringOf(final UrlBaseCustomBean object) {
         if (object == null) {
             return "null";
         }
@@ -1052,88 +1017,86 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
     public static String getStringOf(final Object object) {
         String string = StandartTypToStringTester.getStringOf(object);
         if (object != null) {
-            if (object instanceof Anlageklasse) {
-                string = getStringOf((Anlageklasse)object);
-            } else if (object instanceof BaumKategorie) {
-                string = getStringOf((BaumKategorie)object);
-            } else if (object instanceof BaumMerkmal) {
-                string = getStringOf((BaumMerkmal)object);
-            } else if (object instanceof Bebauung) {
-                string = getStringOf((Bebauung)object);
-            } else if (object instanceof Beschlussart) {
-                string = getStringOf((Beschlussart)object);
-            } else if (object instanceof Flaechennutzung) {
-                string = getStringOf((Flaechennutzung)object);
-            } else if (object instanceof FlurstueckArt) {
-                string = getStringOf((FlurstueckArt)object);
-            } else if (object instanceof FlurstueckHistorie) {
-                string = getStringOf((FlurstueckHistorie)object);
-            } else if (object instanceof FlurstueckAktion) {
-                string = getStringOf((FlurstueckAktion)object);
-            } else if (object instanceof Kosten) {
-                string = getStringOf((Kosten)object);
-            } else if (object instanceof Kostenart) {
-                string = getStringOf((Kostenart)object);
-            } else if (object instanceof MiPa) {
-                string = getStringOf((MiPa)object);
-            } else if (object instanceof MiPaNutzung) {
-                string = getStringOf((MiPaNutzung)object);
-            } else if (object instanceof MiPaKategorie) {
-                string = getStringOf((MiPaKategorie)object);
-            } else if (object instanceof MiPaKategorieAuspraegung) {
-                string = getStringOf((MiPaKategorieAuspraegung)object);
-            } else if (object instanceof MiPaMerkmal) {
-                string = getStringOf((MiPaMerkmal)object);
-            } else if (object instanceof Nutzung) {
-                string = getStringOf((Nutzung)object);
-            } else if (object instanceof Nutzungsart) {
-                string = getStringOf((Nutzungsart)object);
-            } else if (object instanceof NutzungsBuchung) {
-                string = getStringOf((NutzungsBuchung)object);
-            } else if (object instanceof ReBe) {
-                string = getStringOf((ReBe)object);
-            } else if (object instanceof ReBeArt) {
-                string = getStringOf((ReBeArt)object);
-            } else if (object instanceof Vertragsart) {
-                string = getStringOf((Vertragsart)object);
-            } else if (object instanceof Verwaltungsbereich) {
-                string = getStringOf((Verwaltungsbereich)object);
-            } else if (object instanceof VerwaltendeDienststelle) {
-                string = getStringOf((VerwaltendeDienststelle)object);
-            } else if (object instanceof Verwaltungsgebrauch) {
-                string = getStringOf((Verwaltungsgebrauch)object);
-            } else if (object instanceof Baum) {
-                string = getStringOf((Baum)object);
-            } else if (object instanceof BaumNutzung) {
-                string = getStringOf((BaumNutzung)object);
-            } else if (object instanceof BaumKategorieAuspraegung) {
-                string = getStringOf((BaumKategorieAuspraegung)object);
-            } else if (object instanceof Spielplatz) {
-                string = getStringOf((Spielplatz)object);
-            } else if (object instanceof Flurstueck) {
-                string = getStringOf((Flurstueck)object);
-            } else if (object instanceof FlurstueckSchluessel) {
-                string = getStringOf((FlurstueckSchluessel)object);
+            if (object instanceof AnlageklasseCustomBean) {
+                string = getStringOf((AnlageklasseCustomBean)object);
+            } else if (object instanceof BaumKategorieCustomBean) {
+                string = getStringOf((BaumKategorieCustomBean)object);
+            } else if (object instanceof BaumMerkmalCustomBean) {
+                string = getStringOf((BaumMerkmalCustomBean)object);
+            } else if (object instanceof BebauungCustomBean) {
+                string = getStringOf((BebauungCustomBean)object);
+            } else if (object instanceof BeschlussartCustomBean) {
+                string = getStringOf((BeschlussartCustomBean)object);
+            } else if (object instanceof FlaechennutzungCustomBean) {
+                string = getStringOf((FlaechennutzungCustomBean)object);
+            } else if (object instanceof FlurstueckArtCustomBean) {
+                string = getStringOf((FlurstueckArtCustomBean)object);
+            } else if (object instanceof FlurstueckHistorieCustomBean) {
+                string = getStringOf((FlurstueckHistorieCustomBean)object);
+            } else if (object instanceof FlurstueckAktionCustomBean) {
+                string = getStringOf((FlurstueckAktionCustomBean)object);
+            } else if (object instanceof KostenCustomBean) {
+                string = getStringOf((KostenCustomBean)object);
+            } else if (object instanceof KostenartCustomBean) {
+                string = getStringOf((KostenartCustomBean)object);
+            } else if (object instanceof MipaCustomBean) {
+                string = getStringOf((MipaCustomBean)object);
+            } else if (object instanceof MipaNutzungCustomBean) {
+                string = getStringOf((MipaNutzungCustomBean)object);
+            } else if (object instanceof MipaKategorieCustomBean) {
+                string = getStringOf((MipaKategorieCustomBean)object);
+            } else if (object instanceof MipaKategorieAuspraegungCustomBean) {
+                string = getStringOf((MipaKategorieAuspraegungCustomBean)object);
+            } else if (object instanceof MipaMerkmalCustomBean) {
+                string = getStringOf((MipaMerkmalCustomBean)object);
+            } else if (object instanceof NutzungCustomBean) {
+                string = getStringOf((NutzungCustomBean)object);
+            } else if (object instanceof NutzungsartCustomBean) {
+                string = getStringOf((NutzungsartCustomBean)object);
+            } else if (object instanceof NutzungBuchungCustomBean) {
+                string = getStringOf((NutzungBuchungCustomBean)object);
+            } else if (object instanceof RebeCustomBean) {
+                string = getStringOf((RebeCustomBean)object);
+            } else if (object instanceof RebeArtCustomBean) {
+                string = getStringOf((RebeArtCustomBean)object);
+            } else if (object instanceof VertragsartCustomBean) {
+                string = getStringOf((VertragsartCustomBean)object);
+            } else if (object instanceof VerwaltungsbereichCustomBean) {
+                string = getStringOf((VerwaltungsbereichCustomBean)object);
+            } else if (object instanceof VerwaltendeDienststelleCustomBean) {
+                string = getStringOf((VerwaltendeDienststelleCustomBean)object);
+            } else if (object instanceof VerwaltungsgebrauchCustomBean) {
+                string = getStringOf((VerwaltungsgebrauchCustomBean)object);
+            } else if (object instanceof BaumCustomBean) {
+                string = getStringOf((BaumCustomBean)object);
+            } else if (object instanceof BaumNutzungCustomBean) {
+                string = getStringOf((BaumNutzungCustomBean)object);
+            } else if (object instanceof BaumKategorieAuspraegungCustomBean) {
+                string = getStringOf((BaumKategorieAuspraegungCustomBean)object);
+            } else if (object instanceof SpielplatzCustomBean) {
+                string = getStringOf((SpielplatzCustomBean)object);
+            } else if (object instanceof FlurstueckCustomBean) {
+                string = getStringOf((FlurstueckCustomBean)object);
+            } else if (object instanceof FlurstueckSchluesselCustomBean) {
+                string = getStringOf((FlurstueckSchluesselCustomBean)object);
             } else if (object instanceof Key) {
                 string = getStringOf((Key)object);
-            } else if (object instanceof Vertrag) {
-                string = getStringOf((Vertrag)object);
-            } else if (object instanceof Gemarkung) {
-                string = getStringOf((Gemarkung)object);
-            } else if (object instanceof Farbe) {
-                string = getStringOf((Farbe)object);
-            } else if (object instanceof DmsUrl) {
-                string = getStringOf((DmsUrl)object);
-            } else if (object instanceof Url) {
-                string = getStringOf((Url)object);
-            } else if (object instanceof UrlBase) {
-                string = getStringOf((UrlBase)object);
-            } else if (object instanceof Geom) {
-                string = getStringOf((Geom)object);
+            } else if (object instanceof VertragCustomBean) {
+                string = getStringOf((VertragCustomBean)object);
+            } else if (object instanceof GemarkungCustomBean) {
+                string = getStringOf((GemarkungCustomBean)object);
+            } else if (object instanceof FarbeCustomBean) {
+                string = getStringOf((FarbeCustomBean)object);
+            } else if (object instanceof DmsUrlCustomBean) {
+                string = getStringOf((DmsUrlCustomBean)object);
+            } else if (object instanceof UrlCustomBean) {
+                string = getStringOf((UrlCustomBean)object);
+            } else if (object instanceof UrlBaseCustomBean) {
+                string = getStringOf((UrlBaseCustomBean)object);
+            } else if (object instanceof GeomCustomBean) {
+                string = getStringOf((GeomCustomBean)object);
             } else if (object instanceof Set) {
                 string = getStringOf((Set)object);
-            } else if (object instanceof PersistentBag) {
-                string = getStringOf((PersistentBag)object);
             }
         }
         return string;

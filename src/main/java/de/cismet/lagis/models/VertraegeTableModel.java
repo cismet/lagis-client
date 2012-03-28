@@ -19,16 +19,16 @@ import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.lagis.broker.LagisBroker;
+import de.cismet.cids.custom.beans.verdis_grundis.VertragCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.VertragsartCustomBean;
 
-import de.cismet.lagisEE.entity.core.Vertrag;
-import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -50,7 +50,7 @@ public class VertraegeTableModel extends AbstractTableModel {
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<Vertrag> vertraege;
+    private Vector<VertragCustomBean> vertraege;
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     // Models
 
@@ -60,7 +60,7 @@ public class VertraegeTableModel extends AbstractTableModel {
      * Creates a new instance of VertraegeTableModel.
      */
     public VertraegeTableModel() {
-        vertraege = new Vector<Vertrag>();
+        vertraege = new Vector<VertragCustomBean>();
     }
 
     /**
@@ -68,13 +68,13 @@ public class VertraegeTableModel extends AbstractTableModel {
      *
      * @param  vertraege  DOCUMENT ME!
      */
-    public VertraegeTableModel(final Set<Vertrag> vertraege) {
+    public VertraegeTableModel(final Collection<VertragCustomBean> vertraege) {
         try {
-            this.vertraege = new Vector<Vertrag>(vertraege);
+            this.vertraege = new Vector<VertragCustomBean>(vertraege);
             // log.fatal("Voreigentuemer: "+this.vertraege.get(0).getVoreigentuemer());
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.vertraege = new Vector<Vertrag>();
+            this.vertraege = new Vector<VertragCustomBean>();
             final HashSet test = new HashSet();
         }
     }
@@ -84,10 +84,10 @@ public class VertraegeTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final Vertrag vertrag = vertraege.get(rowIndex);
+            final VertragCustomBean vertrag = vertraege.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    final Vertragsart art = vertrag.getVertragsart();
+                    final VertragsartCustomBean art = vertrag.getVertragsart();
                     if (art != null) {
                         return art.getBezeichnung();
                     } else {
@@ -142,7 +142,7 @@ public class VertraegeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vertrag getVertragAtRow(final int rowIndex) {
+    public VertragCustomBean getVertragAtRow(final int rowIndex) {
         return vertraege.get(rowIndex);
     }
 
@@ -151,7 +151,7 @@ public class VertraegeTableModel extends AbstractTableModel {
      *
      * @param  vertrag  DOCUMENT ME!
      */
-    public void addVertrag(final Vertrag vertrag) {
+    public void addVertrag(final VertragCustomBean vertrag) {
         vertraege.add(vertrag);
         fireTableDataChanged();
     }
@@ -171,7 +171,7 @@ public class VertraegeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<Vertrag> getVertraege() {
+    public Vector<VertragCustomBean> getVertraege() {
         return vertraege;
     }
 
@@ -180,22 +180,22 @@ public class VertraegeTableModel extends AbstractTableModel {
      *
      * @param  vertraege  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<Vertrag> vertraege) {
+    public void refreshTableModel(final Collection<VertragCustomBean> vertraege) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des VertraegeTableModell");
             }
             if (vertraege != null) {
-                this.vertraege = new Vector<Vertrag>(vertraege);
+                this.vertraege = new Vector<VertragCustomBean>(vertraege);
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Vertraege == null --> Erstelle neuer Vektor.");
                 }
-                this.vertraege = new Vector<Vertrag>();
+                this.vertraege = new Vector<VertragCustomBean>();
             }
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.vertraege = new Vector<Vertrag>();
+            this.vertraege = new Vector<VertragCustomBean>();
         }
         fireTableDataChanged();
     }

@@ -19,8 +19,8 @@ import org.apache.log4j.Logger;
 
 import java.io.Serializable;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.AbstractListModel;
@@ -29,7 +29,7 @@ import javax.swing.event.ListDataListener;
 
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagisEE.util.Key;
+import de.cismet.lagisEE.interfaces.Key;
 
 /**
  * DOCUMENT ME!
@@ -59,7 +59,7 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
      *
      * @param  keySet  DOCUMENT ME!
      */
-    public KeyComboboxModel(final Set<Key> keySet) {
+    public KeyComboboxModel(final Collection<Key> keySet) {
         this(new Vector<Key>(keySet));
     }
 

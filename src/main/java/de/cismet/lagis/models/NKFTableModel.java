@@ -19,32 +19,20 @@ import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
+
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.utillity.BebauungsVector;
 import de.cismet.lagis.utillity.FlaechennutzungsVector;
-
-import de.cismet.lagisEE.bean.Exception.TerminateNutzungNotPossibleException;
-
-import de.cismet.lagisEE.entity.core.Nutzung;
-import de.cismet.lagisEE.entity.core.NutzungsBuchung;
-import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
-import de.cismet.lagisEE.entity.core.hardwired.Bebauung;
-import de.cismet.lagisEE.entity.core.hardwired.Flaechennutzung;
-import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
 
 import de.cismet.tools.CurrentStackTrace;
 
@@ -84,9 +72,9 @@ public class NKFTableModel extends AbstractTableModel {
     private Icon statusUnknown = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/statusUnknown.png"));
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private ArrayList<Nutzung> allNutzungen;
+    private ArrayList<NutzungCustomBean> allNutzungen;
     // ToDo Selection über Datum noch nicht ganz optimal weil sehr oft im EDT benutzt und kostspielig
-    private ArrayList<NutzungsBuchung> currentBuchungen;
+    private ArrayList<NutzungBuchungCustomBean> currentBuchungen;
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private boolean isInEditMode = false;
     private Date currentDate = null;
@@ -97,8 +85,8 @@ public class NKFTableModel extends AbstractTableModel {
      * Creates a new instance of NKFTableModel.
      */
     public NKFTableModel() {
-        allNutzungen = new ArrayList<Nutzung>();
-        currentBuchungen = new ArrayList<NutzungsBuchung>();
+        allNutzungen = new ArrayList<NutzungCustomBean>();
+        currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
         // nutzungenHistorisch = new Vector<Nutzung>();
     }
 
@@ -107,19 +95,19 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @param  nutzungen  DOCUMENT ME!
      */
-    public NKFTableModel(final Set<Nutzung> nutzungen) {
+    public NKFTableModel(final Collection<NutzungCustomBean> nutzungen) {
         try {
-            allNutzungen = new ArrayList<Nutzung>(nutzungen);
+            allNutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             if (log.isDebugEnabled()) {
                 log.debug("Anzahl aller Nutzungen: " + allNutzungen.size());
             }
-            currentBuchungen = new ArrayList<NutzungsBuchung>();
+            currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
             currentDate = null;
             refreshTableModel();
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.allNutzungen = new ArrayList<Nutzung>();
-            this.currentBuchungen = new ArrayList<NutzungsBuchung>();
+            this.allNutzungen = new ArrayList<NutzungCustomBean>();
+            this.currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
             // this.nutzungenHistorisch = new Vector<Nutzung>();
         }
     }
@@ -129,8 +117,8 @@ public class NKFTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final NutzungsBuchung selectedBuchung = currentBuchungen.get(rowIndex);
-//            final NutzungsBuchung selectedBuchung = nutzung.getBuchungForExactDate(currentDate);
+            final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
+//            final NutzungBuchungCustomBean selectedBuchung = nutzung.getBuchungForExactDate(currentDate);
             final Double stilleReserve = selectedBuchung.getNutzung().getStilleReserveForBuchung(selectedBuchung);
             switch (columnIndex) {
                 case 0: {
@@ -266,10 +254,10 @@ public class NKFTableModel extends AbstractTableModel {
                 return Integer.class;
             }
             case 2: {
-                return Anlageklasse.class;
+                return AnlageklasseCustomBean.class;
             }
             case 3: {
-                return Nutzungsart.class;
+                return NutzungsartCustomBean.class;
             }
             case 4: {
                 return String.class;
@@ -309,16 +297,16 @@ public class NKFTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            // ToDo NKF gibt nur eine Nutzung spezialfall
-            final Nutzung selectedNutzung = currentBuchungen.get(rowIndex).getNutzung();
-            NutzungsBuchung selectedBuchung = currentBuchungen.get(rowIndex);
-            NutzungsBuchung oldBuchung = null;
+            // ToDo NKF gibt nur eine NutzungCustomBean spezialfall
+            final NutzungCustomBean selectedNutzung = currentBuchungen.get(rowIndex).getNutzung();
+            NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
+            NutzungBuchungCustomBean oldBuchung = null;
             if ((selectedBuchung.getGueltigbis() == null) && !LagisBroker.getInstance().isNkfAdminPermission()) {
                 if (selectedBuchung.getId() != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("neue Buchung wird angelegt");
                     }
-                    final NutzungsBuchung newBuchung = selectedBuchung.cloneBuchung();
+                    final NutzungBuchungCustomBean newBuchung = selectedBuchung.cloneBuchung();
                     selectedNutzung.addBuchung(newBuchung);
                     oldBuchung = selectedBuchung;
                     selectedBuchung = newBuchung;
@@ -336,7 +324,7 @@ public class NKFTableModel extends AbstractTableModel {
                         selectedBuchung.setAnlageklasse(null);
                         break;
                     }
-                    selectedBuchung.setAnlageklasse((Anlageklasse)aValue);
+                    selectedBuchung.setAnlageklasse((AnlageklasseCustomBean)aValue);
                     break;
                 }
                 case 3: {
@@ -344,21 +332,22 @@ public class NKFTableModel extends AbstractTableModel {
                         selectedBuchung.setNutzungsart(null);
                         break;
                     }
-                    selectedBuchung.setNutzungsart((Nutzungsart)aValue);
+                    selectedBuchung.setNutzungsart((NutzungsartCustomBean)aValue);
                     break;
                 }
                 case 5: {
-                    Set<Flaechennutzung> tmpNutz = selectedBuchung.getFlaechennutzung();
+                    Collection<FlaechennutzungCustomBean> tmpNutz = selectedBuchung.getFlaechennutzung();
                     if (tmpNutz != null) {
                         tmpNutz.clear();
                     } else {
-                        selectedBuchung.setFlaechennutzung(new HashSet<Flaechennutzung>());
+                        selectedBuchung.setFlaechennutzung(new HashSet<FlaechennutzungCustomBean>());
                         tmpNutz = selectedBuchung.getFlaechennutzung();
                     }
                     // tmpNutz.addAll((Collection<Flaechennutzung>) aValue);
-                    final Iterator<Flaechennutzung> itF = ((Collection<Flaechennutzung>)aValue).iterator();
+                    final Iterator<FlaechennutzungCustomBean> itF = ((Collection<FlaechennutzungCustomBean>)aValue)
+                                .iterator();
                     while (itF.hasNext()) {
-                        final Flaechennutzung fNutzung = itF.next();
+                        final FlaechennutzungCustomBean fNutzung = itF.next();
                         if (fNutzung.getBezeichnung() != null) {
                             tmpNutz.add(fNutzung);
                         }
@@ -367,17 +356,17 @@ public class NKFTableModel extends AbstractTableModel {
                     break;
                 }
                 case 6: {
-                    Set<Bebauung> tmpBebauung = selectedBuchung.getBebauung();
+                    Collection<BebauungCustomBean> tmpBebauung = selectedBuchung.getBebauung();
                     if (tmpBebauung != null) {
                         tmpBebauung.clear();
                     } else {
-                        selectedBuchung.setBebauung(new HashSet<Bebauung>());
+                        selectedBuchung.setBebauung(new HashSet<BebauungCustomBean>());
                         tmpBebauung = selectedBuchung.getBebauung();
                     }
                     // tmpNutz.addAll((Collection<Flaechennutzung>) aValue);
-                    final Iterator<Bebauung> itB = ((Collection<Bebauung>)aValue).iterator();
+                    final Iterator<BebauungCustomBean> itB = ((Collection<BebauungCustomBean>)aValue).iterator();
                     while (itB.hasNext()) {
-                        final Bebauung bebauung = itB.next();
+                        final BebauungCustomBean bebauung = itB.next();
                         if (bebauung.getBezeichnung() != null) {
                             tmpBebauung.add(bebauung);
                         }
@@ -416,7 +405,7 @@ public class NKFTableModel extends AbstractTableModel {
                 if (log.isDebugEnabled()) {
                     log.debug("Prüfe ob die Nutzung sich wirklich verändert hat");
                 }
-                if (NutzungsBuchung.NUTZUNG_HISTORY_EQUALATOR.pedanticEquals(oldBuchung, selectedBuchung)) {
+                if (NutzungBuchungCustomBean.NUTZUNG_HISTORY_EQUALATOR.pedanticEquals(oldBuchung, selectedBuchung)) {
                     if (log.isDebugEnabled()) {
                         log.debug("Nutzungen sind gleich muss keine neue angelegt werden");
                     }
@@ -434,7 +423,7 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @param  nutzung  DOCUMENT ME!
      */
-    public void addNutzung(final Nutzung nutzung) {
+    public void addNutzung(final NutzungCustomBean nutzung) {
         if (nutzung != null) {
             allNutzungen.add(nutzung);
             refreshTableModel();
@@ -452,7 +441,7 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public NutzungsBuchung getBuchungAtRow(final int rowIndex) {
+    public NutzungBuchungCustomBean getBuchungAtRow(final int rowIndex) {
         try {
             return currentBuchungen.get(rowIndex);
         } catch (IndexOutOfBoundsException ex) {
@@ -469,8 +458,8 @@ public class NKFTableModel extends AbstractTableModel {
      * @throws  TerminateNutzungNotPossibleException  DOCUMENT ME!
      */
     public void removeNutzung(final int rowIndex) throws TerminateNutzungNotPossibleException {
-        final NutzungsBuchung selectedBuchung = currentBuchungen.get(rowIndex);
-        final Nutzung nutzungToRemove = currentBuchungen.get(rowIndex).getNutzung();
+        final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
+        final NutzungCustomBean nutzungToRemove = currentBuchungen.get(rowIndex).getNutzung();
         if (nutzungToRemove != null) {
             if (log.isDebugEnabled()) {
                 log.debug("Nutzung die entfernt werden soll ist in Modell vorhanden.");
@@ -510,18 +499,18 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public ArrayList<NutzungsBuchung> getAllBuchungen() {
-        final ArrayList<NutzungsBuchung> sortedNutzungen = new ArrayList<NutzungsBuchung>();
-        for (final Nutzung curNutzung : allNutzungen) {
+    public ArrayList<NutzungBuchungCustomBean> getAllBuchungen() {
+        final ArrayList<NutzungBuchungCustomBean> sortedNutzungen = new ArrayList<NutzungBuchungCustomBean>();
+        for (final NutzungCustomBean curNutzung : allNutzungen) {
             if (curNutzung.getBuchungsCount() > 0) {
-                for (final NutzungsBuchung curBuchung : curNutzung.getNutzungsBuchungen()) {
+                for (final NutzungBuchungCustomBean curBuchung : curNutzung.getNutzungsBuchungen()) {
                     sortedNutzungen.add(curBuchung);
                 }
             }
         }
         if (sortedNutzungen.size() > 0) {
             // ToDO NKF Comparator
-            Collections.sort(sortedNutzungen, NutzungsBuchung.DATE_COMPARATOR);
+            Collections.sort(sortedNutzungen, NutzungBuchungCustomBean.DATE_COMPARATOR);
         }
         return sortedNutzungen;
     }
@@ -531,22 +520,22 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @param  nutzungen  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<Nutzung> nutzungen) {
+    public void refreshTableModel(final Collection<NutzungCustomBean> nutzungen) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des NKFTableModell");
             }
 
             if (nutzungen != null) {
-                this.allNutzungen = new ArrayList<Nutzung>(nutzungen);
+                this.allNutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             } else {
                 allNutzungen.clear();
             }
             setModelToHistoryDate(currentDate);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.currentBuchungen = new ArrayList<NutzungsBuchung>();
-            this.allNutzungen = new ArrayList<Nutzung>();
+            this.currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
+            this.allNutzungen = new ArrayList<NutzungCustomBean>();
         }
     }
 
@@ -555,7 +544,7 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public ArrayList<NutzungsBuchung> getCurrentBuchungen() {
+    public ArrayList<NutzungBuchungCustomBean> getCurrentBuchungen() {
         return currentBuchungen;
     }
 
@@ -564,13 +553,13 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public ArrayList<NutzungsBuchung> getOpenBuchungen() {
+    public ArrayList<NutzungBuchungCustomBean> getOpenBuchungen() {
         if (log.isDebugEnabled()) {
             log.debug("Anzahl aller Nutzungen: " + allNutzungen.size());
         }
-        final ArrayList<NutzungsBuchung> selectedBuchungen = new ArrayList<NutzungsBuchung>();
-        for (final Nutzung curNutzung : allNutzungen) {
-            final NutzungsBuchung curBuchung = curNutzung.getOpenBuchung();
+        final ArrayList<NutzungBuchungCustomBean> selectedBuchungen = new ArrayList<NutzungBuchungCustomBean>();
+        for (final NutzungCustomBean curNutzung : allNutzungen) {
+            final NutzungBuchungCustomBean curBuchung = curNutzung.getOpenBuchung();
             if (curBuchung != null) {
                 selectedBuchungen.add(curBuchung);
             }
@@ -582,12 +571,13 @@ public class NKFTableModel extends AbstractTableModel {
     }
     /**
      * public Set<Nutzung> getCurrentNutzungen() { final Set<Nutzung> currentNutzungen = new HashSet<Nutzung>(); for
-     * (NutzungsBuchung curBuchung : currentBuchungen) { Nutzung curNutzung = curBuchung.getNutzung(); if (curNutzung !=
-     * null) { currentNutzungen.add(curNutzung); } } return currentNutzungen; }
+     * (NutzungBuchungCustomBean curBuchung : currentBuchungen) { NutzungCustomBean curNutzung =
+     * curBuchung.getNutzung(); if (curNutzung != null) { currentNutzungen.add(curNutzung); } } return currentNutzungen;
+     * }
      *
      * @return  DOCUMENT ME!
      */
-    public ArrayList<Nutzung> getAllNutzungen() {
+    public ArrayList<NutzungCustomBean> getAllNutzungen() {
         return allNutzungen;
     }
 
@@ -606,18 +596,18 @@ public class NKFTableModel extends AbstractTableModel {
         }
         currentDate = historyDate;
         currentBuchungen.clear();
-        for (final Nutzung curNutzung : allNutzungen) {
+        for (final NutzungCustomBean curNutzung : allNutzungen) {
 //            log.debug("historydate"+historyDate);
 //            log.debug("currentDate"+currentDate);
 //            System.out.println("historydate"+historyDate);
 //            System.out.println("currentDate"+currentDate);
-//            final NutzungsBuchung open = curNutzung.getOpenBuchung();
+//            final NutzungBuchungCustomBean open = curNutzung.getOpenBuchung();
 //            log.debug("openBuchung: "+open+"");
-//            final NutzungsBuchung terminated = curNutzung.getTerminalBuchung();
+//            final NutzungBuchungCustomBean terminated = curNutzung.getTerminalBuchung();
 //            log.debug("getTerminated"+terminated);
 //            if(terminated != null){
 //                log.debug("id: "+terminated+" gueltig_bis: "+terminated.getGueltigbis());
-//                log.debug("Terminated Nutzung Date: "+curNutzung.getTerminalBuchung().getGueltigbis());
+//                log.debug("Terminated NutzungCustomBean Date: "+curNutzung.getTerminalBuchung().getGueltigbis());
 //                log.debug("millis"+curNutzung.getTerminalBuchung().getGueltigbis().getTime());
 //                if(historyDate != null){
 //                log.debug("millis"+historyDate.getTime());
@@ -631,7 +621,7 @@ public class NKFTableModel extends AbstractTableModel {
 //            log.debug("currentDate"+currentDate);
 //            System.out.println("historydate"+historyDate);
 //            System.out.println("currentDate"+currentDate);
-            final Set buchungenForDay = curNutzung.getBuchungForDay(historyDate);
+            final Collection buchungenForDay = curNutzung.getBuchungForDay(historyDate);
             if (log.isDebugEnabled()) {
                 log.debug("Anzahl buchungen: " + buchungenForDay.size());
             }
@@ -659,7 +649,7 @@ public class NKFTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public int getIndexOfBuchung(final NutzungsBuchung buchung) {
+    public int getIndexOfBuchung(final NutzungBuchungCustomBean buchung) {
         return currentBuchungen.indexOf(buchung);
     }
 

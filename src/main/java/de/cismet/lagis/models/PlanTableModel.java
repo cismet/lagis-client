@@ -17,17 +17,11 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.util.Date;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.lagis.utillity.BebauungsVector;
 import de.cismet.lagis.utillity.FlaechennutzungsVector;
-
-import de.cismet.lagisEE.entity.core.Beschluss;
-import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
 
 import de.cismet.lagisEE.interfaces.Plan;
 
@@ -90,7 +84,7 @@ public class PlanTableModel extends AbstractTableModel {
         try {
             switch (columnIndex) {
                 case 0: {
-                    // Beschlussart art = beschluss.getBeschlussart();
+                    // BeschlussartCustomBean art = beschluss.getBeschlussart();
                     // return art != null ? art.getBezeichnung() : null;
                     return plaene.get(rowIndex);
                 }
@@ -142,7 +136,7 @@ public class PlanTableModel extends AbstractTableModel {
         try {
             switch (columnIndex) {
                 case 0: {
-                    // Beschlussart art = beschluss.getBeschlussart();
+                    // BeschlussartCustomBean art = beschluss.getBeschlussart();
                     // return art != null ? art.getBezeichnung() : null;
                     plaene.set(rowIndex, (Plan)aValue);
                     break;

@@ -11,11 +11,11 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.ReBe;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -23,7 +23,7 @@ import de.cismet.lagisEE.entity.core.ReBe;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class ReBeDataSource extends ADataSource<ReBe> implements JRDataSource {
+public class ReBeDataSource extends ADataSource<RebeCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -49,18 +49,18 @@ public class ReBeDataSource extends ADataSource<ReBe> implements JRDataSource {
      *
      * @param  rebeList  buchungen DOCUMENT ME!
      */
-    public ReBeDataSource(final List<ReBe> rebeList) {
+    public ReBeDataSource(final List<RebeCustomBean> rebeList) {
         super(rebeList);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<ReBe> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<ReBe> rebeSet = currentFlurstueck.getRechteUndBelastungen();
+    protected List<RebeCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<RebeCustomBean> rebeSet = currentFlurstueck.getRechteUndBelastungen();
 
-        return new ArrayList<ReBe>(rebeSet);
+        return new ArrayList<RebeCustomBean>(rebeSet);
     }
 
     @Override

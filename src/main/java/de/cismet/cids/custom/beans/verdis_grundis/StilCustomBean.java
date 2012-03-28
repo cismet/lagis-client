@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Stil;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Stil;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Stil;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class StilCustomBean extends CidsBean implements Stil {
+public class StilCustomBean extends BasicEntity implements Stil {
 
     //~ Instance fields --------------------------------------------------------
 

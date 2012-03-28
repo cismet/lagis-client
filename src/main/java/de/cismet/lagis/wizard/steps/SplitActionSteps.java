@@ -17,12 +17,7 @@ package de.cismet.lagis.wizard.steps;
 
 import org.apache.log4j.Logger;
 
-import org.netbeans.spi.wizard.DeferredWizardResult;
-import org.netbeans.spi.wizard.ResultProgressHandle;
-import org.netbeans.spi.wizard.Summary;
-import org.netbeans.spi.wizard.WizardController;
-import org.netbeans.spi.wizard.WizardException;
-import org.netbeans.spi.wizard.WizardPanelProvider;
+import org.netbeans.spi.wizard.*;
 
 import java.awt.EventQueue;
 
@@ -33,16 +28,16 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SplitActionChoosePanel;
 import de.cismet.lagis.wizard.panels.SummaryPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -158,9 +153,10 @@ public class SplitActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck splitten: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel splitCandidate = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean splitCandidate = (FlurstueckSchluesselCustomBean)wizardData.get(
                     SplitActionChoosePanel.KEY_SPLIT_CANDIDATE);
-            final ArrayList<FlurstueckSchluessel> splitKeys = (ArrayList)wizardData.get(ResultingPanel.KEY_SPLIT_KEYS);
+            final ArrayList<FlurstueckSchluesselCustomBean> splitKeys = (ArrayList)wizardData.get(
+                    ResultingPanel.KEY_SPLIT_KEYS);
 
             if (log.isDebugEnabled()) {
                 log.debug("Flurstück das gesplittet werden soll: " + splitCandidate.getKeyString());
@@ -171,7 +167,7 @@ public class SplitActionSteps extends WizardPanelProvider {
             try {
                 progress.setBusy("Flurstück wird geteilt");
                 // EJBroker.getInstance().createFlurstueck(key);
-                for (final FlurstueckSchluessel current : splitKeys) {
+                for (final FlurstueckSchluesselCustomBean current : splitKeys) {
                     // setzte bei den gesplitteten Flurstück die art des ursprünglichen
                     current.setFlurstueckArt(splitCandidate.getFlurstueckArt());
                 }
@@ -180,7 +176,7 @@ public class SplitActionSteps extends WizardPanelProvider {
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 final StringBuffer resultString = new StringBuffer("Flurstück: \n\t" + "\""
                                 + splitCandidate.getKeyString() + "\" \n\nkonnte erfolgreich in die Flurstücke\n");
-                final Iterator<FlurstueckSchluessel> it = splitKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> it = splitKeys.iterator();
                 while (it.hasNext()) {
                     resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }
@@ -190,7 +186,7 @@ public class SplitActionSteps extends WizardPanelProvider {
                         @Override
                         public void run() {
                             if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                        && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                        && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                             LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                             splitCandidate)) {
                                 if (log.isDebugEnabled()) {
@@ -199,9 +195,9 @@ public class SplitActionSteps extends WizardPanelProvider {
                                 LagisBroker.getInstance().loadFlurstueck(splitCandidate);
                                 return;
                             }
-                            for (final FlurstueckSchluessel current : splitKeys) {
+                            for (final FlurstueckSchluesselCustomBean current : splitKeys) {
                                 if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                            && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                            && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                                 LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                                 current)) {
                                     if (log.isDebugEnabled()) {
@@ -221,7 +217,7 @@ public class SplitActionSteps extends WizardPanelProvider {
                 // TODO ACTIONNOTSUCCESSFULL
                 final StringBuffer resultString = new StringBuffer("Flurstück: \n\t" + "\""
                                 + splitCandidate.getKeyString() + "\" \n\nkonnte nicht in die Flurstücke\n");
-                final Iterator<FlurstueckSchluessel> it = splitKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> it = splitKeys.iterator();
                 while (it.hasNext()) {
                     resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }

@@ -11,18 +11,11 @@
  */
 package de.cismet.lagis.renderer;
 
-import java.awt.Toolkit;
-
-import java.util.Date;
-
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableModel;
 
-import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -62,8 +55,8 @@ public class FlurstueckSchluesselCellRenderer extends DefaultTableCellRenderer {
         if (value == null) {
             setText("");
             // return this;
-        } else if (value instanceof FlurstueckSchluessel) {
-            final FlurstueckSchluessel key = (FlurstueckSchluessel)value;
+        } else if (value instanceof FlurstueckSchluesselCustomBean) {
+            final FlurstueckSchluesselCustomBean key = (FlurstueckSchluesselCustomBean)value;
             // setFont(list.getFont());
             if (key.getGemarkung() != null) {
                 setText(key.getGemarkung().getBezeichnung() + " " + key.getFlur() + " " + key.getFlurstueckZaehler()

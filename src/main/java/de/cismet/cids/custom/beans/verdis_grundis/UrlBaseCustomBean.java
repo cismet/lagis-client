@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.UrlBase;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.UrlBase;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.UrlBase;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class UrlBaseCustomBean extends CidsBean implements UrlBase {
+public class UrlBaseCustomBean extends BasicEntity implements UrlBase {
 
     //~ Instance fields --------------------------------------------------------
 

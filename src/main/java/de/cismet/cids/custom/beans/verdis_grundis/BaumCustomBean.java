@@ -9,20 +9,16 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-import org.postgis.PGgeometry;
-
 import java.awt.Color;
 import java.awt.Paint;
 
 import java.util.Collection;
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
-import de.cismet.cismap.commons.jtsgeometryfactories.PostGisGeometryFactory;
 
-import de.cismet.lagis.EJBrokerInterfaces.Baum;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.extension.baum.Baum;
 
 /**
  * DOCUMENT ME!
@@ -30,7 +26,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Baum;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class BaumCustomBean extends CidsBean implements Baum {
+public class BaumCustomBean extends BasicEntity implements Baum {
 
     //~ Static fields/initializers ---------------------------------------------
 

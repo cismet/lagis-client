@@ -17,7 +17,7 @@ package de.cismet.lagis.utillity;
 
 import org.apache.log4j.Logger;
 
-import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 /**
  * DOCUMENT ME!
@@ -31,7 +31,7 @@ public class AnlagenklasseSumme implements Comparable {
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
-    private Anlageklasse anlageklasse;
+    private AnlageklasseCustomBean anlageklasse;
     private double summe;
 
     //~ Constructors -----------------------------------------------------------
@@ -41,7 +41,7 @@ public class AnlagenklasseSumme implements Comparable {
      *
      * @param  anlageklasse  DOCUMENT ME!
      */
-    public AnlagenklasseSumme(final Anlageklasse anlageklasse) {
+    public AnlagenklasseSumme(final AnlageklasseCustomBean anlageklasse) {
         this.anlageklasse = anlageklasse;
     }
 
@@ -90,9 +90,9 @@ public class AnlagenklasseSumme implements Comparable {
                 }
                 return false;
             }
-        } else if (obj instanceof Anlageklasse) {
+        } else if (obj instanceof AnlageklasseCustomBean) {
             log.info("ist Anlageklasse");
-            final Anlageklasse other = (Anlageklasse)obj;
+            final AnlageklasseCustomBean other = (AnlageklasseCustomBean)obj;
             if ((anlageklasse != null) && (other != null)) {
                 log.info("1 auswertung");
                 log.info("1 auswertung" + (anlageklasse.getId().equals(other.getId())));
@@ -115,7 +115,7 @@ public class AnlagenklasseSumme implements Comparable {
      *
      * @return  DOCUMENT ME!
      */
-    public Anlageklasse getAnlageklasse() {
+    public AnlageklasseCustomBean getAnlageklasse() {
         return anlageklasse;
     }
 
@@ -124,7 +124,7 @@ public class AnlagenklasseSumme implements Comparable {
      *
      * @param  anlageklasse  DOCUMENT ME!
      */
-    public void setAnlageklasse(final Anlageklasse anlageklasse) {
+    public void setAnlageklasse(final AnlageklasseCustomBean anlageklasse) {
         this.anlageklasse = anlageklasse;
     }
 

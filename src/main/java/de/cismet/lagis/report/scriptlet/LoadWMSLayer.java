@@ -39,6 +39,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
 import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.raster.wms.simple.SimpleWMS;
 import de.cismet.cismap.commons.raster.wms.simple.SimpleWmsGetMapUrl;
@@ -48,9 +51,6 @@ import de.cismet.cismap.commons.retrieval.RetrievalListener;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.GeometryWorker;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -98,14 +98,14 @@ public class LoadWMSLayer extends JRDefaultScriptlet {
      * DOCUMENT ME!
      */
     protected void retrieveData() {
-        final Flurstueck currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
-        final FlurstueckSchluessel fsKey = currentFlurstueck.getFlurstueckSchluessel();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
+        final FlurstueckSchluesselCustomBean fsKey = currentFlurstueck.getFlurstueckSchluessel();
 
-        final ArrayList<FlurstueckSchluessel> fsList = new ArrayList<FlurstueckSchluessel>(1);
+        final ArrayList<FlurstueckSchluesselCustomBean> fsList = new ArrayList<FlurstueckSchluesselCustomBean>(1);
         fsList.add(fsKey);
 
         final GeometryWorker worker = new GeometryWorker(fsList);
-        final Map<FlurstueckSchluessel, Geometry> result = worker.call();
+        final Map<FlurstueckSchluesselCustomBean, Geometry> result = worker.call();
         final Geometry currentGeom = result.get(fsKey);
 
         this.bbox = (Polygon)currentGeom.getEnvelope();

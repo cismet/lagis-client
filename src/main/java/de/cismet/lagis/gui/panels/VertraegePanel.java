@@ -15,29 +15,19 @@ package de.cismet.lagis.gui.panels;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.SortOrder;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
+
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -64,16 +54,6 @@ import de.cismet.lagis.validation.Validator;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
-import de.cismet.lagisEE.entity.core.Beschluss;
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Kosten;
-import de.cismet.lagisEE.entity.core.Vertrag;
-import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
-import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
-
 /**
  * DOCUMENT ME!
  *
@@ -88,8 +68,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "Verträge Panel";
-//    private DefaultComboBoxModel vertragsartComboBoxModel;
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+
+    //~ Instance fields --------------------------------------------------------
+
+// private DefaultComboBoxModel vertragsartComboBoxModel;
+    // Variables declaration - do not modify
     private javax.swing.JButton btnAddBeschluss;
     private javax.swing.JButton btnAddExitingContract;
     private javax.swing.JButton btnAddKosten;
@@ -137,11 +120,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JTextField txtVoreigentuemer;
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Flurstueck currentFlurstueck = null;
+    private FlurstueckCustomBean currentFlurstueck = null;
     private VertraegeTableModel vTableModel = new VertraegeTableModel();
     // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
     private KostenTableModel kTableModel = new KostenTableModel();
-    private Vertrag currentSelectedVertrag;
+    private VertragCustomBean currentSelectedVertrag;
     private VertragDocumentModelContainer documentContainer;
     private Validator valTxtVoreigentuemer;
     private Validator valTxtAuflassung;
@@ -151,11 +134,13 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private Validator valTxtBemerkung;
     private Validator valTxtEintragung;
     private Vector<Validator> validators = new Vector<Validator>();
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
     private boolean isInEditMode = false;
     private boolean isFlurstueckEditable = true;
+
+    //~ Constructors -----------------------------------------------------------
 
     /**
      * Creates new form RechteBelastungenPanel.
@@ -222,10 +207,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         validators.add(valTxtQuadPreis);
         validators.add(valTxtVoreigentuemer);
 
-        final JComboBox cboBA = new JComboBox(new Vector<Beschlussart>(EJBroker.getInstance().getAllBeschlussarten()));
-        final JComboBox cboKA = new JComboBox(new Vector<Kosten>(EJBroker.getInstance().getAllKostenarten()));
-        tblBeschluesse.setDefaultEditor(Beschlussart.class, new DefaultCellEditor(cboBA));
-        tblKosten.setDefaultEditor(Kostenart.class, new DefaultCellEditor(cboKA));
+        final JComboBox cboBA = new JComboBox(new Vector<BeschlussartCustomBean>(
+                    EJBroker.getInstance().getAllBeschlussarten()));
+        final JComboBox cboKA = new JComboBox(new Vector<KostenCustomBean>(EJBroker.getInstance().getAllKostenarten()));
+        tblBeschluesse.setDefaultEditor(BeschlussartCustomBean.class, new DefaultCellEditor(cboBA));
+        tblKosten.setDefaultEditor(KostenartCustomBean.class, new DefaultCellEditor(cboKA));
         // tblBeschluesse.addMouseListener(this);
         // tblKosten.addMouseListener(this);
         tblKosten.setDefaultEditor(Double.class, new EuroEditor());
@@ -262,11 +248,13 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         configBackgroundThread();
     }
 
+    //~ Methods ----------------------------------------------------------------
+
     /**
      * DOCUMENT ME!
      */
     private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                 @Override
                 protected void update() {
@@ -280,11 +268,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                             cleanup();
                             return;
                         }
-                        final FlurstueckArt flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
+                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
                                     .getFlurstueckArt();
                         if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                             if (log.isDebugEnabled()) {
                                 log.debug("Flurstück ist städtisch und kann editiert werden");
                             }
@@ -305,7 +293,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                             cleanup();
                             return;
                         }
-                        final Set<FlurstueckSchluessel> crossRefs = getCurrentObject().getVertraegeQuerverweise();
+                        final Collection<FlurstueckSchluesselCustomBean> crossRefs = getCurrentObject()
+                                    .getVertraegeQuerverweise();
                         if ((crossRefs != null) && (crossRefs.size() > 0)) {
                             lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
                         }
@@ -329,7 +318,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     }
     // private Thread panelRefresherThread;
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             log.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
@@ -439,16 +428,16 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 return Validatable.ERROR;
             }
         }
-        final Vector<Vertrag> alleVertraege = vTableModel.getVertraege();
+        final Vector<VertragCustomBean> alleVertraege = vTableModel.getVertraege();
         if (alleVertraege != null) {
-            for (final Vertrag currentVertrag : alleVertraege) {
+            for (final VertragCustomBean currentVertrag : alleVertraege) {
                 if ((currentVertrag != null) && (currentVertrag.getVertragsart() == null)) {
                     validationMessage = "Bei allen Verträgen muss eine Vertragsart ausgewählt werden";
                     return Validatable.ERROR;
                 }
 
                 if ((currentVertrag != null) && (currentVertrag.getBeschluesse() != null)) {
-                    for (final Beschluss currentBeschluss : currentVertrag.getBeschluesse()) {
+                    for (final BeschlussCustomBean currentBeschluss : currentVertrag.getBeschluesse()) {
                         if (currentBeschluss.getBeschlussart() == null) {
                             validationMessage = "Bei allen Beschlüssen muss eine Beschlussart ausgewählt werden";
                             return Validatable.ERROR;
@@ -457,7 +446,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
 
                 if ((currentVertrag != null) && (currentVertrag.getKosten() != null)) {
-                    for (final Kosten currentKosten : currentVertrag.getKosten()) {
+                    for (final KostenCustomBean currentKosten : currentVertrag.getKosten()) {
                         if (currentKosten.getKostenart() == null) {
                             validationMessage = "Bei allen Kosten muss eine Kostenart ausgewählt werden";
                             return Validatable.ERROR;
@@ -1196,8 +1185,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         add(pnlDetail, java.awt.BorderLayout.CENTER);
     } // </editor-fold>//GEN-END:initComponents
 
-    //~ Methods ----------------------------------------------------------------
-
     /**
      * DOCUMENT ME!
      *
@@ -1214,8 +1201,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      */
     private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboVertragsartActionPerformed
         final Object selectedItem = cboVertragsart.getSelectedItem();
-        if ((selectedItem != null) && (selectedItem instanceof Vertragsart)) {
-            final Vertragsart art = (Vertragsart)selectedItem;
+        if ((selectedItem != null) && (selectedItem instanceof VertragsartCustomBean)) {
+            final VertragsartCustomBean art = (VertragsartCustomBean)selectedItem;
             switch (art.getId()) {
                 case 1: {
                     lblVoreigentuemer.setText("Voreigentümer");
@@ -1294,7 +1281,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      */
     private void btnAddKostenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddKostenActionPerformed
         // ((JXTable)tblKosten).setSortable(false);
-        // Kosten newKosten = new Kosten();
+        // KostenCustomBean newKosten = new KostenCustomBean();
 // documentContainer.getCurrentSelectedVertrag().get
 // documentContainer.getKostenTableModel().addKosten(newKosten));
         documentContainer.addNewKosten();
@@ -1325,8 +1312,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      */
     private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVertragActionPerformed
         // ((JXTable)tblVertraege).setSortable(false);
-        final Vertrag newVertrag = new Vertrag();
-        newVertrag.setVertragsart((Vertragsart)cboVertragsart.getItemAt(0));
+        final VertragCustomBean newVertrag = new VertragCustomBean();
+        newVertrag.setVertragsart((VertragsartCustomBean)cboVertragsart.getItemAt(0));
         vTableModel.addVertrag(newVertrag);
         // ((JXTable)tblVertraege).setSortable(true);
         // vTableModel.fireTableDataChanged();
@@ -1339,7 +1326,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         if (log.isDebugEnabled()) {
             log.debug("Update der Querverweise");
         }
-        final Set<FlurstueckSchluessel> crossRefs = EJBroker.getInstance()
+        final Collection<FlurstueckSchluesselCustomBean> crossRefs = EJBroker.getInstance()
                     .getCrossreferencesForVertraege(new HashSet(vTableModel.getVertraege()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {
@@ -1347,7 +1334,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 log.debug("Es sind Querverweise auf Verträg vorhanden");
             }
             currentFlurstueck.setVertraegeQuerverweise(crossRefs);
-            final Iterator<FlurstueckSchluessel> it = crossRefs.iterator();
+            final Iterator<FlurstueckSchluesselCustomBean> it = crossRefs.iterator();
             while (it.hasNext()) {
                 if (log.isDebugEnabled()) {
                     log.debug("Ein Querverweis hinzugefügt");
@@ -1358,7 +1345,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         }
         lstCrossRefs.setModel(newModel);
     }
-    // End of variables declaration//GEN-END:variables
+    // End of variables declaration
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
@@ -1393,8 +1380,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 //        }
 //    }
     @Override
-    public void updateFlurstueckForSaving(final Flurstueck flurstueck) {
-        final Set<Vertrag> vertraege = flurstueck.getVertraege();
+    public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
+        final Collection<VertragCustomBean> vertraege = flurstueck.getVertraege();
         if (vertraege != null) {
             vertraege.clear();
             vertraege.addAll(vTableModel.getVertraege());
@@ -1481,7 +1468,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             }
         } else if (source instanceof JList) {
             if (e.getClickCount() > 1) {
-                final FlurstueckSchluessel key = (FlurstueckSchluessel)lstCrossRefs.getSelectedValue();
+                final FlurstueckSchluesselCustomBean key = (FlurstueckSchluesselCustomBean)
+                    lstCrossRefs.getSelectedValue();
                 if (key != null) {
                     LagisBroker.getInstance().loadFlurstueck(key);
                 }

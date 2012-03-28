@@ -17,42 +17,27 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.ColorHighlighter;
+import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.SortOrder;
 
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollection;
@@ -86,10 +71,6 @@ import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.ReBe;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.core.hardwired.ReBeArt;
 
 /**
  * DOCUMENT ME!
@@ -129,10 +110,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private javax.swing.JTable tReBe;
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Flurstueck currentFlurstueck = null;
+    private FlurstueckCustomBean currentFlurstueck = null;
     private ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isInAbteilungIXModus = false;
     private final Icon copyDisplayIcon;
 
@@ -156,7 +137,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                 @Override
                 protected void update() {
@@ -170,11 +151,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                             cleanup();
                             return;
                         }
-                        final FlurstueckArt flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
+                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
                                     .getFlurstueckArt();
                         if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                             if (log.isDebugEnabled()) {
                                 log.debug("Flurstück ist nicht Abteilung IX");
                             }
@@ -203,7 +184,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                                         for (final Feature currentFeature : features) {
                                             if (currentFeature != null) {
                                                 if (isWidgetReadOnly()) {
-                                                    ((ReBe)currentFeature).setModifiable(false);
+                                                    ((RebeCustomBean)currentFeature).setModifiable(false);
                                                 }
 
                                                 final StyledFeature sf = new StyledFeatureGroupWrapper(
@@ -245,11 +226,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     private void configureTable() {
         tReBe.setModel(tableModel);
-        final Set<ReBeArt> reBeArten = EJBroker.getInstance().getAllRebeArten();
+        final Collection<RebeArtCustomBean> reBeArten = EJBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {
-            final JComboBox cboRebeArt = new JComboBox(new Vector<ReBeArt>(reBeArten));
-            tReBe.setDefaultEditor(ReBeArt.class, new DefaultCellEditor(cboRebeArt));
+            final JComboBox cboRebeArt = new JComboBox(new Vector<RebeArtCustomBean>(reBeArten));
+            tReBe.setDefaultEditor(RebeArtCustomBean.class, new DefaultCellEditor(cboRebeArt));
 
             cboRebeArt.addItemListener(new ItemListener() {
 
@@ -302,7 +283,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     final int displayedIndex = componentAdapter.row;
                     final int modelIndex = ((JXTable)tReBe).getFilters().convertRowIndexToModel(displayedIndex);
-                    final ReBe r = tableModel.getReBeAtRow(modelIndex);
+                    final RebeCustomBean r = tableModel.getReBeAtRow(modelIndex);
                     return (r != null) && (r.getGeometry() == null);
                 }
             };
@@ -381,11 +362,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final Vector<ReBe> allReBe = this.tableModel.getResBes();
+        final Vector<RebeCustomBean> allReBe = this.tableModel.getResBes();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allReBe.size());
 
-        for (final ReBe rebe : allReBe) {
-            final ReBe tmp = new ReBe();
+        for (final RebeCustomBean rebe : allReBe) {
+            final RebeCustomBean tmp = new RebeCustomBean();
 
             final Date dateEintragung = rebe.getDatumEintragung();
             final Date dateLoeschung = rebe.getDatumLoeschung();
@@ -425,13 +406,13 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             throw new NullPointerException("Entity must not be null");
         }
 
-        if (entity instanceof ReBe) {
-            final Vector<ReBe> residentReBe = this.tableModel.getResBes();
+        if (entity instanceof RebeCustomBean) {
+            final Vector<RebeCustomBean> residentReBe = this.tableModel.getResBes();
             if (residentReBe.contains(entity)) {
                 log.warn("ReBe " + entity + " does already exist in Flurstück " + this.currentFlurstueck
                             + ". -> ignored");
             } else {
-                this.tableModel.addReBe((ReBe)entity);
+                this.tableModel.addReBe((RebeCustomBean)entity);
 
                 final StyledFeatureGroupWrapper wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity,
                         PROVIDER_NAME,
@@ -464,7 +445,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        final Vector<ReBe> residentReBe = this.tableModel.getResBes();
+        final Vector<RebeCustomBean> residentReBe = this.tableModel.getResBes();
         final int rowCountBefore = this.tableModel.getRowCount();
 
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -472,12 +453,12 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         StyledFeatureGroupWrapper wrapper;
         for (final BasicEntity entity : dataList) {
-            if (entity instanceof ReBe) {
+            if (entity instanceof RebeCustomBean) {
                 if (residentReBe.contains(entity)) {
                     log.warn("ReBe " + entity + " does already exist in Flurstück " + this.currentFlurstueck
                                 + ". -> ignored");
                 } else {
-                    this.tableModel.addReBe((ReBe)entity);
+                    this.tableModel.addReBe((RebeCustomBean)entity);
                     wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     fc.addFeature(wrapper);
                 }
@@ -495,7 +476,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     }
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             log.info("FlurstueckChanged");
             updateThread.notifyThread(newFlurstueck);
@@ -698,7 +679,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
-        final ReBe tmpReBe = new ReBe();
+        final RebeCustomBean tmpReBe = new RebeCustomBean();
         if (isInAbteilungIXModus) {
             tmpReBe.setIstRecht(true);
         }
@@ -757,7 +738,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         } else {
             final int rowCount = tableModel.getRowCount();
             for (int i = 0; i < rowCount; i++) {
-                final ReBe currentReBe = tableModel.getReBeAtRow(i);
+                final RebeCustomBean currentReBe = tableModel.getReBeAtRow(i);
                 // Geom geom;
                 if (currentReBe.getGeometry() == null) {
                     final Object idValue1 = tableModel.getValueAt(i, 0);
@@ -799,8 +780,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     }
 
     @Override
-    public void updateFlurstueckForSaving(final Flurstueck flurstueck) {
-        final Set<ReBe> resBes = flurstueck.getRechteUndBelastungen();
+    public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
+        final Collection<RebeCustomBean> resBes = flurstueck.getRechteUndBelastungen();
         if (resBes != null) {
             resBes.clear();
             resBes.addAll(tableModel.getResBes());
@@ -819,9 +800,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             return;
         }
         for (final Feature feature : features) {
-            if (feature instanceof ReBe) {
+            if (feature instanceof RebeCustomBean) {
                 // TODO Refactor Name
-                final int index = tableModel.getIndexOfReBe((ReBe)feature);
+                final int index = tableModel.getIndexOfReBe((RebeCustomBean)feature);
                 final int displayedIndex = ((JXTable)tReBe).getFilters().convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
@@ -858,7 +839,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             }
             final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(tReBe.getSelectedRow());
             if ((index != -1) && (tReBe.getSelectedRowCount() <= 1)) {
-                final ReBe selectedReBe = tableModel.getReBeAtRow(index);
+                final RebeCustomBean selectedReBe = tableModel.getReBeAtRow(index);
                 if ((selectedReBe.getGeometry() != null)
                             && !mappingComp.getFeatureCollection().isSelected(selectedReBe)) {
                     mappingComp.getFeatureCollection().select(selectedReBe);
@@ -905,8 +886,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public String getDisplayName(final BasicEntity entity) {
-        if (entity instanceof ReBe) {
-            final ReBe rebe = (ReBe)entity;
+        if (entity instanceof RebeCustomBean) {
+            final RebeCustomBean rebe = (RebeCustomBean)entity;
             return "ReBe - "
                         + (rebe.isRecht() ? "Recht" : "Belastung")
                         + " - "
@@ -923,6 +904,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
-        return entity instanceof ReBe;
+        return entity instanceof RebeCustomBean;
     }
 }

@@ -17,20 +17,17 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.lagis.broker.LagisBroker;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.lagisEE.entity.core.Kosten;
-import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -47,7 +44,7 @@ public class KostenTableModel extends AbstractTableModel {
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<Kosten> kosten;
+    private Vector<KostenCustomBean> kosten;
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private boolean isInEditMode = false;
 
@@ -57,7 +54,7 @@ public class KostenTableModel extends AbstractTableModel {
      * Creates a new instance of KostenTableModel.
      */
     public KostenTableModel() {
-        kosten = new Vector<Kosten>();
+        kosten = new Vector<KostenCustomBean>();
     }
 
     /**
@@ -65,12 +62,12 @@ public class KostenTableModel extends AbstractTableModel {
      *
      * @param  kosten  DOCUMENT ME!
      */
-    public KostenTableModel(final Set<Kosten> kosten) {
+    public KostenTableModel(final Collection<KostenCustomBean> kosten) {
         try {
-            this.kosten = new Vector<Kosten>(kosten);
+            this.kosten = new Vector<KostenCustomBean>(kosten);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.kosten = new Vector<Kosten>();
+            this.kosten = new Vector<KostenCustomBean>();
         }
     }
 
@@ -83,22 +80,22 @@ public class KostenTableModel extends AbstractTableModel {
      *
      * @param  kosten  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<Kosten> kosten) {
+    public void refreshTableModel(final Collection<KostenCustomBean> kosten) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des KostenTableModell");
             }
             if (kosten != null) {
-                this.kosten = new Vector<Kosten>(kosten);
+                this.kosten = new Vector<KostenCustomBean>(kosten);
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Kostenvektor == null --> Erstelle Vektor.");
                 }
-                this.kosten = new Vector<Kosten>();
+                this.kosten = new Vector<KostenCustomBean>();
             }
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.kosten = new Vector<Kosten>();
+            this.kosten = new Vector<KostenCustomBean>();
         }
         fireTableDataChanged();
     }
@@ -106,7 +103,7 @@ public class KostenTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final Kosten value = kosten.get(rowIndex);
+            final KostenCustomBean value = kosten.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     return value.getKostenart();
@@ -159,7 +156,7 @@ public class KostenTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(final int columnIndex) {
         switch (columnIndex) {
             case 0: {
-                return Kostenart.class;
+                return KostenartCustomBean.class;
             }
             case 1: {
                 return Double.class;
@@ -177,10 +174,10 @@ public class KostenTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            final Kosten value = kosten.get(rowIndex);
+            final KostenCustomBean value = kosten.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    value.setKostenart((Kostenart)aValue);
+                    value.setKostenart((KostenartCustomBean)aValue);
                     break;
                 }
                 case 1: {
@@ -207,7 +204,7 @@ public class KostenTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<Kosten> getKosten() {
+    public Vector<KostenCustomBean> getKosten() {
         return kosten;
     }
 
@@ -216,7 +213,7 @@ public class KostenTableModel extends AbstractTableModel {
      *
      * @param  beschluss  DOCUMENT ME!
      */
-    public void addKosten(final Kosten beschluss) {
+    public void addKosten(final KostenCustomBean beschluss) {
         kosten.add(beschluss);
     }
 
@@ -227,7 +224,7 @@ public class KostenTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Kosten getKostenAtRow(final int rowIndex) {
+    public KostenCustomBean getKostenAtRow(final int rowIndex) {
         return kosten.get(rowIndex);
     }
 

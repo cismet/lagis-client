@@ -11,11 +11,11 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.Vertrag;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 /**
  * DOCUMENT ME!
@@ -23,7 +23,7 @@ import de.cismet.lagisEE.entity.core.Vertrag;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class VorgaengeDataSource extends ADataSource<Vertrag> implements JRDataSource {
+public class VorgaengeDataSource extends ADataSource<VertragCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -50,18 +50,18 @@ public class VorgaengeDataSource extends ADataSource<Vertrag> implements JRDataS
      *
      * @param  vertraegeList  buchungen DOCUMENT ME!
      */
-    public VorgaengeDataSource(final List<Vertrag> vertraegeList) {
+    public VorgaengeDataSource(final List<VertragCustomBean> vertraegeList) {
         super(vertraegeList);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<Vertrag> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<Vertrag> vertraegeSet = currentFlurstueck.getVertraege();
+    protected List<VertragCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<VertragCustomBean> vertraegeSet = currentFlurstueck.getVertraege();
 
-        return new ArrayList<Vertrag>(vertraegeSet);
+        return new ArrayList<VertragCustomBean>(vertraegeSet);
     }
 
     @Override

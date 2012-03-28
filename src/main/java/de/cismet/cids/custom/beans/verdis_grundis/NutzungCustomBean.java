@@ -9,16 +9,15 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import java.util.*;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Nutzung;
+import de.cismet.lagis.Exception.AddingOfBuchungNotPossibleException;
+import de.cismet.lagis.Exception.BuchungNotInNutzungException;
+import de.cismet.lagis.Exception.IllegalNutzungStateException;
+import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
 import de.cismet.lagis.util.SortedList;
 
-import de.cismet.lagisEE.bean.Exception.AddingOfBuchungNotPossibleException;
-import de.cismet.lagisEE.bean.Exception.BuchungNotInNutzungException;
-import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
-import de.cismet.lagisEE.bean.Exception.TerminateNutzungNotPossibleException;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.Nutzung;
 
 /**
  * DOCUMENT ME!
@@ -26,7 +25,7 @@ import de.cismet.lagisEE.bean.Exception.TerminateNutzungNotPossibleException;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class NutzungCustomBean extends CidsBean implements Nutzung {
+public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
     //~ Static fields/initializers ---------------------------------------------
 

@@ -11,9 +11,8 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.FlurstueckSchluessel;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -21,7 +20,7 @@ import de.cismet.lagis.EJBrokerInterfaces.FlurstueckSchluessel;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class FlurstueckSchluesselCustomBean extends CidsBean implements FlurstueckSchluessel {
+public class FlurstueckSchluesselCustomBean extends BasicEntity implements FlurstueckSchluessel {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -530,7 +529,7 @@ public class FlurstueckSchluesselCustomBean extends CidsBean implements Flurstue
 
     @Override
     public int compareTo(final Object value) {
-        if (value instanceof de.cismet.lagisEE.entity.core.FlurstueckSchluessel) {
+        if (value instanceof FlurstueckSchluesselCustomBean) {
             final FlurstueckSchluesselCustomBean other = (FlurstueckSchluesselCustomBean)value;
             if ((other != null) && (other.toString() != null) && (toString() != null)) {
                 if (other.getFlurstueckZaehler() > getFlurstueckZaehler()) {

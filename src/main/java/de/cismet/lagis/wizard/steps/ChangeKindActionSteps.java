@@ -31,17 +31,14 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ChangeKindActionPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -105,21 +102,22 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueckart ändern: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel key = (FlurstueckSchluessel)wizardData.get(
+            final FlurstueckSchluesselCustomBean key = (FlurstueckSchluesselCustomBean)wizardData.get(
                     ChangeKindActionPanel.KEY_CHANGE_CANDIDATE);
-            final FlurstueckArt newArt = (FlurstueckArt)wizardData.get(ChangeKindActionPanel.KEY_NEW_KIND);
-            Sperre sperre = null;
+            final FlurstueckArtCustomBean newArt = (FlurstueckArtCustomBean)wizardData.get(
+                    ChangeKindActionPanel.KEY_NEW_KIND);
+            SperreCustomBean sperre = null;
             try {
                 // TODO besser alles in Server
-                final Sperre other = EJBroker.getInstance().isLocked(key);
+                final SperreCustomBean other = EJBroker.getInstance().isLocked(key);
                 if (other == null) {
                     sperre = EJBroker.getInstance()
-                                .createLock(new Sperre(key, LagisBroker.getInstance().getAccountName()));
+                                .createLock(new SperreCustomBean(key, LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         progress.setBusy("Flurstückart wird geändert");
                         key.setFlurstueckArt(newArt);
                         EJBroker.getInstance().modifyFlurstueckSchluessel(key);
-                        final Flurstueck changedFlurstueck = EJBroker.getInstance().retrieveFlurstueck(key);
+                        final FlurstueckCustomBean changedFlurstueck = EJBroker.getInstance().retrieveFlurstueck(key);
                         if (changedFlurstueck.getRechteUndBelastungen() != null) {
                             changedFlurstueck.getRechteUndBelastungen().clear();
                             EJBroker.getInstance().modifyFlurstueck(changedFlurstueck);
@@ -127,7 +125,7 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                         EJBroker.getInstance().releaseLock(sperre);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                    && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                    && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                         key)) {
                             if (log.isDebugEnabled()) {

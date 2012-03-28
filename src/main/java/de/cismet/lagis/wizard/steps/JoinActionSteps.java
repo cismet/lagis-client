@@ -34,17 +34,16 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SummaryPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -174,8 +173,9 @@ public class JoinActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck joinen: ");
             }
             assert !EventQueue.isDispatchThread();
-            final FlurstueckSchluessel joinKey = (FlurstueckSchluessel)wizardData.get(ResultingPanel.KEY_JOIN_KEY);
-            final ArrayList<FlurstueckSchluessel> joinKeys = (ArrayList)wizardData.get(
+            final FlurstueckSchluesselCustomBean joinKey = (FlurstueckSchluesselCustomBean)wizardData.get(
+                    ResultingPanel.KEY_JOIN_KEY);
+            final ArrayList<FlurstueckSchluesselCustomBean> joinKeys = (ArrayList)wizardData.get(
                     JoinActionChoosePanel.KEY_JOIN_KEYS);
             if (log.isDebugEnabled()) {
                 log.debug("Flurstücke die gejoined werden sollen: " + joinKeys);
@@ -186,11 +186,11 @@ public class JoinActionSteps extends WizardPanelProvider {
                 // EJBroker.getInstance().createFlurstueck(key);
                 // setzte bei dem gejointen Flurstück die art der anderen
                 joinKey.setFlurstueckArt(joinKeys.get(0).getFlurstueckArt());
-                final Flurstueck newFlurstueck = EJBroker.getInstance()
+                final FlurstueckCustomBean newFlurstueck = EJBroker.getInstance()
                             .joinFlurstuecke(joinKeys, joinKey, LagisBroker.getInstance().getAccountName());
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:\n");
-                final Iterator<FlurstueckSchluessel> it = joinKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> it = joinKeys.iterator();
                 while (it.hasNext()) {
                     resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }
@@ -199,7 +199,7 @@ public class JoinActionSteps extends WizardPanelProvider {
                         .append("\" \n\n vereinigt werden");
 
                 if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                            && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                            && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                 LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                 joinKey)) {
                     if (log.isDebugEnabled()) {
@@ -214,9 +214,9 @@ public class JoinActionSteps extends WizardPanelProvider {
                         });
                 } else {
                     boolean isCurrentFlurstueckChanged = false;
-                    for (final FlurstueckSchluessel current : joinKeys) {
+                    for (final FlurstueckSchluesselCustomBean current : joinKeys) {
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                    && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                    && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                         current)) {
                             if (log.isDebugEnabled()) {
@@ -231,9 +231,10 @@ public class JoinActionSteps extends WizardPanelProvider {
 
                                 @Override
                                 public void run() {
-                                    for (final FlurstueckSchluessel key : joinKeys) {
+                                    for (final FlurstueckSchluesselCustomBean key : joinKeys) {
                                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                                    && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                                    && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR
+                                                    .pedanticEquals(
                                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                                         key)) {
                                             LagisBroker.getInstance().loadFlurstueck(key);
@@ -266,7 +267,7 @@ public class JoinActionSteps extends WizardPanelProvider {
             } catch (final Exception ex) {
                 // TODO ActionNotSuccessfull Exception
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:");
-                final Iterator<FlurstueckSchluessel> it = joinKeys.iterator(); //
+                final Iterator<FlurstueckSchluesselCustomBean> it = joinKeys.iterator(); //
                 while (it.hasNext()) {
                     resultString.append("\n\t\"").append(it.next().getKeyString()).append("\"");
                 }

@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Kostenart;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Kostenart;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class KostenartCustomBean extends CidsBean implements Kostenart {
+public class KostenartCustomBean extends BasicEntity implements Kostenart {
 
     //~ Instance fields --------------------------------------------------------
 

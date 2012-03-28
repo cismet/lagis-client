@@ -34,6 +34,10 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -41,10 +45,6 @@ import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SplitActionChoosePanel;
 import de.cismet.lagis.wizard.panels.SummaryPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 /**
  * DOCUMENT ME!
@@ -187,9 +187,10 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
                 log.debug("WizardFinisher: Flurstueck joinen/splitten: ");
             }
             assert !EventQueue.isDispatchThread();
-            final ArrayList<FlurstueckSchluessel> joinKeys = (ArrayList)wizardData.get(
+            final ArrayList<FlurstueckSchluesselCustomBean> joinKeys = (ArrayList)wizardData.get(
                     JoinActionChoosePanel.KEY_JOIN_KEYS);
-            final ArrayList<FlurstueckSchluessel> splitKeys = (ArrayList)wizardData.get(ResultingPanel.KEY_SPLIT_KEYS);
+            final ArrayList<FlurstueckSchluesselCustomBean> splitKeys = (ArrayList)wizardData.get(
+                    ResultingPanel.KEY_SPLIT_KEYS);
             if (log.isDebugEnabled()) {
                 log.debug("Flurstücke die zusammengelegt werden sollen: " + joinKeys);
                 log.debug("Flurstück die geteilt werden sollen: " + splitKeys);
@@ -197,7 +198,7 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
             try {
                 progress.setBusy("Flurstück wird geteilt");
                 // EJBroker.getInstance().createFlurstueck(key);
-                for (final FlurstueckSchluessel current : splitKeys) {
+                for (final FlurstueckSchluesselCustomBean current : splitKeys) {
                     // setzte bei den gesplitteten Flurstück die art eines der ursprünglichen
                     current.setFlurstueckArt(joinKeys.get(0).getFlurstueckArt());
                 }
@@ -205,21 +206,21 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
                         .joinSplitFlurstuecke(joinKeys, splitKeys, LagisBroker.getInstance().getAccountName());
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:");
                 // \n\t"+"\""+splitCandidate.getKeyString()+"\" \n\nkonnte erfolgreich in die Flurstücke\n");
-                final Iterator<FlurstueckSchluessel> joinIt = joinKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> joinIt = joinKeys.iterator();
                 while (joinIt.hasNext()) {
                     resultString.append("\n\t\"").append(joinIt.next().getKeyString()).append("\"");
                 }
                 resultString.append("\n\nkonnten erfolgreich in die Flurstücke\n\n");
-                final Iterator<FlurstueckSchluessel> splitIt = splitKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> splitIt = splitKeys.iterator();
                 while (splitIt.hasNext()) {
                     resultString.append("\n\t\"").append(splitIt.next().getKeyString()).append("\"");
                 }
                 resultString.append("\n\n aufgeteilt werden");
                 boolean isCurrentFlurstueckChanged = false;
-                FlurstueckSchluessel tmp = null;
-                for (final FlurstueckSchluessel current : joinKeys) {
+                FlurstueckSchluesselCustomBean tmp = null;
+                for (final FlurstueckSchluesselCustomBean current : joinKeys) {
                     if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                     LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                     current)) {
                         if (log.isDebugEnabled()) {
@@ -231,9 +232,9 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
                     }
                 }
                 if (!isCurrentFlurstueckChanged) {
-                    for (final FlurstueckSchluessel current : splitKeys) {
+                    for (final FlurstueckSchluesselCustomBean current : splitKeys) {
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                    && FlurstueckSchluessel.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                    && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                         current)) {
                             if (log.isDebugEnabled()) {
@@ -245,7 +246,7 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
                         }
                     }
                 }
-                final FlurstueckSchluessel keyToReload = tmp;
+                final FlurstueckSchluesselCustomBean keyToReload = tmp;
                 if (isCurrentFlurstueckChanged) {
                     EventQueue.invokeLater(new Runnable() {
 
@@ -268,12 +269,12 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
             } catch (final Exception e) {
                 log.error("Fehler beim joinSplit von Flurstücken: ", e);
                 final StringBuffer buffer = new StringBuffer("Die Flurstücke:");
-                final Iterator<FlurstueckSchluessel> joinIt = joinKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> joinIt = joinKeys.iterator();
                 while (joinIt.hasNext()) {
                     buffer.append("\n\t\"").append(joinIt.next().getKeyString()).append("\"");
                 }
                 buffer.append("\n\nkonnten nicht in die Flurstücke\n\n");
-                final Iterator<FlurstueckSchluessel> splitIt = splitKeys.iterator();
+                final Iterator<FlurstueckSchluesselCustomBean> splitIt = splitKeys.iterator();
                 while (splitIt.hasNext()) {
                     buffer.append("\n\t\"").append(splitIt.next().getKeyString()).append("\"");
                 }

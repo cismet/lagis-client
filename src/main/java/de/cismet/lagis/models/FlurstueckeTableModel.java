@@ -13,14 +13,13 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.util.Set;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 /**
  * DOCUMENT ME!
@@ -38,7 +37,7 @@ public class FlurstueckeTableModel extends AbstractTableModel {
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<FlurstueckSchluessel> flurstueckSchluessel;
+    private Vector<FlurstueckSchluesselCustomBean> flurstueckSchluessel;
     private boolean isInEditMode = false;
     // ToDo in eigene Klasse auslagern
     private final Icon icoStaedtisch = new javax.swing.ImageIcon(getClass().getResource(
@@ -58,7 +57,7 @@ public class FlurstueckeTableModel extends AbstractTableModel {
      * Creates a new FlurstueckeTableModel object.
      */
     public FlurstueckeTableModel() {
-        flurstueckSchluessel = new Vector<FlurstueckSchluessel>();
+        flurstueckSchluessel = new Vector<FlurstueckSchluesselCustomBean>();
     }
 
     /**
@@ -66,12 +65,12 @@ public class FlurstueckeTableModel extends AbstractTableModel {
      *
      * @param  flurstueckSchluessel  DOCUMENT ME!
      */
-    public FlurstueckeTableModel(final Set<FlurstueckSchluessel> flurstueckSchluessel) {
+    public FlurstueckeTableModel(final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessel) {
         try {
-            this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>(flurstueckSchluessel);
+            this.flurstueckSchluessel = new Vector<FlurstueckSchluesselCustomBean>(flurstueckSchluessel);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>();
+            this.flurstueckSchluessel = new Vector<FlurstueckSchluesselCustomBean>();
         }
     }
 
@@ -82,15 +81,15 @@ public class FlurstueckeTableModel extends AbstractTableModel {
      *
      * @param  flurstueckSchluessel  DOCUMENT ME!
      */
-    public void refreshTableModel(final Set<FlurstueckSchluessel> flurstueckSchluessel) {
+    public void refreshTableModel(final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessel) {
         try {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des FlurstueckTableModell");
             }
-            this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>(flurstueckSchluessel);
+            this.flurstueckSchluessel = new Vector<FlurstueckSchluesselCustomBean>(flurstueckSchluessel);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.flurstueckSchluessel = new Vector<FlurstueckSchluessel>();
+            this.flurstueckSchluessel = new Vector<FlurstueckSchluesselCustomBean>();
         }
         fireTableDataChanged();
     }
@@ -98,19 +97,21 @@ public class FlurstueckeTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final FlurstueckSchluessel schluessel = flurstueckSchluessel.get(rowIndex);
+            final FlurstueckSchluesselCustomBean schluessel = flurstueckSchluessel.get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    final FlurstueckArt art = schluessel.getFlurstueckArt();
+                    final FlurstueckArtCustomBean art = schluessel.getFlurstueckArt();
                     if ((art != null) && (art.getBezeichnung() != null)
-                                && art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                                && art.getBezeichnung().equals(
+                                    FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                         if (schluessel.getGueltigBis() != null) {
                             return icoStaedtischHistoric;
                         } else {
                             return icoStaedtisch;
                         }
                     } else if ((art != null) && (art.getBezeichnung() != null)
-                                && art.getBezeichnung().equals(FlurstueckArt.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                                && art.getBezeichnung().equals(
+                                    FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                         if (schluessel.getGueltigBis() != null) {
                             return icoAbteilungIXHistoric;
                         } else {
@@ -162,7 +163,7 @@ public class FlurstueckeTableModel extends AbstractTableModel {
             }
             case 1: {
                 // return Date.class;
-                return FlurstueckSchluessel.class;
+                return FlurstueckSchluesselCustomBean.class;
             }
             default: {
                 log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
@@ -176,7 +177,7 @@ public class FlurstueckeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<FlurstueckSchluessel> getFlurstueckSchluessel() {
+    public Vector<FlurstueckSchluesselCustomBean> getFlurstueckSchluessel() {
         return flurstueckSchluessel;
     }
 
@@ -185,7 +186,7 @@ public class FlurstueckeTableModel extends AbstractTableModel {
      *
      * @param  schluessel  DOCUMENT ME!
      */
-    public void addFlurstueckSchluessel(final FlurstueckSchluessel schluessel) {
+    public void addFlurstueckSchluessel(final FlurstueckSchluesselCustomBean schluessel) {
         flurstueckSchluessel.add(schluessel);
         fireTableDataChanged();
     }
@@ -197,7 +198,7 @@ public class FlurstueckeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public FlurstueckSchluessel getFlurstueckSchluesselAtRow(final int rowIndex) {
+    public FlurstueckSchluesselCustomBean getFlurstueckSchluesselAtRow(final int rowIndex) {
         return flurstueckSchluessel.get(rowIndex);
     }
 

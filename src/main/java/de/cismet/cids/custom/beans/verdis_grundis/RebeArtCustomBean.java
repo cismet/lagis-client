@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.ReBeArt;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.ReBeArt;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.ReBeArt;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class RebeArtCustomBean extends CidsBean implements ReBeArt {
+public class RebeArtCustomBean extends BasicEntity implements ReBeArt {
 
     //~ Instance fields --------------------------------------------------------
 

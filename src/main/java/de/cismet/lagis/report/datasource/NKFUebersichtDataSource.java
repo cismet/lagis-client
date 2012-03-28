@@ -10,18 +10,14 @@ package de.cismet.lagis.report.datasource;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import de.cismet.cids.custom.beans.verdis_grundis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.Nutzung;
-import de.cismet.lagisEE.entity.core.NutzungsBuchung;
-import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
 
 /**
  * DOCUMENT ME!
@@ -58,13 +54,13 @@ public class NKFUebersichtDataSource extends ADataSource<AnlagenklasseSumme> imp
 
     @Override
     protected List<AnlagenklasseSumme> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<Nutzung> nutzungen = currentFlurstueck.getNutzungen();
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<NutzungCustomBean> nutzungen = currentFlurstueck.getNutzungen();
 
         // Mapping Bez. Anlagenklasse -> sum(Gesamtpreis)
-        final HashMap<Anlageklasse, Double> sumMap = new HashMap<Anlageklasse, Double>();
+        final HashMap<AnlageklasseCustomBean, Double> sumMap = new HashMap<AnlageklasseCustomBean, Double>();
 
-        Anlageklasse anlkl;
+        AnlageklasseCustomBean anlkl;
         Double gesamtPreis;
         Double stilleReserve;
         Double recentSum;
@@ -73,9 +69,9 @@ public class NKFUebersichtDataSource extends ADataSource<AnlagenklasseSumme> imp
         // Anlagenklasse und einen Preis haben. Beachte, dass zu jeder Buchung
         // die stille Reserve von dem Gesamtpreis abgezogen werden muss, bevor
         // sie aufsummiert wird.
-        for (final Nutzung tmpNutzung : nutzungen) {
+        for (final NutzungCustomBean tmpNutzung : nutzungen) {
             if (tmpNutzung.getBuchungsCount() > 0) {
-                for (final NutzungsBuchung buchung : tmpNutzung.getNutzungsBuchungen()) {
+                for (final NutzungBuchungCustomBean buchung : tmpNutzung.getNutzungsBuchungen()) {
                     if (buchung.getGueltigbis() == null) {
                         gesamtPreis = buchung.getGesamtpreis();
                         anlkl = buchung.getAnlageklasse();
@@ -105,7 +101,7 @@ public class NKFUebersichtDataSource extends ADataSource<AnlagenklasseSumme> imp
         // Erstellung der AnlagenklassenSummen aus vorher ermittelten Aggregation
         final ArrayList<AnlagenklasseSumme> summen = new ArrayList<AnlagenklasseSumme>(sumMap.size());
         AnlagenklasseSumme sum;
-        for (final Map.Entry<Anlageklasse, Double> entry : sumMap.entrySet()) {
+        for (final Map.Entry<AnlageklasseCustomBean, Double> entry : sumMap.entrySet()) {
             sum = new AnlagenklasseSumme(entry.getKey());
             sum.setSumme(entry.getValue());
             summen.add(sum);

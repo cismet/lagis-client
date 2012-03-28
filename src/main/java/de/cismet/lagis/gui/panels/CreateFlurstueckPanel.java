@@ -18,8 +18,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
@@ -29,14 +29,14 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.KeyComboboxModel;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
 
 import de.cismet.lagisEE.util.FlurKey;
 
@@ -52,12 +52,12 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
 
     //~ Instance fields --------------------------------------------------------
 
-    FlurstueckSchluessel schluessel;
+    FlurstueckSchluesselCustomBean schluessel;
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Flurstueck currentFlurstueck = null;
-    private FlurstueckSchluessel currentFlurstueckSchluessel = new FlurstueckSchluessel();
+    private FlurstueckCustomBean currentFlurstueck = null;
+    private FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = new FlurstueckSchluesselCustomBean();
     private boolean isIncomplete = false;
-    private Gemarkung currentGemarkung = null;
+    private GemarkungCustomBean currentGemarkung = null;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCreateNewFlurstueck;
@@ -97,7 +97,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                         if (log.isDebugEnabled()) {
                             log.debug("Abrufen der Gemarkungen vom Server");
                         }
-                        final Set gemKeys = EJBroker.getInstance().getGemarkungsKeys();
+                        final Collection gemKeys = EJBroker.getInstance().getGemarkungsKeys();
                         if (gemKeys != null) {
                             final Vector gemKeyList = new Vector(gemKeys);
                             Collections.sort(gemKeyList);
@@ -120,7 +120,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
      *
      * @param  schluessel  DOCUMENT ME!
      */
-    public CreateFlurstueckPanel(final FlurstueckSchluessel schluessel) {
+    public CreateFlurstueckPanel(final FlurstueckSchluesselCustomBean schluessel) {
         this.schluessel = schluessel;
         initComponents();
         cboFlur.setToolTipText("Flur");
@@ -140,7 +140,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                         if (log.isDebugEnabled()) {
                             log.debug("Abrufen der Gemarkungen vom Server");
                         }
-                        final Set gemKeys = EJBroker.getInstance().getGemarkungsKeys();
+                        final Collection gemKeys = EJBroker.getInstance().getGemarkungsKeys();
                         if (gemKeys != null) {
                             final Vector gemKeyList = new Vector(gemKeys);
                             Collections.sort(gemKeyList);
@@ -326,7 +326,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
             }
             // lblStatus.setText("");
             ((TitledBorder)panAll.getBorder()).setTitle("");
-            final FlurstueckSchluessel checkedKey = EJBroker.getInstance()
+            final FlurstueckSchluesselCustomBean checkedKey = EJBroker.getInstance()
                         .completeFlurstueckSchluessel(currentFlurstueckSchluessel);
             if (checkedKey != null) {
                 if (log.isDebugEnabled()) {
@@ -339,7 +339,8 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                 if (log.isDebugEnabled()) {
                     log.debug("Flurstück ist noch nicht vorhanden und kann angelegt werden");
                 }
-                final Flurstueck newFlurstueck = EJBroker.getInstance().createFlurstueck(currentFlurstueckSchluessel);
+                final FlurstueckCustomBean newFlurstueck = EJBroker.getInstance()
+                            .createFlurstueck(currentFlurstueckSchluessel);
                 if (newFlurstueck != null) {
                     if (log.isDebugEnabled()) {
                         log.debug("Id des neuen Flurstücks" + newFlurstueck.getId());
@@ -392,14 +393,11 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
             currentFlurstueckSchluessel = null;
             lockFlurCbo(true);
             lockFlurstueckCbo(true);
-            currentFlurstueckSchluessel = new FlurstueckSchluessel();
-            // reset the Flur/FlurstueckCombobox
-// cboFlur.setModel(new KeyComboboxModel());
-// cboFlur.setEnabled(false);
-// cboFlurstueck.setModel(new KeyComboboxModel());
-// cboFlurstueck.setEnabled(false);
+            currentFlurstueckSchluessel = new FlurstueckSchluesselCustomBean();
+            // reset the Flur/FlurstueckCombobox cboFlur.setModel(new KeyComboboxModel()); cboFlur.setEnabled(false);
+            // cboFlurstueck.setModel(new KeyComboboxModel()); cboFlurstueck.setEnabled(false);
 
-            final Gemarkung current;
+            final GemarkungCustomBean current;
             final boolean handMade;
             final boolean unknownKey;
 
@@ -411,8 +409,8 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                     }
 
                     final Object selectedItem = cboGemarkung.getSelectedItem();
-                    if (selectedItem instanceof Gemarkung) {
-                        current = (Gemarkung)selectedItem;
+                    if (selectedItem instanceof GemarkungCustomBean) {
+                        current = (GemarkungCustomBean)selectedItem;
                         currentGemarkung = current;
                     } else {
                         current = null;
@@ -429,7 +427,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
 //                } else if (evt.getActionCommand().equals("comboBoxEdited")){
 //                    isIncomplete = true;
 //                    log.debug("GemarkungEdited");
-//                    current = new Gemarkung();
+//                    current = new GemarkungCustomBean();
 //                    //TODO I have to query all gemarkungen because the user can enter either the key or the name but i cant query the wfs with only the name
 //                    //Seems to work
 //
@@ -489,7 +487,8 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
 //                                }
                                 // }
                                 currentFlurstueckSchluessel.setGemarkung(currentGemarkung);
-                                final Set flurKeys = EJBroker.getInstance().getDependingKeysForKey(currentGemarkung);
+                                final Collection flurKeys = EJBroker.getInstance()
+                                            .getDependingKeysForKey(currentGemarkung);
                                 KeyComboboxModel keyModel;
                                 if (flurKeys != null) {
                                     final Vector flurKeyList = new Vector(flurKeys);

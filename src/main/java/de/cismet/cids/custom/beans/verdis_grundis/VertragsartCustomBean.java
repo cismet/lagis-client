@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Vertragsart;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Vertragsart;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class VertragsartCustomBean extends CidsBean implements Vertragsart {
+public class VertragsartCustomBean extends BasicEntity implements Vertragsart {
 
     //~ Instance fields --------------------------------------------------------
 

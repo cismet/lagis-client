@@ -21,17 +21,17 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
-import de.cismet.lagis.gui.panels.DMSPanel;
+import de.cismet.cids.custom.beans.verdis_grundis.DmsUrlCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.UrlBaseCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.UrlCustomBean;
 
-import de.cismet.lagisEE.entity.core.DmsUrl;
-import de.cismet.lagisEE.entity.core.Url;
-import de.cismet.lagisEE.entity.core.UrlBase;
+import de.cismet.lagis.gui.panels.DMSPanel;
 
 import de.cismet.tools.URLSplitter;
 
 /**
  * Klasse zum Anzeigen von Links und zugehörigen Icons in einer Anwendung.<br>
- * Bei Klick wird die Url im Webbrowser geöffnet.
+ * Bei Klick wird die UrlCustomBean im Webbrowser geöffnet.
  *
  * @author   hell
  * @version  $Revision$, $Date$
@@ -57,7 +57,7 @@ public class DocPanel extends javax.swing.JPanel {
     // private int url_id=-1;
     // private int url_base_id=-1;
     // private String kassenzeichen="";
-    private DmsUrl dmsUrlEntity;
+    private DmsUrlCustomBean dmsUrlEntity;
 //    public String getToolTipText(MouseEvent e) {
 //
 //    }
@@ -75,7 +75,7 @@ public class DocPanel extends javax.swing.JPanel {
      *
      * @param  dmsUrlEntity  DOCUMENT ME!
      */
-    public DocPanel(final DmsUrl dmsUrlEntity) {
+    public DocPanel(final DmsUrlCustomBean dmsUrlEntity) {
         this.dmsUrlEntity = dmsUrlEntity;
         initComponents();
     }
@@ -87,7 +87,7 @@ public class DocPanel extends javax.swing.JPanel {
      *
      * @param  dmsUrlEntity  DOCUMENT ME!
      */
-    public void setDMSUrlEntity(final DmsUrl dmsUrlEntity) {
+    public void setDMSUrlEntity(final DmsUrlCustomBean dmsUrlEntity) {
         this.dmsUrlEntity = dmsUrlEntity;
     }
 
@@ -114,7 +114,7 @@ public class DocPanel extends javax.swing.JPanel {
      *
      * @return  DOCUMENT ME!
      */
-    public DmsUrl getDMSUrlEntity() {
+    public DmsUrlCustomBean getDMSUrlEntity() {
         return dmsUrlEntity;
     }
 
@@ -184,9 +184,9 @@ public class DocPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Liefert die verknüpfte Url.
+     * Liefert die verknüpfte UrlCustomBean.
      *
-     * @return  Url
+     * @return  UrlCustomBean
      */
 // public String getGotoUrl() {
 // return gotoUrl;
@@ -197,15 +197,15 @@ public class DocPanel extends javax.swing.JPanel {
     }
 
     /**
-     * setzt die verknüpfte Url.
+     * setzt die verknüpfte UrlCustomBean.
      *
-     * @param  gotoUrl  Url
+     * @param  gotoUrl  UrlCustomBean
      */
     public void setGotoUrl(final String gotoUrl) {
         final URLSplitter splitter = new URLSplitter(gotoUrl);
-        final Url urlEntity = dmsUrlEntity.getUrl();
+        final UrlCustomBean urlEntity = dmsUrlEntity.getUrl();
         log.info("UrlEntity: " + urlEntity);
-        final UrlBase urlBase = urlEntity.getUrlBase();
+        final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
         urlBase.setPfad(splitter.getPath());
         urlBase.setProtPrefix(splitter.getProt_prefix());
         urlBase.setServer(splitter.getServer());
@@ -468,7 +468,7 @@ public class DocPanel extends javax.swing.JPanel {
 //            }
 //
 //        };
-//        sdba.setDescription("Link in >>Url<< löschen");
+//        sdba.setDescription("Link in >>UrlCustomBean<< löschen");
 //        sdba.setType(sdba.DELETE);
 //        sdba.setStatement("delete from url where id="+url_id);
 //        container.add(sdba);
@@ -502,7 +502,7 @@ public class DocPanel extends javax.swing.JPanel {
 //        container.add(sdba);
 //
 //        sdba=new SimpleDbAction();
-//        sdba.setDescription("LINK in Url eintragen");
+//        sdba.setDescription("LINK in UrlCustomBean eintragen");
 //        sdba.setType(sdba.INSERT);
 //        sdba.setStatement("INSERT INTO url " +
 //                "(id,url_base_id,object_name)" +
@@ -513,7 +513,7 @@ public class DocPanel extends javax.swing.JPanel {
 //                ")");
 //        container.add(sdba);
 //        sdba=new SimpleDbAction();
-//        sdba.setDescription("LINK in Url eintragen");
+//        sdba.setDescription("LINK in UrlCustomBean eintragen");
 //        sdba.setType(sdba.INSERT);
 //        sdba.setStatement("INSERT INTO url_base " +
 //                "(id,prot_prefix,server,path)" +

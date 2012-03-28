@@ -19,12 +19,12 @@ import org.netbeans.spi.wizard.WizardController;
 import java.util.Date;
 import java.util.Map;
 
+import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+
 import de.cismet.lagis.broker.EJBroker;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
-
-import de.cismet.lagisEE.entity.locking.Sperre;
 
 /**
  * DOCUMENT ME!
@@ -79,7 +79,8 @@ public class HistoricActionPanel extends javax.swing.JPanel implements Validatio
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panHistoric.getStatus() == Validatable.VALID) {
-            final Sperre sperre = EJBroker.getInstance().isLocked(panHistoric.getCurrentFlurstueckSchluessel());
+            final SperreCustomBean sperre = EJBroker.getInstance()
+                        .isLocked(panHistoric.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

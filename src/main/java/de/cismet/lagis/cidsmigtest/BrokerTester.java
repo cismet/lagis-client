@@ -29,6 +29,8 @@ import java.util.*;
 import de.cismet.cids.client.tools.DevelopmentTools;
 
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -37,12 +39,7 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagisEE.bean.LagisServerLocal;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-
-import de.cismet.lagisEE.util.Key;
+import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 
@@ -118,7 +115,7 @@ public class BrokerTester {
             Log4JQuickConfig.configure4LumbermillOnLocalhost();
 
             final BrokerTester tester = new BrokerTester();
-            final LagisServerLocal broker = EJBroker.getInstance();
+            final EJBroker broker = EJBroker.getInstance();
 
             tester.createCB("flurstueck", 0);
 //            final FlurstueckCustomBean bean = (FlurstueckCustomBean)tester.createCB("flurstueck", 20562);
@@ -179,14 +176,14 @@ public class BrokerTester {
      *
      * @param  broker  DOCUMENT ME!
      */
-    private void prepareAllFlurstueckKeys(final LagisServerLocal broker) {
+    private void prepareAllFlurstueckKeys(final EJBroker broker) {
         LOG.fatal("vorbereiten, sammeln der Flurstuecksschluessel");
 
         allFlurstueckKeys.clear();
 
         int count = 0;
 
-        final Collection<Key> gemarkungsKeys = broker.getGemarkungsKeys();
+        final Collection<GemarkungCustomBean> gemarkungsKeys = broker.getGemarkungsKeys();
         for (final Key gemarkungsKey : gemarkungsKeys) {
 //        final Key gemarkungsKey = gemarkungsKeys.toArray(new Key[0])[0];
             LOG.fatal("gemarkungsKey: " + gemarkungsKey);
@@ -217,13 +214,14 @@ public class BrokerTester {
      *
      * @return  DOCUMENT ME!
      */
-    private float testPerfEjb(final LagisServerLocal broker) {
+    private float testPerfEjb(final EJBroker broker) {
         LOG.fatal("performance Start EJB");
 
         final long startTimeEjb = System.nanoTime();
 
         for (final Key flurstueckKey : allFlurstueckKeys) {
-            final Flurstueck flurstueck = broker.retrieveFlurstueck((FlurstueckSchluessel)flurstueckKey);
+            final FlurstueckCustomBean flurstueck = broker.retrieveFlurstueck((FlurstueckSchluesselCustomBean)
+                    flurstueckKey);
             final String flurstueckString = EjbObjectsToStringTester.getStringOf(flurstueck);
             LOG.fatal(ejbFlurstueckStrings.size() + 1 + "/" + allFlurstueckKeys.size() + ": " + flurstueckKey);
             ejbFlurstueckStrings.put(flurstueck.getId(), flurstueckString);
@@ -247,7 +245,7 @@ public class BrokerTester {
         final long startTimeMos = System.nanoTime();
         try {
             for (final Key flurstueckKey : allFlurstueckKeys) {
-                final Integer flId = ((FlurstueckSchluessel)flurstueckKey).getId();
+                final Integer flId = ((FlurstueckSchluesselCustomBean)flurstueckKey).getId();
 //            final Integer flId = 1776;
                 final String query = "SELECT " + mc.getID() + "," + mc.getPrimaryKey() + " FROM " + mc.getTableName()
                             + " WHERE fk_flurstueck_schluessel = " + flId + ";";
@@ -298,7 +296,7 @@ public class BrokerTester {
      *
      * @return  DOCUMENT ME!
      */
-    private CidsBean createCB(final String tablename, final int id) {
+    public static CidsBean createCB(final String tablename, final int id) {
         try {
             final CidsBean cidsBean = DevelopmentTools.createCidsBeanFromRMIConnectionOnLocalhost(
                     CALLSERVER_DOMAIN,
@@ -348,8 +346,6 @@ public class BrokerTester {
      * DOCUMENT ME!
      */
     private void initEJBroker() {
-        EJBroker.setServer(ORB_SERVER);
-        EJBroker.setOrbPort(ORB_PORT);
         EJBroker.getInstance();
     }
 
@@ -358,7 +354,7 @@ public class BrokerTester {
      *
      * @param  broker  DOCUMENT ME!
      */
-    private void testEJBroker(final LagisServerLocal broker) {
+    private void testEJBroker(final EJBroker broker) {
     }
 
 //    /**
@@ -465,7 +461,7 @@ public class BrokerTester {
 //            print(ex);
 //        }
 //        try {
-//            print("=== getBaumForKey(FlurstueckSchluessel) ===");
+//            print("=== getBaumForKey(FlurstueckSchluesselCustomBean) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.getBaumForKey(null)));
 //        } catch (Exception ex) {
 //            print(ex);
@@ -531,19 +527,19 @@ public class BrokerTester {
 //            print(ex);
 //        }
 //        try {
-//            print("=== getHistoryEntries(FlurstueckSchluessel, HistoryLevel, HistoryType, int) ===");
+//            print("=== getHistoryEntries(FlurstueckSchluesselCustomBean, HistoryLevel, HistoryType, int) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.getHistoryEntries(null, null, null, 0)));
 //        } catch (Exception ex) {
 //            print(ex);
 //        }
 //        try {
-//            print("=== getMiPaForKey(FlurstueckSchluessel) ===");
+//            print("=== getMiPaForKey(FlurstueckSchluesselCustomBean) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.getMiPaForKey(null)));
 //        } catch (Exception ex) {
 //            print(ex);
 //        }
 //        try {
-//            print("=== getVertraegeForKey(FlurstueckSchluessel) ===");
+//            print("=== getVertraegeForKey(FlurstueckSchluesselCustomBean) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.getVertraegeForKey(null)));
 //        } catch (Exception ex) {
 //            print(ex);
@@ -555,19 +551,19 @@ public class BrokerTester {
 //            print(ex);
 //        }
 //        try {
-//            print("=== hasFlurstueckSucccessors(FlurstueckSchluessel) ===");
+//            print("=== hasFlurstueckSucccessors(FlurstueckSchluesselCustomBean) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.hasFlurstueckSucccessors(null)));
 //        } catch (ActionNotSuccessfulException ex) {
 //            print(ex);
 //        }
 //        try {
-//            print("=== isFlurstueckHistoric(FlurstueckSchluessel) ===");
+//            print("=== isFlurstueckHistoric(FlurstueckSchluesselCustomBean) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.isFlurstueckHistoric(null)));
 //        } catch (Exception ex) {
 //            print(ex);
 //        }
 //        try {
-//            print("=== isLocked(FlurstueckSchluessel) ===");
+//            print("=== isLocked(FlurstueckSchluesselCustomBean) ===");
 //            print(EjbObjectsToStringTester.getStringOf(broker.isLocked(null)));
 //        } catch (Exception ex) {
 //            print(ex);

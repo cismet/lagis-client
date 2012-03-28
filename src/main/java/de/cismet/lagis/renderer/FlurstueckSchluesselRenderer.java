@@ -21,8 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -57,8 +56,8 @@ public class FlurstueckSchluesselRenderer extends JLabel implements ListCellRend
             setForeground(list.getForeground());
         }
 
-        if ((value != null) && (value instanceof FlurstueckSchluessel)) {
-            final FlurstueckSchluessel key = (FlurstueckSchluessel)value;
+        if ((value != null) && (value instanceof FlurstueckSchluesselCustomBean)) {
+            final FlurstueckSchluesselCustomBean key = (FlurstueckSchluesselCustomBean)value;
             setFont(list.getFont());
             if (key.getGemarkung() != null) {
                 setText(key.getGemarkung().getBezeichnung() + " " + key.getFlur() + " " + key.getFlurstueckZaehler()

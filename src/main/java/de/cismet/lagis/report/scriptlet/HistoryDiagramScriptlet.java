@@ -23,18 +23,9 @@
  */
 package de.cismet.lagis.report.scriptlet;
 
-import att.grappa.Element;
-import att.grappa.Graph;
-import att.grappa.GraphEnumeration;
-import att.grappa.GrappaAdapter;
-import att.grappa.GrappaPanel;
-import att.grappa.GrappaSupport;
-import att.grappa.Parser;
-import att.grappa.Subgraph;
+import att.grappa.*;
 
 import net.sf.jasperreports.engine.JRDefaultScriptlet;
-
-import org.openide.util.Exceptions;
 
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -46,23 +37,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
+
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckHistorieCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagis.gui.panels.HistoryPanel;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-import de.cismet.lagisEE.bean.LagisServerBean.HistoryLevel;
-import de.cismet.lagisEE.bean.LagisServerBean.HistoryType;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
+import de.cismet.lagisEE.bean.LagisServer.HistoryLevel;
+import de.cismet.lagisEE.bean.LagisServer.HistoryType;
 
 /**
  * DOCUMENT ME!
@@ -94,9 +84,9 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
     private final GrappaPanel gp;
     private String encodedDotGraphRepresentation;
     private StringBuffer dotGraphRepresentation;
-//    private Flurstueck currentObj;
+//    private FlurstueckCustomBean currentObj;
 
-    private final Map<String, FlurstueckSchluessel> nodeToKeyMap;
+    private final Map<String, FlurstueckSchluesselCustomBean> nodeToKeyMap;
     private final Map<String, String> pseudoKeys;
     private final URL historyServerUrl;
 
@@ -111,7 +101,7 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
         this.graph = new Graph(GRAPH_NAME);
         gp = new GrappaPanel(graph);
         dotGraphRepresentation = new StringBuffer();
-        nodeToKeyMap = new HashMap<String, FlurstueckSchluessel>();
+        nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
         pseudoKeys = new HashMap<String, String>();
 
         try {
@@ -158,7 +148,7 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
      *
      * @param  currentObj  DOCUMENT ME!
      */
-    private void layoutGraph(final Flurstueck currentObj) {
+    private void layoutGraph(final FlurstueckCustomBean currentObj) {
         final Parser program = new Parser(new StringReader(encodedDotGraphRepresentation),
                 new PrintWriter(System.err));
         try {
@@ -176,7 +166,7 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
         while (ge.hasMoreElements()) {
             final Element curNode = ge.nextGraphElement();
 
-            final FlurstueckSchluessel curUserObjectForNode = nodeToKeyMap.get(curNode.toString());
+            final FlurstueckSchluesselCustomBean curUserObjectForNode = nodeToKeyMap.get(curNode.toString());
 
             if (curUserObjectForNode.equals(currentObj.getFlurstueckSchluessel())) {
                 curNode.highlight &= ~curNode.HIGHLIGHT_MASK;
@@ -200,20 +190,20 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
 
         final HistoryLevel level = HistoryLevel.DIRECT_RELATIONS;
 
-        final Flurstueck currentObj = LagisBroker.getInstance().getCurrentFlurstueck();
+        final FlurstueckCustomBean currentObj = LagisBroker.getInstance().getCurrentFlurstueck();
 
         try {
-            final Set<FlurstueckHistorie> allEdges = EJBroker.getInstance()
+            final Collection<FlurstueckHistorieCustomBean> allEdges = EJBroker.getInstance()
                         .getHistoryEntries(currentObj.getFlurstueckSchluessel(),
                             level,
                             HistoryType.BOTH,
                             LEVEL_COUNT);
 
             if ((allEdges != null) && (allEdges.size() > 0)) {
-                final Iterator<FlurstueckHistorie> it = allEdges.iterator();
+                final Iterator<FlurstueckHistorieCustomBean> it = allEdges.iterator();
 
                 while (it.hasNext()) {
-                    final FlurstueckHistorie currentEdge = it.next();
+                    final FlurstueckHistorieCustomBean currentEdge = it.next();
                     final String currentVorgaenger = currentEdge.getVorgaenger().toString();
                     final String currentNachfolger = currentEdge.getNachfolger().toString();
 

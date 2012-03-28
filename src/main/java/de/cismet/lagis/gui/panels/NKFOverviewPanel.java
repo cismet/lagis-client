@@ -27,6 +27,11 @@ import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+import de.cismet.lagis.Exception.IllegalNutzungStateException;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -39,13 +44,6 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.util.NutzungsContainer;
 
 import de.cismet.lagis.widget.AbstractWidget;
-
-import de.cismet.lagisEE.bean.Exception.ActionNotSuccessfulException;
-import de.cismet.lagisEE.bean.Exception.IllegalNutzungStateException;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.Nutzung;
-import de.cismet.lagisEE.entity.core.NutzungsBuchung;
 
 /**
  * DOCUMENT ME!
@@ -61,10 +59,10 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
     //~ Instance fields --------------------------------------------------------
 
-    private Flurstueck currentFlurstueck;
+    private FlurstueckCustomBean currentFlurstueck;
     private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private NKFOverviewTableModel tableModel = new NKFOverviewTableModel();
-    private BackgroundUpdateThread<Flurstueck> updateThread;
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/history.png"));
     private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
@@ -103,7 +101,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
      * DOCUMENT ME!
      */
     private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<Flurstueck>() {
+        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                 @Override
                 protected void update() {
@@ -141,7 +139,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     // private Thread panelRefresherThread;
 
     @Override
-    public synchronized void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public synchronized void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             log.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
@@ -189,7 +187,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     @Override
     public synchronized void clearComponent() {
         tableModel.setCurrentDate(null);
-        tableModel.refreshModel(new ArrayList<Nutzung>());
+        tableModel.refreshModel(new ArrayList<NutzungCustomBean>());
         updateStilleReservenBetrag();
         btnBuchen.setEnabled(false);
     }

@@ -11,13 +11,11 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.extension.baum.Baum;
-import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
-import de.cismet.lagisEE.entity.extension.baum.BaumNutzung;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 /**
  * DOCUMENT ME!
@@ -25,7 +23,7 @@ import de.cismet.lagisEE.entity.extension.baum.BaumNutzung;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class BaumDateiDataSource extends ADataSource<Baum> implements JRDataSource {
+public class BaumDateiDataSource extends ADataSource<BaumCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -50,18 +48,18 @@ public class BaumDateiDataSource extends ADataSource<Baum> implements JRDataSour
      *
      * @param  baeumeList  buchungen DOCUMENT ME!
      */
-    public BaumDateiDataSource(final List<Baum> baeumeList) {
+    public BaumDateiDataSource(final List<BaumCustomBean> baeumeList) {
         super(baeumeList);
     }
 
     //~ Methods ----------------------------------------------------------------
 
     @Override
-    protected List<Baum> retrieveData() {
-        final Flurstueck currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Set<Baum> baeumeSet = currentFlurstueck.getBaeume();
+    protected List<BaumCustomBean> retrieveData() {
+        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final Collection<BaumCustomBean> baeumeSet = currentFlurstueck.getBaeume();
 
-        return new ArrayList<Baum>(baeumeSet);
+        return new ArrayList<BaumCustomBean>(baeumeSet);
     }
 
     @Override
@@ -71,12 +69,12 @@ public class BaumDateiDataSource extends ADataSource<Baum> implements JRDataSour
         } else if (JR_BAUM_NR.equals(fieldName)) {
             return super.currentItem.getBaumnummer();
         } else if (JR_BAUM_BEST.equals(fieldName)) {
-            final BaumNutzung nutzung = super.currentItem.getBaumNutzung();
+            final BaumNutzungCustomBean nutzung = super.currentItem.getBaumNutzung();
             if (nutzung == null) {
                 return null;
             }
 
-            final BaumKategorie category = nutzung.getBaumKategorie();
+            final BaumKategorieCustomBean category = nutzung.getBaumKategorie();
             if (category == null) {
                 return null;
             }

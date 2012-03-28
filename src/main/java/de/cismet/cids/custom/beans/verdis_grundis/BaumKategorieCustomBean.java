@@ -11,7 +11,7 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.EJBrokerInterfaces.BaumKategorie;
+import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
 
 /**
  * DOCUMENT ME!
@@ -123,7 +123,7 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
     @Override
     public boolean equals(final Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof de.cismet.lagisEE.entity.extension.baum.BaumKategorie)) {
+        if (!(object instanceof BaumKategorieCustomBean)) {
             return false;
         }
         final BaumKategorieCustomBean other = (BaumKategorieCustomBean)object;

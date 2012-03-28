@@ -35,8 +35,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import java.io.IOException;
-
 import java.net.URL;
 
 import java.util.ArrayList;
@@ -51,11 +49,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
 import de.cismet.cismap.commons.CrsTransformer;
 
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
 import de.cismet.layout.FadingCardLayout;
 
@@ -684,7 +682,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
         @Override
         protected Set<KassenzeichenEntity> doInBackground() throws Exception {
-            final FlurstueckSchluessel currentKey = LagisBroker.getInstance()
+            final FlurstueckSchluesselCustomBean currentKey = LagisBroker.getInstance()
                         .getInstance()
                         .getCurrentFlurstueckSchluessel();
             if (currentKey != null) {

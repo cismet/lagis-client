@@ -11,9 +11,8 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.Kosten;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.Kosten;
 
 /**
  * DOCUMENT ME!
@@ -21,7 +20,7 @@ import de.cismet.lagis.EJBrokerInterfaces.Kosten;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class KostenCustomBean extends CidsBean implements Kosten {
+public class KostenCustomBean extends BasicEntity implements Kosten {
 
     //~ Instance fields --------------------------------------------------------
 

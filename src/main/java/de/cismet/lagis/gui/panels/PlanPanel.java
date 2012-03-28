@@ -22,15 +22,13 @@ import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JTable;
+
+import de.cismet.cids.custom.beans.verdis_grundis.BebauungCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.FlaechennutzungCustomBean;
 
 import de.cismet.lagis.broker.EJBroker;
 
 import de.cismet.lagis.models.PlanTableModel;
-
-import de.cismet.lagisEE.entity.core.hardwired.Bebauung;
-import de.cismet.lagisEE.entity.core.hardwired.Flaechennutzung;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
 import de.cismet.lagisEE.interfaces.Plan;
 
@@ -271,9 +269,9 @@ public class PlanPanel extends javax.swing.JPanel implements MouseListener {
      */
     private void btnAddPlanActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddPlanActionPerformed
         if (tableModel.isFnpModel()) {
-            tableModel.addPlan(new Flaechennutzung());
+            tableModel.addPlan(new FlaechennutzungCustomBean());
         } else {
-            tableModel.addPlan(new Bebauung());
+            tableModel.addPlan(new BebauungCustomBean());
         }
         tableModel.fireTableDataChanged();
     }                                                                              //GEN-LAST:event_btnAddPlanActionPerformed

@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.EJBrokerInterfaces.MiPaNutzung;
+import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
 
 /**
  * DOCUMENT ME!
@@ -17,7 +16,7 @@ import de.cismet.lagis.EJBrokerInterfaces.MiPaNutzung;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class MipaNutzungCustomBean extends CidsBean implements MiPaNutzung {
+public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
 
     //~ Instance fields --------------------------------------------------------
 

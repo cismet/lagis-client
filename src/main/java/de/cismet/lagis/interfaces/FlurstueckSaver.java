@@ -15,7 +15,7 @@
  */
 package de.cismet.lagis.interfaces;
 
-import de.cismet.lagisEE.entity.core.Flurstueck;
+import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -32,5 +32,5 @@ public interface FlurstueckSaver extends EntitySaver {
      *
      * @param  flurstueck  DOCUMENT ME!
      */
-    void updateFlurstueckForSaving(Flurstueck flurstueck);
+    void updateFlurstueckForSaving(FlurstueckCustomBean flurstueck);
 }

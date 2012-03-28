@@ -42,6 +42,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
 import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollectionEvent;
@@ -72,13 +74,6 @@ import de.cismet.lagis.utillity.GeometrySlotInformation;
 
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
-
-import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Geom;
-import de.cismet.lagisEE.entity.core.ReBe;
-import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
-import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
 
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
@@ -1148,7 +1143,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     }
 
     @Override
-    public void flurstueckChanged(final Flurstueck newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         for (final FeatureGroupActionListener listener : this.featureGroupButtonListenerMap.values()) {
             listener.setVisible(true);
         }
@@ -1369,7 +1364,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 final DeleteFeatureListener dfl = (DeleteFeatureListener)o;
                 final PFeature pf = dfl.getFeatureRequestedForDeletion();
                 pf.getFeature().setGeometry(null);
-                if (pf.getFeature() instanceof Verwaltungsbereich) {
+                if (pf.getFeature() instanceof VerwaltungsbereichCustomBean) {
                     if (log.isDebugEnabled()) {
                         log.debug("Verwaltungsbereichsgeometrie wurde gelöscht setze Flächee = 0");
                     }
@@ -1444,9 +1439,10 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                 final StyledFeature fOne = (StyledFeature)one.getFeature();
                                 final StyledFeature fTwo = (StyledFeature)two.getFeature();
 
-                                if (((fOne instanceof Verwaltungsbereich) && !(fTwo instanceof Verwaltungsbereich))
-                                            || ((fTwo instanceof Verwaltungsbereich)
-                                                && !(fOne instanceof Verwaltungsbereich))) {
+                                if (((fOne instanceof VerwaltungsbereichCustomBean)
+                                                && !(fTwo instanceof VerwaltungsbereichCustomBean))
+                                            || ((fTwo instanceof VerwaltungsbereichCustomBean)
+                                                && !(fOne instanceof VerwaltungsbereichCustomBean))) {
                                     JOptionPane.showMessageDialog(StaticSwingTools.getParentFrame(this),
                                         "Flächeen können nur zusammengefasst werden, wenn die Flächeenart gleich ist.",
                                         "Zusammenfassung nicht möglich",
@@ -1455,8 +1451,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                     return;
                                 }
 
-                                if (((fOne instanceof ReBe) && !(fTwo instanceof ReBe))
-                                            || ((fTwo instanceof ReBe) && !(fOne instanceof ReBe))) {
+                                if (((fOne instanceof RebeCustomBean) && !(fTwo instanceof RebeCustomBean))
+                                            || ((fTwo instanceof RebeCustomBean) && !(fOne instanceof RebeCustomBean))) {
                                     JOptionPane.showMessageDialog(StaticSwingTools.getParentFrame(this),
                                         "Flächeen können nur zusammengefasst werden, wenn die Flächeenart gleich ist.",
                                         "Zusammenfassung nicht möglich",
@@ -1492,7 +1488,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 // //tableModel.fireSelectionChanged(); TODO
 // fireAuswahlChanged(fOne);
                             }
-                            if (one.getFeature() instanceof Verwaltungsbereich) {
+                            if (one.getFeature() instanceof VerwaltungsbereichCustomBean) {
                                 // Eine vorhandene Flächee und eine neuangelegt wurden gejoint
                                 // ((Flaeche)(one.getFeature())).sync(); tableModel.fireSelectionChanged(); TODO
                                 // fireAuswahlChanged((Flaeche)(one.getFeature()));
@@ -1578,7 +1574,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                     log.debug("Geometrie wurde nicht attached");
                 }
             }
-        } else if (pf.getFeature() instanceof Geom) {
+        } else if (pf.getFeature() instanceof GeomCustomBean) {
         }
     }
 
@@ -1630,7 +1626,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 final String flurstz = (String)sf.getProperty("app:flurstz");
                 final String flurstn = (String)sf.getProperty("app:flurstn");
 
-                final Gemarkung gem = LagisBroker.getInstance().getGemarkungForKey(Integer.parseInt(gemarkung));
+                final GemarkungCustomBean gem = LagisBroker.getInstance()
+                            .getGemarkungForKey(Integer.parseInt(gemarkung));
                 this.lblInfo.setText(gem.getBezeichnung() + ' ' + flur + ' ' + flurstz + '/' + flurstn);
             } else {
                 this.lblInfo.setText("");
@@ -1696,26 +1693,24 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             final String flurstz = (String)props.get(flurstueckZaehlerIdentifier);
                             final String flurstn = (String)props.get(flurstueckNennerIdentifier);
                             if ((gem != null) && (flur != null) && (flurstz != null)) {
-                                Gemarkung resolvedGemarkung = LagisBroker.getInstance()
+                                GemarkungCustomBean resolvedGemarkung = LagisBroker.getInstance()
                                             .getGemarkungForKey(Integer.parseInt(gem));
                                 // TODO if this case happens it leads to bug XXX
                                 if (resolvedGemarkung == null) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Gemarkung konnte nicht entschlüsselt werden");
                                     }
-                                    resolvedGemarkung = new Gemarkung();
+                                    resolvedGemarkung = new GemarkungCustomBean();
                                     resolvedGemarkung.setSchluessel(Integer.parseInt(gem));
                                 } else {
                                     if (log.isDebugEnabled()) {
                                         log.debug("Gemarkung konnte entschlüsselt werden");
                                     }
                                 }
-                                // Gemarkung cplGemarkung = EJBroker.getInstance().completeGemarkung(gemarkung);
-// if (cplGemarkung != null){
-// log.debug("gemarkung bekannt");
-// gemarkung = cplGemarkung;
-// }
-                                final FlurstueckSchluessel key = new FlurstueckSchluessel();
+                                // GemarkungCustomBean cplGemarkung =
+                                // EJBroker.getInstance().completeGemarkung(gemarkung); if (cplGemarkung != null){
+                                // log.debug("gemarkung bekannt"); gemarkung = cplGemarkung; }
+                                final FlurstueckSchluesselCustomBean key = new FlurstueckSchluesselCustomBean();
                                 key.setGemarkung(resolvedGemarkung);
                                 key.setFlur(Integer.parseInt(flur));
                                 key.setFlurstueckZaehler(Integer.parseInt(flurstz));
@@ -1797,7 +1792,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     // to
     @Override
-    public Element getConfiguration() throws NoWriteError {
+    public Element getConfiguration() {
         return null;
     }
 
@@ -1840,8 +1835,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 //        Collection<Feature> features =  fce.getEventFeatures();
 //        if(features != null){
 //            for(Feature currentFeature:features){
-//                if(currentFeature instanceof Verwaltungsbereich){
-//                    ((Verwaltungsbereich)currentFeature).setFlaeche((int)currentFeature.getGeometry().getArea());
+//                if(currentFeature instanceof VerwaltungsbereichCustomBean){
+//                    ((VerwaltungsbereichCustomBean)currentFeature).setFlaeche((int)currentFeature.getGeometry().getArea());
 //                }
 //            }
 //        }
