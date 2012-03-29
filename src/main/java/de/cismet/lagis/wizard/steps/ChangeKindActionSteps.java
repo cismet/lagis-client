@@ -35,7 +35,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ChangeKindActionPanel;
@@ -109,22 +109,22 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
             SperreCustomBean sperre = null;
             try {
                 // TODO besser alles in Server
-                final SperreCustomBean other = EJBroker.getInstance().isLocked(key);
+                final SperreCustomBean other = CidsBroker.getInstance().isLocked(key);
                 if (other == null) {
-                    sperre = EJBroker.getInstance()
+                    sperre = CidsBroker.getInstance()
                                 .createLock(SperreCustomBean.createNew(
                                             key,
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         progress.setBusy("Flurstückart wird geändert");
                         key.setFlurstueckArt(newArt);
-                        EJBroker.getInstance().modifyFlurstueckSchluessel(key);
-                        final FlurstueckCustomBean changedFlurstueck = EJBroker.getInstance().retrieveFlurstueck(key);
+                        CidsBroker.getInstance().modifyFlurstueckSchluessel(key);
+                        final FlurstueckCustomBean changedFlurstueck = CidsBroker.getInstance().retrieveFlurstueck(key);
                         if (changedFlurstueck.getRechteUndBelastungen() != null) {
                             changedFlurstueck.getRechteUndBelastungen().clear();
-                            EJBroker.getInstance().modifyFlurstueck(changedFlurstueck);
+                            CidsBroker.getInstance().modifyFlurstueck(changedFlurstueck);
                         }
-                        EJBroker.getInstance().releaseLock(sperre);
+                        CidsBroker.getInstance().releaseLock(sperre);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
                                     && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
@@ -182,7 +182,7 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                 }
             } catch (Exception e) {
                 try {
-                    EJBroker.getInstance().releaseLock(sperre);
+                    CidsBroker.getInstance().releaseLock(sperre);
                 } catch (Exception ex) {
                     log.error("Fehler beim lösen der Sperre", ex);
                 }

@@ -24,7 +24,7 @@ import java.util.Map;
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
@@ -120,7 +120,8 @@ public class RenameActionPanel extends javax.swing.JPanel implements ValidationS
         }
 
         if ((panCreate.getStatus() == Validatable.VALID) && (panRename.getStatus() == Validatable.VALID)) {
-            final SperreCustomBean sperre = EJBroker.getInstance().isLocked(panRename.getCurrentFlurstueckSchluessel());
+            final SperreCustomBean sperre = CidsBroker.getInstance()
+                        .isLocked(panRename.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

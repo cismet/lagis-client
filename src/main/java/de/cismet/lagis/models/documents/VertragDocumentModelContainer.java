@@ -41,10 +41,8 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.models.BeschluesseTableModel;
 import de.cismet.lagis.models.KostenTableModel;
@@ -201,7 +199,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                 }
             };
 
-        final Collection vertragsarten = EJBroker.getInstance().getAllVertragsarten();
+        final Collection vertragsarten = CidsBroker.getInstance().getAllVertragsarten();
         if (vertragsarten != null) {
             vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));
         } else {
@@ -447,9 +445,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     public void addNewBeschluss() {
         if (currentSelectedVertrag != null) {
             try {
-                final BeschlussCustomBean beschluss = (BeschlussCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                        CidsAppBackend.LAGIS_DOMAIN,
-                        "beschluss");
+                final BeschlussCustomBean beschluss = BeschlussCustomBean.createNew();
                 beschluesseTableModel.addBeschluss(beschluss);
                 Collection<BeschlussCustomBean> tmpBeschluesse = currentSelectedVertrag.getBeschluesse();
                 if (tmpBeschluesse == null) {

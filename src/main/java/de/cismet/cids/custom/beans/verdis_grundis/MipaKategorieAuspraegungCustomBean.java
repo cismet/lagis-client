@@ -9,7 +9,7 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorieAuspraegung;
@@ -51,7 +51,7 @@ public class MipaKategorieAuspraegungCustomBean extends BasicEntity implements M
     public static MipaKategorieAuspraegungCustomBean createNew() {
         try {
             return (MipaKategorieAuspraegungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsAppBackend.LAGIS_DOMAIN,
+                    CidsBroker.LAGIS_DOMAIN,
                     TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);

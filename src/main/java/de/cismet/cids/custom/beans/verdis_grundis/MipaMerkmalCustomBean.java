@@ -9,7 +9,7 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaMerkmal;
@@ -50,7 +50,7 @@ public class MipaMerkmalCustomBean extends BasicEntity implements MiPaMerkmal {
      */
     public static MipaMerkmalCustomBean createNew() {
         try {
-            return (MipaMerkmalCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (MipaMerkmalCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;

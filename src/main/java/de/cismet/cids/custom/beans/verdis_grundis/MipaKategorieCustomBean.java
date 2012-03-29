@@ -11,7 +11,7 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorie;
@@ -59,7 +59,7 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
      */
     public static MipaKategorieCustomBean createNew() {
         try {
-            return (MipaKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (MipaKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;

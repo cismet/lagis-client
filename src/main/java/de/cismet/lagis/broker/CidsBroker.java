@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.lagis.broker;
 
+import Sirius.navigator.connection.SessionManager;
+import Sirius.navigator.connection.proxy.ConnectionProxy;
+import Sirius.navigator.exception.ConnectionException;
+
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 
@@ -23,11 +27,12 @@ import javax.mail.internet.MimeMessage;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
-
-import de.cismet.lagis.cidsmigtest.BrokerTester;
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagisEE.crossover.entity.WfsFlurstuecke;
 
@@ -40,13 +45,23 @@ import de.cismet.lagisEE.util.FlurKey;
  *
  * @version  $Revision$, $Date$
  */
-public final class EJBroker {
+public final class CidsBroker {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static EJBroker brokerInstance = null;
-    // private static LagisServer lagisEJBServerStub;
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(EJBroker.class);
+    public static final String LAGIS_DOMAIN = "VERDIS_GRUNDIS";
+
+    public static final String CLASS__FLURSTUECK_SCHLUESSEL = "flurstueck_schluessel";
+    public static final String CLASS__ANLAGEKLASSE = "anlageklasse";
+    public static final String CLASS__BAUM = "baum";
+    public static final String CLASS__BAUM_KATEGORIE = "baum_kategorie";
+    public static final String CLASS__BAUM_KATEGORIE_AUSPRAEGUNG = "baum_kategorie_auspraegung";
+    public static final String CLASS__BAUM_MERKMAL = "baum_merkmal";
+    public static final String CLASS__BAUM_NUTZUNG = "baum_nutzung";
+    public static final String CLASS__BEBAUUNG = "bebauung";
+
+    private static CidsBroker instance = null;
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CidsBroker.class);
 
     private static Vector<Session> nkfSessions = new Vector<Session>();
     private static DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
@@ -79,16 +94,26 @@ public final class EJBroker {
 
     //~ Instance fields --------------------------------------------------------
 
+    private ConnectionProxy proxy = null;
+
 // @Resource(name = "mail/nkf_mailaddress")
     private Session nkfMailer;
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new instance of EJBroker.
+     * Creates a new instance of CidsBroker.
      */
-    private EJBroker() {
-        CidsAppBackend.init();
+    private CidsBroker() {
+        try {
+            this.proxy = SessionManager.getProxy();
+            if (!SessionManager.isInitialized()) {
+                SessionManager.init(proxy);
+                ClassCacheMultiple.setInstance(LAGIS_DOMAIN);
+            }
+        } catch (Throwable e) {
+            LOG.fatal("no connection to the cids server possible. too bad.", e);
+        }
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -98,11 +123,11 @@ public final class EJBroker {
      *
      * @return  DOCUMENT ME!
      */
-    public static synchronized EJBroker getInstance() {
-        if (brokerInstance == null) {
-            brokerInstance = new EJBroker();
+    public static synchronized CidsBroker getInstance() {
+        if (instance == null) {
+            instance = new CidsBroker();
         }
-        return brokerInstance;
+        return instance;
     }
 
     /**
@@ -272,11 +297,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<GemarkungCustomBean> getGemarkungsKeys() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("gemarkung");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("gemarkung");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " " + "FROM " + metaclass.getTableName());
         final Collection<GemarkungCustomBean> beans = new HashSet<GemarkungCustomBean>();
@@ -328,8 +353,7 @@ public final class EJBroker {
                     if ((currentGemarkung != null) && (currentGemarkung.getSchluessel() != null)) {
                         // TODO Duplicated code --> extract
 
-                        final MetaClass metaclass = CidsAppBackend.getInstance()
-                                    .getLagisMetaClass("flurstueck_schluessel");
+                        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
                         if (metaclass == null) {
                             return null;
                         }
@@ -345,7 +369,7 @@ public final class EJBroker {
                                     + "    AND " + metaclass.getTableName() + ".fk_flurstueck_art != 3 "
                                     + "    AND gemarkung.schluessel = " + currentGemarkung.getSchluessel() + " "
                                     + "GROUP BY " + metaclass.getTableName() + ".flur";
-                        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+                        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
                         if (mos != null) {
                             final Collection flurKeys = new HashSet();
                             for (final MetaObject mo : mos) {
@@ -360,7 +384,7 @@ public final class EJBroker {
                     } else if ((currentGemarkung != null) && (currentGemarkung.getBezeichnung() != null)) {
                         final GemarkungCustomBean completed = completeGemarkung(currentGemarkung);
                         if (completed != null) {
-                            final MetaClass metaclass = CidsAppBackend.getInstance()
+                            final MetaClass metaclass = CidsBroker.getInstance()
                                         .getLagisMetaClass("flustueck_schluessel");
                             if (metaclass == null) {
                                 return null;
@@ -376,7 +400,7 @@ public final class EJBroker {
                                         + "    AND " + metaclass.getTableName() + ".fk_flurstueck_art != 3 "
                                         + "    AND gemarkung.schluessel = " + completed.getSchluessel() + " "
                                         + "GROUP BY " + metaclass.getTableName() + ".flur";
-                            final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+                            final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
                             if (mos != null) {
                                 final Collection flurKeys = new HashSet();
                                 for (final MetaObject mo : mos) {
@@ -399,7 +423,7 @@ public final class EJBroker {
                     }
                     final FlurKey currentFlur = (FlurKey)key;
 
-                    final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_schluessel");
+                    final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
                     if (metaclass == null) {
                         return null;
                     }
@@ -482,7 +506,7 @@ public final class EJBroker {
                                     + "   AND gemarkung.schluessel = " + currentFlur.getGemarkungsId();
                     }
                     if (query != null) {
-                        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+                        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
                         final Collection<FlurstueckSchluesselCustomBean> flurstuecke =
                             new HashSet<FlurstueckSchluesselCustomBean>();
                         for (final MetaObject metaObject : mos) {
@@ -535,11 +559,11 @@ public final class EJBroker {
                 LOG.debug("Nenner   : " + key.getFlurstueckNenner());
             }
 
-            final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck");
+            final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck");
             if (metaclass == null) {
                 return null;
             }
-            final MetaObject[] mos = CidsAppBackend.getInstance()
+            final MetaObject[] mos = CidsBroker.getInstance()
                         .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                             + metaclass.getPrimaryKey() + " "
                             + "FROM " + metaclass.getTableName() + " "
@@ -601,11 +625,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<AnlageklasseCustomBean> getAllAnlageklassen() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("anlageklasse");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("anlageklasse");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -622,11 +646,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VertragsartCustomBean> getAllVertragsarten() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("vertragsart");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("vertragsart");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -643,11 +667,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<MipaKategorieCustomBean> getAllMiPaKategorien() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("mipa_kategorie");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("mipa_kategorie");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -664,11 +688,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BaumKategorieCustomBean> getAllBaumKategorien() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("baum_kategorie");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("baum_kategorie");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -688,7 +712,7 @@ public final class EJBroker {
      */
     public SperreCustomBean createLock(final SperreCustomBean newSperre) {
         if (newSperre != null) {
-            final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("sperre");
+            final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("sperre");
             if (metaclass == null) {
                 return null;
             }
@@ -697,7 +721,7 @@ public final class EJBroker {
                         + "FROM " + metaclass.getTableName() + " "
                         + "WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = "
                         + newSperre.getFlurstueckSchluessel();
-            final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+            final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
 
             if ((mos == null) || (mos.length == 0)) {
                 if (LOG.isDebugEnabled()) {
@@ -818,11 +842,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VerwaltungsgebrauchCustomBean> getAllVerwaltenungsgebraeuche() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("verwaltungsgebrauch");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("verwaltungsgebrauch");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -839,11 +863,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VerwaltendeDienststelleCustomBean> getAllVerwaltendeDienstellen() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("verwaltende_dienststelle");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("verwaltende_dienststelle");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -860,11 +884,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<RebeArtCustomBean> getAllRebeArten() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("rebe_art");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("rebe_art");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -881,11 +905,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<NutzungsartCustomBean> getAllNutzungsarten() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("nutzungsart");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("nutzungsart");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -902,11 +926,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BeschlussartCustomBean> getAllBeschlussarten() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("beschlussart");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("beschlussart");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -923,11 +947,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<KostenCustomBean> getAllKostenarten() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("kosten");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("kosten");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -944,11 +968,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlaechennutzungCustomBean> getAllFlaechennutzungen() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flaechennutzung");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flaechennutzung");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -965,11 +989,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<MipaMerkmalCustomBean> getAllMiPaMerkmale() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("mipa_merkmal");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("mipa_merkmal");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -986,11 +1010,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BaumMerkmalCustomBean> getAllBaumMerkmale() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("baum_merkmal");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("baum_merkmal");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -1007,11 +1031,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BebauungCustomBean> getAllBebauungen() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("bebauung");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("bebauung");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -1028,11 +1052,11 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlurstueckArtCustomBean> getAllFlurstueckArten() {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_art");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_art");
         if (metaclass == null) {
             return null;
         }
-        final MetaObject[] mos = CidsAppBackend.getInstance()
+        final MetaObject[] mos = CidsBroker.getInstance()
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
@@ -1277,7 +1301,7 @@ public final class EJBroker {
     public SperreCustomBean isLocked(final FlurstueckSchluesselCustomBean key) {
         if (key != null) {
             if (key != null) {
-                final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("sperre");
+                final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("sperre");
                 if (metaclass == null) {
                     return null;
                 }
@@ -1285,7 +1309,7 @@ public final class EJBroker {
                             + metaclass.getPrimaryKey() + " "
                             + "FROM " + metaclass.getTableName() + " "
                             + "WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = " + key.getId();
-                final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+                final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
                 if ((mos != null) && (mos.length > 0)) {
                     final SperreCustomBean sperre = (SperreCustomBean)mos[0].getBean();
                     if (LOG.isDebugEnabled()) {
@@ -1679,13 +1703,13 @@ public final class EJBroker {
                             addHistoryEntriesForNeighbours(
                                 schluessel,
                                 level,
-                                EJBroker.HistoryType.SUCCESSOR,
+                                CidsBroker.HistoryType.SUCCESSOR,
                                 levelCount,
                                 allEdges);
                             addHistoryEntriesForNeighbours(
                                 schluessel,
                                 level,
-                                EJBroker.HistoryType.PREDECESSOR,
+                                CidsBroker.HistoryType.PREDECESSOR,
                                 levelCount,
                                 allEdges);
                             break;
@@ -1694,13 +1718,13 @@ public final class EJBroker {
                             addHistoryEntriesForNeighbours(
                                 schluessel,
                                 level,
-                                EJBroker.HistoryType.PREDECESSOR,
+                                CidsBroker.HistoryType.PREDECESSOR,
                                 levelCount,
                                 allEdges);
                             addHistoryEntriesForNeighbours(
                                 schluessel,
                                 level,
-                                EJBroker.HistoryType.SUCCESSOR,
+                                CidsBroker.HistoryType.SUCCESSOR,
                                 levelCount,
                                 allEdges);
                             break;
@@ -1712,13 +1736,13 @@ public final class EJBroker {
                             addHistoryEntriesForNeighbours(
                                 schluessel,
                                 level,
-                                EJBroker.HistoryType.PREDECESSOR,
+                                CidsBroker.HistoryType.PREDECESSOR,
                                 -1,
                                 allEdges);
                             addHistoryEntriesForNeighbours(
                                 schluessel,
                                 level,
-                                EJBroker.HistoryType.SUCCESSOR,
+                                CidsBroker.HistoryType.SUCCESSOR,
                                 -1,
                                 allEdges);
                         }
@@ -1796,7 +1820,7 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VertragCustomBean> getVertraegeForKey(final FlurstueckSchluesselCustomBean key) {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("vertrag");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("vertrag");
         if (metaclass == null) {
             return null;
         }
@@ -1810,7 +1834,7 @@ public final class EJBroker {
                     + "   jt_flurstueck_vertrag.fk_flurstueck = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + key.getId();
 
-        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<VertragCustomBean> beans = new HashSet<VertragCustomBean>();
         for (final MetaObject metaObject : mos) {
             beans.add((VertragCustomBean)metaObject.getBean());
@@ -1837,7 +1861,7 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForVertrag(final VertragCustomBean vertrag) {
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_schluessel");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
         if (metaclass == null) {
             return null;
         }
@@ -1851,7 +1875,7 @@ public final class EJBroker {
                     + "   public.flurstueck.ar_vertraege = public.jt_flurstueck_vertrag.fk_flurstueck  "
                     + "   AND public.jt_flurstueck_vertrag.fk_vertrag = " + vertrag.getId();
 
-        final MetaObject[] mosVertrag = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mosVertrag = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<FlurstueckSchluesselCustomBean>();
         for (final MetaObject metaObject : mosVertrag) {
             keys.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
@@ -1904,7 +1928,7 @@ public final class EJBroker {
             LOG.debug("Suche nach Flurstücken(Schluesseln) mit dem Aktenzeichen: " + aktenzeichen);
         }
 
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_schluessel");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
         if (metaclass == null) {
             return null;
         }
@@ -1920,7 +1944,7 @@ public final class EJBroker {
                     + "    AND jt_flurstueck_vertrag.fk_vertrag = vertrag.id "
                     + "    AND vertrag.aktenzeichen LIKE '%" + aktenzeichen + "%'";
 
-        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessel =
             new HashSet<FlurstueckSchluesselCustomBean>();
         for (final MetaObject metaObject : mos) {
@@ -1948,8 +1972,8 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForMiPa(final MipaCustomBean miPa) {
-        final MetaClass mcFlurstueckSchluessel = CidsAppBackend.getInstance()
-                    .getLagisMetaClass(CidsAppBackend.CLASS__FLURSTUECK_SCHLUESSEL);
+        final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
+                    .getLagisMetaClass(CidsBroker.CLASS__FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
@@ -1964,7 +1988,7 @@ public final class EJBroker {
                     + "   public.flurstueck.ar_mipas = public.jt_flurstueck_mipa.fk_flurstueck  "
                     + "   AND public.jt_flurstueck_mipa.fk_mipa = " + miPa.getId();
 
-        final MetaObject[] mosMipa = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<FlurstueckSchluesselCustomBean>();
         for (final MetaObject metaObject : mosMipa) {
             keys.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
@@ -2014,7 +2038,7 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<MipaCustomBean> getMiPaForKey(final FlurstueckSchluesselCustomBean key) {
-        final MetaClass mcMipa = CidsAppBackend.getInstance().getLagisMetaClass("mipa");
+        final MetaClass mcMipa = CidsBroker.getInstance().getLagisMetaClass("mipa");
         if (mcMipa == null) {
             return null;
         }
@@ -2028,7 +2052,7 @@ public final class EJBroker {
                     + "   jt_flurstueck_mipa.fk_flurstueck = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + key.getId();
 
-        final MetaObject[] mosMipa = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<MipaCustomBean> mipas = new HashSet<MipaCustomBean>();
         for (final MetaObject metaObject : mosMipa) {
             mipas.add((MipaCustomBean)metaObject.getBean());
@@ -2055,7 +2079,7 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BaumCustomBean> getBaumForKey(final FlurstueckSchluesselCustomBean key) {
-        final MetaClass mcBaum = CidsAppBackend.getInstance().getLagisMetaClass("baum");
+        final MetaClass mcBaum = CidsBroker.getInstance().getLagisMetaClass("baum");
         if (mcBaum == null) {
             return null;
         }
@@ -2069,7 +2093,7 @@ public final class EJBroker {
                     + "   jt_flurstueck_baum.fk_flurstueck = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + key.getId();
 
-        final MetaObject[] mosBaum = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mosBaum = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<BaumCustomBean> baeume = new HashSet<BaumCustomBean>();
         for (final MetaObject metaObject : mosBaum) {
             baeume.add((BaumCustomBean)metaObject.getBean());
@@ -2096,8 +2120,8 @@ public final class EJBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForBaum(final BaumCustomBean baum) {
-        final MetaClass mcFlurstueckSchluessel = CidsAppBackend.getInstance()
-                    .getLagisMetaClass(CidsAppBackend.CLASS__FLURSTUECK_SCHLUESSEL);
+        final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
+                    .getLagisMetaClass(CidsBroker.CLASS__FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
@@ -2112,7 +2136,7 @@ public final class EJBroker {
                     + "   public.flurstueck.ar_baeume = public.jt_flurstueck_baum.fk_flurstueck  "
                     + "   AND public.jt_flurstueck_baum.fk_baum = " + baum.getId();
 
-        final MetaObject[] mosBaum = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mosBaum = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<FlurstueckSchluesselCustomBean>();
         for (final MetaObject metaObject : mosBaum) {
             keys.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
@@ -2302,7 +2326,7 @@ public final class EJBroker {
             LOG.debug("ID des Schluessels ist: " + flurstueckSchluessel.getId());
         }
 
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_historie");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_historie");
         if (metaclass == null) {
             return false;
         }
@@ -2316,7 +2340,7 @@ public final class EJBroker {
                     + "   " + metaclass.getTableName() + ".fk_vorgaenger = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + flurstueckSchluessel.getId();
 
-        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         if (mos != null) {
             if (mos.length > 0) {
                 if (LOG.isDebugEnabled()) {
@@ -2569,7 +2593,7 @@ public final class EJBroker {
      */
     private void replacePseudoFlurstuecke(final Collection<FlurstueckHistorieCustomBean> flurstueckHistorie,
             final Collection<FlurstueckHistorieCustomBean> allEdges,
-            final EJBroker.HistoryType direction) {
+            final CidsBroker.HistoryType direction) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("replacePseudoFlurstuecke: direction=" + direction + " Kanten=" + flurstueckHistorie);
         }
@@ -2586,7 +2610,7 @@ public final class EJBroker {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("" + currentFlurstueckHistorie.getNachfolger());
                 }
-                if ((direction == EJBroker.HistoryType.PREDECESSOR)
+                if ((direction == CidsBroker.HistoryType.PREDECESSOR)
                             && (currentFlurstueckHistorie.getNachfolger() != null)
                             && (currentFlurstueckHistorie.getVorgaenger() != null)
                             && (currentFlurstueckHistorie.getVorgaenger().getFlurstueckSchluessel() != null)
@@ -2603,7 +2627,7 @@ public final class EJBroker {
                     if (result != null) {
                         realNeighbours.addAll(result);
                     }
-                } else if ((direction == EJBroker.HistoryType.SUCCESSOR)
+                } else if ((direction == CidsBroker.HistoryType.SUCCESSOR)
                             && (currentFlurstueckHistorie.getNachfolger() != null)
                             && (currentFlurstueckHistorie.getVorgaenger() != null)
                             && (currentFlurstueckHistorie.getNachfolger().getFlurstueckSchluessel() != null)
@@ -2645,7 +2669,7 @@ public final class EJBroker {
             LOG.debug("ID des Schluessels ist: " + flurstueckSchluessel);
         }
 
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_historie");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_historie");
         if (metaclass == null) {
             return null;
         }
@@ -2659,7 +2683,7 @@ public final class EJBroker {
                     + "   " + metaclass.getTableName() + ".fk_nachfolger = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + flurstueckSchluessel.getId();
 
-        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<FlurstueckHistorieCustomBean> historyEntries = new HashSet<FlurstueckHistorieCustomBean>();
         for (final MetaObject metaObject : mos) {
             historyEntries.add((FlurstueckHistorieCustomBean)metaObject.getBean());
@@ -2709,7 +2733,7 @@ public final class EJBroker {
             LOG.debug("Suche Nachfolger für Flurstück");
         }
 
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_historie");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_historie");
         if (metaclass == null) {
             return null;
         }
@@ -2723,7 +2747,7 @@ public final class EJBroker {
                     + "   " + metaclass.getTableName() + ".fk_nachfolger = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + flurstueckSchluessel.getId();
 
-        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         final Collection<FlurstueckHistorieCustomBean> historyEntries = new HashSet<FlurstueckHistorieCustomBean>();
         for (final MetaObject metaObject : mos) {
             historyEntries.add((FlurstueckHistorieCustomBean)metaObject.getBean());
@@ -2828,8 +2852,10 @@ public final class EJBroker {
                 }
 //TODO wird im Moment nur die Entstehung und gueltig_bis vom aktuellen Flurstück gespeichert
 
-                final FlurstueckSchluesselCustomBean oldSchluessel = (FlurstueckSchluesselCustomBean)BrokerTester
-                            .createCB(CidsAppBackend.CLASS__FLURSTUECK_SCHLUESSEL, key.getId());
+                final FlurstueckSchluesselCustomBean oldSchluessel = (FlurstueckSchluesselCustomBean)CidsBroker
+                            .getInstance()
+                            .getLagisMetaObject(key.getId(),
+                                    CidsBroker.getInstance().getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL).getId());
 
                 if ((oldSchluessel != null) && (oldSchluessel.getFlurstueckArt() != null)
                             && (oldSchluessel.getFlurstueckArt().getBezeichnung() != null)
@@ -2875,7 +2901,7 @@ public final class EJBroker {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Suche History Einträge");
         }
-        final MetaClass metaclass = CidsAppBackend.getInstance().getLagisMetaClass("flurstueck_historie");
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_historie");
         if (metaclass == null) {
             return false;
         }
@@ -2884,7 +2910,7 @@ public final class EJBroker {
                     + "FROM " + metaclass.getTableName() + " "
                     + "WHERE " + metaclass.getTableName() + ".fk_vorgaenger = " + flurstueckToCheck.getId();
 
-        final MetaObject[] mos = CidsAppBackend.getInstance().getLagisMetaObject(query);
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         if ((mos != null) && (mos.length > 0)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Es existiert ein History Eintrag");
@@ -3230,32 +3256,32 @@ public final class EJBroker {
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
     private void addHistoryEntriesForNeighbours(final FlurstueckSchluesselCustomBean key,
-            final EJBroker.HistoryLevel level,
-            final EJBroker.HistoryType type,
+            final CidsBroker.HistoryLevel level,
+            final CidsBroker.HistoryType type,
             int levelCount,
             final Collection<FlurstueckHistorieCustomBean> allEdges) throws ActionNotSuccessfulException {
         Collection<FlurstueckHistorieCustomBean> foundEdges;
         Collection<FlurstueckHistorieCustomBean> neighbours;
 
-        if (type == EJBroker.HistoryType.PREDECESSOR) {
+        if (type == CidsBroker.HistoryType.PREDECESSOR) {
             neighbours = getHistoryAccessors(key);
         } else {
             neighbours = getHistorySuccessor(key);
         }
 
-        if ((neighbours != null) && (type == EJBroker.HistoryType.PREDECESSOR)) {
+        if ((neighbours != null) && (type == CidsBroker.HistoryType.PREDECESSOR)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Es gibt Vorgängerkanten zu diesem Knoten");
             }
             replacePseudoFlurstuecke(neighbours, allEdges, type);
             allEdges.addAll(neighbours);
-        } else if ((neighbours != null) && (type == EJBroker.HistoryType.SUCCESSOR)) {
+        } else if ((neighbours != null) && (type == CidsBroker.HistoryType.SUCCESSOR)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Es gibt Nachfoglerkanten zu diesem Knoten");
             }
             replacePseudoFlurstuecke(neighbours, allEdges, type);
             allEdges.addAll(neighbours);
-        } else if (type == EJBroker.HistoryType.SUCCESSOR) {
+        } else if (type == CidsBroker.HistoryType.SUCCESSOR) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Es gibt keine Nachfolgerkanten zu diesem Knoten");
             }
@@ -3267,7 +3293,7 @@ public final class EJBroker {
             return;
         }
 
-        if (level != EJBroker.HistoryLevel.All) {
+        if (level != CidsBroker.HistoryLevel.All) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("HistoryLevel = " + level);
             }
@@ -3296,7 +3322,7 @@ public final class EJBroker {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Suche rekursiv nach weiteren Vorgängern");
             }
-            if (type == EJBroker.HistoryType.PREDECESSOR) {
+            if (type == CidsBroker.HistoryType.PREDECESSOR) {
                 foundEdges = getHistoryEntries(itr.next().getVorgaenger().getFlurstueckSchluessel(),
                         level,
                         type,
@@ -3316,7 +3342,7 @@ public final class EJBroker {
             }
         }
 
-        if (level != EJBroker.HistoryLevel.All) {
+        if (level != CidsBroker.HistoryLevel.All) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("HistoryLevel = " + level);
             }
@@ -3336,6 +3362,56 @@ public final class EJBroker {
                 }
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   tablename  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MetaClass getLagisMetaClass(final String tablename) {
+        try {
+            return CidsBean.getMetaClassFromTableName(LagisBroker.getInstance().getDomain(), tablename);
+        } catch (Exception exception) {
+            LOG.error("couldn't load metaclass for " + tablename, exception);
+            return null;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   objectId  DOCUMENT ME!
+     * @param   classtId  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MetaObject getLagisMetaObject(final int objectId, final int classtId) {
+        try {
+            return proxy.getMetaObject(objectId, classtId, LagisBroker.getInstance().getDomain());
+        } catch (ConnectionException ex) {
+            LOG.error("error in retrieving the metaobject " + objectId + " of classid " + classtId, ex);
+            return null;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   query  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MetaObject[] getLagisMetaObject(final String query) {
+        MetaObject[] mos = null;
+        try {
+            mos = proxy.getMetaObjectByQuery(query, 0);
+        } catch (ConnectionException ex) {
+            LOG.error("error retrieving metaobject by query", ex);
+        }
+        return mos;
     }
 
     //~ Inner Classes ----------------------------------------------------------

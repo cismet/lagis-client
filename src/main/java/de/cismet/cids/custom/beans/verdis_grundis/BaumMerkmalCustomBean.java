@@ -9,7 +9,7 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.extension.baum.BaumMerkmal;
 
@@ -49,7 +49,7 @@ public class BaumMerkmalCustomBean extends CidsBean implements BaumMerkmal {
      */
     public static BaumMerkmalCustomBean createNew() {
         try {
-            return (BaumMerkmalCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (BaumMerkmalCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;

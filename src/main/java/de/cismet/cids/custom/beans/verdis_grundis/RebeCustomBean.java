@@ -21,7 +21,7 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.ReBe;
@@ -85,7 +85,7 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
      */
     public static RebeCustomBean createNew() {
         try {
-            return (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;
@@ -401,7 +401,7 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
             try {
-                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "geom");
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, "geom");
             } catch (Exception ex) {
                 LOG.error("error creating geom bean", ex);
             }

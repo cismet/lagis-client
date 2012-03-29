@@ -55,15 +55,11 @@ import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.cids.dynamics.CidsBean;
-
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
-
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.gui.main.LagisApp;
 
@@ -636,14 +632,12 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public boolean acquireLock() {
         try {
             if ((currentFlurstueck != null) && (currentSperre == null)) {
-                final SperreCustomBean newSperre = (SperreCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                        domain,
-                        "sperre");
+                final SperreCustomBean newSperre = SperreCustomBean.createNew();
                 // datamodell refactoring 22.10.07
                 newSperre.setFlurstueckSchluessel(currentFlurstueck.getFlurstueckSchluessel().getId());
                 newSperre.setBenutzerkonto(getAccountName());
                 newSperre.setZeitstempel(new Date());
-                final SperreCustomBean result = EJBroker.getInstance().createLock(newSperre);
+                final SperreCustomBean result = CidsBroker.getInstance().createLock(newSperre);
                 if (result != null) {
                     if (result.getBenutzerkonto().equals(getAccountName())
                                 && result.getZeitstempel().equals(newSperre.getZeitstempel())) {
@@ -695,7 +689,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public boolean releaseLock() {
         try {
             if ((currentFlurstueck != null) && (currentSperre != null)) {
-                final boolean result = EJBroker.getInstance().releaseLock(currentSperre);
+                final boolean result = CidsBroker.getInstance().releaseLock(currentSperre);
                 if (result) {
                     if (log.isDebugEnabled()) {
                         log.debug("Sperre erfolgreich gelöst");
@@ -828,7 +822,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 }
                 // TODO check if flurstück is changed at all
                 try {
-                    final FlurstueckCustomBean origFlurstueck = EJBroker.getInstance()
+                    final FlurstueckCustomBean origFlurstueck = CidsBroker.getInstance()
                                 .retrieveFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
 
                     // Checks the Dienstellen for changes
@@ -1054,7 +1048,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             ex));
                     // TODO Nachricht an Benutzer
                 }
-                EJBroker.getInstance().modifyFlurstueck(currentFlurstueck);
+                CidsBroker.getInstance().modifyFlurstueck(currentFlurstueck);
                 // TODO only sending if the flurstück is saved definetly
 
                 sendMessages();
@@ -1814,7 +1808,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         if (gemarkungsHashMap != null) {
             resolvedGemarkung = gemarkungsHashMap.get(key);
         } else {
-            gemarkungsHashMap = EJBroker.getInstance().getGemarkungsHashMap();
+            gemarkungsHashMap = CidsBroker.getInstance().getGemarkungsHashMap();
             if (gemarkungsHashMap != null) {
                 resolvedGemarkung = gemarkungsHashMap.get(key);
             }

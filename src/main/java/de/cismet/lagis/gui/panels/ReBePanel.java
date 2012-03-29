@@ -46,10 +46,8 @@ import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.editor.DateEditor;
 
@@ -229,7 +227,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     private void configureTable() {
         tReBe.setModel(tableModel);
-        final Collection<RebeArtCustomBean> reBeArten = EJBroker.getInstance().getAllRebeArten();
+        final Collection<RebeArtCustomBean> reBeArten = CidsBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {
             final JComboBox cboRebeArt = new JComboBox(new Vector<RebeArtCustomBean>(reBeArten));
@@ -370,9 +368,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         for (final RebeCustomBean rebe : allReBe) {
             try {
-                final RebeCustomBean tmp = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                        CidsAppBackend.LAGIS_DOMAIN,
-                        "rebe");
+                final RebeCustomBean tmp = RebeCustomBean.createNew();
 
                 final Date dateEintragung = rebe.getDatumEintragung();
                 final Date dateLoeschung = rebe.getDatumLoeschung();
@@ -689,9 +685,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
         try {
-            final RebeCustomBean tmpReBe = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsAppBackend.LAGIS_DOMAIN,
-                    "rebe");
+            final RebeCustomBean tmpReBe = RebeCustomBean.createNew();
             if (isInAbteilungIXModus) {
                 tmpReBe.setIstRecht(true);
             }

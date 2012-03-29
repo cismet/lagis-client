@@ -74,7 +74,7 @@ public class LagisCrossover {
                 FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
                 GemarkungCustomBean gem = GemarkungCustomBean.createNew();
                 gem.setBezeichnung(gemarkung);
-                gem = EJBroker.getInstance().completeGemarkung(gem);
+                gem = CidsBroker.getInstance().completeGemarkung(gem);
                 if (gem == null) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Change of Flurstueck not possible no such gemarkung: " + key);
@@ -85,7 +85,7 @@ public class LagisCrossover {
                 key.setFlur(flur);
                 key.setFlurstueckZaehler(zaehler);
                 key.setFlurstueckNenner(nenner);
-                key = EJBroker.getInstance().completeFlurstueckSchluessel(key);
+                key = CidsBroker.getInstance().completeFlurstueckSchluessel(key);
                 if (key != null) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("found a key on server: " + key);

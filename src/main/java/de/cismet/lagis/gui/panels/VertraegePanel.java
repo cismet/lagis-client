@@ -17,8 +17,6 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.SortOrder;
 
-import org.openide.util.Exceptions;
-
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -31,12 +29,8 @@ import javax.swing.table.TableCellEditor;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.cids.dynamics.CidsBean;
-
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.editor.EuroEditor;
@@ -214,8 +208,9 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         validators.add(valTxtVoreigentuemer);
 
         final JComboBox cboBA = new JComboBox(new Vector<BeschlussartCustomBean>(
-                    EJBroker.getInstance().getAllBeschlussarten()));
-        final JComboBox cboKA = new JComboBox(new Vector<KostenCustomBean>(EJBroker.getInstance().getAllKostenarten()));
+                    CidsBroker.getInstance().getAllBeschlussarten()));
+        final JComboBox cboKA = new JComboBox(new Vector<KostenCustomBean>(
+                    CidsBroker.getInstance().getAllKostenarten()));
         tblBeschluesse.setDefaultEditor(BeschlussartCustomBean.class, new DefaultCellEditor(cboBA));
         tblKosten.setDefaultEditor(KostenartCustomBean.class, new DefaultCellEditor(cboKA));
         // tblBeschluesse.addMouseListener(this);
@@ -1319,9 +1314,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVertragActionPerformed
         try {
             // ((JXTable)tblVertraege).setSortable(false);
-            final VertragCustomBean newVertrag = (VertragCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsAppBackend.LAGIS_DOMAIN,
-                    "vertrag");
+            final VertragCustomBean newVertrag = VertragCustomBean.createNew();
             newVertrag.setVertragsart((VertragsartCustomBean)cboVertragsart.getItemAt(0));
             vTableModel.addVertrag(newVertrag);
             // vTableModel.fireTableDataChanged();
@@ -1338,7 +1331,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         if (log.isDebugEnabled()) {
             log.debug("Update der Querverweise");
         }
-        final Collection<FlurstueckSchluesselCustomBean> crossRefs = EJBroker.getInstance()
+        final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
                     .getCrossreferencesForVertraege(new HashSet(vTableModel.getVertraege()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {

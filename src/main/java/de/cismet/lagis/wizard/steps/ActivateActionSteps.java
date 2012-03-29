@@ -35,7 +35,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ActivateActionPanel;
@@ -107,18 +107,18 @@ public class ActivateActionSteps extends WizardPanelProvider {
             }
             SperreCustomBean sperre = null;
             try {
-                final SperreCustomBean other = EJBroker.getInstance().isLocked(activationCandidate);
+                final SperreCustomBean other = CidsBroker.getInstance().isLocked(activationCandidate);
                 if (other == null) {
-                    sperre = EJBroker.getInstance()
+                    sperre = CidsBroker.getInstance()
                                 .createLock(SperreCustomBean.createNew(
                                             activationCandidate,
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         progress.setBusy("Flurstück wird aktiviert");
-                        // EJBroker.getInstance().createFlurstueck(key);
-                        EJBroker.getInstance().setFlurstueckActive(activationCandidate);
+                        // CidsBroker.getInstance().createFlurstueck(key);
+                        CidsBroker.getInstance().setFlurstueckActive(activationCandidate);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
-                        EJBroker.getInstance().releaseLock(sperre);
+                        CidsBroker.getInstance().releaseLock(sperre);
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
                                     && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
@@ -175,7 +175,7 @@ public class ActivateActionSteps extends WizardPanelProvider {
             } catch (final Exception e) {
                 log.error("Fehler beim renamen eines Flurstücks: ", e);
                 try {
-                    EJBroker.getInstance().releaseLock(sperre);
+                    CidsBroker.getInstance().releaseLock(sperre);
                 } catch (Exception ex) {
                     log.error("Fehler beim lösen der Sperre", ex);
                 }

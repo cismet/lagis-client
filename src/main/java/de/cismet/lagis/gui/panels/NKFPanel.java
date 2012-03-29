@@ -39,7 +39,7 @@ import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.EuroEditor;
@@ -273,12 +273,12 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.getSelectionModel().addListSelectionListener(this);
         tableModel.addTableModelListener(this);
         final JComboBox cboAK = new JComboBox(new Vector<AnlageklasseCustomBean>(
-                    EJBroker.getInstance().getAllAnlageklassen()));
+                    CidsBroker.getInstance().getAllAnlageklassen()));
         cboAK.addItem("");
         tNutzung.setDefaultEditor(AnlageklasseCustomBean.class, new DefaultCellEditor(cboAK));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
-        final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<NutzungsartCustomBean>(EJBroker.getInstance()
+        final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<NutzungsartCustomBean>(CidsBroker.getInstance()
                         .getAllNutzungsarten());
         Collections.sort(nutzungsarten);
         final JComboBox cboNA = new JComboBox(nutzungsarten);

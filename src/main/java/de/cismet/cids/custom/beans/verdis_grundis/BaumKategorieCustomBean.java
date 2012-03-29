@@ -11,7 +11,7 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
 
@@ -52,7 +52,7 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
      */
     public static BaumKategorieCustomBean createNew() {
         try {
-            return (BaumKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (BaumKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;

@@ -14,7 +14,7 @@ import java.util.List;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
@@ -70,7 +70,7 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
     public static VerwaltungsgebrauchCustomBean createNew() {
         try {
             return (VerwaltungsgebrauchCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsAppBackend.LAGIS_DOMAIN,
+                    CidsBroker.LAGIS_DOMAIN,
                     TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);

@@ -11,9 +11,7 @@ import org.openide.util.Exceptions;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.EJBroker;
-
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
@@ -55,7 +53,7 @@ public class AnlageklasseCustomBean extends BasicEntity implements Anlageklasse 
      */
     public static AnlageklasseCustomBean createNew() {
         try {
-            return (AnlageklasseCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (AnlageklasseCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;

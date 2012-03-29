@@ -22,7 +22,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
@@ -74,7 +74,7 @@ public class ActivateActionPanel extends javax.swing.JPanel implements Validatio
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panActivate.getStatus() == Validatable.VALID) {
-            final SperreCustomBean sperre = EJBroker.getInstance()
+            final SperreCustomBean sperre = CidsBroker.getInstance()
                         .isLocked(panActivate.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
@@ -83,7 +83,7 @@ public class ActivateActionPanel extends javax.swing.JPanel implements Validatio
                 return;
             }
             try {
-                if (EJBroker.getInstance().hasFlurstueckSucccessors(panActivate.getCurrentFlurstueckSchluessel())) {
+                if (CidsBroker.getInstance().hasFlurstueckSucccessors(panActivate.getCurrentFlurstueckSchluessel())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Flurstück kann nicht aktiviert werden es hat nachfogler");
                     }

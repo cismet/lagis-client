@@ -38,7 +38,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
@@ -183,10 +183,10 @@ public class JoinActionSteps extends WizardPanelProvider {
             }
             try {
                 progress.setBusy("Flurstück wird gejoined");
-                // EJBroker.getInstance().createFlurstueck(key);
+                // CidsBroker.getInstance().createFlurstueck(key);
                 // setzte bei dem gejointen Flurstück die art der anderen
                 joinKey.setFlurstueckArt(joinKeys.get(0).getFlurstueckArt());
-                final FlurstueckCustomBean newFlurstueck = EJBroker.getInstance()
+                final FlurstueckCustomBean newFlurstueck = CidsBroker.getInstance()
                             .joinFlurstuecke(joinKeys, joinKey, LagisBroker.getInstance().getAccountName());
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:\n");

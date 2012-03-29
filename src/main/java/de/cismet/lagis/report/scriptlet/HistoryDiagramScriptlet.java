@@ -48,7 +48,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 /**
@@ -185,15 +185,15 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
         gp.setScaleToFit(true);
         graph.setEditable(false);
 
-        final EJBroker.HistoryLevel level = EJBroker.HistoryLevel.DIRECT_RELATIONS;
+        final CidsBroker.HistoryLevel level = CidsBroker.HistoryLevel.DIRECT_RELATIONS;
 
         final FlurstueckCustomBean currentObj = LagisBroker.getInstance().getCurrentFlurstueck();
 
         try {
-            final Collection<FlurstueckHistorieCustomBean> allEdges = EJBroker.getInstance()
+            final Collection<FlurstueckHistorieCustomBean> allEdges = CidsBroker.getInstance()
                         .getHistoryEntries(currentObj.getFlurstueckSchluessel(),
                             level,
-                            EJBroker.HistoryType.BOTH,
+                            CidsBroker.HistoryType.BOTH,
                             LEVEL_COUNT);
 
             if ((allEdges != null) && (allEdges.size() > 0)) {

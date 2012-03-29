@@ -18,7 +18,7 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
@@ -87,7 +87,7 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
     public static NutzungBuchungCustomBean createNew() {
         try {
             return (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsAppBackend.LAGIS_DOMAIN,
+                    CidsBroker.LAGIS_DOMAIN,
                     TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);

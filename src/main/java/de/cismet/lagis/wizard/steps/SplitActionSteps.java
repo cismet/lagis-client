@@ -32,7 +32,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.ResultingPanel;
@@ -166,12 +166,12 @@ public class SplitActionSteps extends WizardPanelProvider {
             }
             try {
                 progress.setBusy("Flurstück wird geteilt");
-                // EJBroker.getInstance().createFlurstueck(key);
+                // CidsBroker.getInstance().createFlurstueck(key);
                 for (final FlurstueckSchluesselCustomBean current : splitKeys) {
                     // setzte bei den gesplitteten Flurstück die art des ursprünglichen
                     current.setFlurstueckArt(splitCandidate.getFlurstueckArt());
                 }
-                EJBroker.getInstance()
+                CidsBroker.getInstance()
                         .splitFlurstuecke(splitCandidate, splitKeys, LagisBroker.getInstance().getAccountName());
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 final StringBuffer resultString = new StringBuffer("Flurstück: \n\t" + "\""

@@ -36,7 +36,7 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagisEE.interfaces.Key;
@@ -115,7 +115,7 @@ public class BrokerTester {
             Log4JQuickConfig.configure4LumbermillOnLocalhost();
 
             final BrokerTester tester = new BrokerTester();
-            final EJBroker broker = EJBroker.getInstance();
+            final CidsBroker broker = CidsBroker.getInstance();
 
             tester.createCB("flurstueck", 0);
 //            final FlurstueckCustomBean bean = (FlurstueckCustomBean)tester.createCB("flurstueck", 20562);
@@ -176,7 +176,7 @@ public class BrokerTester {
      *
      * @param  broker  DOCUMENT ME!
      */
-    private void prepareAllFlurstueckKeys(final EJBroker broker) {
+    private void prepareAllFlurstueckKeys(final CidsBroker broker) {
         LOG.fatal("vorbereiten, sammeln der Flurstuecksschluessel");
 
         allFlurstueckKeys.clear();
@@ -214,7 +214,7 @@ public class BrokerTester {
      *
      * @return  DOCUMENT ME!
      */
-    private float testPerfEjb(final EJBroker broker) {
+    private float testPerfEjb(final CidsBroker broker) {
         LOG.fatal("performance Start EJB");
 
         final long startTimeEjb = System.nanoTime();
@@ -346,7 +346,7 @@ public class BrokerTester {
      * DOCUMENT ME!
      */
     private void initEJBroker() {
-        EJBroker.getInstance();
+        CidsBroker.getInstance();
     }
 
     /**
@@ -354,7 +354,7 @@ public class BrokerTester {
      *
      * @param  broker  DOCUMENT ME!
      */
-    private void testEJBroker(final EJBroker broker) {
+    private void testEJBroker(final CidsBroker broker) {
     }
 
 //    /**

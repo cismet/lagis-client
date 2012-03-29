@@ -32,7 +32,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -306,11 +306,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                         JOptionPane.ERROR_MESSAGE);
                 } else {
                     // TODO Locking problem
-                    EJBroker.getInstance()
+                    CidsBroker.getInstance()
                             .bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel(),
                                 LagisBroker.getInstance().getAccountName());
                 }
-                // EJBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
+                // CidsBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
             } catch (Exception ex) {
                 // TODO ActionNotSuccessfull Exception
                 final StringBuffer resultString = new StringBuffer(

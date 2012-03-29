@@ -23,8 +23,6 @@ import org.jdesktop.swingx.decorator.SortOrder;
 
 import org.jdom.Element;
 
-import org.openide.util.Exceptions;
-
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -47,16 +45,12 @@ import javax.swing.text.BadLocationException;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
-import de.cismet.cids.dynamics.CidsBean;
-
 import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.editor.FlaecheEditor;
 
@@ -426,8 +420,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
         for (final VerwaltungsbereichCustomBean vb : allVBs) {
             try {
-                final VerwaltungsbereichCustomBean tmp = (VerwaltungsbereichCustomBean)CidsBean
-                            .createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "verwaltungsbereiche");
+                final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
 
                 tmp.setGebrauch(vb.getGebrauch());
                 tmp.setDienststelle(vb.getDienststelle());
@@ -596,13 +589,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
         tNutzung.setModel(tableModel);
         cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
-                    EJBroker.getInstance().getAllVerwaltendeDienstellen()));
+                    CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
         tNutzung.setDefaultRenderer(VerwaltungsgebrauchCustomBean.class, vgRenderer);
         tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new DefaultCellEditor(cboVD));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         final JComboBox cboVG = new JComboBox(new Vector<VerwaltungsgebrauchCustomBean>(
-                    EJBroker.getInstance().getAllVerwaltenungsgebraeuche()));
+                    CidsBroker.getInstance().getAllVerwaltenungsgebraeuche()));
         cboVG.addActionListener(new ActionListener() {
 
                 @Override
@@ -1461,8 +1454,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
         try {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            final VerwaltungsbereichCustomBean tmp = (VerwaltungsbereichCustomBean)CidsBean
-                        .createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "verwaltungsbereiche");
+            final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
             if (log.isDebugEnabled()) {
                 log.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
             }

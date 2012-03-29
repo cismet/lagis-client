@@ -37,7 +37,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckHistorieCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -146,44 +146,44 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             // ToDo remove Strings
                             log.debug("Erstelle Historien Anfrage:");
                         }
-                        EJBroker.HistoryLevel level;
+                        CidsBroker.HistoryLevel level;
                         int levelCount = 0;
                         if (cbxHistoryOptions.getSelectedItem().equals("Direkte Vorgänger/Nachfolger")) {
-                            level = EJBroker.HistoryLevel.DIRECT_RELATIONS;
+                            level = CidsBroker.HistoryLevel.DIRECT_RELATIONS;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur angrenzendte Flurstücke");
                             }
                         } else if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
-                            level = EJBroker.HistoryLevel.CUSTOM;
+                            level = CidsBroker.HistoryLevel.CUSTOM;
                             levelCount = ((Number)sprLevels.getValue()).intValue();
                             if (log.isDebugEnabled()) {
                                 log.debug("begrentze Tiefe mit " + levelCount + " Stufen");
                             }
                         } else {
-                            level = EJBroker.HistoryLevel.All;
+                            level = CidsBroker.HistoryLevel.All;
                             if (log.isDebugEnabled()) {
                                 log.debug("Alle Levels");
                             }
                         }
-                        EJBroker.HistoryType type;
+                        CidsBroker.HistoryType type;
                         if (cbxHistoryType.getSelectedItem().equals("Nur Nachfolger")) {
-                            type = EJBroker.HistoryType.SUCCESSOR;
+                            type = CidsBroker.HistoryType.SUCCESSOR;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur Nachfolger");
                             }
                         } else if (cbxHistoryType.getSelectedItem().equals("Nur Vorgänger")) {
-                            type = EJBroker.HistoryType.PREDECESSOR;
+                            type = CidsBroker.HistoryType.PREDECESSOR;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur Vorgänger");
                             }
                         } else {
-                            type = EJBroker.HistoryType.BOTH;
+                            type = CidsBroker.HistoryType.BOTH;
                             if (log.isDebugEnabled()) {
                                 log.debug("Vorgänger/Nachfolger");
                             }
                         }
 
-                        final Collection<FlurstueckHistorieCustomBean> allEdges = EJBroker.getInstance()
+                        final Collection<FlurstueckHistorieCustomBean> allEdges = CidsBroker.getInstance()
                                     .getHistoryEntries(getCurrentObject().getFlurstueckSchluessel(),
                                         level,
                                         type,

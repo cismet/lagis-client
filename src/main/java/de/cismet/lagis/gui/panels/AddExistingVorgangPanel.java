@@ -28,7 +28,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.VertragCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.DefaultUniqueListModel;
@@ -113,7 +113,7 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
         }
         if (flurstueckChooser1.getStatus() == flurstueckChooser1.VALID) {
             final FlurstueckSchluesselCustomBean currentKey = flurstueckChooser1.getCurrentFlurstueckSchluessel();
-            final Collection<VertragCustomBean> vertraege = EJBroker.getInstance().getVertraegeForKey(currentKey);
+            final Collection<VertragCustomBean> vertraege = CidsBroker.getInstance().getVertraegeForKey(currentKey);
             if (vertraege != null) {
                 // Check if the Contract ist already  added
                 // if(currentFlurstueck != null && currentFlurstueck.getVertraege() != null){
@@ -268,7 +268,7 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
             final VertragCustomBean curVertrag = tblModel.getVertragAtRow(((JXTable)tblVorgang).convertRowIndexToModel(
                         selectedRows[i]));
             currentVertraegeTabelModel.addVertrag(curVertrag);
-            final Collection<FlurstueckSchluesselCustomBean> crossRefs = EJBroker.getInstance()
+            final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
                         .getCrossReferencesForVertrag(curVertrag);
             if (crossRefs != null) {
                 if (log.isDebugEnabled()) {

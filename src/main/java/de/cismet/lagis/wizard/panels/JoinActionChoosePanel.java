@@ -26,7 +26,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
@@ -102,7 +102,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
                 wizardController.setProblem(curJoinMember.getValidationMessage());
                 return;
             }
-            final SperreCustomBean sperre = EJBroker.getInstance()
+            final SperreCustomBean sperre = CidsBroker.getInstance()
                         .isLocked(curJoinMember.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "

@@ -21,7 +21,7 @@ import java.util.Map;
 
 import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
@@ -79,7 +79,7 @@ public class HistoricActionPanel extends javax.swing.JPanel implements Validatio
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panHistoric.getStatus() == Validatable.VALID) {
-            final SperreCustomBean sperre = EJBroker.getInstance()
+            final SperreCustomBean sperre = CidsBroker.getInstance()
                         .isLocked(panHistoric.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar

@@ -33,7 +33,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.KeyComboboxModel;
@@ -97,7 +97,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                         if (log.isDebugEnabled()) {
                             log.debug("Abrufen der Gemarkungen vom Server");
                         }
-                        final Collection gemKeys = EJBroker.getInstance().getGemarkungsKeys();
+                        final Collection gemKeys = CidsBroker.getInstance().getGemarkungsKeys();
                         if (gemKeys != null) {
                             final Vector gemKeyList = new Vector(gemKeys);
                             Collections.sort(gemKeyList);
@@ -140,7 +140,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                         if (log.isDebugEnabled()) {
                             log.debug("Abrufen der Gemarkungen vom Server");
                         }
-                        final Collection gemKeys = EJBroker.getInstance().getGemarkungsKeys();
+                        final Collection gemKeys = CidsBroker.getInstance().getGemarkungsKeys();
                         if (gemKeys != null) {
                             final Vector gemKeyList = new Vector(gemKeys);
                             Collections.sort(gemKeyList);
@@ -326,7 +326,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
             }
             // lblStatus.setText("");
             ((TitledBorder)panAll.getBorder()).setTitle("");
-            final FlurstueckSchluesselCustomBean checkedKey = EJBroker.getInstance()
+            final FlurstueckSchluesselCustomBean checkedKey = CidsBroker.getInstance()
                         .completeFlurstueckSchluessel(currentFlurstueckSchluessel);
             if (checkedKey != null) {
                 if (log.isDebugEnabled()) {
@@ -339,7 +339,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                 if (log.isDebugEnabled()) {
                     log.debug("Flurstück ist noch nicht vorhanden und kann angelegt werden");
                 }
-                final FlurstueckCustomBean newFlurstueck = EJBroker.getInstance()
+                final FlurstueckCustomBean newFlurstueck = CidsBroker.getInstance()
                             .createFlurstueck(currentFlurstueckSchluessel);
                 if (newFlurstueck != null) {
                     if (log.isDebugEnabled()) {
@@ -473,7 +473,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                                 }
                                 // if(isIncomplete){
                                 // log.debug("isIncomplete(Thread)");
-                                currentGemarkung = EJBroker.getInstance().completeGemarkung(current);
+                                currentGemarkung = CidsBroker.getInstance().completeGemarkung(current);
                                 if (currentGemarkung == null) {
                                     if (log.isDebugEnabled()) {
                                         log.debug("liefert keine komplette Germarkung (Thread)");
@@ -487,7 +487,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
 //                                }
                                 // }
                                 currentFlurstueckSchluessel.setGemarkung(currentGemarkung);
-                                final Collection flurKeys = EJBroker.getInstance()
+                                final Collection flurKeys = CidsBroker.getInstance()
                                             .getDependingKeysForKey(currentGemarkung);
                                 KeyComboboxModel keyModel;
                                 if (flurKeys != null) {
@@ -498,7 +498,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
                                     keyModel = new KeyComboboxModel();
                                 }
                                 // KeyComboboxModel keyModel = new KeyComboboxModel(new
-                                // Vector<Key>(EJBroker.getInstance().getKeysDependingOnKey((currentGemarkung))));
+                                // Vector<Key>(CidsBroker.getInstance().getKeysDependingOnKey((currentGemarkung))));
                                 cboFlur.setModel(keyModel);
                                 lockFlurCbo(false);
                                 cboFlur.requestFocus();

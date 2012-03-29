@@ -7,8 +7,9 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.basic;
 
-import de.cismet.cids.dynamics.CidsBean;
 import java.io.Serializable;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 /**
  * DOCUMENT ME!

@@ -26,7 +26,7 @@ import javax.swing.JDialog;
 import de.cismet.cids.custom.beans.verdis_grundis.BebauungCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.FlaechennutzungCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.models.PlanTableModel;
 
@@ -67,10 +67,10 @@ public class PlanPanel extends javax.swing.JPanel implements MouseListener {
         tblPlan.setModel(tableModel);
         JComboBox cboPlaene;
         if (tableModel.isFnpModel()) {
-            cboPlaene = new JComboBox(new Vector<Plan>(EJBroker.getInstance().getAllFlaechennutzungen()));
+            cboPlaene = new JComboBox(new Vector<Plan>(CidsBroker.getInstance().getAllFlaechennutzungen()));
             // System.out.println("istFlaechennutzung");
         } else {
-            cboPlaene = new JComboBox(new Vector<Plan>(EJBroker.getInstance().getAllBebauungen()));
+            cboPlaene = new JComboBox(new Vector<Plan>(CidsBroker.getInstance().getAllBebauungen()));
             // System.out.println("istbebauung");
         }
         cboPlaene.setEditable(true);

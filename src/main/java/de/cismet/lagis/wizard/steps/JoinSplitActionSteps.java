@@ -38,7 +38,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.*;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
@@ -197,12 +197,12 @@ public class JoinSplitActionSteps extends WizardPanelProvider {
             }
             try {
                 progress.setBusy("Flurstück wird geteilt");
-                // EJBroker.getInstance().createFlurstueck(key);
+                // CidsBroker.getInstance().createFlurstueck(key);
                 for (final FlurstueckSchluesselCustomBean current : splitKeys) {
                     // setzte bei den gesplitteten Flurstück die art eines der ursprünglichen
                     current.setFlurstueckArt(joinKeys.get(0).getFlurstueckArt());
                 }
-                EJBroker.getInstance()
+                CidsBroker.getInstance()
                         .joinSplitFlurstuecke(joinKeys, splitKeys, LagisBroker.getInstance().getAccountName());
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:");
                 // \n\t"+"\""+splitCandidate.getKeyString()+"\" \n\nkonnte erfolgreich in die Flurstücke\n");

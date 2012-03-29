@@ -67,7 +67,7 @@ import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.FeatureGroupWrapper;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.interfaces.DoneDelegate;
@@ -1546,7 +1546,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         }
                         return null;
                     }
-                    final Collection gemKeys = EJBroker.getInstance().getGemarkungsKeys();
+                    final Collection gemKeys = CidsBroker.getInstance().getGemarkungsKeys();
                     if (isCancelled()) {
                         if (log.isDebugEnabled()) {
                             log.debug("doInBackground (Gemarkung) is canceled");
@@ -1627,7 +1627,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                             }
                                         });
 
-                                    final Collection flurKeys = EJBroker.getInstance()
+                                    final Collection flurKeys = CidsBroker.getInstance()
                                                 .getDependingKeysForKey(selectedGemarkung);
                                     if (isCancelled()) {
                                         if (log.isDebugEnabled()) {
@@ -1720,7 +1720,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                         }
                                         return null;
                                     }
-                                    selectedGemarkung = EJBroker.getInstance().completeGemarkung(selectedGemarkung);
+                                    selectedGemarkung = CidsBroker.getInstance().completeGemarkung(selectedGemarkung);
                                 }
                             }
                             if ((selectedGemarkung != null) && (selectedGemarkung.getId() != null)) {
@@ -2030,7 +2030,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     selectedFlur.setHistoricFilterEnabled(isOnlyHistoricFilterEnabled);
                     selectedFlur.setAbteilungXIFilterEnabled(isOnlyAbteilungIXFilterEnabled);
                     selectedFlur.setStaedtischFilterEnabled(isOnlyStaedtischFilterEnabled);
-                    final Collection flurKeys = EJBroker.getInstance().getDependingKeysForKey(selectedFlur);
+                    final Collection flurKeys = CidsBroker.getInstance().getDependingKeysForKey(selectedFlur);
                     if (isCancelled()) {
                         if (log.isDebugEnabled()) {
                             log.debug("doInBackground (Flur) is canceled");
@@ -2361,7 +2361,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         }
                         return null;
                     }
-                    final FlurstueckSchluesselCustomBean tmpKey = EJBroker.getInstance()
+                    final FlurstueckSchluesselCustomBean tmpKey = CidsBroker.getInstance()
                                 .completeFlurstueckSchluessel(selectedFlurstueck);
                     if (isCancelled()) {
                         if (log.isDebugEnabled()) {
@@ -2406,7 +2406,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (log.isDebugEnabled()) {
                                     log.debug("rufe Flurstück vom Server ab");
                                 }
-                                final FlurstueckCustomBean flurstueck = EJBroker.getInstance()
+                                final FlurstueckCustomBean flurstueck = CidsBroker.getInstance()
                                             .retrieveFlurstueck(selectedFlurstueck);
                                 if (isCancelled()) {
                                     if (log.isDebugEnabled()) {
@@ -2450,7 +2450,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 log.debug(
                                     "FlurstueckChooser ist nicht im SearchMode --> Flurstück wird nur abgefragt");
                             }
-                            final FlurstueckCustomBean flurstueck = EJBroker.getInstance()
+                            final FlurstueckCustomBean flurstueck = CidsBroker.getInstance()
                                         .retrieveFlurstueck(selectedFlurstueck);
                             if (flurstueck != null) {
                                 if (log.isDebugEnabled()) {
@@ -2711,7 +2711,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     if (log.isDebugEnabled()) {
                         log.debug("Flurstückcandidate ist valide --> prüfe schlüssel");
                     }
-                    keyToCheck = EJBroker.getInstance().completeFlurstueckSchluessel(keyToCheck);
+                    keyToCheck = CidsBroker.getInstance().completeFlurstueckSchluessel(keyToCheck);
                     if (keyToCheck != null) {
                         return true;
                     } else {

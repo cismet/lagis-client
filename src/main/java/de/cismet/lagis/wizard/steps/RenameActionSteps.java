@@ -30,7 +30,7 @@ import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.RenameActionPanel;
@@ -108,8 +108,8 @@ public class RenameActionSteps extends WizardPanelProvider {
             }
             try {
                 progress.setBusy("Flurstück wird angelegt");
-                // EJBroker.getInstance().createFlurstueck(key);
-                EJBroker.getInstance()
+                // CidsBroker.getInstance().createFlurstueck(key);
+                CidsBroker.getInstance()
                         .renameFlurstueck(renamedKey, createdKey, LagisBroker.getInstance().getAccountName());
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
 

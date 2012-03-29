@@ -92,7 +92,7 @@ import de.cismet.cismap.commons.interaction.CismapBroker;
 import de.cismet.cismap.commons.wfsforms.AbstractWFSForm;
 import de.cismet.cismap.commons.wfsforms.WFSFormFactory;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.broker.LagisCrossover;
 
@@ -394,7 +394,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     public LagisApp(final PluginContext context) {
         this.context = context;
         try {
-//            EJBroker.setMainframe(this);
+//            CidsBroker.setMainframe(this);
             isPlugin = !(context == null);
             setTitle("LagIS");
 
@@ -842,7 +842,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
             pKarte.setInteractionMode();
             setVisible(true);
-//            EJBroker.setMainframe(this);
+//            CidsBroker.setMainframe(this);
             // check if there ist at least one editable Widget
             if (LagisBroker.getInstance().isCoreReadOnlyMode()
                         && (RessortFactory.getInstance().getRessortPermissions() != null)) {
@@ -3199,7 +3199,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
-            EJBroker.getInstance();
+            CidsBroker.getInstance();
             try {
                 final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");

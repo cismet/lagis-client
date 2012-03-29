@@ -28,7 +28,7 @@ import javax.swing.event.ChangeListener;
 
 import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
 
-import de.cismet.lagis.broker.EJBroker;
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.validation.Validatable;
@@ -143,7 +143,7 @@ public class SplitActionChoosePanel extends javax.swing.JPanel implements Change
         }
         if (mode.equals(SPLIT_ACTION_MODE)) {
             if (panSplit.getStatus() == Validatable.VALID) {
-                final SperreCustomBean sperre = EJBroker.getInstance()
+                final SperreCustomBean sperre = CidsBroker.getInstance()
                             .isLocked(panSplit.getCurrentFlurstueckSchluessel());
                 if (sperre != null) {
                     // TODO nicht ganz sichtbar

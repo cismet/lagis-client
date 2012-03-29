@@ -16,7 +16,7 @@ import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.util.SortedList;
 
@@ -76,7 +76,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
      */
     public static NutzungCustomBean createNew() {
         try {
-            return (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+            return (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;
@@ -102,7 +102,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             }
             try {
                 initialBuchwert = (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                        CidsAppBackend.LAGIS_DOMAIN,
+                        CidsBroker.LAGIS_DOMAIN,
                         "nutzung_buchung");
             } catch (Exception ex) {
                 LOG.error("error creating nutzung_buchung bean", ex);

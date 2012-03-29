@@ -13,7 +13,7 @@ import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
@@ -83,7 +83,7 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     public static FlurstueckSchluesselCustomBean createNew() {
         try {
             return (FlurstueckSchluesselCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsAppBackend.LAGIS_DOMAIN,
+                    CidsBroker.LAGIS_DOMAIN,
                     TABLE);
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
