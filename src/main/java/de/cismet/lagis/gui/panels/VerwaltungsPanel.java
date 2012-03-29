@@ -23,6 +23,8 @@ import org.jdesktop.swingx.decorator.SortOrder;
 
 import org.jdom.Element;
 
+import org.openide.util.Exceptions;
+
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -45,12 +47,16 @@ import javax.swing.text.BadLocationException;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.editor.FlaecheEditor;
 
@@ -419,21 +425,26 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allVBs.size());
 
         for (final VerwaltungsbereichCustomBean vb : allVBs) {
-            final VerwaltungsbereichCustomBean tmp = new VerwaltungsbereichCustomBean();
+            try {
+                final VerwaltungsbereichCustomBean tmp = (VerwaltungsbereichCustomBean)CidsBean
+                            .createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "verwaltungsbereiche");
 
-            tmp.setGebrauch(vb.getGebrauch());
-            tmp.setDienststelle(vb.getDienststelle());
+                tmp.setGebrauch(vb.getGebrauch());
+                tmp.setDienststelle(vb.getDienststelle());
 
-            final Geometry geom = vb.getGeometry();
-            if (geom != null) {
-                tmp.setGeometry((Geometry)geom.clone());
+                final Geometry geom = vb.getGeometry();
+                if (geom != null) {
+                    tmp.setGeometry((Geometry)geom.clone());
+                }
+
+                tmp.setEditable(vb.isEditable());
+                tmp.hide(vb.isHidden());
+                tmp.setModifiable(vb.isModifiable());
+
+                result.add(tmp);
+            } catch (Exception ex) {
+                log.error("error creating bean for verwaltungsbereiche", ex);
             }
-
-            tmp.setEditable(vb.isEditable());
-            tmp.hide(vb.isHidden());
-            tmp.setModifiable(vb.isModifiable());
-
-            result.add(tmp);
         }
 
         return result;
@@ -1448,14 +1459,19 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
-        // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-        final VerwaltungsbereichCustomBean tmp = new VerwaltungsbereichCustomBean();
-        if (log.isDebugEnabled()) {
-            log.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
-        }
+        try {
+            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
+            final VerwaltungsbereichCustomBean tmp = (VerwaltungsbereichCustomBean)CidsBean
+                        .createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "verwaltungsbereiche");
+            if (log.isDebugEnabled()) {
+                log.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
+            }
 
-        this.tableModel.addVerwaltungsbereich(tmp);
-        this.tableModel.fireTableDataChanged();
+            this.tableModel.addVerwaltungsbereich(tmp);
+            this.tableModel.fireTableDataChanged();
+        } catch (Exception ex) {
+            log.error("error creating bean for verwaltungsbereiche", ex);
+        }
     } //GEN-LAST:event_btnAddVerwaltungActionPerformed
 
     /**

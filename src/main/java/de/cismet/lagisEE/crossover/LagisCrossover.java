@@ -17,8 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+
+//import javax.persistence.EntityManager;
+//import javax.persistence.PersistenceContext;
 
 import de.cismet.lagisEE.crossover.entity.WfsFlurstuecke;
 
@@ -32,8 +33,8 @@ public class LagisCrossover {
 
     //~ Instance fields --------------------------------------------------------
 
-    @PersistenceContext
-    private EntityManager em;
+// @PersistenceContext
+// private EntityManager em;
     private final String flurstueckQuery = "SELECT\n"
                 + "*\n"
                 + "FROM\n"
@@ -54,37 +55,38 @@ public class LagisCrossover {
      *
      * @throws  Exception  DOCUMENT ME!
      */
+    // TODO Jean ent-ejb-en
     public Set<WfsFlurstuecke> getIntersectingFlurstuecke(final Geometry geom, final double buffer) throws Exception {
         final HashSet<WfsFlurstuecke> result = new HashSet<WfsFlurstuecke>();
-        try {
-            if (geom != null) {
-                System.out.println("Intersection geometry: " + geom.toText());
-                // ToDo Attention default Geometry; List<WfsFlurstuecke> fkeys = (List<WfsFlurstuecke>)
-                // em.createNativeQuery( //ToDo optimize //"SELECT id,geometry FROM GeomToEntityIndex WHERE
-                // envelope(geometryfromtext(?,-1)) && geometry", GeomToEntityIndex.class).setParameter(1,
-                // bb.getGeometryFromTextLineString()).getResultList(); "SELECT * FROM wfs_flurstuecke f WHERE
-                // intersects(f.the_geom,geomFromText(?,31466))", WfsFlurstuecke.class).setParameter(1,
-                // geom.toText()).getResultList();
-                System.out.println("buffer: " + buffer);
-                final List<WfsFlurstuecke> fkeys = (List<WfsFlurstuecke>)em.createNativeQuery(
-
-                            // "SELECT id,geometry FROM GeomToEntityIndex WHERE envelope(geometryfromtext(?,-1)) &&
-                            // geometry", GeomToEntityIndex.class).setParameter(1,
-                            // bb.getGeometryFromTextLineString()).getResultList();
-                            flurstueckQuery,
-                            WfsFlurstuecke.class).setParameter(1, geom.toText()).setParameter(2, buffer)
-                            .getResultList();
-                if ((fkeys != null) && (fkeys.size() > 0)) {
-                    System.out.println("There are " + fkeys.size() + " intersecting wfsFlurstuecke.");
-                    result.addAll(fkeys);
-                } else {
-                    System.out.println("There are no intersecting wfsFlurstuecke.");
-                }
-            }
-        } catch (Exception ex) {
-            System.err.print("Error while getting intersecting Flurstuecke: ");
-            ex.printStackTrace();
-        }
+//        try {
+//            if (geom != null) {
+//                System.out.println("Intersection geometry: " + geom.toText());
+//                // ToDo Attention default Geometry; List<WfsFlurstuecke> fkeys = (List<WfsFlurstuecke>)
+//                // em.createNativeQuery( //ToDo optimize //"SELECT id,geometry FROM GeomToEntityIndex WHERE
+//                // envelope(geometryfromtext(?,-1)) && geometry", GeomToEntityIndex.class).setParameter(1,
+//                // bb.getGeometryFromTextLineString()).getResultList(); "SELECT * FROM wfs_flurstuecke f WHERE
+//                // intersects(f.the_geom,geomFromText(?,31466))", WfsFlurstuecke.class).setParameter(1,
+//                // geom.toText()).getResultList();
+//                System.out.println("buffer: " + buffer);
+//                final List<WfsFlurstuecke> fkeys = (List<WfsFlurstuecke>)em.createNativeQuery(
+//
+//                            // "SELECT id,geometry FROM GeomToEntityIndex WHERE envelope(geometryfromtext(?,-1)) &&
+//                            // geometry", GeomToEntityIndex.class).setParameter(1,
+//                            // bb.getGeometryFromTextLineString()).getResultList();
+//                            flurstueckQuery,
+//                            WfsFlurstuecke.class).setParameter(1, geom.toText()).setParameter(2, buffer)
+//                            .getResultList();
+//                if ((fkeys != null) && (fkeys.size() > 0)) {
+//                    System.out.println("There are " + fkeys.size() + " intersecting wfsFlurstuecke.");
+//                    result.addAll(fkeys);
+//                } else {
+//                    System.out.println("There are no intersecting wfsFlurstuecke.");
+//                }
+//            }
+//        } catch (Exception ex) {
+//            System.err.print("Error while getting intersecting Flurstuecke: ");
+//            ex.printStackTrace();
+//        }
         return result;
     }
 }

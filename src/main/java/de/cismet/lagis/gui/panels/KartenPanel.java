@@ -1700,7 +1700,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                     if (log.isDebugEnabled()) {
                                         log.debug("Gemarkung konnte nicht entschlüsselt werden");
                                     }
-                                    resolvedGemarkung = new GemarkungCustomBean();
+                                    resolvedGemarkung = GemarkungCustomBean.createNew();
                                     resolvedGemarkung.setSchluessel(Integer.parseInt(gem));
                                 } else {
                                     if (log.isDebugEnabled()) {
@@ -1710,7 +1710,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                 // GemarkungCustomBean cplGemarkung =
                                 // EJBroker.getInstance().completeGemarkung(gemarkung); if (cplGemarkung != null){
                                 // log.debug("gemarkung bekannt"); gemarkung = cplGemarkung; }
-                                final FlurstueckSchluesselCustomBean key = new FlurstueckSchluesselCustomBean();
+                                final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
                                 key.setGemarkung(resolvedGemarkung);
                                 key.setFlur(Integer.parseInt(flur));
                                 key.setFlurstueckZaehler(Integer.parseInt(flurstz));

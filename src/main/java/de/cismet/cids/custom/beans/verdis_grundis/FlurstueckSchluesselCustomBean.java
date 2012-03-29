@@ -11,6 +11,10 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 
@@ -21,6 +25,12 @@ import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
  * @version  $Revision$, $Date$
  */
 public class FlurstueckSchluesselCustomBean extends BasicEntity implements FlurstueckSchluessel {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+            FlurstueckSchluesselCustomBean.class);
+    public static final String TABLE = "flurstueck_schluessel";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -55,7 +65,31 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
             "letzte_bearbeitung"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new FlurstueckSchluesselCustomBean object.
+     */
+    public FlurstueckSchluesselCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static FlurstueckSchluesselCustomBean createNew() {
+        try {
+            return (FlurstueckSchluesselCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

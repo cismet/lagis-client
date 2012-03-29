@@ -7,9 +7,8 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.basic;
 
-import java.io.Serializable;
-
 import de.cismet.cids.dynamics.CidsBean;
+import java.io.Serializable;
 
 /**
  * DOCUMENT ME!
@@ -17,14 +16,6 @@ import de.cismet.cids.dynamics.CidsBean;
  * @version  $Revision$, $Date$
  */
 public abstract class BasicEntity extends CidsBean implements Serializable {
-
-    //~ Constructors -----------------------------------------------------------
-
-    /**
-     * Creates a new BasicEntity object.
-     */
-    public BasicEntity() {
-    }
 
     //~ Methods ----------------------------------------------------------------
 

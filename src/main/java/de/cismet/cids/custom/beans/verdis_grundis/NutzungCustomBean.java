@@ -9,10 +9,14 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import java.util.*;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.Exception.AddingOfBuchungNotPossibleException;
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.util.SortedList;
 
@@ -29,8 +33,8 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final transient org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
-            NutzungCustomBean.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NutzungCustomBean.class);
+    public static final String TABLE = "nutzung";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -61,7 +65,22 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
      * Creates a new NutzungCustomBean object.
      */
     public NutzungCustomBean() {
-        super();
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static NutzungCustomBean createNew() {
+        try {
+            return (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
     }
 
     /**
@@ -69,22 +88,30 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
      *
      * @param   initialBuchwert  DOCUMENT ME!
      *
+     * @return  DOCUMENT ME!
+     *
      * @throws  AddingOfBuchungNotPossibleException  DOCUMENT ME!
      * @throws  IllegalNutzungStateException         DOCUMENT ME!
      */
-    public NutzungCustomBean(NutzungBuchungCustomBean initialBuchwert) throws AddingOfBuchungNotPossibleException,
-        IllegalNutzungStateException {
+    public static NutzungCustomBean createNew(NutzungBuchungCustomBean initialBuchwert)
+            throws AddingOfBuchungNotPossibleException, IllegalNutzungStateException {
+        final NutzungCustomBean bean = createNew();
         if (initialBuchwert == null) {
-            initialBuchwert = new NutzungBuchungCustomBean();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Initial Buchwert is null... creating buchung.");
             }
+            try {
+                initialBuchwert = (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                        CidsAppBackend.LAGIS_DOMAIN,
+                        "nutzung_buchung");
+            } catch (Exception ex) {
+                LOG.error("error creating nutzung_buchung bean", ex);
+            }
         }
         initialBuchwert.setIstBuchwert(true);
-        addBuchung(initialBuchwert);
+        bean.addBuchung(initialBuchwert);
+        return bean;
     }
-
-    //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
@@ -798,8 +825,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             if (getBuchungsCount() > 0) {
                 final NutzungBuchungCustomBean[] nutzungBuchungen = getNutzungsBuchungen().toArray(
                         new NutzungBuchungCustomBean[0]);
-                final NutzungCustomBean clone = new NutzungCustomBean((NutzungBuchungCustomBean)
-                        nutzungBuchungen[0].clone());
+                final NutzungCustomBean clone = createNew((NutzungBuchungCustomBean)nutzungBuchungen[0].clone());
                 for (int i = 1; i < nutzungBuchungen.length; i++) {
                     try {
                         clone.addBuchung((NutzungBuchungCustomBean)nutzungBuchungen[i].clone());

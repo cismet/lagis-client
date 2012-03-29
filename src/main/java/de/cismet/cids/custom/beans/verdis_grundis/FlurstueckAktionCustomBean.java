@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.history.FlurstueckAktion;
 
@@ -18,13 +22,43 @@ import de.cismet.lagisEE.entity.history.FlurstueckAktion;
  */
 public class FlurstueckAktionCustomBean extends BasicEntity implements FlurstueckAktion {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+            FlurstueckAktionCustomBean.class);
+    public static final String TABLE = "flurstueck_aktion";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String beschreibung;
     private String[] PROPERTY_NAMES = new String[] { "id", "beschreibung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new FlurstueckAktionCustomBean object.
+     */
+    public FlurstueckAktionCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static FlurstueckAktionCustomBean createNew() {
+        try {
+            return (FlurstueckAktionCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

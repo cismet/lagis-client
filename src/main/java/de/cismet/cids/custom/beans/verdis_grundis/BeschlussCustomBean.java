@@ -11,6 +11,10 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Beschluss;
 
@@ -22,6 +26,11 @@ import de.cismet.lagisEE.entity.core.Beschluss;
  */
 public class BeschlussCustomBean extends BasicEntity implements Beschluss {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BeschlussCustomBean.class);
+    public static final String TABLE = "beschluss";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -30,7 +39,29 @@ public class BeschlussCustomBean extends BasicEntity implements Beschluss {
     private VertragsartCustomBean fk_vertrag;
     private String[] PROPERTY_NAMES = new String[] { "id", "datum", "fk_beschlussart", "fk_vertrag" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new BeschlussCustomBean object.
+     */
+    public BeschlussCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static BeschlussCustomBean createNew() {
+        try {
+            return (BeschlussCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

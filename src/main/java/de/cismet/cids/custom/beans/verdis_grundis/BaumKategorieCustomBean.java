@@ -11,6 +11,8 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
 
 /**
@@ -21,6 +23,11 @@ import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
  */
 public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BaumKategorieCustomBean.class);
+    public static final String TABLE = "baum_kategorie";
+
     //~ Instance fields --------------------------------------------------------
 
     private Long id;
@@ -28,7 +35,29 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
     private Collection<BaumKategorieAuspraegungCustomBean> ar_kategorie_auspraegungen;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "ar_kategorie_auspraegungen" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new BaumKategorieCustomBean object.
+     */
+    public BaumKategorieCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static BaumKategorieCustomBean createNew() {
+        try {
+            return (BaumKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

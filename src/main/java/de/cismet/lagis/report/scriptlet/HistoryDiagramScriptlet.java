@@ -51,9 +51,6 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagisEE.bean.LagisServer.HistoryLevel;
-import de.cismet.lagisEE.bean.LagisServer.HistoryType;
-
 /**
  * DOCUMENT ME!
  *
@@ -188,7 +185,7 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
         gp.setScaleToFit(true);
         graph.setEditable(false);
 
-        final HistoryLevel level = HistoryLevel.DIRECT_RELATIONS;
+        final EJBroker.HistoryLevel level = EJBroker.HistoryLevel.DIRECT_RELATIONS;
 
         final FlurstueckCustomBean currentObj = LagisBroker.getInstance().getCurrentFlurstueck();
 
@@ -196,7 +193,7 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
             final Collection<FlurstueckHistorieCustomBean> allEdges = EJBroker.getInstance()
                         .getHistoryEntries(currentObj.getFlurstueckSchluessel(),
                             level,
-                            HistoryType.BOTH,
+                            EJBroker.HistoryType.BOTH,
                             LEVEL_COUNT);
 
             if ((allEdges != null) && (allEdges.size() > 0)) {

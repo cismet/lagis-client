@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Url;
 
@@ -18,6 +22,11 @@ import de.cismet.lagisEE.entity.core.Url;
  */
 public class UrlCustomBean extends BasicEntity implements Url {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(UrlCustomBean.class);
+    public static final String TABLE = "url";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -25,7 +34,29 @@ public class UrlCustomBean extends BasicEntity implements Url {
     private String object_name;
     private String[] PROPERTY_NAMES = new String[] { "id", "url_base_id", "object_name" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new UrlCustomBean object.
+     */
+    public UrlCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static UrlCustomBean createNew() {
+        try {
+            return (UrlCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

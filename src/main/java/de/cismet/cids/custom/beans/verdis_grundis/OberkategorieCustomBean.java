@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Oberkategorie;
 
@@ -18,6 +22,11 @@ import de.cismet.lagisEE.entity.core.hardwired.Oberkategorie;
  */
 public class OberkategorieCustomBean extends BasicEntity implements Oberkategorie {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(OberkategorieCustomBean.class);
+    public static final String TABLE = "oberkategorie";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -25,7 +34,29 @@ public class OberkategorieCustomBean extends BasicEntity implements Oberkategori
     private String abkuerzung;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new OberkategorieCustomBean object.
+     */
+    public OberkategorieCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static OberkategorieCustomBean createNew() {
+        try {
+            return (OberkategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

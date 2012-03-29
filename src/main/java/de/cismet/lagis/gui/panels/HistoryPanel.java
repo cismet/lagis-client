@@ -46,11 +46,7 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
-import de.cismet.lagisEE.bean.LagisServer.HistoryLevel;
-import de.cismet.lagisEE.bean.LagisServer.HistoryType;
-
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 
 /**
  * DOCUMENT ME!
@@ -150,38 +146,38 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             // ToDo remove Strings
                             log.debug("Erstelle Historien Anfrage:");
                         }
-                        HistoryLevel level;
+                        EJBroker.HistoryLevel level;
                         int levelCount = 0;
                         if (cbxHistoryOptions.getSelectedItem().equals("Direkte Vorgänger/Nachfolger")) {
-                            level = HistoryLevel.DIRECT_RELATIONS;
+                            level = EJBroker.HistoryLevel.DIRECT_RELATIONS;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur angrenzendte Flurstücke");
                             }
                         } else if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
-                            level = HistoryLevel.CUSTOM;
+                            level = EJBroker.HistoryLevel.CUSTOM;
                             levelCount = ((Number)sprLevels.getValue()).intValue();
                             if (log.isDebugEnabled()) {
                                 log.debug("begrentze Tiefe mit " + levelCount + " Stufen");
                             }
                         } else {
-                            level = HistoryLevel.All;
+                            level = EJBroker.HistoryLevel.All;
                             if (log.isDebugEnabled()) {
                                 log.debug("Alle Levels");
                             }
                         }
-                        HistoryType type;
+                        EJBroker.HistoryType type;
                         if (cbxHistoryType.getSelectedItem().equals("Nur Nachfolger")) {
-                            type = HistoryType.SUCCESSOR;
+                            type = EJBroker.HistoryType.SUCCESSOR;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur Nachfolger");
                             }
                         } else if (cbxHistoryType.getSelectedItem().equals("Nur Vorgänger")) {
-                            type = HistoryType.PREDECESSOR;
+                            type = EJBroker.HistoryType.PREDECESSOR;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur Vorgänger");
                             }
                         } else {
-                            type = HistoryType.BOTH;
+                            type = EJBroker.HistoryType.BOTH;
                             if (log.isDebugEnabled()) {
                                 log.debug("Vorgänger/Nachfolger");
                             }

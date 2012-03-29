@@ -269,9 +269,9 @@ public class PlanPanel extends javax.swing.JPanel implements MouseListener {
      */
     private void btnAddPlanActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddPlanActionPerformed
         if (tableModel.isFnpModel()) {
-            tableModel.addPlan(new FlaechennutzungCustomBean());
+            tableModel.addPlan(FlaechennutzungCustomBean.createNew());
         } else {
-            tableModel.addPlan(new BebauungCustomBean());
+            tableModel.addPlan(BebauungCustomBean.createNew());
         }
         tableModel.fireTableDataChanged();
     }                                                                              //GEN-LAST:event_btnAddPlanActionPerformed

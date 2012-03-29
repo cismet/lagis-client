@@ -11,6 +11,10 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Kosten;
 
@@ -22,6 +26,11 @@ import de.cismet.lagisEE.entity.core.Kosten;
  */
 public class KostenCustomBean extends BasicEntity implements Kosten {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KostenCustomBean.class);
+    public static final String TABLE = "kosten";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -31,7 +40,29 @@ public class KostenCustomBean extends BasicEntity implements Kosten {
     private VertragCustomBean fk_vertrag;
     private String[] PROPERTY_NAMES = new String[] { "id", "datum", "fk_kostenart", "betrag", "fk_vertrag" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new KostenCustomBean object.
+     */
+    public KostenCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static KostenCustomBean createNew() {
+        try {
+            return (KostenCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

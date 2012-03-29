@@ -12,6 +12,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 
@@ -24,6 +28,10 @@ import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwaltungsgebrauch {
 
     //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+            VerwaltungsgebrauchCustomBean.class);
+    public static final String TABLE = "verwaltungsgebrauch";
 
     private static final String SEPARATOR = "/";
 
@@ -44,7 +52,31 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
             "n_farben"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new VerwaltungsgebrauchCustomBean object.
+     */
+    public VerwaltungsgebrauchCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static VerwaltungsgebrauchCustomBean createNew() {
+        try {
+            return (VerwaltungsgebrauchCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

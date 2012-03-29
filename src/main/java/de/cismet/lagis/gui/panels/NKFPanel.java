@@ -703,7 +703,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
-        tableModel.addNutzung(new NutzungCustomBean());
+        tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
     }                                                                                 //GEN-LAST:event_btnAddNutzungActionPerformed
 
@@ -722,7 +722,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 final NutzungBuchungCustomBean curNutzungToCopy = tableModel.getBuchungAtRow(index);
                 if (curNutzungToCopy != null) {
                     try {
-                        copyPasteList.add(new NutzungCustomBean(curNutzungToCopy.cloneBuchung()));
+                        copyPasteList.add(NutzungCustomBean.createNew(curNutzungToCopy.cloneBuchung()));
                     } catch (Exception ex) {
                         log.error("Fehler beim kopieren einer Buchung: ", ex);
                         final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),

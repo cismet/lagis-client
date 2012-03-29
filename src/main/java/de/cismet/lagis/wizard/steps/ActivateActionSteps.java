@@ -110,7 +110,7 @@ public class ActivateActionSteps extends WizardPanelProvider {
                 final SperreCustomBean other = EJBroker.getInstance().isLocked(activationCandidate);
                 if (other == null) {
                     sperre = EJBroker.getInstance()
-                                .createLock(new SperreCustomBean(
+                                .createLock(SperreCustomBean.createNew(
                                             activationCandidate,
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {

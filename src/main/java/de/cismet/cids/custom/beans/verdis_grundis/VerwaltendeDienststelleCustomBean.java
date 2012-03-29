@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
 
@@ -19,6 +23,10 @@ import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
 public class VerwaltendeDienststelleCustomBean extends BasicEntity implements VerwaltendeDienststelle {
 
     //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+            VerwaltendeDienststelleCustomBean.class);
+    public static final String TABLE = "verwaltende_dienststelle";
 
     private static final String SEPARATOR = ".";
 
@@ -37,7 +45,31 @@ public class VerwaltendeDienststelleCustomBean extends BasicEntity implements Ve
             "fk_ressort"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new VerwaltendeDienststelleCustomBean object.
+     */
+    public VerwaltendeDienststelleCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static VerwaltendeDienststelleCustomBean createNew() {
+        try {
+            return (VerwaltendeDienststelleCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

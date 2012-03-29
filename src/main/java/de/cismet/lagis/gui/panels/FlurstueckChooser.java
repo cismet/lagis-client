@@ -1133,7 +1133,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         if (log.isDebugEnabled()) {
             log.debug("getCurrentFlurstueckSchluessel()", new CurrentStackTrace());
         }
-        final FlurstueckSchluesselCustomBean key = new FlurstueckSchluesselCustomBean();
+        final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
         if ((currentMode == CREATION_MODE) && (currentyCreatedFlurstueckSchluessel != null)) {
             return currentyCreatedFlurstueckSchluessel;
         }
@@ -1230,7 +1230,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         if (log.isDebugEnabled()) {
             log.debug("Insert/Remove Update");
         }
-        currentyCreatedFlurstueckSchluessel = new FlurstueckSchluesselCustomBean();
+        currentyCreatedFlurstueckSchluessel = FlurstueckSchluesselCustomBean.createNew();
         final Object currentFlur = cboFlur.getSelectedItem();
         if (log.isDebugEnabled()) {
             log.debug("Flur: " + currentFlur);
@@ -1712,7 +1712,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                     selectedGemarkung = null;
                                     return null;
                                 } else {
-                                    selectedGemarkung = new GemarkungCustomBean();
+                                    selectedGemarkung = GemarkungCustomBean.createNew();
                                     selectedGemarkung.setBezeichnung(gemInput);
                                     if (isCancelled()) {
                                         if (log.isDebugEnabled()) {
@@ -2265,7 +2265,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             log.debug("Flurstück wurde über Combobox editiert");
                             log.debug("FlurstueckKey != null");
                         }
-                        selectedFlurstueck = new FlurstueckSchluesselCustomBean();
+                        selectedFlurstueck = FlurstueckSchluesselCustomBean.createNew();
                         final Object tmpFlur = cboFlur.getSelectedItem();
                         final FlurKey currentFlur;
                         if (tmpFlur instanceof FlurKey) {
@@ -2477,7 +2477,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             errorMessage = "Das eingegebene Flurstück existiert nicht";
                             return null;
                         } else {
-                            final FlurstueckCustomBean container = new FlurstueckCustomBean();
+                            final FlurstueckCustomBean container = FlurstueckCustomBean.createNew();
                             container.setFlurstueckSchluessel(selectedFlurstueck);
                             isFlurstueckInDatabase = false;
                             return container;

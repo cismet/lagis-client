@@ -13,6 +13,10 @@ import org.jdesktop.observablecollections.ObservableCollections;
 
 import java.util.*;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Flurstueck;
 
@@ -23,6 +27,11 @@ import de.cismet.lagisEE.entity.core.Flurstueck;
  * @version  $Revision$, $Date$
  */
 public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(Flurstueck.class);
+    public static final String TABLE = "flurstueck";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -62,7 +71,29 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
             "extension_baum_querverweise"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new FlurstueckCustomBean object.
+     */
+    public FlurstueckCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static FlurstueckCustomBean createNew() {
+        try {
+            return (FlurstueckCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

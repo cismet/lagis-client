@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
 
@@ -18,6 +22,11 @@ import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
  */
 public class NutzungsartCustomBean extends BasicEntity implements Nutzungsart {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NutzungsartCustomBean.class);
+    public static final String TABLE = "nutzungsart";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -25,7 +34,29 @@ public class NutzungsartCustomBean extends BasicEntity implements Nutzungsart {
     private String bezeichnung;
     private String[] PROPERTY_NAMES = new String[] { "id", "schluessel", "bezeichnung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new NutzungsartCustomBean object.
+     */
+    public NutzungsartCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static NutzungsartCustomBean createNew() {
+        try {
+            return (NutzungsartCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

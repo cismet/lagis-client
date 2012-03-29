@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorieAuspraegung;
 
@@ -18,13 +22,42 @@ import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorieAuspraegung;
  */
 public class MipaKategorieAuspraegungCustomBean extends BasicEntity implements MiPaKategorieAuspraegung {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaKategorieCustomBean.class);
+    public static final String TABLE = "mipa_kategorie_auspraegung";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new MipaKategorieAuspraegungCustomBean object.
+     */
+    public MipaKategorieAuspraegungCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static MipaKategorieAuspraegungCustomBean createNew() {
+        try {
+            return (MipaKategorieAuspraegungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

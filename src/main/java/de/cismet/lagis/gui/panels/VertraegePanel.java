@@ -17,6 +17,8 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.SortOrder;
 
+import org.openide.util.Exceptions;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -29,8 +31,12 @@ import javax.swing.table.TableCellEditor;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.editor.EuroEditor;
@@ -1311,12 +1317,18 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVertragActionPerformed
-        // ((JXTable)tblVertraege).setSortable(false);
-        final VertragCustomBean newVertrag = new VertragCustomBean();
-        newVertrag.setVertragsart((VertragsartCustomBean)cboVertragsart.getItemAt(0));
-        vTableModel.addVertrag(newVertrag);
-        // ((JXTable)tblVertraege).setSortable(true);
-        // vTableModel.fireTableDataChanged();
+        try {
+            // ((JXTable)tblVertraege).setSortable(false);
+            final VertragCustomBean newVertrag = (VertragCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    "vertrag");
+            newVertrag.setVertragsart((VertragsartCustomBean)cboVertragsart.getItemAt(0));
+            vTableModel.addVertrag(newVertrag);
+            // vTableModel.fireTableDataChanged();
+            // vTableModel.fireTableDataChanged();
+        } catch (Exception ex) {
+            log.error("error creating vertrag bean", ex);
+        }
     } //GEN-LAST:event_btnAddVertragActionPerformed
 
     /**

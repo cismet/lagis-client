@@ -7,6 +7,14 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import org.openide.util.Exceptions;
+
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.broker.EJBroker;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
 
@@ -18,6 +26,11 @@ import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
  */
 public class AnlageklasseCustomBean extends BasicEntity implements Anlageklasse {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AnlageklasseCustomBean.class);
+    public static final String TABLE = "anlageklasse";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -25,7 +38,29 @@ public class AnlageklasseCustomBean extends BasicEntity implements Anlageklasse 
     private String bezeichnung;
     private String[] PROPERTY_NAMES = new String[] { "id", "schluessel", "bezeichnung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new AnlageklasseCustomBean object.
+     */
+    public AnlageklasseCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static AnlageklasseCustomBean createNew() {
+        try {
+            return (AnlageklasseCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

@@ -55,7 +55,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
     FlurstueckSchluesselCustomBean schluessel;
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private FlurstueckCustomBean currentFlurstueck = null;
-    private FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = new FlurstueckSchluesselCustomBean();
+    private FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = FlurstueckSchluesselCustomBean.createNew();
     private boolean isIncomplete = false;
     private GemarkungCustomBean currentGemarkung = null;
 
@@ -393,7 +393,7 @@ public class CreateFlurstueckPanel extends JPanel implements DocumentListener, A
             currentFlurstueckSchluessel = null;
             lockFlurCbo(true);
             lockFlurstueckCbo(true);
-            currentFlurstueckSchluessel = new FlurstueckSchluesselCustomBean();
+            currentFlurstueckSchluessel = FlurstueckSchluesselCustomBean.createNew();
             // reset the Flur/FlurstueckCombobox cboFlur.setModel(new KeyComboboxModel()); cboFlur.setEnabled(false);
             // cboFlurstueck.setModel(new KeyComboboxModel()); cboFlurstueck.setEnabled(false);
 

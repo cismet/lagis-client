@@ -16,44 +16,18 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import bean.KassenzeichenFacadeRemote;
-
-import com.vividsolutions.jts.geom.Geometry;
-
-import entity.KassenzeichenEntity;
-
 import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
 
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
-import java.net.URL;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.event.*;
 
 import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.AbstractTableModel;
-
-import de.cismet.cids.custom.beans.verdis_grundis.*;
-
-import de.cismet.cismap.commons.CrsTransformer;
-
-import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.layout.FadingCardLayout;
 
@@ -82,7 +56,8 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
     //~ Instance fields --------------------------------------------------------
 
-    private final KassenzeichenTableModel tableModel = new KassenzeichenTableModel();
+    // TODO Jean
+// private final KassenzeichenTableModel tableModel = new KassenzeichenTableModel();
     private int verdisCrossoverPort = -1;
     private FadingCardLayout layout = new FadingCardLayout();
     private JPopupMenu switchToKassenzeichenPopup;
@@ -119,7 +94,8 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         panAll.add(panContentProgress, PROGRESS_CARD_NAME);
         panAll.add(panContent, CONTENT_CARD_NAME);
         panAll.add(panContentMessage, MESSAGE_CARD_NAME);
-        tblKassenzeichen.setModel(tableModel);
+        // TODO Jean
+// tblKassenzeichen.setModel(tableModel);
         tblKassenzeichen.addMouseListener(this);
         tblKassenzeichen.addMouseListener(new PopupListener());
         tblKassenzeichen.getSelectionModel().addListSelectionListener(this);
@@ -135,12 +111,13 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
      * DOCUMENT ME!
      */
     public void startSearch() {
-        try {
-            LagisBroker.getInstance().execute(new KassenzeichenRetriever());
-        } catch (Exception ex) {
-            log.error("Fehler während dem suchen der Kassenzeichen: ", ex);
-            // ToDo Nachricht an benutzer
-        }
+        // TODO Jean
+// try {
+// LagisBroker.getInstance().execute(new KassenzeichenRetriever());
+// } catch (Exception ex) {
+// log.error("Fehler während dem suchen der Kassenzeichen: ", ex);
+// // ToDo Nachricht an benutzer
+// }
     }
 
     /**
@@ -401,68 +378,70 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
     @Override
     public void mouseClicked(final MouseEvent e) {
-        if (log.isDebugEnabled()) {
-            log.debug("Crossover: mouse clicked");
-            log.debug("tableModelsize: " + tableModel.getRowCount());
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("tableModel content: " + tableModel.getAllKassenzeichen());
-        }
-        final Object source = e.getSource();
-        if (source instanceof JXTable) {
-            if (e.getClickCount() > 1) {
-                loadSelectedKassenzeichen();
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Crossover: Kein Multiclick");
-                }
-            }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Crossover: Mouselistner nicht für JXTable");
-            }
-        }
+        // TODO Jean
+// if (log.isDebugEnabled()) {
+// log.debug("Crossover: mouse clicked");
+// log.debug("tableModelsize: " + tableModel.getRowCount());
+// }
+// if (log.isDebugEnabled()) {
+// log.debug("tableModel content: " + tableModel.getAllKassenzeichen());
+// }
+// final Object source = e.getSource();
+// if (source instanceof JXTable) {
+// if (e.getClickCount() > 1) {
+// loadSelectedKassenzeichen();
+// } else {
+// if (log.isDebugEnabled()) {
+// log.debug("Crossover: Kein Multiclick");
+// }
+// }
+// } else {
+// if (log.isDebugEnabled()) {
+// log.debug("Crossover: Mouselistner nicht für JXTable");
+// }
+// }
     }
     /**
      * ToDo place query generation in VerdisCrossover. Give key get Query.
      *
-     * @param  kz  DOCUMENT ME!
+     * @param  e  kz DOCUMENT ME!
      */
-    private void openKassenzeichenInVerdis(final KassenzeichenEntity kz) {
-        if (kz != null) {
-            if ((verdisCrossoverPort < 0) || (verdisCrossoverPort > 65535)) {
-                log.warn("Crossover: verdisCrossoverPort ist ungültig: " + verdisCrossoverPort);
-            } else {
-                // ToDo Thread
-                final URL verdisQuery = createQuery(verdisCrossoverPort, kz);
-                if (verdisQuery != null) {
-                    final SwingWorker<Void, Void> openKassenzeichen = new SwingWorker<Void, Void>() {
-
-                            @Override
-                            protected Void doInBackground() throws Exception {
-                                verdisQuery.openStream();
-                                return null;
-                            }
-
-                            @Override
-                            protected void done() {
-                                try {
-                                    get();
-                                } catch (Exception ex) {
-                                    log.error("Fehler beim öffnen des Kassenzeichens", ex);
-                                    // ToDo message to user;
-                                }
-                            }
-                        };
-                    LagisBroker.getInstance().execute(openKassenzeichen);
-                } else {
-                    log.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
-                }
-            }
-        } else {
-            log.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
-        }
-    }
+    // TODO Jean
+// private void openKassenzeichenInVerdis(final KassenzeichenEntity kz) {
+// if (kz != null) {
+// if ((verdisCrossoverPort < 0) || (verdisCrossoverPort > 65535)) {
+// log.warn("Crossover: verdisCrossoverPort ist ungültig: " + verdisCrossoverPort);
+// } else {
+// // ToDo Thread
+// final URL verdisQuery = createQuery(verdisCrossoverPort, kz);
+// if (verdisQuery != null) {
+// final SwingWorker<Void, Void> openKassenzeichen = new SwingWorker<Void, Void>() {
+//
+// @Override
+// protected Void doInBackground() throws Exception {
+// verdisQuery.openStream();
+// return null;
+// }
+//
+// @Override
+// protected void done() {
+// try {
+// get();
+// } catch (Exception ex) {
+// log.error("Fehler beim öffnen des Kassenzeichens", ex);
+// // ToDo message to user;
+// }
+// }
+// };
+// LagisBroker.getInstance().execute(openKassenzeichen);
+// } else {
+// log.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
+// }
+// }
+// } else {
+// log.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
+// }
+// }
 
     @Override
     public void mouseEntered(final MouseEvent e) {
@@ -483,58 +462,57 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
     /**
      * DOCUMENT ME!
      */
+    // TODO Jean
     private void loadSelectedKassenzeichen() {
-        try {
-            final int selectedRow = tblKassenzeichen.getSelectedRow();
-            if (selectedRow != -1) {
-                final int modelIndex = ((JXTable)tblKassenzeichen).convertRowIndexToModel(selectedRow);
-                if (modelIndex != -1) {
-                    final KassenzeichenEntity selectedKassenzeichen = tableModel.getKassenzeichenAtIndex(modelIndex);
-                    if (selectedKassenzeichen != null) {
-                        openKassenzeichenInVerdis(selectedKassenzeichen);
-                    } else {
-                        log.warn("Crossover: Kein Kassenzeichen zu angebenen Index.");
-                    }
-                } else {
-                    log.warn("Crossover: Kein ModelIndex zu angebenen ViewIndex.");
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Crossover: Keine Tabellenzeile selektiert.");
-                }
-            }
-        } catch (Exception ex) {
-            log.error("Fehler beim laden des selektierten Kasssenzeichens", ex);
-        }
+//        try {
+//            final int selectedRow = tblKassenzeichen.getSelectedRow();
+//            if (selectedRow != -1) {
+//                final int modelIndex = ((JXTable)tblKassenzeichen).convertRowIndexToModel(selectedRow);
+//                if (modelIndex != -1) {
+//                    final KassenzeichenEntity selectedKassenzeichen = tableModel.getKassenzeichenAtIndex(modelIndex);
+//                    if (selectedKassenzeichen != null) {
+//                        openKassenzeichenInVerdis(selectedKassenzeichen);
+//                    } else {
+//                        log.warn("Crossover: Kein Kassenzeichen zu angebenen Index.");
+//                    }
+//                } else {
+//                    log.warn("Crossover: Kein ModelIndex zu angebenen ViewIndex.");
+//                }
+//            } else {
+//                if (log.isDebugEnabled()) {
+//                    log.debug("Crossover: Keine Tabellenzeile selektiert.");
+//                }
+//            }
+//        } catch (Exception ex) {
+//            log.error("Fehler beim laden des selektierten Kasssenzeichens", ex);
+//        }
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param   port  DOCUMENT ME!
-     * @param   kz    DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @param  e  port DOCUMENT ME!
      */
-    public static URL createQuery(final int port, final KassenzeichenEntity kz) {
-        if ((port < 0) || (port > 65535)) {
-            log.warn("Crossover: verdisCrossoverPort ist ungültig: " + port);
-        } else {
-            try {
-                // ToDo ugly because is static
-                PARAMETER_KASSENZEICHEN.setValue(kz.getId().toString());
-                final GetMethod tmp = new GetMethod(server + port + request);
-                tmp.setQueryString(new NameValuePair[] { PARAMETER_KASSENZEICHEN });
-                if (log.isDebugEnabled()) {
-                    log.debug("Crossover: verdisCrossOverQuery: " + tmp.getURI().toString());
-                }
-                return new URL(tmp.getURI().toString());
-            } catch (Exception ex) {
-                log.error("Crossover: Fehler beim fernsteuern von VerdIS.", ex);
-            }
-        }
-        return null;
-    }
+    // TODO Jean
+// public static URL createQuery(final int port, final KassenzeichenEntity kz) {
+// if ((port < 0) || (port > 65535)) {
+// log.warn("Crossover: verdisCrossoverPort ist ungültig: " + port);
+// } else {
+// try {
+// // ToDo ugly because is static
+// PARAMETER_KASSENZEICHEN.setValue(kz.getId().toString());
+// final GetMethod tmp = new GetMethod(server + port + request);
+// tmp.setQueryString(new NameValuePair[] { PARAMETER_KASSENZEICHEN });
+// if (log.isDebugEnabled()) {
+// log.debug("Crossover: verdisCrossOverQuery: " + tmp.getURI().toString());
+// }
+// return new URL(tmp.getURI().toString());
+// } catch (Exception ex) {
+// log.error("Crossover: Fehler beim fernsteuern von VerdIS.", ex);
+// }
+// }
+// return null;
+// }
 
     @Override
     public void valueChanged(final ListSelectionEvent e) {
@@ -558,12 +536,14 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
         @Override
         public void mouseClicked(final MouseEvent e) {
-            showPopup(e);
+            // TODO Jean
+// showPopup(e);
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
-            showPopup(e);
+            // TODO Jean
+// showPopup(e);
         }
 
         /**
@@ -571,28 +551,29 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
          *
          * @param  e  DOCUMENT ME!
          */
-        private void showPopup(final MouseEvent e) {
-            if (log.isDebugEnabled()) {
-                log.debug("showPopup");
-            }
-            if (e.isPopupTrigger()) {
-                if (log.isDebugEnabled()) {
-                    // ToDo funktioniert nicht unter linux
-                    log.debug("popup triggered");
-                }
-                final int rowAtPoint = tblKassenzeichen.rowAtPoint(new Point(e.getX(), e.getY()));
-                KassenzeichenEntity selectedKassenzeichen = null;
-                if ((rowAtPoint != -1)
-                            && ((selectedKassenzeichen = tableModel.getKassenzeichenAtIndex(
-                                            ((JXTable)tblKassenzeichen).getFilters().convertRowIndexToModel(
-                                                rowAtPoint))) != null)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("KassenzeichenEntity found");
-                    }
-                    switchToKassenzeichenPopup.show(e.getComponent(), e.getX(), e.getY());
-                }
-            }
-        }
+        // TODO Jean
+// private void showPopup(final MouseEvent e) {
+// if (log.isDebugEnabled()) {
+// log.debug("showPopup");
+// }
+// if (e.isPopupTrigger()) {
+// if (log.isDebugEnabled()) {
+// // ToDo funktioniert nicht unter linux
+// log.debug("popup triggered");
+// }
+// final int rowAtPoint = tblKassenzeichen.rowAtPoint(new Point(e.getX(), e.getY()));
+// KassenzeichenEntity selectedKassenzeichen = null;
+// if ((rowAtPoint != -1)
+// && ((selectedKassenzeichen = tableModel.getKassenzeichenAtIndex(
+// ((JXTable)tblKassenzeichen).getFilters().convertRowIndexToModel(
+// rowAtPoint))) != null)) {
+// if (log.isDebugEnabled()) {
+// log.debug("KassenzeichenEntity found");
+// }
+// switchToKassenzeichenPopup.show(e.getComponent(), e.getX(), e.getY());
+// }
+// }
+// }
     }
 
     /**
@@ -600,171 +581,84 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
      *
      * @version  $Revision$, $Date$
      */
-    public class KassenzeichenTableModel extends AbstractTableModel {
-
-        //~ Instance fields ----------------------------------------------------
-
-        private final String[] COLUMN_HEADER = { "Kassenzeichen" };
-        private final ArrayList<KassenzeichenEntity> data = new ArrayList<KassenzeichenEntity>();
-
-        //~ Methods ------------------------------------------------------------
-
-        @Override
-        public int getColumnCount() {
-            return 1;
-        }
-
-        @Override
-        public int getRowCount() {
-            return data.size();
-        }
-
-        @Override
-        public Object getValueAt(final int rowIndex, final int columnIndex) {
-            final KassenzeichenEntity value = data.get(rowIndex);
-            switch (columnIndex) {
-                case 0: {
-                    return value.getId();
-                }
-                default: {
-                    return "Spalte ist nicht definiert";
-                }
-            }
-        }
-
-        /**
-         * DOCUMENT ME!
-         *
-         * @param  newData  DOCUMENT ME!
-         */
-        public void updateTableModel(final Set newData) {
-            data.clear();
-            if (newData != null) {
-                data.addAll(newData);
-            }
-            fireTableDataChanged();
-        }
-
-        /**
-         * DOCUMENT ME!
-         *
-         * @param   index  DOCUMENT ME!
-         *
-         * @return  DOCUMENT ME!
-         */
-        public KassenzeichenEntity getKassenzeichenAtIndex(final int index) {
-            return data.get(index);
-        }
-
-        /**
-         * DOCUMENT ME!
-         *
-         * @return  DOCUMENT ME!
-         */
-        public ArrayList getAllKassenzeichen() {
-            return data;
-        }
-
-        @Override
-        public String getColumnName(final int column) {
-            return COLUMN_HEADER[column];
-        }
-    }
+    // TODO Jean public class KassenzeichenTableModel extends AbstractTableModel {
+    //
+    // ~ Instance fields ----------------------------------------------------
+    //
+    // private final String[] COLUMN_HEADER = { "Kassenzeichen" }; private final ArrayList<KassenzeichenEntity> data =
+    // new ArrayList<KassenzeichenEntity>();
+    //
+    // ~ Methods ------------------------------------------------------------
+    //
+    // @Override public int getColumnCount() { return 1; }
+    //
+    // @Override public int getRowCount() { return data.size(); }
+    //
+    // @Override public Object getValueAt(final int rowIndex, final int columnIndex) { final KassenzeichenEntity value =
+    // data.get(rowIndex); switch (columnIndex) { case 0: { return value.getId(); } default: { return "Spalte ist
+    // nicht definiert"; } } }
+    //
+    // /** * DOCUMENT ME!
+    //
+    // * @param  newData  DOCUMENT ME! */ public void updateTableModel(final Set newData) { data.clear(); if (newData !=
+    // null) { data.addAll(newData); } fireTableDataChanged(); }
+    //
+    // /** * DOCUMENT ME!
+    //
+    // * @param   index  DOCUMENT ME!
+    //
+    // * @return  DOCUMENT ME! */ public KassenzeichenEntity getKassenzeichenAtIndex(final int index) { return
+    // data.get(index); }
+    //
+    // /** * DOCUMENT ME!
+    //
+    // * @return  DOCUMENT ME! */ public ArrayList getAllKassenzeichen() { return data; }
+    //
+    // @Override public String getColumnName(final int column) { return COLUMN_HEADER[column]; } }
 
     /**
      * DOCUMENT ME!
      *
      * @version  $Revision$, $Date$
      */
-    class KassenzeichenRetriever extends SwingWorker<Set<KassenzeichenEntity>, Void> {
-
-        //~ Methods ------------------------------------------------------------
-
-        @Override
-        protected Set<KassenzeichenEntity> doInBackground() throws Exception {
-            final FlurstueckSchluesselCustomBean currentKey = LagisBroker.getInstance()
-                        .getInstance()
-                        .getCurrentFlurstueckSchluessel();
-            if (currentKey != null) {
-                Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
-                if (flurstueckGeom != null) {
-                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen (vor Transformation): "
-                                + flurstueckGeom + ",SRS" + flurstueckGeom.getSRID());
-                    flurstueckGeom = CrsTransformer.transformToGivenCrs(flurstueckGeom, "EPSG:31466"); // Hardcoded FTW
-                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " + flurstueckGeom + ",SRS"
-                                + flurstueckGeom.getSRID());
-                    final KassenzeichenFacadeRemote verdisServer = LagisBroker.getInstance().getVerdisServer();
-                    if (verdisServer != null) {
-                        final Set<KassenzeichenEntity> kassenzeichen;
-
-                        if (isCancelled()) {
-                            return null;
-                        }
-                        kassenzeichen = verdisServer.getIntersectingKassenzeichen(
-                                flurstueckGeom,
-                                LagisBroker.getInstance().getKassenzeichenBuffer());
-
-                        if ((kassenzeichen != null) && (kassenzeichen.size() > 0)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Crossover: Anzahl Kassenzeichen: " + kassenzeichen.size());
-                            }
-                        } else {
-                            log.info("Crossover: Keine geschnittenen Kassenzeichen gefunden.");
-                            // ToDo Meldung an benutzer
-                        }
-                        return kassenzeichen;
-                    } else {
-                        lblMessage.setText(
-                            "<html>Die Verbindung zum Verdisserver<br/>ist nicht richtig konfiguriert.</html>");
-                        log.warn(
-                            "Crossover: Kann die Kassenzeichen nicht bestimmen, weil die Verbindung zum server nicht richtig konfiguriert ist.");
-                        log.warn("Crossover: lagisCrossover=" + verdisServer);
-                    }
-                } else {
-                    // ToDo user message !
-                    lblMessage.setText(
-                        "<html>Keine Flurstücksgeometrie vorhanden,<br/>bestimmen der Kasssenzeichen nicht möglich.</html>");
-                    log.warn("Crossover: Keine Geometrie vorhanden zum bestimmen der Kassenzeichen");
-                }
-            } else {
-                // ToDo user message !
-                lblMessage.setText(
-                    "<html>Bitte wählen Sie ein Flurstück aus,<br/>damit Kassenzeichen bestimmt werden können.</html>");
-                log.warn("Crossover: Kein Flurstück ausgewählt kann Lagis Kassenzeichen nicht bestimmen");
-            }
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            if (log.isDebugEnabled()) {
-                log.debug("KassenzeichenRetriever done.");
-            }
-            super.done();
-            if (isCancelled()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Kassenzeichen retriever canceled. Nothing to do");
-                }
-            }
-            try {
-                Set<KassenzeichenEntity> results = get();
-                if (results == null) {
-                    results = new HashSet<KassenzeichenEntity>();
-                    tableModel.updateTableModel(results);
-                    layout.show(panAll, MESSAGE_CARD_NAME);
-                } else {
-                    tableModel.updateTableModel(results);
-                    layout.show(panAll, CONTENT_CARD_NAME);
-                }
-            } catch (Exception ex) {
-                log.error("Fehler beim verarbeiten der Ergebnisse: ", ex);
-                tableModel.updateTableModel(new HashSet<KassenzeichenEntity>());
-                lblMessage.setText("<html>Fehler beim abfragen<br/>der Kassenzeichen.</html>");
-                layout.show(panAll, MESSAGE_CARD_NAME);
-            }
-            // VerdisCrossoverPanel.this.revalidate();
-            // VerdisCrossoverPanel.this.repaint();
-            // ((JDialog) getParent().getParent().getParent().getParent()).repaint();
-        }
-    }
+    // TODO Jean class KassenzeichenRetriever extends SwingWorker<Set<KassenzeichenEntity>, Void> {
+    //
+    // ~ Methods ------------------------------------------------------------
+    //
+    // @Override protected Set<KassenzeichenEntity> doInBackground() throws Exception { final
+    // FlurstueckSchluesselCustomBean currentKey = LagisBroker.getInstance() .getInstance()
+    // .getCurrentFlurstueckSchluessel(); if (currentKey != null) { Geometry flurstueckGeom =
+    // LagisBroker.getInstance().getInstance().getCurrentWFSGeometry(); if (flurstueckGeom != null) {
+    // log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen (vor Transformation): " + flurstueckGeom +
+    // ",SRS" + flurstueckGeom.getSRID()); flurstueckGeom = CrsTransformer.transformToGivenCrs(flurstueckGeom,
+    // "EPSG:31466"); // Hardcoded FTW log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " +
+    // flurstueckGeom + ",SRS" + flurstueckGeom.getSRID()); final KassenzeichenFacadeRemote verdisServer =
+    // LagisBroker.getInstance().getVerdisServer(); if (verdisServer != null) { final Set<KassenzeichenEntity>
+    // kassenzeichen;
+    //
+    // if (isCancelled()) { return null; } kassenzeichen = verdisServer.getIntersectingKassenzeichen( flurstueckGeom,
+    // LagisBroker.getInstance().getKassenzeichenBuffer());
+    //
+    // if ((kassenzeichen != null) && (kassenzeichen.size() > 0)) { if (log.isDebugEnabled()) { log.debug("Crossover:
+    // Anzahl Kassenzeichen: " + kassenzeichen.size()); } } else { log.info("Crossover: Keine geschnittenen
+    // Kassenzeichen gefunden."); // ToDo Meldung an benutzer } return kassenzeichen; } else { lblMessage.setText(
+    // "<html>Die Verbindung zum Verdisserver<br/>ist nicht richtig konfiguriert.</html>"); log.warn( "Crossover:
+    // Kann die Kassenzeichen nicht bestimmen, weil die Verbindung zum server nicht richtig konfiguriert ist.");
+    // log.warn("Crossover: lagisCrossover=" + verdisServer); } } else { // ToDo user message ! lblMessage.setText(
+    // "<html>Keine Flurstücksgeometrie vorhanden,<br/>bestimmen der Kasssenzeichen nicht möglich.</html>");
+    // log.warn("Crossover: Keine Geometrie vorhanden zum bestimmen der Kassenzeichen"); } } else { // ToDo user
+    // message ! lblMessage.setText( "<html>Bitte wählen Sie ein Flurstück aus,<br/>damit Kassenzeichen bestimmt
+    // werden können.</html>"); log.warn("Crossover: Kein Flurstück ausgewählt kann Lagis Kassenzeichen nicht
+    // bestimmen"); } return null; }
+    //
+    // @Override protected void done() { if (log.isDebugEnabled()) { log.debug("KassenzeichenRetriever done."); }
+    // super.done(); if (isCancelled()) { if (log.isDebugEnabled()) { log.debug("Kassenzeichen retriever canceled.
+    // Nothing to do"); } } try { Set<KassenzeichenEntity> results = get(); if (results == null) { results = new
+    // HashSet<KassenzeichenEntity>(); tableModel.updateTableModel(results); layout.show(panAll, MESSAGE_CARD_NAME);
+    // } else { tableModel.updateTableModel(results); layout.show(panAll, CONTENT_CARD_NAME); } } catch (Exception
+    // ex) { log.error("Fehler beim verarbeiten der Ergebnisse: ", ex); tableModel.updateTableModel(new
+    // HashSet<KassenzeichenEntity>()); lblMessage.setText("<html>Fehler beim abfragen<br/>der
+    // Kassenzeichen.</html>"); layout.show(panAll, MESSAGE_CARD_NAME); } // VerdisCrossoverPanel.this.revalidate();
+    // // VerdisCrossoverPanel.this.repaint(); // ((JDialog)
+    // getParent().getParent().getParent().getParent()).repaint(); } }
 }

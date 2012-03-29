@@ -13,8 +13,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
@@ -26,6 +30,12 @@ import de.cismet.lagisEE.entity.core.NutzungsBuchung;
  * @version  $Revision$, $Date$
  */
 public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuchung {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+            NutzungBuchungCustomBean.class);
+    public static final String TABLE = "nutzung_buchung";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -59,7 +69,31 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
     // TODO Jean: wirklich false initiieren ?!
     private Boolean sollGeloeschtWerden = false;
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new NutzungBuchungCustomBean object.
+     */
+    public NutzungBuchungCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static NutzungBuchungCustomBean createNew() {
+        try {
+            return (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

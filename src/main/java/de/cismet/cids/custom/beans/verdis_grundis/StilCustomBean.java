@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Stil;
 
@@ -18,13 +22,40 @@ import de.cismet.lagisEE.entity.core.hardwired.Stil;
  */
 public class StilCustomBean extends BasicEntity implements Stil {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(StilCustomBean.class);
+    public static final String TABLE = "stil";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new StilCustomBean object.
+     */
+    public StilCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static StilCustomBean createNew() {
+        try {
+            return (StilCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

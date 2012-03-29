@@ -11,6 +11,10 @@ import java.sql.Timestamp;
 
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.locking.Sperre;
 
@@ -21,6 +25,11 @@ import de.cismet.lagisEE.entity.locking.Sperre;
  * @version  $Revision$, $Date$
  */
 public class SperreCustomBean extends BasicEntity implements Sperre {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(SperreCustomBean.class);
+    public static final String TABLE = "sperre";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -34,7 +43,7 @@ public class SperreCustomBean extends BasicEntity implements Sperre {
             "fk_flurstueck_schluessel",
             "benutzerkonto",
             "informationen",
-            "zeitstempel"
+            "zeitstempel_timestamp"
         };
 
     //~ Constructors -----------------------------------------------------------
@@ -45,19 +54,38 @@ public class SperreCustomBean extends BasicEntity implements Sperre {
     public SperreCustomBean() {
     }
 
+    //~ Methods ----------------------------------------------------------------
+
     /**
-     * Creates a new SperreCustomBean object.
+     * DOCUMENT ME!
      *
-     * @param  flurstueckSchluessel  DOCUMENT ME!
-     * @param  benutzerkonto         DOCUMENT ME!
+     * @return  DOCUMENT ME!
      */
-    public SperreCustomBean(final FlurstueckSchluesselCustomBean flurstueckSchluessel, final String benutzerkonto) {
-        setFlurstueckSchluessel(flurstueckSchluessel.getId());
-        setBenutzerkonto(benutzerkonto);
-        setZeitstempel(new Date());
+    public static SperreCustomBean createNew() {
+        try {
+            return (SperreCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
     }
 
-    //~ Methods ----------------------------------------------------------------
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   flurstueckSchluessel  DOCUMENT ME!
+     * @param   benutzerkonto         DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static SperreCustomBean createNew(final FlurstueckSchluesselCustomBean flurstueckSchluessel,
+            final String benutzerkonto) {
+        final SperreCustomBean bean = createNew();
+        bean.setFlurstueckSchluessel(flurstueckSchluessel.getId());
+        bean.setBenutzerkonto(benutzerkonto);
+        bean.setZeitstempel(new Date());
+        return bean;
+    }
 
     /**
      * DOCUMENT ME!
@@ -162,7 +190,7 @@ public class SperreCustomBean extends BasicEntity implements Sperre {
     public void setZeitstempel_timestamp(final Timestamp val) {
         this.zeitstempel_timestamp = val;
 
-        this.propertyChangeSupport.firePropertyChange("zeitstempel", null, this.zeitstempel_timestamp);
+        this.propertyChangeSupport.firePropertyChange("zeitstempel_timestamp", null, this.zeitstempel_timestamp);
     }
 
     @Override

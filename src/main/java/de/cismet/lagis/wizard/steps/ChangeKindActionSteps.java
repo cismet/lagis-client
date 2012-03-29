@@ -112,7 +112,9 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                 final SperreCustomBean other = EJBroker.getInstance().isLocked(key);
                 if (other == null) {
                     sperre = EJBroker.getInstance()
-                                .createLock(new SperreCustomBean(key, LagisBroker.getInstance().getAccountName()));
+                                .createLock(SperreCustomBean.createNew(
+                                            key,
+                                            LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         progress.setBusy("Flurstückart wird geändert");
                         key.setFlurstueckArt(newArt);

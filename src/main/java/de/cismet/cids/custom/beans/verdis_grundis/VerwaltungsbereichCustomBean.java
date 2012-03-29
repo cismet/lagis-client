@@ -15,7 +15,11 @@ import java.awt.Paint;
 import java.util.Collection;
 import java.util.Iterator;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
@@ -30,8 +34,9 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final transient org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltungsbereichCustomBean.class);
+    public static final String TABLE = "verwaltungsbereich";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -52,7 +57,31 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
             "fk_flurstueck"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new VerwaltungsbereichCustomBean object.
+     */
+    public VerwaltungsbereichCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static VerwaltungsbereichCustomBean createNew() {
+        try {
+            return (VerwaltungsbereichCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!
@@ -227,7 +256,11 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     public void setGeometry(final Geometry val) {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
-            geomBean = new GeomCustomBean();
+            try {
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "geom");
+            } catch (Exception ex) {
+                LOG.error("error creating geom bean", ex);
+            }
             setGeometrie(geomBean);
         }
         geomBean.setGeomField(val);

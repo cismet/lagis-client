@@ -21,6 +21,8 @@ import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.SortOrder;
 
+import org.openide.util.Exceptions;
+
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -34,10 +36,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollection;
@@ -47,6 +48,8 @@ import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.editor.DateEditor;
 
@@ -366,28 +369,34 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allReBe.size());
 
         for (final RebeCustomBean rebe : allReBe) {
-            final RebeCustomBean tmp = new RebeCustomBean();
+            try {
+                final RebeCustomBean tmp = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                        CidsAppBackend.LAGIS_DOMAIN,
+                        "rebe");
 
-            final Date dateEintragung = rebe.getDatumEintragung();
-            final Date dateLoeschung = rebe.getDatumLoeschung();
+                final Date dateEintragung = rebe.getDatumEintragung();
+                final Date dateLoeschung = rebe.getDatumLoeschung();
 
-            tmp.setDatumEintragung((dateEintragung == null) ? null : (Date)dateEintragung.clone());
-            tmp.setDatumLoeschung((dateLoeschung == null) ? null : (Date)dateLoeschung.clone());
-            tmp.setBemerkung(rebe.getBemerkung());
+                tmp.setDatumEintragung((dateEintragung == null) ? null : (Date)dateEintragung.clone());
+                tmp.setDatumLoeschung((dateLoeschung == null) ? null : (Date)dateLoeschung.clone());
+                tmp.setBemerkung(rebe.getBemerkung());
 
-            final Geometry geom = rebe.getGeometry();
-            if (geom != null) {
-                tmp.setGeometry((Geometry)geom.clone());
+                final Geometry geom = rebe.getGeometry();
+                if (geom != null) {
+                    tmp.setGeometry((Geometry)geom.clone());
+                }
+
+                tmp.setEditable(rebe.isEditable());
+                tmp.hide(rebe.isHidden());
+                tmp.setModifiable(rebe.isModifiable());
+                tmp.setNummer(rebe.getNummer());
+                tmp.setIstRecht(rebe.getIstRecht());
+                tmp.setBeschreibung(rebe.getBeschreibung());
+
+                result.add(tmp);
+            } catch (Exception ex) {
+                log.error("error creating rebe bean");
             }
-
-            tmp.setEditable(rebe.isEditable());
-            tmp.hide(rebe.isHidden());
-            tmp.setModifiable(rebe.isModifiable());
-            tmp.setNummer(rebe.getNummer());
-            tmp.setIstRecht(rebe.getIstRecht());
-            tmp.setBeschreibung(rebe.getBeschreibung());
-
-            result.add(tmp);
         }
 
         return result;
@@ -679,13 +688,19 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
-        final RebeCustomBean tmpReBe = new RebeCustomBean();
-        if (isInAbteilungIXModus) {
-            tmpReBe.setIstRecht(true);
-        }
+        try {
+            final RebeCustomBean tmpReBe = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsAppBackend.LAGIS_DOMAIN,
+                    "rebe");
+            if (isInAbteilungIXModus) {
+                tmpReBe.setIstRecht(true);
+            }
 
-        this.tableModel.addReBe(tmpReBe);
-        this.tableModel.fireTableDataChanged();
+            this.tableModel.addReBe(tmpReBe);
+            this.tableModel.fireTableDataChanged();
+        } catch (Exception ex) {
+            log.error("error creating rebe bean", ex);
+        }
     } //GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override

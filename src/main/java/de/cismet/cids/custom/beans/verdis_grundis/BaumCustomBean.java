@@ -15,7 +15,11 @@ import java.awt.Paint;
 import java.util.Collection;
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.baum.Baum;
@@ -32,6 +36,7 @@ public class BaumCustomBean extends BasicEntity implements Baum {
 
     private static final transient org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             BaumCustomBean.class);
+    public static final String TABLE = "baum";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -66,7 +71,29 @@ public class BaumCustomBean extends BasicEntity implements Baum {
             "ar_baum_merkmale"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new BaumCustomBean object.
+     */
+    public BaumCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static BaumCustomBean createNew() {
+        try {
+            return (BaumCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!
@@ -392,7 +419,11 @@ public class BaumCustomBean extends BasicEntity implements Baum {
     public void setGeometry(final Geometry geom) {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
-            geomBean = new GeomCustomBean();
+            try {
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "geom");
+            } catch (Exception ex) {
+                LOG.error("error creating geom bean", ex);
+            }
             setGeometrie(geomBean);
         }
         geomBean.setGeomField(geom);

@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Kategorie;
 
@@ -18,6 +22,11 @@ import de.cismet.lagisEE.entity.core.hardwired.Kategorie;
  */
 public class KategorieCustomBean extends BasicEntity implements Kategorie {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KategorieCustomBean.class);
+    public static final String TABLE = "kategorie";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -26,7 +35,29 @@ public class KategorieCustomBean extends BasicEntity implements Kategorie {
     private OberkategorieCustomBean fk_oberkategorie;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung", "fk_oberkategorie" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new KategorieCustomBean object.
+     */
+    public KategorieCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static KategorieCustomBean createNew() {
+        try {
+            return (KategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

@@ -55,11 +55,15 @@ import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.verdis_grundis.*;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.gui.main.LagisApp;
 
@@ -632,7 +636,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public boolean acquireLock() {
         try {
             if ((currentFlurstueck != null) && (currentSperre == null)) {
-                final SperreCustomBean newSperre = new SperreCustomBean();
+                final SperreCustomBean newSperre = (SperreCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                        domain,
+                        "sperre");
                 // datamodell refactoring 22.10.07
                 newSperre.setFlurstueckSchluessel(currentFlurstueck.getFlurstueckSchluessel().getId());
                 newSperre.setBenutzerkonto(getAccountName());

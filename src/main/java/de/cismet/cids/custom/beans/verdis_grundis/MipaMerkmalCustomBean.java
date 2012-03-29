@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaMerkmal;
 
@@ -18,13 +22,40 @@ import de.cismet.lagisEE.entity.extension.vermietung.MiPaMerkmal;
  */
 public class MipaMerkmalCustomBean extends BasicEntity implements MiPaMerkmal {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaMerkmalCustomBean.class);
+    public static final String TABLE = "mipa_merkmal";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new MipaMerkmalCustomBean object.
+     */
+    public MipaMerkmalCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static MipaMerkmalCustomBean createNew() {
+        try {
+            return (MipaMerkmalCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

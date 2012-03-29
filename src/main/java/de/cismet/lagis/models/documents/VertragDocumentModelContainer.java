@@ -19,6 +19,8 @@ import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
 
+import org.openide.util.Exceptions;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -35,13 +37,14 @@ import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
 
-import de.cismet.cids.custom.beans.verdis_grundis.BeschlussCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.KostenCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VertragCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VertragsartCustomBean;
+import de.cismet.cids.custom.beans.verdis_grundis.*;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagis.models.BeschluesseTableModel;
 import de.cismet.lagis.models.KostenTableModel;
@@ -443,19 +446,25 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void addNewBeschluss() {
         if (currentSelectedVertrag != null) {
-            final BeschlussCustomBean beschluss = new BeschlussCustomBean();
-            beschluesseTableModel.addBeschluss(beschluss);
-            Collection<BeschlussCustomBean> tmpBeschluesse = currentSelectedVertrag.getBeschluesse();
-            if (tmpBeschluesse == null) {
-                tmpBeschluesse = new HashSet<BeschlussCustomBean>();
-            } else {
-                tmpBeschluesse.clear();
-            }
-            tmpBeschluesse.addAll(beschluesseTableModel.getBeschluesse());
-            currentSelectedVertrag.setBeschluesse(tmpBeschluesse);
-            beschluesseTableModel.fireTableDataChanged();
-            if (log.isDebugEnabled()) {
-                log.debug("Neuer Beschluss angelegt");
+            try {
+                final BeschlussCustomBean beschluss = (BeschlussCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                        CidsAppBackend.LAGIS_DOMAIN,
+                        "beschluss");
+                beschluesseTableModel.addBeschluss(beschluss);
+                Collection<BeschlussCustomBean> tmpBeschluesse = currentSelectedVertrag.getBeschluesse();
+                if (tmpBeschluesse == null) {
+                    tmpBeschluesse = new HashSet<BeschlussCustomBean>();
+                } else {
+                    tmpBeschluesse.clear();
+                }
+                tmpBeschluesse.addAll(beschluesseTableModel.getBeschluesse());
+                currentSelectedVertrag.setBeschluesse(tmpBeschluesse);
+                beschluesseTableModel.fireTableDataChanged();
+                if (log.isDebugEnabled()) {
+                    log.debug("Neuer Beschluss angelegt");
+                }
+            } catch (Exception ex) {
+                log.error("error creating beschluss bean", ex);
             }
         } else {
             if (log.isDebugEnabled()) {
@@ -469,7 +478,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void addNewKosten() {
         if (currentSelectedVertrag != null) {
-            final KostenCustomBean kosten = new KostenCustomBean();
+            final KostenCustomBean kosten = KostenCustomBean.createNew();
             kostenTableModel.addKosten(kosten);
             Collection<KostenCustomBean> tmpKosten = currentSelectedVertrag.getKosten();
             if (tmpKosten == null) {
@@ -497,7 +506,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void removeKosten(final int kostenToRemove) {
         if ((currentSelectedVertrag != null) || (kostenToRemove == -1)) {
-            final KostenCustomBean kosten = new KostenCustomBean();
+            final KostenCustomBean kosten = KostenCustomBean.createNew();
             final KostenCustomBean tmpKosten = kostenTableModel.getKostenAtRow(kostenToRemove);
             kostenTableModel.removeKosten(kostenToRemove);
             final Collection<KostenCustomBean> allKosten = currentSelectedVertrag.getKosten();
@@ -520,7 +529,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void removeBeschluss(final int beschlussToRemove) {
         if ((currentSelectedVertrag != null) || (beschlussToRemove == -1)) {
-            final BeschlussCustomBean beschluss = new BeschlussCustomBean();
+            final BeschlussCustomBean beschluss = BeschlussCustomBean.createNew();
             final BeschlussCustomBean tmpBeschluss = beschluesseTableModel.getBeschlussAtRow(beschlussToRemove);
             beschluesseTableModel.removeBeschluss(beschlussToRemove);
             final Collection<BeschlussCustomBean> allBeschluesse = currentSelectedVertrag.getBeschluesse();

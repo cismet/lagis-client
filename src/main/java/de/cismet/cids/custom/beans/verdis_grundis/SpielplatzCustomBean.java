@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.spielplatz.Spielplatz;
 
@@ -17,6 +21,11 @@ import de.cismet.lagisEE.entity.extension.spielplatz.Spielplatz;
  * @version  $Revision$, $Date$
  */
 public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(SpielplatzCustomBean.class);
+    public static final String TABLE = "spielplatz";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -45,7 +54,29 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
             "ist_wippe_wartung_erforderlich"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new SpielplatzCustomBean object.
+     */
+    public SpielplatzCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static SpielplatzCustomBean createNew() {
+        try {
+            return (SpielplatzCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

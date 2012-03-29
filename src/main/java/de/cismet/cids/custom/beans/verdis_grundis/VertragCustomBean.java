@@ -12,6 +12,10 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Vertrag;
 
@@ -22,6 +26,11 @@ import de.cismet.lagisEE.entity.core.Vertrag;
  * @version  $Revision$, $Date$
  */
 public class VertragCustomBean extends BasicEntity implements Vertrag {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(VertragCustomBean.class);
+    public static final String TABLE = "vertrag";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -50,7 +59,29 @@ public class VertragCustomBean extends BasicEntity implements Vertrag {
             "n_kosten"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new VertragCustomBean object.
+     */
+    public VertragCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static VertragCustomBean createNew() {
+        try {
+            return (VertragCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

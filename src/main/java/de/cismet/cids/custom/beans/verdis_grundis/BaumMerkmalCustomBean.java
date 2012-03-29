@@ -9,6 +9,8 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.extension.baum.BaumMerkmal;
 
 /**
@@ -19,13 +21,40 @@ import de.cismet.lagisEE.entity.extension.baum.BaumMerkmal;
  */
 public class BaumMerkmalCustomBean extends CidsBean implements BaumMerkmal {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BaumMerkmalCustomBean.class);
+    public static final String TABLE = "baum_merkmal";
+
     //~ Instance fields --------------------------------------------------------
 
     private Long id;
     private String bezeichnung;
     private String[] PROPERTY_NAMES;
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new BaumMerkmalCustomBean object.
+     */
+    public BaumMerkmalCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static BaumMerkmalCustomBean createNew() {
+        try {
+            return (BaumMerkmalCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

@@ -198,9 +198,9 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
         if (log.isDebugEnabled()) {
             log.debug("addNewDocPanel Method");
         }
-        final DmsUrlCustomBean dmsUrlEntity = new DmsUrlCustomBean();
-        final UrlCustomBean url = new UrlCustomBean();
-        final UrlBaseCustomBean base = new UrlBaseCustomBean();
+        final DmsUrlCustomBean dmsUrlEntity = DmsUrlCustomBean.createNew();
+        final UrlCustomBean url = UrlCustomBean.createNew();
+        final UrlBaseCustomBean base = UrlBaseCustomBean.createNew();
         url.setUrlBase(base);
         if (log.isDebugEnabled()) {
             log.debug("UrlEntity(dokPanek): " + url);

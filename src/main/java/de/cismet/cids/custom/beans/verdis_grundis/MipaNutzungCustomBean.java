@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
 
@@ -17,6 +21,11 @@ import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
  * @version  $Revision$, $Date$
  */
 public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaNutzungCustomBean.class);
+    public static final String TABLE = "mipa_nutzung";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -31,7 +40,29 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
             "fk_mipa_kategorie"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new MipaNutzungCustomBean object.
+     */
+    public MipaNutzungCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static MipaNutzungCustomBean createNew() {
+        try {
+            return (MipaNutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

@@ -71,8 +71,8 @@ public class LagisCrossover {
                     LOG.debug("Crossover: Rest Method load flurstueck called with params: " + gemarkung + " " + flur
                                 + " " + zaehler + "/" + nenner);
                 }
-                FlurstueckSchluesselCustomBean key = new FlurstueckSchluesselCustomBean();
-                GemarkungCustomBean gem = new GemarkungCustomBean();
+                FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
+                GemarkungCustomBean gem = GemarkungCustomBean.createNew();
                 gem.setBezeichnung(gemarkung);
                 gem = EJBroker.getInstance().completeGemarkung(gem);
                 if (gem == null) {

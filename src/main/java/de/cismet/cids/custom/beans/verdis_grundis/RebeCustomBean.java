@@ -17,7 +17,11 @@ import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.ReBe;
@@ -32,8 +36,8 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final transient org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
-            RebeCustomBean.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RebeCustomBean.class);
+    public static final String TABLE = "rebe";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -64,7 +68,29 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
             "bemerkung"
         };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new RebeCustomBean object.
+     */
+    public RebeCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static RebeCustomBean createNew() {
+        try {
+            return (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!
@@ -374,7 +400,11 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
     public void setGeometry(final Geometry geom) {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
-            geomBean = new GeomCustomBean();
+            try {
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, "geom");
+            } catch (Exception ex) {
+                LOG.error("error creating geom bean", ex);
+            }
             setGeometrie(geomBean);
         }
         geomBean.setGeomField(geom);

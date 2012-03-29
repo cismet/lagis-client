@@ -9,6 +9,10 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import com.vividsolutions.jts.geom.Geometry;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Geom;
 
@@ -20,13 +24,40 @@ import de.cismet.lagisEE.entity.core.Geom;
  */
 public class GeomCustomBean extends BasicEntity implements Geom {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(GeomCustomBean.class);
+    public static final String TABLE = "geom";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private com.vividsolutions.jts.geom.Geometry geo_field;
     private String[] PROPERTY_NAMES = new String[] { "id", "geo_field" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new GeomCustomBean object.
+     */
+    public GeomCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static GeomCustomBean createNew() {
+        try {
+            return (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

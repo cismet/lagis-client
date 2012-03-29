@@ -7,6 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.verdis_grundis;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.cidsmigtest.CidsAppBackend;
+
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Farbe;
 
@@ -18,6 +22,11 @@ import de.cismet.lagisEE.entity.core.hardwired.Farbe;
  */
 public class FarbeCustomBean extends BasicEntity implements Farbe {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(FarbeCustomBean.class);
+    public static final String TABLE = "farbe";
+
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
@@ -26,7 +35,29 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
     private VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch;
     private String[] PROPERTY_NAMES = new String[] { "id", "rgb_farbwert", "fk_stil", "fk_verwaltungsgebrauch" };
 
+    //~ Constructors -----------------------------------------------------------
+
+    /**
+     * Creates a new FarbeCustomBean object.
+     */
+    public FarbeCustomBean() {
+    }
+
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static FarbeCustomBean createNew() {
+        try {
+            return (FarbeCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsAppBackend.LAGIS_DOMAIN, TABLE);
+        } catch (Exception ex) {
+            LOG.error("error creating " + TABLE + " bean", ex);
+            return null;
+        }
+    }
 
     /**
      * DOCUMENT ME!

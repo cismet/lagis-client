@@ -116,7 +116,7 @@ public class HistoricActionSteps extends WizardPanelProvider {
                 final SperreCustomBean other = EJBroker.getInstance().isLocked(historicKey);
                 if (other == null) {
                     sperre = EJBroker.getInstance()
-                                .createLock(new SperreCustomBean(
+                                .createLock(SperreCustomBean.createNew(
                                             historicKey,
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {

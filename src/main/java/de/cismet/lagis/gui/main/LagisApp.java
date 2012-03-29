@@ -19,8 +19,6 @@ import Sirius.navigator.plugin.interfaces.*;
 
 import Sirius.server.newuser.User;
 
-import bean.KassenzeichenFacadeRemote;
-
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 
 import com.sun.jersey.api.container.ContainerFactory;
@@ -93,8 +91,6 @@ import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 import de.cismet.cismap.commons.interaction.CismapBroker;
 import de.cismet.cismap.commons.wfsforms.AbstractWFSForm;
 import de.cismet.cismap.commons.wfsforms.WFSFormFactory;
-
-import de.cismet.ee.EJBAccessor;
 
 import de.cismet.lagis.broker.EJBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -288,7 +284,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private AppletContext appletContext;
     private StringViewMap viewMap = new StringViewMap();
 
-    private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
+    // TODO Jean
+// private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     // FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel();
     private Vector widgets = new Vector();
