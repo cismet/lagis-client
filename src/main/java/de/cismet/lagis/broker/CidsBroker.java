@@ -282,6 +282,7 @@ public final class CidsBroker {
                     "Es sind Daten für das Flurstück vorhanden, es kann nicht gelöscht werden");
             } else {
                 flurstueck.delete();
+                flurstueck.persist();
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim löschen eines Flurstücks: " + flurstueck, ex);
@@ -728,12 +729,11 @@ public final class CidsBroker {
                     LOG.debug("Keine Sperre für das angegebene Flurstueck vorhanden, es wird versucht eine anzulegen");
                 }
                 try {
-                    newSperre.persist();
+                    return (SperreCustomBean)newSperre.persist();
                 } catch (Exception ex) {
                     LOG.error("Fehler beim Anlegen der Sperre", ex);
                     return null;
                 }
-                return newSperre;
             } else if (mos.length == 1) {
                 final SperreCustomBean sperre = (SperreCustomBean)mos[0].getBean();
                 if (LOG.isDebugEnabled()) {
@@ -741,10 +741,10 @@ public final class CidsBroker {
                 }
                 return sperre;
             } else if (mos.length > 1) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Es sind mehrere Sperren vorhanden");
-                }
-                return null;
+                final SperreCustomBean sperre = (SperreCustomBean)mos[0].getBean();
+                LOG.error("Es sind mehrere Sperren vorhanden");
+                // TODO Jean: hier wurde vorher null zurückgegeben, denke aber nicht dass das richtig war
+                return sperre;
             }
         } else {
             if (LOG.isDebugEnabled()) {
@@ -766,6 +766,7 @@ public final class CidsBroker {
         try {
             if (sperre != null) {
                 sperre.delete();
+                sperre.persist();
                 return true;
             } else {
                 return false;

@@ -119,18 +119,19 @@ public class NKFTableModel extends AbstractTableModel {
         try {
             final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
 //            final NutzungBuchungCustomBean selectedBuchung = nutzung.getBuchungForExactDate(currentDate);
-            final Double stilleReserve = selectedBuchung.getNutzung().getStilleReserveForBuchung(selectedBuchung);
+            final NutzungCustomBean nutzung = (selectedBuchung != null) ? selectedBuchung.getNutzung() : null;
+            final Double stilleReserve = (nutzung != null) ? nutzung.getStilleReserveForBuchung(selectedBuchung) : null;
             switch (columnIndex) {
                 case 0: {
-                    if (selectedBuchung.getNutzung() != null) {
-                        return selectedBuchung.getNutzung().getId();
+                    if (nutzung != null) {
+                        return nutzung.getId();
                     } else {
                         return null;
                     }
                 }
                 case 1: {
-                    if (selectedBuchung.getNutzung() != null) {
-                        return selectedBuchung.getNutzung().getBuchungsNummerForBuchung(selectedBuchung);
+                    if (nutzung != null) {
+                        return nutzung.getBuchungsNummerForBuchung(selectedBuchung);
                     } else {
                         return null;
                     }
