@@ -11,8 +11,10 @@ import Sirius.navigator.connection.SessionManager;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
 import Sirius.navigator.exception.ConnectionException;
 
+import Sirius.server.middleware.types.AbstractAttributeRepresentationFormater;
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
+import Sirius.server.newuser.User;
 
 import java.text.DecimalFormat;
 
@@ -336,6 +338,48 @@ public final class CidsBroker {
     /**
      * DOCUMENT ME!
      *
+     * @param   tabName    DOCUMENT ME!
+     * @param   query      DOCUMENT ME!
+     * @param   fields     DOCUMENT ME!
+     * @param   formatter  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static MetaObject[] getLightweightMetaObjectsForQuery(final String tabName,
+            final String query,
+            final String[] fields,
+            AbstractAttributeRepresentationFormater formatter) {
+        if (formatter == null) {
+            formatter = new AbstractAttributeRepresentationFormater() {
+
+                    @Override
+                    public String getRepresentation() {
+                        final StringBuffer sb = new StringBuffer();
+                        for (final String attribute : fields) {
+                            sb.append(getAttribute(attribute.toLowerCase())).append(" ");
+                        }
+                        return sb.toString().trim();
+                    }
+                };
+        }
+        try {
+            final User user = SessionManager.getSession().getUser();
+            final MetaClass mc = ClassCacheMultiple.getMetaClass(LAGIS_DOMAIN, tabName);
+            if (mc != null) {
+                return SessionManager.getProxy()
+                            .getLightweightMetaObjectsByQuery(mc.getID(), user, query, fields, formatter);
+            } else {
+                LOG.error("Can not find MetaClass for Tablename: " + tabName);
+            }
+        } catch (Exception ex) {
+            LOG.error(ex, ex);
+        }
+        return new MetaObject[0];
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   key  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -354,14 +398,15 @@ public final class CidsBroker {
                     if ((currentGemarkung != null) && (currentGemarkung.getSchluessel() != null)) {
                         // TODO Duplicated code --> extract
 
-                        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
+                        final MetaClass metaclass = CidsBroker.getInstance()
+                                    .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
                         if (metaclass == null) {
                             return null;
                         }
-                        // TODO Jean: server search nach flurId
                         final String query = "SELECT DISTINCT "
-                                    + "   " + metaclass.getID() + ", "
-                                    + "   min(" + metaclass.getTableName() + "." + metaclass.getPrimaryKey() + ") "
+                                    + "   min(" + metaclass.getTableName() + "." + metaclass.getPrimaryKey()
+                                    + ") AS id, "
+                                    + "   min(" + metaclass.getTableName() + ".flur) AS flur "
                                     + "FROM "
                                     + "   " + metaclass.getTableName() + ", "
                                     + "   gemarkung "
@@ -370,13 +415,24 @@ public final class CidsBroker {
                                     + "    AND " + metaclass.getTableName() + ".fk_flurstueck_art != 3 "
                                     + "    AND gemarkung.schluessel = " + currentGemarkung.getSchluessel() + " "
                                     + "GROUP BY " + metaclass.getTableName() + ".flur";
-                        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+
+                        final MetaObject[] mos = getLightweightMetaObjectsForQuery(
+                                metaclass.getTableName(),
+                                query,
+                                new String[] { "id", "flur" },
+                                new AbstractAttributeRepresentationFormater() {
+
+                                    @Override
+                                    public String getRepresentation() {
+                                        return String.valueOf(getAttribute("flur"));
+                                    }
+                                });
+
                         if (mos != null) {
                             final Collection flurKeys = new HashSet();
                             for (final MetaObject mo : mos) {
-                                final FlurstueckSchluesselCustomBean bean = (FlurstueckSchluesselCustomBean)
-                                    mo.getBean();
-                                flurKeys.add(new FlurKey(currentGemarkung, bean.getFlur()));
+                                final Integer flur = Integer.parseInt(mo.toString());
+                                flurKeys.add(new FlurKey(currentGemarkung, flur));
                             }
                             return flurKeys;
                         } else {
@@ -386,13 +442,14 @@ public final class CidsBroker {
                         final GemarkungCustomBean completed = completeGemarkung(currentGemarkung);
                         if (completed != null) {
                             final MetaClass metaclass = CidsBroker.getInstance()
-                                        .getLagisMetaClass("flustueck_schluessel");
+                                        .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
                             if (metaclass == null) {
                                 return null;
                             }
                             final String query = "SELECT DISTINCT "
-                                        + "   " + metaclass.getID() + ", "
-                                        + "   min(" + metaclass.getTableName() + "." + metaclass.getPrimaryKey() + ") "
+                                        + "   min(" + metaclass.getTableName() + "." + metaclass.getPrimaryKey()
+                                        + ") AS id, "
+                                        + "   min(" + metaclass.getTableName() + ".flur) AS flur "
                                         + "FROM "
                                         + "   " + metaclass.getTableName() + ", "
                                         + "   gemarkung "
@@ -401,13 +458,23 @@ public final class CidsBroker {
                                         + "    AND " + metaclass.getTableName() + ".fk_flurstueck_art != 3 "
                                         + "    AND gemarkung.schluessel = " + completed.getSchluessel() + " "
                                         + "GROUP BY " + metaclass.getTableName() + ".flur";
-                            final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+
+                            final MetaObject[] mos = getLightweightMetaObjectsForQuery(
+                                    metaclass.getTableName(),
+                                    query,
+                                    new String[] { "id", "flur" },
+                                    new AbstractAttributeRepresentationFormater() {
+
+                                        @Override
+                                        public String getRepresentation() {
+                                            return String.valueOf(getAttribute("flur"));
+                                        }
+                                    });
                             if (mos != null) {
                                 final Collection flurKeys = new HashSet();
                                 for (final MetaObject mo : mos) {
-                                    final FlurstueckSchluesselCustomBean bean = (FlurstueckSchluesselCustomBean)
-                                        mo.getBean();
-                                    flurKeys.add(new FlurKey(currentGemarkung, bean.getFlur()));
+                                    final Integer flur = Integer.parseInt(mo.toString());
+                                    flurKeys.add(new FlurKey(currentGemarkung, flur));
                                 }
                             } else {
                                 return new HashSet();
@@ -424,7 +491,8 @@ public final class CidsBroker {
                     }
                     final FlurKey currentFlur = (FlurKey)key;
 
-                    final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
+                    final MetaClass metaclass = CidsBroker.getInstance()
+                                .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
                     if (metaclass == null) {
                         return null;
                     }

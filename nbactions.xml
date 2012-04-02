@@ -24,7 +24,7 @@
             <properties>
                 <jalopy.skip>true</jalopy.skip>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.args>-Xmx512m -Dorg.omg.CORBA.ORBInitialHost=192.168.100.150 -classpath %classpath de.cismet.lagis.gui.main.LagisApp -d VERDIS_GRUNDIS -h localhost</exec.args>
+                <exec.args>-Xmx512m -classpath %classpath de.cismet.lagis.gui.main.LagisApp -d VERDIS_GRUNDIS -h localhost</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -37,7 +37,7 @@
             <properties>
                 <jalopy.skip>true</jalopy.skip>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx512m -Dorg.omg.CORBA.ORBInitialHost=192.168.100.150 -classpath %classpath de.cismet.lagis.gui.main.LagisApp -d VERDIS_GRUNDIS -h localhost</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -Xmx512m -classpath %classpath de.cismet.lagis.gui.main.LagisApp -d VERDIS_GRUNDIS -h localhost</exec.args>
                 <jpda.listen>true</jpda.listen>
                 <exec.executable>java</exec.executable>
             </properties>
@@ -51,7 +51,7 @@
             <properties>
                 <jalopy.skip>true</jalopy.skip>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.args>${profiler.args} -Xmx512m -Dorg.omg.CORBA.ORBInitialHost=192.168.100.150 -classpath %classpath de.cismet.lagis.gui.main.LagisApp -d VERDIS_GRUNDIS -h localhost</exec.args>
+                <exec.args>${profiler.args} -Xmx512m -classpath %classpath de.cismet.lagis.gui.main.LagisApp -d VERDIS_GRUNDIS -h localhost</exec.args>
                 <profiler.action>profile</profiler.action>
                 <exec.executable>${profiler.java}</exec.executable>
             </properties>
