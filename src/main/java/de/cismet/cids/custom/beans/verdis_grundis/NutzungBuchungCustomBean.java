@@ -66,7 +66,6 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
             "ar_flaechennutzungen"
         };
 
-    // TODO Jean: wirklich false initiieren ?!
     private Boolean sollGeloeschtWerden = false;
 
     //~ Constructors -----------------------------------------------------------

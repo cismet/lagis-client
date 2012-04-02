@@ -303,13 +303,13 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
      * @param  val  paramCollection DOCUMENT ME!
      */
     public void setN_dms_urls(final Collection<DmsUrlCustomBean> val) {
-        Collections.sort((List<DmsUrlCustomBean>)val, new Comparator<DmsUrlCustomBean>() {
-
-                @Override
-                public int compare(final DmsUrlCustomBean o1, final DmsUrlCustomBean o2) {
-                    return (int)(o1.getId() - o2.getId());
-                }
-            });
+//        Collections.sort((List<DmsUrlCustomBean>)val, new Comparator<DmsUrlCustomBean>() {
+//
+//                @Override
+//                public int compare(final DmsUrlCustomBean o1, final DmsUrlCustomBean o2) {
+//                    return (int)(o1.getId() - o2.getId());
+//                }
+//            });
         this.n_dms_urls = val;
 
         this.propertyChangeSupport.firePropertyChange("n_dms_urls", null, this.n_dms_urls);
@@ -330,13 +330,13 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
      * @param  val  paramCollection DOCUMENT ME!
      */
     public void setN_nutzungen(final Collection<NutzungCustomBean> val) {
-        Collections.sort((List<NutzungCustomBean>)val, new Comparator<NutzungCustomBean>() {
-
-                @Override
-                public int compare(final NutzungCustomBean o1, final NutzungCustomBean o2) {
-                    return (int)(o1.getId() - o2.getId());
-                }
-            });
+//        Collections.sort((List<NutzungCustomBean>)val, new Comparator<NutzungCustomBean>() {
+//
+//                @Override
+//                public int compare(final NutzungCustomBean o1, final NutzungCustomBean o2) {
+//                    return (int)(o1.getId() - o2.getId());
+//                }
+//            });
         this.n_nutzungen = val;
 
         this.propertyChangeSupport.firePropertyChange("n_nutzungen", null, this.n_nutzungen);
@@ -357,13 +357,13 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
      * @param  val  DOCUMENT ME!
      */
     public void setN_rebes(final Collection<RebeCustomBean> val) {
-        Collections.sort((List<RebeCustomBean>)val, new Comparator<RebeCustomBean>() {
-
-                @Override
-                public int compare(final RebeCustomBean o1, final RebeCustomBean o2) {
-                    return (int)(o1.getId() - o2.getId());
-                }
-            });
+//        Collections.sort((List<RebeCustomBean>)val, new Comparator<RebeCustomBean>() {
+//
+//                @Override
+//                public int compare(final RebeCustomBean o1, final RebeCustomBean o2) {
+//                    return (int)(o1.getId() - o2.getId());
+//                }
+//            });
         this.n_rebes = val;
 
         this.propertyChangeSupport.firePropertyChange("n_rebes", null, this.n_rebes);

@@ -199,13 +199,13 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
      * @param  val  DOCUMENT ME!
      */
     public void setN_farben(final Collection<FarbeCustomBean> val) {
-        Collections.sort((List<FarbeCustomBean>)val, new Comparator<FarbeCustomBean>() {
-
-                @Override
-                public int compare(final FarbeCustomBean o1, final FarbeCustomBean o2) {
-                    return (int)(o1.getId() - o2.getId());
-                }
-            });
+//        Collections.sort((List<FarbeCustomBean>)val, new Comparator<FarbeCustomBean>() {
+//
+//                @Override
+//                public int compare(final FarbeCustomBean o1, final FarbeCustomBean o2) {
+//                    return (int)(o1.getId() - o2.getId());
+//                }
+//            });
         this.n_farben = val;
 
         this.propertyChangeSupport.firePropertyChange("n_farben", null, this.n_farben);

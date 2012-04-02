@@ -798,7 +798,6 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
     @Override
     public void setNutzungsBuchungen(final List<NutzungBuchungCustomBean> val) {
-        // TODO Jean : prüfen da 1:n beziehung, muss nicht gesetzt werden ?
     }
 
     @Override
@@ -820,7 +819,6 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
-        // TODO Jean: kann die Methode so übernommen werden ?!
         try {
             if (getBuchungsCount() > 0) {
                 final NutzungBuchungCustomBean[] nutzungBuchungen = getNutzungsBuchungen().toArray(
