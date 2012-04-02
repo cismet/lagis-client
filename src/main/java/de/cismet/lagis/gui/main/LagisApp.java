@@ -130,6 +130,7 @@ import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.downloadmanager.DownloadManagerAction;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
+import de.cismet.tools.gui.startup.StaticStartupTools;
 
 /**
  * DOCUMENT ME!
@@ -157,15 +158,24 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private static final String LOCAL_LAGIS_CONFIGURATION_FILE = "lagisProperties.xml";
     private static final String LAGIS_CONFIGURATION_CLASSPATH = "/de/cismet/lagis/configuration/";
     private static final String LAGIS_LOCAL_CONFIGURATION_FOLDER = ".lagis";
-    private static final String USER_HOME_DIRECTORY = System.getProperty("user.home");
+    private static final String DIRECTORYPATH_HOME = System.getProperty("user.home");
     private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     // userdependingConfiguration
     // TODO Auslagern in configFile
-    private static final String LAGIS_CONFIGURATION_FOLDER = USER_HOME_DIRECTORY + FILE_SEPARATOR + ".lagis";
+    private static final String LAGIS_CONFIGURATION_FOLDER = DIRECTORYPATH_HOME + FILE_SEPARATOR + ".lagis";
     private static final String DEFAULT_LAYOUT_PATH = LAGIS_CONFIGURATION_FOLDER + "/lagis.layout";
     private static final String PLUGIN_LAYOUT_PATH = LAGIS_CONFIGURATION_FOLDER + "/pluginLagis.layout";
 
     private static final String DEFAULT_APP_DATA_PATH = LAGIS_CONFIGURATION_FOLDER + "/lagis.data";
+
+    private static final String DIRECTORYEXTENSION = System.getProperty("directory.extension");
+    private static final String DIRECTORY_LAGISHOME = ".lagis"
+                + ((DIRECTORYEXTENSION != null) ? DIRECTORYEXTENSION : "");
+    private static final String FILE_SCREEN = "lagis.screen";
+    private static final String DIRECTORYPATH_LAGIS = DIRECTORYPATH_HOME + FILE_SEPARATOR + DIRECTORY_LAGISHOME;
+    private static final String FILEPATH_SCREEN = DIRECTORYPATH_LAGIS + FILE_SEPARATOR + FILE_SCREEN;
+
+    private static JFrame SPLASH;
 
     private static String onlineHelpURL;
     private static String newsURL;
@@ -841,6 +851,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
 
             pKarte.setInteractionMode();
+            if (SPLASH != null) {
+                SPLASH.dispose();
+            }
+            SPLASH = null;
             setVisible(true);
 //            CidsBroker.setMainframe(this);
             // check if there ist at least one editable Widget
@@ -2980,8 +2994,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         final Options options = new Options();
                         options.addOption("h", true, "callserver host");
                         options.addOption("d", true, "Domain");
-                        options.addOption("g", true, "Glassfish host");
-                        options.addOption("p", true, "Glassfish port");
                         final PosixParser parser = new PosixParser();
                         final CommandLine cmd = parser.parse(options, args);
                         if (cmd.hasOption("h")) {
@@ -3007,6 +3019,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         LOG.error("Fehler beim setzen des Look & Feels", ex);
                     }
                     initLog4J();
+                    try {
+                        SPLASH = StaticStartupTools.showGhostFrame(FILEPATH_SCREEN, "lagis [Startup]");
+                        SPLASH.setLocationRelativeTo(null);
+                    } catch (Exception e) {
+                        LOG.warn("Problem beim Darstellen des Pre-Loading-Frame", e);
+                    }
                     try {
                         handleLogin();
                     } catch (Exception ex) {
@@ -3272,6 +3290,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     @Override
     public void dispose() {
+        try {
+            StaticStartupTools.saveScreenshotOfFrame(this, FILEPATH_SCREEN);
+        } catch (Exception ex) {
+            LOG.fatal("Fehler beim Capturen des App-Inhaltes", ex);
+        }
+
         setVisible(false);
         LOG.info("Dispose(): Lagis wird heruntergefahren");
         saveLayout(DEFAULT_LAYOUT_PATH);
