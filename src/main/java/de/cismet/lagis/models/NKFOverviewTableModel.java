@@ -118,6 +118,9 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
+        if (data.isEmpty()) {
+            return null;
+        }
         try {
             final AnlagenklasseSumme summe = data.get(rowIndex);
 
@@ -260,6 +263,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
     public double getStilleReserve() {
         return stilleReserve;
     }
+
 //    private synchronized void updateStilleReservenBetrag(NutzungsContainer nutzungen) {
 //        boolean containsHistoricNutzung = false;
 //        if (nutzungen != null) {
@@ -323,6 +327,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
 //        }
 //        return false;
 //    }
+
     @Override
     public String getColumnName(final int column) {
         return COLUMN_HEADER[column];
@@ -354,8 +359,10 @@ public class NKFOverviewTableModel extends AbstractTableModel {
     public Date getCurrentDate() {
         return currentDate;
     }
+
 //    @Override
 //    public Class<?> getColumnClass(int columnIndex) {
 //        return getValueAt(0,columnIndex).getClass();
 //    }
+
 }

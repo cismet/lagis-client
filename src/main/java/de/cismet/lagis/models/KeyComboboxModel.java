@@ -39,10 +39,13 @@ import de.cismet.lagisEE.interfaces.Key;
  */
 public class KeyComboboxModel extends AbstractListModel implements MutableComboBoxModel, Serializable {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(KeyComboboxModel.class);
+
     //~ Instance fields --------------------------------------------------------
 
     private Vector<Key> keys = new Vector<Key>();
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Vector<ListDataListener> listener = new Vector<ListDataListener>();
     private Object selectedObject = null;
 
@@ -78,75 +81,6 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
 
     //~ Methods ----------------------------------------------------------------
 
-// public KeyComboboxModel(final Key key,final JComboBox cbo){
-// //if(key instanceof Gemarkung){
-////            cbo.setEnabled(false);
-////            Thread keyRetrieverThread=new Thread() {
-////                public void run() {
-////                    if(key instanceof FlurstueckKey){
-////                        log.debug("Abrufen der Flurkeys/Flurstueckkeys vom Server Key: "+((FlurstueckKey) key).toString());
-////                    } else if(key instanceof FlurKey){
-////                        log.debug("Abrufen der Flurkeys/Flurstueckkeys vom Server Key: "+((FlurKey) key).toString());
-////                    }
-////
-////                    cbo.setModel(new KeyComboboxModel(new Vector<Key>(EJBroker.getInstance().getKeysDependingOnKey(key))));
-////                    cbo.setEnabled(true);
-////                    cbo.requestFocus();
-////                }
-////            };
-////            keyRetrieverThread.setPriority(Thread.NORM_PRIORITY);
-////            keyRetrieverThread.start();
-////        } else if(key instanceof FlurKey){
-////            cbo.setEnabled(false);
-////            Thread keyRetrieverThread=new Thread() {
-////                public void run() {
-////                    log.debug("Abrufen der Flurstuecke vom Server");
-////                    cbo.setModel(new KeyComboboxModel(new Vector<Key>(EJBroker.getInstance().getKeysDependingOnKey(key))));
-////                    cbo.setEnabled(true);
-////                }
-////            };
-////            keyRetrieverThread.setPriority(Thread.NORM_PRIORITY);
-////            keyRetrieverThread.start();
-////        }
-//    }
-
-//    public void setSelectedItem(Object anItem) {
-//        //log.fatal("setSelected ITEM: "+anItem);
-//        selectedItem = anItem;
-//    }
-
-//    public Object getElementAt(int index) {
-//        //log.fatal("getSelected ITEM: "+key.get(index));
-//        return key.get(index);
-//    }
-//
-//    public void removeKey(Key key){
-//        int index = this.key.indexOf(key);
-//        if(index >-1){
-//            this.key.remove(key);
-//            fireContentsChanged(this,index,index);
-//        }
-//    }
-//
-//    public int getSize() {
-//        //log.fatal("getSize(): "+key.size());
-//        return key.size();
-//    }
-//
-//    public Object getSelectedItem() {
-//        return selectedItem;
-//    }
-//
-//    public void setSelectedItem(Object anItem) {
-//        int index = key.indexOf(anItem);
-//        if(index >-1){
-//            log.debug("Objekt aus model Selektiert");
-//            fireContentsChanged(this,index,index);
-//        } else {
-//            log.debug("keinObjekt aus der Liste selektiert");
-//        }
-//    }
-
     // implements javax.swing.ComboBoxModel
     /**
      * Set the value of the selected item. The selected item may be null.
@@ -155,7 +89,7 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
      */
     @Override
     public void setSelectedItem(final Object anObject) {
-        log.info("COMBOBOX SETSELECTED ITEM: " + anObject);
+        LOG.info("COMBOBOX SETSELECTED ITEM: " + anObject);
         if (((selectedObject != null) && !selectedObject.equals(anObject))
                     || ((selectedObject == null) && (anObject != null))) {
             selectedObject = anObject;
@@ -193,7 +127,7 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
      * @return  DOCUMENT ME!
      */
     public boolean contains(final Object key) {
-        return keys.contains(key);
+        return keys.contains((Key)key);
     }
 
     /**
@@ -207,7 +141,6 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
         return keys.indexOf(anObject);
     }
 
-    // implements javax.swing.MutableComboBoxModel
     @Override
     public void addElement(final Object keyToAdd) {
         LagisBroker.warnIfThreadIsNotEDT();
@@ -220,18 +153,16 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
                 setSelectedItem(keyToAdd);
             }
         } else {
-            log.warn("Es wurde versucht ein Object != Key zu adden");
+            LOG.warn("Es wurde versucht ein Object != Key zu adden");
         }
     }
 
-    // implements javax.swing.MutableComboBoxModel
     @Override
     public void insertElementAt(final Object anObject, final int index) {
         keys.insertElementAt((Key)keys, index);
         fireIntervalAdded(this, index, index);
     }
 
-    // implements javax.swing.MutableComboBoxModel
     @Override
     public void removeElementAt(final int index) {
         if (getElementAt(index) == selectedObject) {
@@ -247,7 +178,6 @@ public class KeyComboboxModel extends AbstractListModel implements MutableComboB
         fireIntervalRemoved(this, index, index);
     }
 
-    // implements javax.swing.MutableComboBoxModel
     @Override
     public void removeElement(final Object anObject) {
         final int index = keys.indexOf(anObject);
