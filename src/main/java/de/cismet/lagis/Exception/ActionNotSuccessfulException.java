@@ -17,15 +17,12 @@ package de.cismet.lagis.Exception;
 
 import java.io.Serializable;
 
-import javax.ejb.ApplicationException;
-
 /**
  * DOCUMENT ME!
  *
  * @author   Sebastian Puhl
  * @version  $Revision$, $Date$
  */
-@ApplicationException(rollback = true)
 public class ActionNotSuccessfulException extends Exception implements Serializable {
 
     //~ Instance fields --------------------------------------------------------

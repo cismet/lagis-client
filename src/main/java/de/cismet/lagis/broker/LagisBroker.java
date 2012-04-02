@@ -17,8 +17,6 @@ package de.cismet.lagis.broker;
 
 import Sirius.navigator.connection.ConnectionSession;
 
-import bean.KassenzeichenFacadeRemote;
-
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.infonode.docking.RootWindow;
@@ -186,7 +184,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private StatusBar statusBar;
     private ExecutorService execService = null;
     private int verdisCrossoverPort = -1;
-    private KassenzeichenFacadeRemote verdisServer;
+    // TODO Jean
+    // private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
     private double kassenzeichenBuffer = -0.5;
 
@@ -1733,23 +1732,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public void configure(final Element parent) {
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  verdisServer  DOCUMENT ME!
-     */
-    public void setVerdisServer(final KassenzeichenFacadeRemote verdisServer) {
-        this.verdisServer = verdisServer;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public KassenzeichenFacadeRemote getVerdisServer() {
-        return verdisServer;
-    }
+    // TODO: Jean
+// /**
+// * DOCUMENT ME!
+// *
+// * @param  verdisServer  DOCUMENT ME!
+// */
+// public void setVerdisServer(final KassenzeichenFacadeRemote verdisServer) {
+// this.verdisServer = verdisServer;
+// }
+//
+// /**
+// * DOCUMENT ME!
+// *
+// * @return  DOCUMENT ME!
+// */
+// public KassenzeichenFacadeRemote getVerdisServer() {
+// return verdisServer;
+// }
 
     /**
      * DOCUMENT ME!

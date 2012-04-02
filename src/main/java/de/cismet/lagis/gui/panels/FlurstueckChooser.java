@@ -1609,7 +1609,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                         return null;
                                     }
                                     if (log.isDebugEnabled()) {
-                                        log.debug("Vor EJB aufruf");
                                         log.debug("Gemarkung");
                                         log.debug("Bezeichnung: " + selectedGemarkung.getBezeichnung());
                                     }
@@ -1634,9 +1633,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                             log.debug("doInBackground (Gemarkung) is canceled");
                                         }
                                         return null;
-                                    }
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Nach EJB aufruf");
                                     }
                                     if (flurKeys != null) {
                                         if (log.isDebugEnabled()) {
@@ -2014,7 +2010,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             }
                         });
                     if (log.isDebugEnabled()) {
-                        log.debug("Vor EJB aufruf");
                         log.debug("Flur");
                         log.debug("Gemarkung: " + selectedFlur.getGemarkung());
                     }
@@ -2036,9 +2031,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             log.debug("doInBackground (Flur) is canceled");
                         }
                         return null;
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("Nach EJB aufruf");
                     }
                     if (flurKeys != null) {
                         if (log.isDebugEnabled()) {

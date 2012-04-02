@@ -3187,7 +3187,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     public void masterConfigure(final Element parent) {
         try {
             // ToDo if it fails all fail better place in the single try catch
-            final Element prefs = parent.getChild("glassfishSetup");
             final Element urls = parent.getChild("urls");
             final Element albConfiguration = parent.getChild("albConfiguration");
             try {
