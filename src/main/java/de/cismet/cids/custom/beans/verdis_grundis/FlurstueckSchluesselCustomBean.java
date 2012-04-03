@@ -419,7 +419,7 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
 
     @Override
     public void setFlurstueckZaehler(final Integer val) {
-        setFlurstueckZaehler(val);
+        setFlurstueck_zaehler(val);
     }
 
     @Override

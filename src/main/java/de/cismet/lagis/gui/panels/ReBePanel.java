@@ -795,9 +795,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             resBes.clear();
             resBes.addAll(tableModel.getResBes());
         } else {
-            final HashSet newSet = new HashSet();
-            newSet.addAll(tableModel.getResBes());
-            flurstueck.setRechteUndBelastungen(newSet);
+//            final HashSet newSet = new HashSet();
+//            newSet.addAll(tableModel.getResBes());
+//
+            flurstueck.getRechteUndBelastungen().addAll(tableModel.getResBes());
+//            flurstueck.setRechteUndBelastungen(newSet);
         }
     }
 

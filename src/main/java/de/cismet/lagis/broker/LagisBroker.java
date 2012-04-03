@@ -1050,6 +1050,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 CidsBroker.getInstance().modifyFlurstueck(currentFlurstueck);
                 // TODO only sending if the flurstück is saved definetly
 
+                currentFlurstueck.persist();
+
                 sendMessages();
                 if (log.isDebugEnabled()) {
                     log.debug("sendMessages() returned");

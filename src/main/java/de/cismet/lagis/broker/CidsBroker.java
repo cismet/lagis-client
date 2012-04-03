@@ -2924,7 +2924,8 @@ public final class CidsBroker {
                 final FlurstueckSchluesselCustomBean oldSchluessel = (FlurstueckSchluesselCustomBean)CidsBroker
                             .getInstance()
                             .getLagisMetaObject(key.getId(),
-                                    CidsBroker.getInstance().getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL).getId());
+                                    CidsBroker.getInstance().getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL).getId())
+                            .getBean();
 
                 if ((oldSchluessel != null) && (oldSchluessel.getFlurstueckArt() != null)
                             && (oldSchluessel.getFlurstueckArt().getBezeichnung() != null)

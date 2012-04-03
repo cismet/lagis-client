@@ -33,7 +33,7 @@ import de.cismet.lagisEE.interfaces.Key;
  */
 public interface FlurstueckSchluessel extends Key, Serializable, Comparable {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     Equalator<FlurstueckSchluesselCustomBean> FLURSTUECK_EQUALATOR = new Equalator<FlurstueckSchluesselCustomBean>() {
 

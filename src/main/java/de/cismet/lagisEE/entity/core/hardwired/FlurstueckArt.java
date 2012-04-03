@@ -18,7 +18,7 @@ import de.cismet.lagisEE.interfaces.Equalator;
  */
 public interface FlurstueckArt {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     Equalator<FlurstueckArtCustomBean> FLURSTUECK_ART_EQUALATOR = new Equalator<FlurstueckArtCustomBean>() {
 
@@ -35,8 +35,6 @@ public interface FlurstueckArt {
                 return false;
             }
         };
-
-    //~ Instance fields --------------------------------------------------------
 
     String FLURSTUECK_ART_BEZEICHNUNG_PSEUDO = "pseudo";
     String FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH = "städtisch";

@@ -49,7 +49,7 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
     private Timestamp datum_eintragung;
     private Timestamp datum_loeschung;
     private String nummer;
-    private Boolean ist_recht;
+    private Boolean ist_recht = false;
     private String beschreibung;
     private RebeArtCustomBean fk_rebe_art;
     private GeomCustomBean fk_geom;
@@ -200,7 +200,7 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
      * @param  val  DOCUMENT ME!
      */
     public void setIst_recht(final Boolean val) {
-        this.ist_recht = val;
+        this.ist_recht = (val == null) ? Boolean.FALSE : val;
 
         this.propertyChangeSupport.firePropertyChange("ist_recht", null, this.ist_recht);
     }
