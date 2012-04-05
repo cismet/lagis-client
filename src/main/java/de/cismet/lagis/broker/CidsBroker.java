@@ -108,9 +108,9 @@ public final class CidsBroker {
      */
     private CidsBroker() {
         try {
-            this.proxy = SessionManager.getProxy();
+            setProxy(SessionManager.getProxy());
             if (!SessionManager.isInitialized()) {
-                SessionManager.init(proxy);
+                SessionManager.init(getProxy());
                 ClassCacheMultiple.setInstance(LAGIS_DOMAIN);
             }
         } catch (Throwable e) {
@@ -119,6 +119,24 @@ public final class CidsBroker {
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private ConnectionProxy getProxy() {
+        return proxy;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  proxy  DOCUMENT ME!
+     */
+    private void setProxy(final ConnectionProxy proxy) {
+        this.proxy = proxy;
+    }
 
     /**
      * DOCUMENT ME!
@@ -345,7 +363,7 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    public static MetaObject[] getLightweightMetaObjectsForQuery(final String tabName,
+    public MetaObject[] getLagisLWMetaObjects(final String tabName,
             final String query,
             final String[] fields,
             AbstractAttributeRepresentationFormater formatter) {
@@ -364,10 +382,10 @@ public final class CidsBroker {
         }
         try {
             final User user = SessionManager.getSession().getUser();
-            final MetaClass mc = ClassCacheMultiple.getMetaClass(LAGIS_DOMAIN, tabName);
+            final MetaClass mc = getLagisMetaClass(tabName);
+            final ConnectionProxy proxy = getProxy();
             if (mc != null) {
-                return SessionManager.getProxy()
-                            .getLightweightMetaObjectsByQuery(mc.getID(), user, query, fields, formatter);
+                return proxy.getLightweightMetaObjectsByQuery(mc.getID(), user, query, fields, formatter);
             } else {
                 LOG.error("Can not find MetaClass for Tablename: " + tabName);
             }
@@ -416,7 +434,7 @@ public final class CidsBroker {
                                     + "    AND gemarkung.schluessel = " + currentGemarkung.getSchluessel() + " "
                                     + "GROUP BY " + metaclass.getTableName() + ".flur";
 
-                        final MetaObject[] mos = getLightweightMetaObjectsForQuery(
+                        final MetaObject[] mos = getLagisLWMetaObjects(
                                 metaclass.getTableName(),
                                 query,
                                 new String[] { "id", "flur" },
@@ -459,7 +477,7 @@ public final class CidsBroker {
                                         + "    AND gemarkung.schluessel = " + completed.getSchluessel() + " "
                                         + "GROUP BY " + metaclass.getTableName() + ".flur";
 
-                            final MetaObject[] mos = getLightweightMetaObjectsForQuery(
+                            final MetaObject[] mos = getLagisLWMetaObjects(
                                     metaclass.getTableName(),
                                     query,
                                     new String[] { "id", "flur" },
@@ -3442,8 +3460,20 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public MetaClass getLagisMetaClass(final String tablename) {
+        return getMetaClass(tablename, LagisBroker.getInstance().getDomain());
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   tablename  DOCUMENT ME!
+     * @param   domain     DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MetaClass getMetaClass(final String tablename, final String domain) {
         try {
-            return CidsBean.getMetaClassFromTableName(LagisBroker.getInstance().getDomain(), tablename);
+            return CidsBean.getMetaClassFromTableName(domain, tablename);
         } catch (Exception exception) {
             LOG.error("couldn't load metaclass for " + tablename, exception);
             return null;
@@ -3459,8 +3489,22 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public MetaObject getLagisMetaObject(final int objectId, final int classtId) {
+        return getMetaObject(objectId, classtId, LagisBroker.getInstance().getDomain());
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   objectId  DOCUMENT ME!
+     * @param   classtId  DOCUMENT ME!
+     * @param   domain    DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MetaObject getMetaObject(final int objectId, final int classtId, final String domain) {
         try {
-            return proxy.getMetaObject(objectId, classtId, LagisBroker.getInstance().getDomain());
+            final ConnectionProxy proxy = getProxy();
+            return proxy.getMetaObject(objectId, classtId, domain);
         } catch (ConnectionException ex) {
             LOG.error("error in retrieving the metaobject " + objectId + " of classid " + classtId, ex);
             return null;
@@ -3475,9 +3519,23 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public MetaObject[] getLagisMetaObject(final String query) {
+        return getMetaObject(query, LagisBroker.getInstance().getDomain());
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   query   DOCUMENT ME!
+     * @param   domain  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MetaObject[] getMetaObject(final String query, final String domain) {
         MetaObject[] mos = null;
         try {
-            mos = proxy.getMetaObjectByQuery(query, 0);
+            final User user = SessionManager.getSession().getUser();
+            final ConnectionProxy proxy = getProxy();
+            mos = proxy.getMetaObjectByQuery(user, query, domain);
         } catch (ConnectionException ex) {
             LOG.error("error retrieving metaobject by query", ex);
         }

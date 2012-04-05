@@ -610,44 +610,19 @@
             </Property>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="cmdCopyFlaeche">
+        <Component class="javax.swing.JButton" name="jButton1">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/copyFl.png"/>
+              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/alk.png"/>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Fl&#xe4;che kopieren"/>
-            <Property name="borderPainted" type="boolean" value="false"/>
+            <Property name="toolTipText" type="java.lang.String" value="Alkis Renderer"/>
             <Property name="enabled" type="boolean" value="false"/>
-            <Property name="focusPainted" type="boolean" value="false"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
-            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[23, 23]"/>
-            </Property>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdCopyFlaecheActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JButton" name="cmdPasteFlaeche">
-          <Properties>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/pasteFl.png"/>
-            </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Fl&#xe4;che einf&#xfc;gen"/>
-            <Property name="borderPainted" type="boolean" value="false"/>
-            <Property name="enabled" type="boolean" value="false"/>
-            <Property name="focusPainted" type="boolean" value="false"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
-            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[23, 23]"/>
-            </Property>
-            <Property name="verticalTextPosition" type="int" value="3"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdPasteFlaecheActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="cmdPrint">
