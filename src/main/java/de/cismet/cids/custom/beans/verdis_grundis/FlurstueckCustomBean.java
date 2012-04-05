@@ -9,9 +9,7 @@ package de.cismet.cids.custom.beans.verdis_grundis;
 
 import Sirius.server.middleware.types.MetaObject;
 
-import org.jdesktop.observablecollections.ObservableCollections;
-
-import java.util.*;
+import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -531,16 +529,16 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
 
     @Override
     public Collection<FlurstueckSchluesselCustomBean> getVertraegeQuerverweise() {
-        if (vertrag_querverweise == null) {
-            final MetaObject[] querverweise = getExtension_vertrag_querverweise();
-            if (querverweise != null) {
-                final List<FlurstueckSchluesselCustomBean> tmpList = new ArrayList<FlurstueckSchluesselCustomBean>();
-                for (final MetaObject querverweis : querverweise) {
-                    tmpList.add((FlurstueckSchluesselCustomBean)querverweis.getBean());
-                }
-                setVertraegeQuerverweise(ObservableCollections.observableList(tmpList));
-            }
-        }
+//        if (vertrag_querverweise == null) {
+//            final MetaObject[] querverweise = getExtension_vertrag_querverweise();
+//            if (querverweise != null) {
+//                final List<FlurstueckSchluesselCustomBean> tmpList = new ArrayList<FlurstueckSchluesselCustomBean>();
+//                for (final MetaObject querverweis : querverweise) {
+//                    tmpList.add((FlurstueckSchluesselCustomBean)querverweis.getBean());
+//                }
+//                setVertraegeQuerverweise(ObservableCollections.observableList(tmpList));
+//            }
+//        }
         return vertrag_querverweise;
     }
 
@@ -551,16 +549,16 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
 
     @Override
     public Collection<FlurstueckSchluesselCustomBean> getMiPasQuerverweise() {
-        if (mipa_querverweise == null) {
-            final MetaObject[] querverweise = getExtension_mipa_querverweise();
-            if (querverweise != null) {
-                final List<FlurstueckSchluesselCustomBean> tmpList = new ArrayList<FlurstueckSchluesselCustomBean>();
-                for (final MetaObject querverweis : querverweise) {
-                    tmpList.add((FlurstueckSchluesselCustomBean)querverweis.getBean());
-                }
-                setMiPasQuerverweise(ObservableCollections.observableList(tmpList));
-            }
-        }
+//        if (mipa_querverweise == null) {
+//            final MetaObject[] querverweise = getExtension_mipa_querverweise();
+//            if (querverweise != null) {
+//                final List<FlurstueckSchluesselCustomBean> tmpList = new ArrayList<FlurstueckSchluesselCustomBean>();
+//                for (final MetaObject querverweis : querverweise) {
+//                    tmpList.add((FlurstueckSchluesselCustomBean)querverweis.getBean());
+//                }
+//                setMiPasQuerverweise(ObservableCollections.observableList(tmpList));
+//            }
+//        }
         return mipa_querverweise;
     }
 
@@ -571,16 +569,16 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
 
     @Override
     public Collection<FlurstueckSchluesselCustomBean> getBaeumeQuerverweise() {
-        if (baum_querverweise == null) {
-            final MetaObject[] querverweise = getExtension_baum_querverweise();
-            if (querverweise != null) {
-                final List<FlurstueckSchluesselCustomBean> tmpList = new ArrayList<FlurstueckSchluesselCustomBean>();
-                for (final MetaObject querverweis : querverweise) {
-                    tmpList.add((FlurstueckSchluesselCustomBean)querverweis.getBean());
-                }
-                setBaeumeQuerverweise(ObservableCollections.observableList(tmpList));
-            }
-        }
+//        if (baum_querverweise == null) {
+//            final MetaObject[] querverweise = getExtension_baum_querverweise();
+//            if (querverweise != null) {
+//                final List<FlurstueckSchluesselCustomBean> tmpList = new ArrayList<FlurstueckSchluesselCustomBean>();
+//                for (final MetaObject querverweis : querverweise) {
+//                    tmpList.add((FlurstueckSchluesselCustomBean)querverweis.getBean());
+//                }
+//                setBaeumeQuerverweise(ObservableCollections.observableList(tmpList));
+//            }
+//        }
         return baum_querverweise;
     }
 
@@ -618,6 +616,7 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
                 return "pseudo Schluessel" + getFlurstueckSchluessel().getId();
             }
         } catch (Exception ex) {
+            LOG.error("Eine oder mehrere Felder der Entität sind null", ex);
             return "Eine oder mehrere Felder der Entität sind null";
         }
     }

@@ -307,7 +307,7 @@ public class VertragCustomBean extends BasicEntity implements Vertrag {
     /**
      * DOCUMENT ME!
      *
-     * @param  val  paramObservableList DOCUMENT ME!
+     * @param  val  val DOCUMENT ME!
      */
     public void setN_kosten(final Collection<KostenCustomBean> val) {
         this.n_kosten = val;
