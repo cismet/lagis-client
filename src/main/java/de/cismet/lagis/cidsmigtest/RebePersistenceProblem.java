@@ -10,25 +10,19 @@ package de.cismet.lagis.cidsmigtest;
 import Sirius.navigator.connection.*;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-
-import org.openide.util.Exceptions;
-
-import java.util.HashSet;
-import java.util.Properties;
 
 import de.cismet.cids.client.tools.DevelopmentTools;
 
 import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
 import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 
 /**
  * DOCUMENT ME!
@@ -116,13 +110,7 @@ public class RebePersistenceProblem {
      */
     public static void main(final String[] args) {
         try {
-            final Properties p = new Properties();
-            p.put("log4j.appender.Remote", "org.apache.log4j.net.SocketAppender");
-            p.put("log4j.appender.Remote.remoteHost", "localhost");
-            p.put("log4j.appender.Remote.port", "4445");
-            p.put("log4j.appender.Remote.locationInfo", "true");
-            p.put("log4j.rootLogger", "ALL,Remote");
-            org.apache.log4j.PropertyConfigurator.configure(p);
+            Log4JQuickConfig.configure4LumbermillOnLocalhost();
 
             initLagisBroker();
             LOG.info("LagisBroker has been initialized successfully");
@@ -148,6 +136,7 @@ public class RebePersistenceProblem {
             // setting up ReBe
             final RebeArtCustomBean rebeArtBean = (RebeArtCustomBean)createCB("rebe_art", 2);
             rebe.setReBeArt(rebeArtBean);
+            rebe.setBemerkung("test");
             rebe.setNummer("Abt. II, lfd. Nr. 5");
 
             // setting up Flurstueck
