@@ -13,8 +13,8 @@ package de.cismet.lagis.broker;
 
 import javax.ws.rs.core.UriInfo;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 
 /**
  * DOCUMENT ME!

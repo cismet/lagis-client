@@ -18,9 +18,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 
-import de.cismet.cids.custom.beans.verdis_grundis.GeomCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.MipaMerkmalCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.MipaNutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaNutzungCustomBean;
 
 import de.cismet.cismap.commons.features.StyledFeature;
 

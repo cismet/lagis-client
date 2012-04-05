@@ -39,8 +39,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.raster.wms.simple.SimpleWMS;

@@ -28,9 +28,9 @@ import java.util.*;
 
 import de.cismet.cids.client.tools.DevelopmentTools;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -77,7 +77,7 @@ public class BrokerTester {
         "Sirius.navigator.connection.proxy.DefaultConnectionProxyHandler";
 
     public static final String CALLSERVER_URL = "rmi://localhost/callServer";
-    public static final String CALLSERVER_DOMAIN = "VERDIS_GRUNDIS";
+    public static final String CALLSERVER_DOMAIN = CidsBroker.LAGIS_DOMAIN;
     public static final String CALLSERVER_USER = "admin";
     public static final String CALLSERVER_PASSWORD = "cismet";
     public static final String CALLSERVER_GROUP = "Administratoren";

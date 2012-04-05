@@ -43,7 +43,12 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.BadLocationException;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;

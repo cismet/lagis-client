@@ -23,8 +23,8 @@ import java.util.Vector;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 
-import de.cismet.cids.custom.beans.verdis_grundis.BebauungCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlaechennutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 

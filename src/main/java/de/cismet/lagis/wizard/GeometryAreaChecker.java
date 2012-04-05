@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.swing.JPanel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!

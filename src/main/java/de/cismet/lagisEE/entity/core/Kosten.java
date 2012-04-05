@@ -9,7 +9,7 @@ package de.cismet.lagisEE.entity.core;
 
 import java.util.Date;
 
-import de.cismet.cids.custom.beans.verdis_grundis.KostenartCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
 
 /**
  * DOCUMENT ME!

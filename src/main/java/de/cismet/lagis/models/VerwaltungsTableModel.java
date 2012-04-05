@@ -24,7 +24,9 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.cismap.commons.features.Feature;
 

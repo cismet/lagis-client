@@ -24,9 +24,9 @@ import java.io.IOException;
 
 import javax.swing.SwingConstants;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 

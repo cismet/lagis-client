@@ -12,10 +12,10 @@ import net.sf.jasperreports.engine.JRException;
 
 import java.util.*;
 
-import de.cismet.cids.custom.beans.verdis_grundis.AnlageklasseCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.NutzungBuchungCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
 

@@ -15,7 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 
 /**
  * DOCUMENT ME!

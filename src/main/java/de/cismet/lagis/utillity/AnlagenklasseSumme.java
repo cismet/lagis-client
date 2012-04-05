@@ -17,7 +17,7 @@ package de.cismet.lagis.utillity;
 
 import org.apache.log4j.Logger;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
 
 /**
  * DOCUMENT ME!

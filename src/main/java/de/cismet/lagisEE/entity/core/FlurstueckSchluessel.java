@@ -19,9 +19,9 @@ import java.io.Serializable;
 
 import java.util.Date;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 
 import de.cismet.lagisEE.interfaces.Equalator;
 import de.cismet.lagisEE.interfaces.Key;

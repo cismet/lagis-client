@@ -42,7 +42,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
 
 import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;

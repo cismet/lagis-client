@@ -14,7 +14,7 @@ package de.cismet.lagis.util;
 import java.util.ArrayList;
 import java.util.Date;
 
-import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 /**
  * DOCUMENT ME!

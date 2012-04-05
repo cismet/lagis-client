@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.wizard.GeometryAreaChecker;
 

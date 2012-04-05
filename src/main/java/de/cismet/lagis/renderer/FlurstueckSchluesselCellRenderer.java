@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 /**
  * DOCUMENT ME!

@@ -26,7 +26,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;

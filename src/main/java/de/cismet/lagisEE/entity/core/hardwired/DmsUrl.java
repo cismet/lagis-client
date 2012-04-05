@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.core.hardwired;
 
-import de.cismet.cids.custom.beans.verdis_grundis.UrlCustomBean;
+import de.cismet.cids.custom.beans.lagis.UrlCustomBean;
 
 /**
  * DOCUMENT ME!

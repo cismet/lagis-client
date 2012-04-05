@@ -18,7 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.RessortCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
 
 import de.cismet.lagis.wizard.GeometryWorker;
 

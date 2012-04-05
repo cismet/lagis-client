@@ -27,8 +27,8 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;

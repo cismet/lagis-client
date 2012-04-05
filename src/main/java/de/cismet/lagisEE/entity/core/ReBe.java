@@ -11,8 +11,8 @@ import java.awt.Stroke;
 
 import java.util.Date;
 
-import de.cismet.cids.custom.beans.verdis_grundis.GeomCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
 
 import de.cismet.cismap.commons.features.StyledFeature;
 

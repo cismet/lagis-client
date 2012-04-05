@@ -7,7 +7,7 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.core.hardwired;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 
 import de.cismet.lagisEE.interfaces.Equalator;
 

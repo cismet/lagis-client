@@ -19,7 +19,7 @@ import org.netbeans.spi.wizard.WizardController;
 import java.util.Date;
 import java.util.Map;
 
-import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 

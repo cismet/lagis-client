@@ -15,7 +15,7 @@ import java.io.Serializable;
 
 import java.util.Collection;
 
-import de.cismet.cids.custom.beans.verdis_grundis.BaumKategorieAuspraegungCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumKategorieAuspraegungCustomBean;
 
 /**
  * DOCUMENT ME!

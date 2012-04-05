@@ -18,7 +18,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-import de.cismet.cids.custom.beans.verdis_grundis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 
 import de.cismet.lagis.Exception.AddingOfBuchungNotPossibleException;
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;

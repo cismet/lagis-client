@@ -27,7 +27,15 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
+import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;

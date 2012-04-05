@@ -33,7 +33,12 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
 
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;

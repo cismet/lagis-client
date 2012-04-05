@@ -10,9 +10,9 @@ package de.cismet.lagisEE.entity.core;
 import java.util.Collection;
 import java.util.Date;
 
-import de.cismet.cids.custom.beans.verdis_grundis.BeschlussCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.KostenCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VertragsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
 /**
  * DOCUMENT ME!

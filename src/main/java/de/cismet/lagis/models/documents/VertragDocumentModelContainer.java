@@ -37,7 +37,10 @@ import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.BadLocationException;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 

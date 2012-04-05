@@ -31,8 +31,8 @@ import javax.swing.Icon;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FarbeCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VerwaltungsgebrauchCustomBean;
+import de.cismet.cids.custom.beans.lagis.FarbeCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 /**
  * DOCUMENT ME!

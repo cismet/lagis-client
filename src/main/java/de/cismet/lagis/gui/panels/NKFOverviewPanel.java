@@ -27,7 +27,8 @@ import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;

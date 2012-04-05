@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import javax.swing.AbstractListModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 /**
  * DOCUMENT ME!
  *

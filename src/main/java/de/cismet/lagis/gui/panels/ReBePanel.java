@@ -36,7 +36,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 

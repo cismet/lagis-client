@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.MipaCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.MipaKategorieCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.MipaNutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaNutzungCustomBean;
 
 /**
  * DOCUMENT ME!

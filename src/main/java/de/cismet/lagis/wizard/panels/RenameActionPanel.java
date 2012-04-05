@@ -21,8 +21,8 @@ import java.awt.event.ActionListener;
 
 import java.util.Map;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.SperreCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 

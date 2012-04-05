@@ -17,7 +17,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 
 import de.cismet.cismap.commons.gui.MappingComponent;
 

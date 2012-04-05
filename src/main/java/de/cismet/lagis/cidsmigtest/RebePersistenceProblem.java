@@ -14,9 +14,9 @@ import org.apache.log4j.Logger;
 
 import de.cismet.cids.client.tools.DevelopmentTools;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -39,7 +39,7 @@ public class RebePersistenceProblem {
         "Sirius.navigator.connection.proxy.DefaultConnectionProxyHandler";
 
     public static final String CALLSERVER_URL = "rmi://localhost/callServer";
-    public static final String CALLSERVER_DOMAIN = "VERDIS_GRUNDIS";
+    public static final String CALLSERVER_DOMAIN = "LAGIS";
     public static final String CALLSERVER_USER = "admin";
     public static final String CALLSERVER_PASSWORD = "cismet";
     public static final String CALLSERVER_GROUP = "Administratoren";

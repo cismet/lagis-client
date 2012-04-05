@@ -23,8 +23,8 @@ import java.util.*;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.NutzungBuchungCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;

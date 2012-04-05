@@ -9,8 +9,8 @@ package de.cismet.lagisEE.entity.extension.baum;
 
 import java.io.Serializable;
 
-import de.cismet.cids.custom.beans.verdis_grundis.BaumKategorieAuspraegungCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.BaumKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumKategorieAuspraegungCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
 
 /**
  * DOCUMENT ME!

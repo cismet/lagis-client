@@ -15,7 +15,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumNutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 
 /**
  * DOCUMENT ME!

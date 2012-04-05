@@ -23,8 +23,8 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.BeschlussCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.BeschlussartCustomBean;
+import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
+import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
 
 /**
  * DOCUMENT ME!

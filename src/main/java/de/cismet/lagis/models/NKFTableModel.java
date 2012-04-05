@@ -25,7 +25,12 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
 
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 

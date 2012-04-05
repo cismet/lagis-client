@@ -9,8 +9,8 @@ package de.cismet.lagisEE.entity.core.hardwired;
 
 import java.util.Collection;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FarbeCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.KategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.FarbeCustomBean;
+import de.cismet.cids.custom.beans.lagis.KategorieCustomBean;
 
 /**
  * DOCUMENT ME!

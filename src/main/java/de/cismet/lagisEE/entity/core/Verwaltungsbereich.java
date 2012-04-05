@@ -9,9 +9,9 @@ package de.cismet.lagisEE.entity.core;
 
 import java.awt.Stroke;
 
-import de.cismet.cids.custom.beans.verdis_grundis.GeomCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VerwaltendeDienststelleCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VerwaltungsgebrauchCustomBean;
+import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.cismap.commons.features.StyledFeature;
 

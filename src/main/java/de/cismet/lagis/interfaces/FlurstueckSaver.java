@@ -15,7 +15,7 @@
  */
 package de.cismet.lagis.interfaces;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 
 /**
  * DOCUMENT ME!

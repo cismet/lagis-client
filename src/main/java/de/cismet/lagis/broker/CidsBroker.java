@@ -27,7 +27,31 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import de.cismet.cids.custom.beans.verdis_grundis.*;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
+import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckHistorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -51,7 +75,7 @@ public final class CidsBroker {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    public static final String LAGIS_DOMAIN = "VERDIS_GRUNDIS";
+    public static final String LAGIS_DOMAIN = "LAGIS";
 
     public static final String CLASS__FLURSTUECK_SCHLUESSEL = "flurstueck_schluessel";
     public static final String CLASS__ANLAGEKLASSE = "anlageklasse";

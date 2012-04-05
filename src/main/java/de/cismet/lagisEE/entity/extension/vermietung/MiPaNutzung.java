@@ -13,8 +13,8 @@ package de.cismet.lagisEE.entity.extension.vermietung;
 
 import java.io.Serializable;
 
-import de.cismet.cids.custom.beans.verdis_grundis.MipaKategorieAuspraegungCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.MipaKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaKategorieAuspraegungCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 
 /**
  * DOCUMENT ME!

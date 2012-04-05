@@ -25,8 +25,8 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.VertragCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.VertragsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 

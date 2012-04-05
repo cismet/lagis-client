@@ -21,9 +21,9 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
-import de.cismet.cids.custom.beans.verdis_grundis.DmsUrlCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.UrlBaseCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.UrlCustomBean;
+import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
+import de.cismet.cids.custom.beans.lagis.UrlBaseCustomBean;
+import de.cismet.cids.custom.beans.lagis.UrlCustomBean;
 
 import de.cismet.lagis.gui.panels.DMSPanel;
 

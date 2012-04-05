@@ -14,7 +14,7 @@ package de.cismet.lagis.gui.panels;
 
 import javax.swing.Icon;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 

@@ -42,7 +42,7 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.interfaces.DoneDelegate;
 

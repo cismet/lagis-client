@@ -7,8 +7,8 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.history;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckAktionCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckAktionCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 
 /**
  * DOCUMENT ME!

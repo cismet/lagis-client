@@ -81,9 +81,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileFilter;
 
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.objectrenderer.utils.alkis.AlkisUtils;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;

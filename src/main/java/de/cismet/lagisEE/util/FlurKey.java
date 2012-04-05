@@ -17,7 +17,7 @@ package de.cismet.lagisEE.util;
 
 import java.io.Serializable;
 
-import de.cismet.cids.custom.beans.verdis_grundis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 
 import de.cismet.lagisEE.interfaces.Key;
 

@@ -24,8 +24,8 @@ import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.verdis_grundis.RebeArtCustomBean;
-import de.cismet.cids.custom.beans.verdis_grundis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
 import de.cismet.cismap.commons.features.Feature;
 
