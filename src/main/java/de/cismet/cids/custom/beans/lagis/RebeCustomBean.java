@@ -32,7 +32,7 @@ import de.cismet.lagisEE.entity.core.ReBe;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class RebeCustomBean extends BasicEntity implements ReBe {
+public final class RebeCustomBean extends BasicEntity implements ReBe {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -41,15 +41,15 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Boolean isEditable = false;
-    private Boolean isHidden = false;
-    private Boolean modifiable = true;
+    private Boolean isEditable;
+    private Boolean isHidden;
+    private Boolean modifiable;
+    private Boolean ist_recht;
 
     private Integer id;
     private Timestamp datum_eintragung;
     private Timestamp datum_loeschung;
     private String nummer;
-    private Boolean ist_recht = false;
     private String beschreibung;
     private RebeArtCustomBean fk_rebe_art;
     private GeomCustomBean fk_geom;
@@ -85,7 +85,17 @@ public class RebeCustomBean extends BasicEntity implements ReBe {
      */
     public static RebeCustomBean createNew() {
         try {
-            return (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            final RebeCustomBean rebe = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsBroker.LAGIS_DOMAIN,
+                    TABLE);
+
+            // property change mechanism does not work in constructor
+            rebe.setIstRecht(Boolean.FALSE);
+            rebe.setModifiable(Boolean.TRUE);
+            rebe.setEditable(Boolean.FALSE);
+            rebe.hide(Boolean.FALSE);
+
+            return rebe;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;

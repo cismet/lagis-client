@@ -48,9 +48,9 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private MetaObject[] extension_vertrag_querverweise;
     private MetaObject[] extension_mipa_querverweise;
     private MetaObject[] extension_baum_querverweise;
-    private Collection<FlurstueckSchluesselCustomBean> vertrag_querverweise = null;
-    private Collection<FlurstueckSchluesselCustomBean> mipa_querverweise = null;
-    private Collection<FlurstueckSchluesselCustomBean> baum_querverweise = null;
+    private Collection<FlurstueckSchluesselCustomBean> vertrag_querverweise;
+    private Collection<FlurstueckSchluesselCustomBean> mipa_querverweise;
+    private Collection<FlurstueckSchluesselCustomBean> baum_querverweise;
     private String[] PROPERTY_NAMES = new String[] {
             "id",
             "bemerkung",
