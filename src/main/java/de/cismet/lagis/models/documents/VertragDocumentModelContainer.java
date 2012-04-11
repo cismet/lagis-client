@@ -457,7 +457,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     tmpBeschluesse.clear();
                 }
                 tmpBeschluesse.addAll(beschluesseTableModel.getBeschluesse());
-                currentSelectedVertrag.setBeschluesse(tmpBeschluesse);
+
+                currentSelectedVertrag.getBeschluesse().addAll(tmpBeschluesse);
+
                 beschluesseTableModel.fireTableDataChanged();
                 if (log.isDebugEnabled()) {
                     log.debug("Neuer Beschluss angelegt");
