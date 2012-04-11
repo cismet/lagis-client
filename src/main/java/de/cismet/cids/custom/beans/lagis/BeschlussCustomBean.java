@@ -158,7 +158,7 @@ public class BeschlussCustomBean extends BasicEntity implements Beschluss {
 
     @Override
     public void setBeschlussart(final BeschlussartCustomBean val) {
-        setBeschlussart(val);
+        setFk_beschlussart(val);
     }
 
     @Override
