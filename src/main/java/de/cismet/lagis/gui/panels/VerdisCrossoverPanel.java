@@ -378,28 +378,12 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
     @Override
     public void mouseClicked(final MouseEvent e) {
-        // TODO Jean
-// if (log.isDebugEnabled()) {
-// log.debug("Crossover: mouse clicked");
-// log.debug("tableModelsize: " + tableModel.getRowCount());
-// }
-// if (log.isDebugEnabled()) {
-// log.debug("tableModel content: " + tableModel.getAllKassenzeichen());
-// }
-// final Object source = e.getSource();
-// if (source instanceof JXTable) {
-// if (e.getClickCount() > 1) {
-// loadSelectedKassenzeichen();
-// } else {
-// if (log.isDebugEnabled()) {
-// log.debug("Crossover: Kein Multiclick");
-// }
-// }
-// } else {
-// if (log.isDebugEnabled()) {
-// log.debug("Crossover: Mouselistner nicht für JXTable");
-// }
-// }
+        // TODO Jean if (log.isDebugEnabled()) { log.debug("Crossover: mouse clicked"); log.debug("tableModelsize: " +
+        // tableModel.getRowCount()); } if (log.isDebugEnabled()) { log.debug("tableModel content: " +
+        // tableModel.getAllKassenzeichen()); } final Object source = e.getSource(); if (source instanceof JXTable) { if
+        // (e.getClickCount() > 1) { loadSelectedKassenzeichen(); } else { if (log.isDebugEnabled()) {
+        // log.debug("Crossover: Kein Multiclick"); } } } else { if (log.isDebugEnabled()) { log.debug("Crossover:
+        // Mouselistner nicht für JXTable"); } }
     }
     /**
      * ToDo place query generation in VerdisCrossover. Give key get Query.

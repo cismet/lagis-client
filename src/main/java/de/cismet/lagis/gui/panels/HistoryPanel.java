@@ -354,16 +354,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                         if (!GrappaSupport.filterGraph(graph, connector)) {
                             log.error("somewhere in filtergraph");
                         }
-                        if (connector instanceof Process) {
-                            try {
-                                final int code = ((Process)connector).waitFor();
-                                if (code != 0) {
-                                    log.error("proc exit code is: " + code);
-                                }
-                            } catch (InterruptedException ex) {
-                                log.error("Exception while closing down proc: " + ex.getMessage());
-                            }
-                        }
                     }
                     if (isUpdateAvailable()) {
                         cleanup();

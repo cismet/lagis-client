@@ -126,13 +126,6 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
                 LOG.error("somewhere in filtergraph");
             }
 
-            if (connector instanceof Process) {
-                final int code = ((Process)connector).waitFor();
-                if (code != 0) {
-                    LOG.error("proc exit code is: " + code);
-                }
-            }
-
             graph.repaint();
             gp.setVisible(true);
         } catch (final Exception ex) {

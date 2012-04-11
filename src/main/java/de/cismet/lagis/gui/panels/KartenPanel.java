@@ -396,18 +396,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         clipboard = LagisBroker.getInstance().getMappingComponent().getFeatureCollection().getSelectedFeatures();
         if (answer == JOptionPane.YES_OPTION) {
             if (clipboard != null) {
-                if (clipboard instanceof Collection) {
-                    final Iterator it = ((Collection)clipboard).iterator();
-                    final boolean cutting = false;
+                final Iterator it = ((Collection)clipboard).iterator();
+                final boolean cutting = false;
 
-                    while (it.hasNext()) {
-                        final Feature clipboardFlaeche = (Feature)it.next();
-                        final PureNewFeature newFeature = new PureNewFeature((Geometry)clipboardFlaeche.getGeometry()
-                                        .clone());
-                        newFeature.setCanBeSelected(true);
-                        newFeature.setEditable(true);
-                        copiedFeatures.add(newFeature);
-                    }
+                while (it.hasNext()) {
+                    final Feature clipboardFlaeche = (Feature)it.next();
+                    final PureNewFeature newFeature = new PureNewFeature((Geometry)clipboardFlaeche.getGeometry()
+                                    .clone());
+                    newFeature.setCanBeSelected(true);
+                    newFeature.setEditable(true);
+                    copiedFeatures.add(newFeature);
                 }
             }
 

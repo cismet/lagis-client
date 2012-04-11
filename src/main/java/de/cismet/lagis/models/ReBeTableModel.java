@@ -17,6 +17,9 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
+import org.openide.util.Exceptions;
+
+import java.util.*;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -53,8 +56,8 @@ public class ReBeTableModel extends AbstractTableModel {
 
     //~ Instance fields --------------------------------------------------------
 
-    Vector<RebeCustomBean> resBes;
-    Vector<RebeArtCustomBean> reBeArten;
+    private ArrayList<RebeCustomBean> resBes;
+    private ArrayList<RebeArtCustomBean> reBeArten;
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private boolean isInEditMode = false;
     private boolean isReBeKindSwitchAllowed = true;
@@ -65,7 +68,7 @@ public class ReBeTableModel extends AbstractTableModel {
      * Creates a new instance of ReBeTableModel.
      */
     public ReBeTableModel() {
-        resBes = new Vector<RebeCustomBean>();
+        resBes = new ArrayList<RebeCustomBean>();
     }
 
     /**
@@ -75,10 +78,10 @@ public class ReBeTableModel extends AbstractTableModel {
      */
     public ReBeTableModel(final Collection<RebeCustomBean> reBe) {
         try {
-            this.resBes = new Vector<RebeCustomBean>(reBe);
+            this.resBes = new ArrayList<RebeCustomBean>(reBe);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            this.resBes = new Vector<RebeCustomBean>();
+            this.resBes = new ArrayList<RebeCustomBean>();
         }
     }
 
@@ -92,10 +95,10 @@ public class ReBeTableModel extends AbstractTableModel {
     public void setReBeArtenList(final Collection<RebeArtCustomBean> reBeArten) {
         try {
             log.error("Versuche RebenArtenListe zu setzen");
-            this.reBeArten = new Vector<RebeArtCustomBean>(reBeArten);
+            this.reBeArten = new ArrayList<RebeArtCustomBean>(reBeArten);
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des RebeArtenList", ex);
-            this.reBeArten = new Vector<RebeArtCustomBean>();
+            this.reBeArten = new ArrayList<RebeArtCustomBean>();
         }
     }
 
@@ -199,11 +202,17 @@ public class ReBeTableModel extends AbstractTableModel {
      * @param  rowIndex  DOCUMENT ME!
      */
     public void removeReBe(final int rowIndex) {
-        final RebeCustomBean reBe = resBes.get(rowIndex);
-        if ((reBe != null) && (reBe.getGeometry() != null)) {
-            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(reBe);
+        try {
+            final RebeCustomBean reBe = resBes.get(rowIndex);
+            if ((reBe != null) && (reBe.getGeometry() != null)) {
+                LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(reBe);
+            }
+            // TODO: Benni: remove CidsBean.delete() call, if removal from ObservedList is sufficient
+            reBe.delete();
+            resBes.remove(rowIndex);
+        } catch (final Exception ex) {
+            log.error("An error occurred while removing ReBe from RebeTableModel", ex);
         }
-        resBes.remove(rowIndex);
     }
 
     @Override
@@ -277,10 +286,10 @@ public class ReBeTableModel extends AbstractTableModel {
             if (log.isDebugEnabled()) {
                 log.debug("Refresh des RebeTableModell");
             }
-            this.resBes = new Vector<RebeCustomBean>(resBes);
+            this.resBes = new ArrayList<RebeCustomBean>(resBes);
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            this.resBes = new Vector<RebeCustomBean>();
+            this.resBes = new ArrayList<RebeCustomBean>();
         }
         fireTableDataChanged();
     }
@@ -290,7 +299,7 @@ public class ReBeTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<RebeCustomBean> getResBes() {
+    public List<RebeCustomBean> getResBes() {
         return resBes;
     }
 
@@ -340,59 +349,6 @@ public class ReBeTableModel extends AbstractTableModel {
         } catch (Exception ex) {
             log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
-//        RebeCustomBean reBe = resBes.get(rowIndex);
-//        if(reBe != null){
-//            switch(columnIndex){
-//                case 0:
-//                    if(aValue instanceof String){
-//                        if(((String)(aValue)).equals("Recht")) reBe.setIstRecht(true);
-//                        if(((String)(aValue)).equals("Belastung")) reBe.setIstRecht(false);
-//                    }
-//                    break;
-//                case 1:
-//                    if(aValue instanceof  String){
-//                        //((String)(aValue)).equals("Recht")
-//                        Iterator<ReBeArt> it = reBeArten.iterator();
-//                        while(it.hasNext()){
-//                            RebeArtCustomBean curRBA = it.next();
-//                            if(curRBA.toString().equals(((String) aValue).trim())){
-//                                reBe.setArt(curRBA);
-//                                log.debug("Übereinstimmung gefunden, neuer Wert: "+curRBA);
-//                            }
-//                        }
-//                    }
-//                    break;
-//                case 2:
-//                    if(aValue instanceof  String){
-//                        reBe.setBeschreibung((String)aValue);
-//                    }
-//                    break;
-//                case 3:
-//                    if(aValue instanceof  String){
-//                        reBe.setNummer((String)(aValue));
-//                    }
-//                    break;
-//                case 4:
-//                    if(aValue instanceof  String){
-//                        try{
-//                            reBe.setDatumEintragung(LagisBroker.getDateFormatter().parse((String)(aValue)));
-//                        }catch(Exception ex){
-//
-//                        }
-//                    }
-//                    break;
-//                case 5:
-//                    if(aValue instanceof  String){
-//                        try{
-//                            reBe.setDatumLoeschung(LagisBroker.getDateFormatter().parse((String)(aValue)));
-//                        }catch(Exception ex){
-//
-//                        }
-//                    }
-//                    break;
-//            }
-//        }
-//    }
     }
 
     @Override

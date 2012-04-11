@@ -1953,7 +1953,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             }
                             final GemarkungCustomBean currentGemarkung = (GemarkungCustomBean)
                                 cboGemarkung.getSelectedItem();
-                            if ((currentGemarkung != null) && (currentGemarkung instanceof GemarkungCustomBean)) {
+                            if (currentGemarkung != null) {
                                 selectedFlur = new FlurKey(currentGemarkung, Integer.parseInt(flurInput));
                                 final KeyComboboxModel flurModel = ((KeyComboboxModel)cboFlur.getModel());
                                 if ((currentMode == SEARCH_MODE) || (currentMode == CREATION_MODE)) {

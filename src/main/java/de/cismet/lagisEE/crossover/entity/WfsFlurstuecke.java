@@ -20,8 +20,9 @@ import java.util.Date;
  * DOCUMENT ME!
  *
  * @version  $Revision$, $Date$
- * @Entity   @Table(name = "wfs_flurstuecke") @NamedQueries( { @NamedQuery( name = "WfsFlurstuecke.findAll", query =
- *           "SELECT w FROM WfsFlurstuecke w" ), @NamedQuery( name = "WfsFlurstuecke.findByGid", query = "SELECT w FROM
+ * @Entity   DOCUMENT ME!
+ * @Table    (name = "wfs_flurstuecke") @NamedQueries( { @NamedQuery( name = "WfsFlurstuecke.findAll", query = "SELECT w
+ *           FROM WfsFlurstuecke w" ), @NamedQuery( name = "WfsFlurstuecke.findByGid", query = "SELECT w FROM
  *           WfsFlurstuecke w WHERE w.gid = :gid" ), @NamedQuery( name = "WfsFlurstuecke.findByGem", query = "SELECT w
  *           FROM WfsFlurstuecke w WHERE w.gem = :gem" ), @NamedQuery( name = "WfsFlurstuecke.findByFlur", query =
  *           "SELECT w FROM WfsFlurstuecke w WHERE w.flur = :flur" ), @NamedQuery( name =

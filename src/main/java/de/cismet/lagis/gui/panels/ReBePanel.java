@@ -21,8 +21,6 @@ import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.SortOrder;
 
-import org.openide.util.Exceptions;
-
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Rectangle;
@@ -40,8 +38,6 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
-
-import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollection;
@@ -114,7 +110,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private javax.swing.JTable tReBe;
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private FlurstueckCustomBean currentFlurstueck = null;
     private ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
@@ -127,7 +122,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * Creates new form RechtenDetailPanel.
      */
     public ReBePanel() {
-        this.copyDisplayIcon = new ImageIcon((this.getClass().getResource(COPY_DISPLAY_ICON)));
+        this.copyDisplayIcon = new ImageIcon(this.getClass().getResource(COPY_DISPLAY_ICON));
         setIsCoreWidget(true);
         initComponents();
         btnRemoveReBe.setEnabled(false);
@@ -256,18 +251,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     cboBooleanEditorActionPerformed();
                 }
             });
-        // cboReBe.setIcon(new
-        // javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png")));
-        // cboReBe.setSelectedIcon(new
-        // javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
-        // Not right cboReBe.setRolloverIcon(new
-        // javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
-        // cboReBe.setPressedIcon(new
-        // javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
-        // cboReBe.setDisabledIcon(new
-        // javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png")));
-        // cboReBe.setDisabledSelectedIcon(new
-        // javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
         cboReBe.setIcon(new javax.swing.ImageIcon());
         cboReBe.setSelectedIcon(new javax.swing.ImageIcon());
         cboReBe.setRolloverIcon(new javax.swing.ImageIcon());
@@ -275,8 +258,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         cboReBe.setDisabledIcon(new javax.swing.ImageIcon());
         cboReBe.setDisabledSelectedIcon(new javax.swing.ImageIcon());
         cboReBe.setHorizontalAlignment(SwingConstants.CENTER);
-        // tReBe.setDefaultEditor(Boolean.class,new DefaultCellEditor(cboReBe));
-        // tReBe.setDefaultRenderer(Boolean.class,new ReBeCboRenderer());
+
         tReBe.setDefaultEditor(Date.class, new DateEditor());
         tReBe.setDefaultRenderer(Date.class, new DateRenderer());
         tReBe.addMouseListener(this);
@@ -293,21 +275,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             };
 
         final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
-        // HighlighterPipeline hPipline = new HighlighterPipeline(new
-        // Highlighter[]{LagisBroker.ALTERNATE_ROW_HIGHLIGHTER, noGeometryHighlighter});
         ((JXTable)tReBe).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER, noGeometryHighlighter);
         ((JXTable)tReBe).setSortOrder(0, SortOrder.ASCENDING);
 
-//        //Test
-//        DateDocumentModel eintragungDocumentModel = new  DateDocumentModel(){
-//            public void assignValue(Date date) {
-//                log.debug("Date assinged");
-//            }
-//        };
-//
-//        ((JTextField)tReBe.getColumnModel().getColumn(4).getCellEditor()).setDocument(eintragungDocumentModel);
-//        Validator valTxtEintragung = new Validator((JTextField)tReBe.getColumnModel().getColumn(1).getCellEditor());
-//        valTxtEintragung.reSetValidator((Validatable)eintragungDocumentModel);
         tReBe.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tReBe).packAll();
     }
@@ -366,7 +336,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final Vector<RebeCustomBean> allReBe = this.tableModel.getResBes();
+        final List<RebeCustomBean> allReBe = this.tableModel.getResBes();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allReBe.size());
 
         for (final RebeCustomBean rebe : allReBe) {
@@ -415,10 +385,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
 
         if (entity instanceof RebeCustomBean) {
-            final Vector<RebeCustomBean> residentReBe = this.tableModel.getResBes();
+            final List<RebeCustomBean> residentReBe = this.tableModel.getResBes();
             if (residentReBe.contains(entity)) {
-                log.warn("ReBe " + entity + " does already exist in Flurstück " + this.currentFlurstueck
-                            + ". -> ignored");
+                log.warn("ReBe " + entity + " does already exist -> ignored");
             } else {
                 this.tableModel.addReBe((RebeCustomBean)entity);
 
@@ -453,7 +422,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        final Vector<RebeCustomBean> residentReBe = this.tableModel.getResBes();
+        final List<RebeCustomBean> residentReBe = this.tableModel.getResBes();
         final int rowCountBefore = this.tableModel.getRowCount();
 
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -463,8 +432,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         for (final BasicEntity entity : dataList) {
             if (entity instanceof RebeCustomBean) {
                 if (residentReBe.contains(entity)) {
-                    log.warn("ReBe " + entity + " does already exist in Flurstück " + this.currentFlurstueck
-                                + ". -> ignored");
+                    log.warn("ReBe " + entity + " does already exist -> ignored");
                 } else {
                     this.tableModel.addReBe((RebeCustomBean)entity);
                     wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
@@ -797,12 +765,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         if (resBes != null) {
             resBes.clear();
             resBes.addAll(tableModel.getResBes());
-        } else {
-//            final HashSet newSet = new HashSet();
-//            newSet.addAll(tableModel.getResBes());
-//
-            flurstueck.getRechteUndBelastungen().addAll(tableModel.getResBes());
-//            flurstueck.setRechteUndBelastungen(newSet);
         }
     }
 
@@ -810,9 +772,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        if (features.size() == 0) {
+        if (features.isEmpty()) {
             return;
         }
+
         for (final Feature feature : features) {
             if (feature instanceof RebeCustomBean) {
                 // TODO Refactor Name

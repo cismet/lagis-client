@@ -118,20 +118,21 @@ public class BrokerTester {
             final CidsBroker broker = CidsBroker.getInstance();
 
             tester.createCB("flurstueck", 0);
+
 //            final FlurstueckCustomBean bean = (FlurstueckCustomBean)tester.createCB("flurstueck", 20562);
 //            bean.getVertraegeQuerverweise();
 
-            tester.prepareAllFlurstueckKeys(broker);
-
-            final float execTimeEjb = tester.testPerfEjb(broker);
-//            tester.print("ejb in " + execTimeEjb);
-            LOG.fatal("ejb in " + execTimeEjb);
-
-            final float execTimeMos = tester.testPerfMos();
-//            tester.print("mos in " + execTimeMos);
-            LOG.fatal("mos in " + execTimeMos);
-
-            tester.compareStrings();
+//            tester.prepareAllFlurstueckKeys(broker);
+//
+//            final float execTimeEjb = tester.testPerfEjb(broker);
+////            tester.print("ejb in " + execTimeEjb);
+//            LOG.fatal("ejb in " + execTimeEjb);
+//
+//            final float execTimeMos = tester.testPerfMos();
+////            tester.print("mos in " + execTimeMos);
+//            LOG.fatal("mos in " + execTimeMos);
+//
+//            tester.compareStrings();
         } catch (Exception ex) {
             LOG.fatal(ex, ex);
         } finally {
