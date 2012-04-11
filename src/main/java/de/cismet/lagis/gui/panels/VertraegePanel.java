@@ -79,8 +79,29 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
     //~ Instance fields --------------------------------------------------------
 
+    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    private FlurstueckCustomBean currentFlurstueck = null;
+    private VertraegeTableModel vTableModel = new VertraegeTableModel();
+    // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
+    private KostenTableModel kTableModel = new KostenTableModel();
+    private VertragCustomBean currentSelectedVertrag;
+    private VertragDocumentModelContainer documentContainer;
+    private Validator valTxtVoreigentuemer;
+    private Validator valTxtAuflassung;
+    private Validator valTxtKaufpreis;
+    private Validator valTxtQuadPreis;
+    private Validator valTxtAktenzeichen;
+    private Validator valTxtBemerkung;
+    private Validator valTxtEintragung;
+    private Vector<Validator> validators = new Vector<Validator>();
+    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
+    private ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
+    private boolean isInEditMode = false;
+    private boolean isFlurstueckEditable = true;
+
 // private DefaultComboBoxModel vertragsartComboBoxModel;
-    // Variables declaration - do not modify
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddBeschluss;
     private javax.swing.JButton btnAddExitingContract;
     private javax.swing.JButton btnAddKosten;
@@ -126,27 +147,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JTextField txtKaufpreis;
     private javax.swing.JTextField txtQuadPreis;
     private javax.swing.JTextField txtVoreigentuemer;
-
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private FlurstueckCustomBean currentFlurstueck = null;
-    private VertraegeTableModel vTableModel = new VertraegeTableModel();
-    // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
-    private KostenTableModel kTableModel = new KostenTableModel();
-    private VertragCustomBean currentSelectedVertrag;
-    private VertragDocumentModelContainer documentContainer;
-    private Validator valTxtVoreigentuemer;
-    private Validator valTxtAuflassung;
-    private Validator valTxtKaufpreis;
-    private Validator valTxtQuadPreis;
-    private Validator valTxtAktenzeichen;
-    private Validator valTxtBemerkung;
-    private Validator valTxtEintragung;
-    private Vector<Validator> validators = new Vector<Validator>();
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
-    private boolean isInEditMode = false;
-    private boolean isFlurstueckEditable = true;
+    // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
 

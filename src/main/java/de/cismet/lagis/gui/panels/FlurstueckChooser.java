@@ -12,6 +12,9 @@
  */
 package de.cismet.lagis.gui.panels;
 
+import Sirius.navigator.connection.Connection;
+import Sirius.navigator.connection.SessionManager;
+
 import com.vividsolutions.jts.geom.Geometry;
 
 import org.apache.log4j.Logger;
@@ -26,49 +29,24 @@ import org.jdom.output.XMLOutputter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.InputEvent;
+import java.awt.event.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import java.util.*;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.Icon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.cismap.commons.features.DefaultStyledFeature;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
-import de.cismet.cismap.commons.gui.FeatureGroupWrapper;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.CidsBroker;
@@ -94,7 +72,6 @@ import de.cismet.lagisEE.util.FlurKey;
 import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 
 /**
  * DOCUMENT ME!
@@ -112,26 +89,22 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
     private static final String WIDGET_NAME = "Flurstueck Suchpanel";
     public static final String FEATURE_GRP = "Flurstück";
-
     private static final String FILTER_CURRENT_NAME = "nur aktuelle";
     private static final String FILTER_HISTORIC_NAME = "nur historische";
     private static final String FILTER_ALL_NAME = "alle Flurstücke";
     private static final String FILTER_ABTEILUNG_IX = "nur Abteilung IX";
     private static final String FILTER_STAEDTISCH = "nur städtische";
-
     // modes
     public static final int SEARCH_MODE = 0;
     // TODO good name ?
     public static final int CONTINUATION_MODE = 1;
     public static final int CREATION_MODE = 2;
     public static final int CONTINUATION_HISTORIC_MODE = 3;
-
     private static final Logger log = Logger.getLogger(FlurstueckChooser.class);
 
     //~ Instance fields --------------------------------------------------------
 
     private GemarkungRetriever currentGemarkungsRetriever = null;
-
     ActionListener gemarkungListener = new java.awt.event.ActionListener() {
 
             @Override
@@ -141,7 +114,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         };
 
     private FlurRetriever currentFlurRetriever = null;
-
     ActionListener flurListener = new java.awt.event.ActionListener() {
 
             @Override
@@ -152,7 +124,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
     private FlurstueckRetriever currentFlurstueckRetriever = null;
     private SwingWorker currentWFSRetriever = null;
-
     ActionListener flurstueckListener = new java.awt.event.ActionListener() {
 
             @Override
@@ -164,10 +135,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     private AutomaticFlurstueckRetriever currentAutomaticRetriever = null;
     private FlurstueckChecker currentFlurstueckChecker = null;
     private Thread currentGemarkungsWaiter = null;
-
     private boolean isAutomaticRequestInProgress = false;
     private final ReentrantLock automaticRequestLock = new ReentrantLock();
-
     // configured via configfile
     private Element wfsRequest;
     private Element gemarkung;
@@ -176,7 +145,6 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     private Element flurstNenner;
     private Element query;
     private String hostname;
-
     private final Icon icoFilterAll = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/filter_all.png"));
     private final Icon icoFilterCurrent = new javax.swing.ImageIcon(getClass().getResource(
@@ -197,19 +165,15 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/16warn.png"));
     private final Icon icoUnknownFlurstueck = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/unkownFlurstueck.png"));
-
     private final DefaultListCellRenderer defaultListCellRendererFilter = new DefaultListCellRenderer();
     private final DefaultListCellRenderer defaultListCellRendererFlurstueck = new DefaultListCellRenderer();
-
     private boolean isOnlyHistoricFilterEnabled = false;
     private boolean isOnlyCurrentFilterEnabled = false;
     private final Vector<FlurstueckSchluesselCustomBean> removeFilter = new Vector<FlurstueckSchluesselCustomBean>();
     private boolean isFullInitialized = false;
-
     private final javax.swing.JTextField txtFlurstueck = new JTextField();
     private final JProgressBar pbTxtFlurstueck = new JProgressBar();
     private final JPanel panTxtFlurstueck = new JPanel();
-
     private FlurstueckCustomBean currentFlurstueck;
     private FlurstueckSchluesselCustomBean currentyCreatedFlurstueckSchluessel;
     private Color currentColor;
@@ -222,10 +186,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     private final ReentrantLock validationMessageLock = new ReentrantLock();
     private String creationValidationMessage = "Bitte vervollständigen Sie alle Flurstücke";
     private int currentMode = SEARCH_MODE;
-
     private boolean isOnlyAbteilungIXFilterEnabled = false;
     private boolean isOnlyStaedtischFilterEnabled = false;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAction;
     private javax.swing.JComboBox cboFilter;
@@ -338,7 +300,12 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         txtFlurstueck.setEnabled(false);
         currentGemarkungsRetriever = new GemarkungRetriever(GemarkungRetriever.RETRIEVE_GEMARKUNGEN_MODE);
         // currentGemarkungsRetriever.execute();
-        LagisBroker.getInstance().execute(currentGemarkungsRetriever);
+        
+       //if statement fix GUI-Builder warning cannot load component FlurstueckChooser... 
+        final Connection c = SessionManager.getConnection();
+        if (c.isConnected()) {
+            LagisBroker.getInstance().execute(currentGemarkungsRetriever);
+        }
     }
 
     /**
@@ -621,7 +588,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cboFilterActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboFilterActionPerformed
+    private void cboFilterActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboFilterActionPerformed
         final String value = (String)cboFilter.getSelectedItem();
         if (value.equals(FILTER_ALL_NAME)) {
             log.info("Filter alle Flurstücke ausgewählt");
@@ -664,7 +631,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             doAutomaticRequest(AutomaticFlurstueckRetriever.SET_BOXES_ACCORDING_TO_CONTENT_MODE, null);
             // TODO what todo if no Flurstück is selected
         }
-    } //GEN-LAST:event_cboFilterActionPerformed
+    }//GEN-LAST:event_cboFilterActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1391,6 +1358,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             return Validatable.ERROR;
         }
     }
+
     /**
      * TODO TIMER with delay private Thread checker;
      *
@@ -1412,9 +1380,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnActionActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnActionActionPerformed
+    private void btnActionActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionActionPerformed
         // TODO add your handling code here:
-    } //GEN-LAST:event_btnActionActionPerformed
+    }//GEN-LAST:event_btnActionActionPerformed
 
     /**
      * DOCUMENT ME!

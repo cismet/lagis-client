@@ -107,11 +107,32 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     //~ Instance fields --------------------------------------------------------
 
+    private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    private MappingComponent mappingComponent;
+    private boolean isSnappingEnabled = false;
+    private String gemarkungIdentifier = null;
+    private String flurIdentifier = null;
+    private String flurstueckZaehlerIdentifier = null;
+    private String flurstueckNennerIdentifier = null;
+    private boolean isEditable = true;
+
+    private final JButton cmdCopyFlaeche = new JButton();
+    private final JButton cmdPasteFlaeche = new JButton();
+
+    private Object clipboard = null;
+    private boolean clipboardPasted = true; // wegen des ersten mals
+    private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
+
+    private final Map<String, FeatureGroupActionListener> featureGroupButtonListenerMap;
+
+    private final JLabel lblInfo;
+    private Object lastOverFeature;
+
     // Variables declaration - do not modify
 
     // NOI18N
 
-    // Variables declaration - do not modify
+    // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cmdALB;
     private javax.swing.JButton cmdAdd;
     private javax.swing.JButton cmdAddHandle;
@@ -141,28 +162,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
     private javax.swing.JToolBar jToolBar1;
-    // End of variables declaration
-
-    private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private MappingComponent mappingComponent;
-    private boolean isSnappingEnabled = false;
-    private String gemarkungIdentifier = null;
-    private String flurIdentifier = null;
-    private String flurstueckZaehlerIdentifier = null;
-    private String flurstueckNennerIdentifier = null;
-    private boolean isEditable = true;
-
-    private final JButton cmdCopyFlaeche = new JButton();
-    private final JButton cmdPasteFlaeche = new JButton();
-
-    private Object clipboard = null;
-    private boolean clipboardPasted = true; // wegen des ersten mals
-    private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
-
-    private final Map<String, FeatureGroupActionListener> featureGroupButtonListenerMap;
-
-    private final JLabel lblInfo;
-    private Object lastOverFeature;
+    // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
 

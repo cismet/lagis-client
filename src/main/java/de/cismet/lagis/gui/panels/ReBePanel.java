@@ -102,19 +102,20 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     //~ Instance fields --------------------------------------------------------
 
-    // Variables declaration - do not modify
-    private javax.swing.JButton btnAddReBe;
-    private javax.swing.JButton btnRemoveReBe;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable tReBe;
-
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isInAbteilungIXModus = false;
     private final Icon copyDisplayIcon;
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddReBe;
+    private javax.swing.JButton btnRemoveReBe;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tReBe;
+    // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
 
