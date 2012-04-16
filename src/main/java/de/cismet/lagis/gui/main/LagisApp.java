@@ -1008,10 +1008,10 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         final DefaultUserNameStore usernames = new DefaultUserNameStore();
         final Preferences appPrefs = Preferences.userNodeForPackage(LagisApp.class);
         usernames.setPreferences(appPrefs.node("login"));
-        // TODO: parse and validate arguments --> cli tools recommended
-        final LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification(LagisBroker.getInstance()
-                        .getDomain(),
-                LagisBroker.getInstance().getCallserverHost());
+        final LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification(
+                LagisBroker.getInstance().getDomain(),
+                LagisBroker.getInstance().getCallserverUrl(),
+                LagisBroker.getInstance().getConnectionClass());
 
         final JXLoginPane login = new JXLoginPane(wa, null, usernames) {
 
@@ -3092,20 +3092,27 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 public void run() {
                     try {
                         final Options options = new Options();
-                        options.addOption("h", true, "callserver host");
+                        options.addOption("u", true, "CallserverUrl");
+                        options.addOption("c", true, "ConnectionClass");
                         options.addOption("d", true, "Domain");
                         final PosixParser parser = new PosixParser();
                         final CommandLine cmd = parser.parse(options, args);
-                        if (cmd.hasOption("h")) {
-                            LagisBroker.getInstance().setCallserverHost(cmd.getOptionValue("h"));
+                        if (cmd.hasOption("u")) {
+                            LagisBroker.getInstance().setCallserverUrl(cmd.getOptionValue("u"));
                         } else {
-                            LOG.warn("Kein Callserverhost spezifiziert. Versuche localhost...");
-                            LagisBroker.getInstance().setCallserverHost("localhost");
+                            LOG.warn("Kein Callserverhost spezifiziert, bitte mit -u setzen.");
+                            System.exit(1);
+                        }
+                        if (cmd.hasOption("c")) {
+                            LagisBroker.getInstance().setConnectionClass(cmd.getOptionValue("c"));
+                        } else {
+                            LOG.warn("Keine ConnectionClass spezifiziert, bitte mit -c setzen.");
+                            System.exit(1);
                         }
                         if (cmd.hasOption("d")) {
                             LagisBroker.getInstance().setDomain(cmd.getOptionValue("d"));
                         } else {
-                            LOG.error("Keine Domain spezifiziert, bitte mit -d setzen");
+                            LOG.error("Keine Domain spezifiziert, bitte mit -d setzen.");
                             System.exit(1);
                         }
                     } catch (Exception ex) {
@@ -3911,8 +3918,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         //~ Static fields/initializers -----------------------------------------
 
-        // TODO steht auch so in VERDIS schlecht für ÄNDERUNGEN !!!!!
-        public static final String CONNECTION_CLASS = "Sirius.navigator.connection.RMIConnection";
         public static final String CONNECTION_PROXY_CLASS =
             "Sirius.navigator.connection.proxy.DefaultConnectionProxyHandler";
 
@@ -3920,7 +3925,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         private final Logger log = org.apache.log4j.Logger.getLogger(WundaAuthentification.class);
         private final String standaloneDomain;
-        private final String callserverhost;
+        private final String callserverUrl;
+        private final String connectionClass;
         private String userString;
 
         //~ Constructors -------------------------------------------------------
@@ -3929,11 +3935,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
          * Creates a new WundaAuthentification object.
          *
          * @param  standaloneDomain  DOCUMENT ME!
-         * @param  callserverhost    DOCUMENT ME!
+         * @param  callserverUrl     DOCUMENT ME!
+         * @param  connectionClass   DOCUMENT ME!
          */
-        public WundaAuthentification(final String standaloneDomain, final String callserverhost) {
+        public WundaAuthentification(final String standaloneDomain,
+                final String callserverUrl,
+                final String connectionClass) {
             this.standaloneDomain = standaloneDomain;
-            this.callserverhost = callserverhost;
+            this.callserverUrl = callserverUrl;
+            this.connectionClass = connectionClass;
         }
 
         //~ Methods ------------------------------------------------------------
@@ -3943,42 +3953,30 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             if (log.isDebugEnabled()) {
                 log.debug("Authentication:");
             }
-            System.setProperty("sun.rmi.transport.connectionTimeout", "15");
             final String user = name.split("@")[0];
             final String group = name.split("@")[1];
             LagisBroker.getInstance().setAccountName(name);
-            final String callServerURL = "rmi://" + callserverhost + "/callServer";
-            if (log.isDebugEnabled()) {
-                log.debug("callServerUrl:" + callServerURL);
-            }
             final String domain = standaloneDomain;
             userString = name;
             if (log.isDebugEnabled()) {
                 log.debug("full qualified username: " + userString + "@" + standaloneDomain);
             }
-            final Remote r = null;
             try {
                 final Connection connection = ConnectionFactory.getFactory()
-                            .createConnection(CONNECTION_CLASS, callServerURL);
-                ConnectionSession session = null;
-                ConnectionProxy proxy = null;
-                if (log.isDebugEnabled()) {
-                    log.debug("call server url: " + callServerURL);
-                    log.debug("call server host: " + callserverhost);
-                }
+                            .createConnection(connectionClass, callserverUrl);
 
                 final ConnectionInfo connectionInfo = new ConnectionInfo();
-                connectionInfo.setCallserverURL(callServerURL);
+                connectionInfo.setCallserverURL(callserverUrl);
                 connectionInfo.setPassword(new String(password));
                 connectionInfo.setUserDomain(domain);
                 connectionInfo.setUsergroup(group);
                 connectionInfo.setUsergroupDomain(domain);
                 connectionInfo.setUsername(user);
 
-                session = ConnectionFactory.getFactory().createSession(connection, connectionInfo, true);
-                proxy = ConnectionFactory.getFactory().createProxy(CONNECTION_PROXY_CLASS, session);
-                // proxy = ConnectionFactory.getFactory().createProxy(CONNECTION_CLASS,CONNECTION_PROXY_CLASS,
-                // connectionInfo,false);
+                final ConnectionSession session = ConnectionFactory.getFactory()
+                            .createSession(connection, connectionInfo, true);
+                final ConnectionProxy proxy = ConnectionFactory.getFactory()
+                            .createProxy(CONNECTION_PROXY_CLASS, session);
                 SessionManager.init(proxy);
                 LagisBroker.getInstance().setSession(SessionManager.getSession());
                 final String tester = (group + "@" + domain).toLowerCase();
@@ -4043,8 +4041,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //                    return false;
 //                }
             } catch (Throwable t) {
-                log.error("call server url: " + callServerURL);
-                log.error("call server host: " + callserverhost);
+                log.error("call server url: " + callserverUrl);
                 log.error("Fehler beim Anmelden ", t);
                 return false;
             }

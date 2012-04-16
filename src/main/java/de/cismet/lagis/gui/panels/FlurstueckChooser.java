@@ -300,8 +300,8 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
         txtFlurstueck.setEnabled(false);
         currentGemarkungsRetriever = new GemarkungRetriever(GemarkungRetriever.RETRIEVE_GEMARKUNGEN_MODE);
         // currentGemarkungsRetriever.execute();
-        
-       //if statement fix GUI-Builder warning cannot load component FlurstueckChooser... 
+
+        // if statement fix GUI-Builder warning cannot load component FlurstueckChooser...
         final Connection c = SessionManager.getConnection();
         if (c.isConnected()) {
             LagisBroker.getInstance().execute(currentGemarkungsRetriever);
@@ -588,7 +588,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cboFilterActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboFilterActionPerformed
+    private void cboFilterActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboFilterActionPerformed
         final String value = (String)cboFilter.getSelectedItem();
         if (value.equals(FILTER_ALL_NAME)) {
             log.info("Filter alle Flurstücke ausgewählt");
@@ -631,7 +631,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             doAutomaticRequest(AutomaticFlurstueckRetriever.SET_BOXES_ACCORDING_TO_CONTENT_MODE, null);
             // TODO what todo if no Flurstück is selected
         }
-    }//GEN-LAST:event_cboFilterActionPerformed
+    } //GEN-LAST:event_cboFilterActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1380,9 +1380,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnActionActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnActionActionPerformed
+    private void btnActionActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnActionActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnActionActionPerformed
+    } //GEN-LAST:event_btnActionActionPerformed
 
     /**
      * DOCUMENT ME!

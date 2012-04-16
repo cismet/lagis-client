@@ -34,7 +34,7 @@ public class RebePersistenceProblem {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    public static final String CONNECTION_CLASS = "Sirius.navigator.connection.RMIConnection";
+    public static final String CONNECTION_CLASS = RESTfulConnection.class.getCanonicalName(); // "Sirius.navigator.connection.RMIConnection";
     public static final String CONNECTION_PROXY_CLASS =
         "Sirius.navigator.connection.proxy.DefaultConnectionProxyHandler";
 

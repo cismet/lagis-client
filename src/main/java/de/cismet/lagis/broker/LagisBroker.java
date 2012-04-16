@@ -175,8 +175,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // private String username;
     // private String group;
     // private String domain;
-    private String callserverHost;
+    private String callserverUrl;
     private String domain;
+    private String connectionClass;
     private String account;
     private FlurstueckRequester requester;
     private JFrame parentComponent;
@@ -1733,6 +1734,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             // TODO wenigstens den Nutzer benachrichtigen sonst ist es zu hard oder nur lesen modus --> besser!!!
             // System.exit(1);
         }
+        try {
+            final Element prefsCids = parent.getChild("cidsAppBackend");
+            LagisBroker.getInstance().setDomain(prefsCids.getChildText("domain"));
+            LagisBroker.getInstance().setCallserverUrl(prefsCids.getChildText("callserverurl"));
+            LagisBroker.getInstance().setConnectionClass(prefsCids.getChildText("connectionclass"));
+        } catch (Exception ex) {
+            log.fatal("Fehler beim lesen der cidsAppBackendcSettings", ex);
+            System.exit(1);
+        }
     }
 
     @Override
@@ -1927,17 +1937,35 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @return  DOCUMENT ME!
      */
-    public String getCallserverHost() {
-        return callserverHost;
+    public String getConnectionClass() {
+        return connectionClass;
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  callserverHost  DOCUMENT ME!
+     * @param  connectionClass  DOCUMENT ME!
      */
-    public void setCallserverHost(final String callserverHost) {
-        this.callserverHost = callserverHost;
+    public void setConnectionClass(final String connectionClass) {
+        this.connectionClass = connectionClass;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getCallserverUrl() {
+        return callserverUrl;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  callserverUrl  DOCUMENT ME!
+     */
+    public void setCallserverUrl(final String callserverUrl) {
+        this.callserverUrl = callserverUrl;
     }
 
     /**
