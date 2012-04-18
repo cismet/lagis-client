@@ -162,38 +162,34 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 "/de/cismet/lagis/ressource/icons/main.png")).getImage();
     // sollte eigentlich alles in den LagisBroker ?? Configuration
     private static final ConfigurationManager configManager = new ConfigurationManager();
-    private static final String LAGIS_CONFIGURATION_FILE = "defaultLagisProperties.xml";
-    private static final String LOCAL_LAGIS_CONFIGURATION_FILE = "lagisProperties.xml";
-    private static final String LAGIS_CONFIGURATION_CLASSPATH = "/de/cismet/lagis/configuration/";
-    private static final String LAGIS_LOCAL_CONFIGURATION_FOLDER = ".lagis";
+    private static final String FILENAME_LAGIS_CONFIGURATION = "defaultLagisProperties.xml";
+    private static final String FILENAME_LOCAL_LAGIS_CONFIGURATION = "lagisProperties.xml";
+    private static final String CLASSPATH_LAGIS_CONFIGURATION = "/de/cismet/lagis/configuration/";
+
     private static final String DIRECTORYPATH_HOME = System.getProperty("user.home");
-    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
-    // userdependingConfiguration
-    // TODO Auslagern in configFile
-    private static final String LAGIS_CONFIGURATION_FOLDER = DIRECTORYPATH_HOME + FILE_SEPARATOR + ".lagis";
-    private static final String DEFAULT_LAYOUT_PATH = LAGIS_CONFIGURATION_FOLDER + "/lagis.layout";
-    private static final String PLUGIN_LAYOUT_PATH = LAGIS_CONFIGURATION_FOLDER + "/pluginLagis.layout";
-
-    private static final String DEFAULT_APP_DATA_PATH = LAGIS_CONFIGURATION_FOLDER + "/lagis.data";
-
     private static final String DIRECTORYEXTENSION = System.getProperty("directory.extension");
-    private static final String DIRECTORY_LAGISHOME = ".lagis"
+    private static final String FILESEPARATOR = System.getProperty("file.separator");
+
+    private static final String DIRECTORYNAME_LAGISHOME = ".lagis"
                 + ((DIRECTORYEXTENSION != null) ? DIRECTORYEXTENSION : "");
-    private static final String FILE_SCREEN = "lagis.screen";
-    private static final String DIRECTORYPATH_LAGIS = DIRECTORYPATH_HOME + FILE_SEPARATOR + DIRECTORY_LAGISHOME;
-    private static final String FILEPATH_SCREEN = DIRECTORYPATH_LAGIS + FILE_SEPARATOR + FILE_SCREEN;
+
+    private static final String DIRECTORYPATH_LAGIS = DIRECTORYPATH_HOME + FILESEPARATOR + DIRECTORYNAME_LAGISHOME;
+
+    private static final String FILEPATH_DEFAULT_LAYOUT = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.layout";
+    private static final String FILEPATH_PLUGIN_LAYOUT = DIRECTORYPATH_LAGIS + FILESEPARATOR + "pluginLagis.layout";
+    private static final String FILEPATH_DEFAULT_APP_DATA = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.data";
+    private static final String FILEPATH_SCREEN = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.screen";
 
     private static JFrame SPLASH;
 
     private static String onlineHelpURL;
     private static String newsURL;
-    private static String userAcount = null;
 
     static {
-        configManager.setDefaultFileName(LAGIS_CONFIGURATION_FILE);
-        configManager.setFileName(LOCAL_LAGIS_CONFIGURATION_FILE);
-        configManager.setClassPathFolder(LAGIS_CONFIGURATION_CLASSPATH);
-        configManager.setFolder(LAGIS_LOCAL_CONFIGURATION_FOLDER);
+        configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
+        configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
+        configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
+        configManager.setFolder(DIRECTORYNAME_LAGISHOME);
     }
 
     // End of variables declaration
@@ -447,7 +443,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             this.addWindowListener(this);
             LOG.info("Laden der Lagis Konfiguration");
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Name des Lagis Server Konfigurationsfiles: " + LAGIS_CONFIGURATION_FILE);
+                LOG.debug("Name des Lagis Server Konfigurationsfiles: " + FILENAME_LAGIS_CONFIGURATION);
             }
 
             configManager.addConfigurable(this);
@@ -703,9 +699,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
 
             if (isPlugin) {
-                loadLayout(PLUGIN_LAYOUT_PATH);
+                loadLayout(FILEPATH_PLUGIN_LAYOUT);
             } else {
-                loadLayout(DEFAULT_LAYOUT_PATH);
+                loadLayout(FILEPATH_DEFAULT_LAYOUT);
             }
 
             // }
@@ -917,7 +913,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             LOG.fatal("Fehler beim konstruieren des LaGIS Objektes", ex);
         }
 
-        this.loadAppData(DEFAULT_APP_DATA_PATH);
+        this.loadAppData(FILEPATH_DEFAULT_APP_DATA);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -2396,7 +2392,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  evt  DOCUMENT ME!
      */
     private void mniSaveLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniSaveLayoutActionPerformed
-        final JFileChooser fc = new JFileChooser(LAGIS_CONFIGURATION_FOLDER);
+        final JFileChooser fc = new JFileChooser(DIRECTORYPATH_LAGIS);
         fc.setFileFilter(new FileFilter() {
 
                 @Override
@@ -2595,7 +2591,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  evt  DOCUMENT ME!
      */
     private void mniLoadLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniLoadLayoutActionPerformed
-        final JFileChooser fc = new JFileChooser(LAGIS_CONFIGURATION_FOLDER);
+        final JFileChooser fc = new JFileChooser(DIRECTORYPATH_LAGIS);
         fc.setFileFilter(new FileFilter() {
 
                 @Override
@@ -3404,9 +3400,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         setVisible(false);
         LOG.info("Dispose(): Lagis wird heruntergefahren");
-        saveLayout(DEFAULT_LAYOUT_PATH);
+        saveLayout(FILEPATH_DEFAULT_LAYOUT);
 
-        this.saveAppData(DEFAULT_APP_DATA_PATH);
+        this.saveAppData(FILEPATH_DEFAULT_APP_DATA);
         super.dispose();
         System.exit(0);
     }
@@ -3734,7 +3730,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         }
         if (!active) {
             cleanUp();
-            saveLayout(PLUGIN_LAYOUT_PATH);
+            saveLayout(FILEPATH_PLUGIN_LAYOUT);
         }
     }
     // FloatingPluginUI
