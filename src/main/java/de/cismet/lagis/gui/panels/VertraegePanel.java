@@ -27,15 +27,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
-import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
-import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -218,7 +210,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         final JComboBox cboBA = new JComboBox(new Vector<BeschlussartCustomBean>(
                     CidsBroker.getInstance().getAllBeschlussarten()));
-        final JComboBox cboKA = new JComboBox(new Vector<KostenCustomBean>(
+        final JComboBox cboKA = new JComboBox(new Vector<KostenartCustomBean>(
                     CidsBroker.getInstance().getAllKostenarten()));
         tblBeschluesse.setDefaultEditor(BeschlussartCustomBean.class, new DefaultCellEditor(cboBA));
         tblKosten.setDefaultEditor(KostenartCustomBean.class, new DefaultCellEditor(cboKA));

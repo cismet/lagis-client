@@ -27,31 +27,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
-import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
-import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
-import de.cismet.cids.custom.beans.lagis.BaumMerkmalCustomBean;
-import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
-import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckHistorieCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
-import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
-import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
+import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -1057,8 +1033,8 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<KostenCustomBean> getAllKostenarten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("kosten");
+    public Collection<KostenartCustomBean> getAllKostenarten() {
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("kostenart");
         if (metaclass == null) {
             return null;
         }
@@ -1066,9 +1042,9 @@ public final class CidsBroker {
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
-        final Collection<KostenCustomBean> beans = new HashSet<KostenCustomBean>();
+        final Collection<KostenartCustomBean> beans = new HashSet<KostenartCustomBean>();
         for (final MetaObject metaObject : mos) {
-            beans.add((KostenCustomBean)metaObject.getBean());
+            beans.add((KostenartCustomBean)metaObject.getBean());
         }
         return beans;
     }
