@@ -64,6 +64,8 @@ import de.cismet.lagis.renderer.DateRenderer;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
+import de.cismet.lagis.util.LagISUtils;
+
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
 import de.cismet.lagis.validation.Validatable;
@@ -764,8 +766,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<RebeCustomBean> resBes = flurstueck.getRechteUndBelastungen();
         if (resBes != null) {
-            resBes.clear();
-            resBes.addAll(tableModel.getResBes());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getResBes());
+        } else {
+            // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
         }
     }
 

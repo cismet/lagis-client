@@ -19,8 +19,6 @@ import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
 
-import org.openide.util.Exceptions;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -31,7 +29,6 @@ import java.text.DecimalFormat;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -41,8 +38,6 @@ import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
 import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
-
-import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -448,18 +443,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     public void addNewBeschluss() {
         if (currentSelectedVertrag != null) {
             try {
-                final BeschlussCustomBean beschluss = BeschlussCustomBean.createNew();
-                beschluesseTableModel.addBeschluss(beschluss);
-                Collection<BeschlussCustomBean> tmpBeschluesse = currentSelectedVertrag.getBeschluesse();
-                if (tmpBeschluesse == null) {
-                    tmpBeschluesse = new HashSet<BeschlussCustomBean>();
-                } else {
-                    tmpBeschluesse.clear();
-                }
-                tmpBeschluesse.addAll(beschluesseTableModel.getBeschluesse());
-
-                currentSelectedVertrag.getBeschluesse().addAll(tmpBeschluesse);
-
+                final BeschlussCustomBean beschlussBean = BeschlussCustomBean.createNew();
+                beschluesseTableModel.addBeschluss(beschlussBean);
+                currentSelectedVertrag.getBeschluesse().add(beschlussBean);
                 beschluesseTableModel.fireTableDataChanged();
                 if (log.isDebugEnabled()) {
                     log.debug("Neuer Beschluss angelegt");
@@ -479,16 +465,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void addNewKosten() {
         if (currentSelectedVertrag != null) {
-            final KostenCustomBean kosten = KostenCustomBean.createNew();
-            kostenTableModel.addKosten(kosten);
-            Collection<KostenCustomBean> tmpKosten = currentSelectedVertrag.getKosten();
-            if (tmpKosten == null) {
-                tmpKosten = new HashSet<KostenCustomBean>();
-            } else {
-                tmpKosten.clear();
-            }
-            tmpKosten.addAll(kostenTableModel.getKosten());
-            currentSelectedVertrag.setKosten(tmpKosten);
+            final KostenCustomBean kostenBean = KostenCustomBean.createNew();
+            kostenTableModel.addKosten(kostenBean);
+            currentSelectedVertrag.getKosten().add(kostenBean);
             kostenTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {
                 log.debug("Neue Kosten angelegt");
@@ -503,15 +482,13 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     /**
      * DOCUMENT ME!
      *
-     * @param  kostenToRemove  DOCUMENT ME!
+     * @param  kostenIndex  DOCUMENT ME!
      */
-    public void removeKosten(final int kostenToRemove) {
-        if ((currentSelectedVertrag != null) || (kostenToRemove == -1)) {
-            final KostenCustomBean kosten = KostenCustomBean.createNew();
-            final KostenCustomBean tmpKosten = kostenTableModel.getKostenAtRow(kostenToRemove);
-            kostenTableModel.removeKosten(kostenToRemove);
-            final Collection<KostenCustomBean> allKosten = currentSelectedVertrag.getKosten();
-            allKosten.remove(tmpKosten);
+    public void removeKosten(final int kostenIndex) {
+        if ((currentSelectedVertrag != null) || (kostenIndex == -1)) {
+            final KostenCustomBean kostenBean = kostenTableModel.getKostenAtRow(kostenIndex);
+            kostenTableModel.removeKosten(kostenIndex);
+            currentSelectedVertrag.getKosten().remove(kostenBean);
             kostenTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {
                 log.debug("Kosten wurden entfernt");
@@ -526,15 +503,13 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     /**
      * DOCUMENT ME!
      *
-     * @param  beschlussToRemove  DOCUMENT ME!
+     * @param  beschlussIndex  DOCUMENT ME!
      */
-    public void removeBeschluss(final int beschlussToRemove) {
-        if ((currentSelectedVertrag != null) || (beschlussToRemove == -1)) {
-            final BeschlussCustomBean beschluss = BeschlussCustomBean.createNew();
-            final BeschlussCustomBean tmpBeschluss = beschluesseTableModel.getBeschlussAtRow(beschlussToRemove);
-            beschluesseTableModel.removeBeschluss(beschlussToRemove);
-            final Collection<BeschlussCustomBean> allBeschluesse = currentSelectedVertrag.getBeschluesse();
-            allBeschluesse.remove(tmpBeschluss);
+    public void removeBeschluss(final int beschlussIndex) {
+        if ((currentSelectedVertrag != null) || (beschlussIndex == -1)) {
+            final BeschlussCustomBean beschlussBean = beschluesseTableModel.getBeschlussAtRow(beschlussIndex);
+            beschluesseTableModel.removeBeschluss(beschlussIndex);
+            currentSelectedVertrag.getBeschluesse().remove(beschlussBean);
             beschluesseTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {
                 log.debug("Beschluss wurde entfernt");

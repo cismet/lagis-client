@@ -49,6 +49,8 @@ import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
+import de.cismet.lagis.util.LagISUtils;
+
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.Validator;
 
@@ -1389,9 +1391,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<VertragCustomBean> vertraege = flurstueck.getVertraege();
         if (vertraege != null) {
-            vertraege.clear();
-            vertraege.addAll(vTableModel.getVertraege());
-        } else {
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vertraege, vTableModel.getVertraege());
+        } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
             final HashSet newSet = new HashSet();
             newSet.addAll(vTableModel.getVertraege());
             flurstueck.setVertraege(newSet);

@@ -14,6 +14,7 @@ package de.cismet.lagis.gui.panels;
 
 import org.apache.log4j.Logger;
 
+import org.jdesktop.observablecollections.ObservableList;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 import org.jdesktop.swingx.decorator.*;
@@ -63,6 +64,7 @@ import de.cismet.lagis.renderer.PlanRenderer;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
+import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.NutzungsContainer;
 
 import de.cismet.lagis.validation.Validatable;
@@ -908,12 +910,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<NutzungCustomBean> vNutzungen = flurstueck.getNutzungen();
         if (vNutzungen != null) {
-            vNutzungen.clear();
-            vNutzungen.addAll(tableModel.getAllNutzungen());
-        } else {
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vNutzungen, tableModel.getAllNutzungen());
+        } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
             final HashSet newSet = new HashSet();
             newSet.addAll(tableModel.getAllNutzungen());
-            flurstueck.setVerwaltungsbereiche(newSet);
+            flurstueck.setNutzungen(newSet);
         }
     }
 

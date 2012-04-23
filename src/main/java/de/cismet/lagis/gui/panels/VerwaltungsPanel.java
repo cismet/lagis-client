@@ -76,6 +76,8 @@ import de.cismet.lagis.renderer.VerwaltungsgebrauchRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 
+import de.cismet.lagis.util.LagISUtils;
+
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
 import de.cismet.lagis.validation.Validatable;
@@ -1011,12 +1013,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // tableModel.updateAreaInformation(null);
         final Collection<VerwaltungsbereichCustomBean> vBereiche = flurstueck.getVerwaltungsbereiche();
         if (vBereiche != null) {
-            vBereiche.clear();
-            vBereiche.addAll(tableModel.getVerwaltungsbereiche());
-        } else {
-            final HashSet newSet = new HashSet();
-            newSet.addAll(tableModel.getVerwaltungsbereiche());
-            flurstueck.setVerwaltungsbereiche(newSet);
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vBereiche, tableModel.getVerwaltungsbereiche());
+        } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
+            flurstueck.setVerwaltungsbereiche(new HashSet(tableModel.getVerwaltungsbereiche()));
         }
     }
 

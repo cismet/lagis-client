@@ -17,6 +17,13 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.tools.CurrentStackTrace;
 
 /**
@@ -47,5 +54,25 @@ public class LagISUtils {
         if (log.isDebugEnabled()) {
             log.debug("logXML :" + postString, new CurrentStackTrace());
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  cidsColl   DOCUMENT ME!
+     * @param  otherColl  DOCUMENT ME!
+     */
+    public static void makeCollectionContainSameAsOtherCollection(final Collection cidsColl,
+            final Collection otherColl) {
+        // ueberschuessige entfernen
+        final Collection<CidsBean> nutzungenToDelete = new ArrayList<CidsBean>(cidsColl);
+        nutzungenToDelete.removeAll(otherColl);
+
+        // neue hinzufuegen
+        final Collection<CidsBean> nutzungenToAdd = new ArrayList<CidsBean>(otherColl);
+        nutzungenToAdd.removeAll(cidsColl);
+
+        cidsColl.removeAll(nutzungenToDelete);
+        cidsColl.addAll(nutzungenToAdd);
     }
 }
