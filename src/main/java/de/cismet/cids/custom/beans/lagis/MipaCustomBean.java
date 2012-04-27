@@ -41,9 +41,8 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Boolean isEditable;
-    private transient Boolean isHidden;
-    private Boolean modifiable;
+    private boolean isEditable;
+    private boolean modifiable;
 
     private Integer id;
     private String nutzer;
@@ -92,12 +91,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
             final MipaCustomBean bean = (MipaCustomBean)CidsBean.createNewCidsBeanFromTableName(
                     CidsBroker.LAGIS_DOMAIN,
                     TABLE);
-
-            // property change mechanism does not work in constructor
-            bean.setModifiable(Boolean.TRUE);
-            bean.setEditable(Boolean.FALSE);
-            bean.hide(Boolean.FALSE);
-
             return bean;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
@@ -367,12 +360,12 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
     }
 
     @Override
-    public Boolean isModifiable() {
+    public boolean isModifiable() {
         return modifiable;
     }
 
     @Override
-    public void setModifiable(final Boolean val) {
+    public void setModifiable(final boolean val) {
         modifiable = val;
     }
 
@@ -470,11 +463,7 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
         if (!isModifiable()) {
             return false;
         }
-        if (isEditable != null) {
-            return isEditable;
-        } else {
-            return false;
-        }
+        return isEditable;
     }
 
     @Override
@@ -489,7 +478,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public void hide(final boolean hiding) {
-        isHidden = hiding;
     }
 
     @Override

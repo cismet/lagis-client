@@ -46,14 +46,14 @@ public interface ReBe extends GeometrySlot, StyledFeature {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean isModifiable();
+    boolean isModifiable();
 
     /**
      * DOCUMENT ME!
      *
      * @param  modifiable  DOCUMENT ME!
      */
-    void setModifiable(final Boolean modifiable);
+    void setModifiable(final boolean modifiable);
 
     /**
      * DOCUMENT ME!
@@ -130,21 +130,21 @@ public interface ReBe extends GeometrySlot, StyledFeature {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getIstRecht();
+    boolean getIstRecht();
 
     /**
      * DOCUMENT ME!
      *
      * @param  val  DOCUMENT ME!
      */
-    void setIstRecht(final Boolean val);
+    void setIstRecht(final boolean val);
 
     /**
      * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    Boolean isRecht();
+    boolean isRecht();
 
     /**
      * DOCUMENT ME!

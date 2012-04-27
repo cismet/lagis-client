@@ -281,15 +281,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 "/de/cismet/lagis/ressource/icons/menue/current.png"));
     private Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniForward.png"));
-    // Warum nicht in FlurstueckChooser
-    private final Icon icoStaedtisch = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/current.png"));
-    private final Icon icoStaedtischHistoric = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/historic.png"));
-    private final Icon icoAbteilungIX = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/abteilungIX.png"));
-    private final Icon icoAbteilungIXHistoric = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/historic_abteilungIX.png"));
     // ICON ÄNDERN
     private final Icon icoUnknownFlurstueck = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/unkownFlurstueck.png"));
@@ -768,9 +759,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                         LOG.debug("Art des Flurstücks ist Städtisch");
                                     }
                                     if (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() != null) {
-                                        pFlurstueckChooser.setStatusIcon(icoStaedtischHistoric);
+                                        pFlurstueckChooser.setStatus(FlurstueckChooser.Status.STAEDTISCH_HISTORIC);
                                     } else {
-                                        pFlurstueckChooser.setStatusIcon(icoStaedtisch);
+                                        pFlurstueckChooser.setStatus(FlurstueckChooser.Status.STAEDTISCH);
                                     }
                                 } else if (flurstuecksArt.getBezeichnung().equals(
                                                 FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
@@ -778,9 +769,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                         LOG.debug("Art des Flurstücks ist Abteilung IX");
                                     }
                                     if (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() != null) {
-                                        pFlurstueckChooser.setStatusIcon(icoAbteilungIXHistoric);
+                                        pFlurstueckChooser.setStatus(FlurstueckChooser.Status.ABTEILUNG_IX_HISTORIC);
                                     } else {
-                                        pFlurstueckChooser.setStatusIcon(icoAbteilungIX);
+                                        pFlurstueckChooser.setStatus(FlurstueckChooser.Status.ABTEILUNG_IX);
                                     }
                                 } else {
                                     LOG.warn("Art des Flurstücks nicht bekannt");
@@ -1081,7 +1072,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mappingModel.setInitalLayerConfigurationFromServer(true);
         configManager.addConfigurable((ActiveLayerModel)mappingModel);
         configManager.addConfigurable(mapComponent);
-        configManager.addConfigurable(pFlurstueckChooser);
 
         try {
             validateTree();
@@ -1451,7 +1441,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         toolbar = new javax.swing.JToolBar();
-        pFlurstueckChooser = new FlurstueckChooser(FlurstueckChooser.SEARCH_MODE);
+        pFlurstueckChooser = new FlurstueckChooser(FlurstueckChooser.Mode.SEARCH);
         jSeparator1 = new javax.swing.JSeparator();
         btnSwitchInEditmode = new javax.swing.JButton();
         btnDiscardChanges = new javax.swing.JButton();
@@ -3817,7 +3807,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         if (LOG.isDebugEnabled()) {
             LOG.debug("Art des Flurstücks ist unbekannt (privat)");
         }
-        pFlurstueckChooser.setStatusIcon(icoUnknownFlurstueck);
+        pFlurstueckChooser.setStatus(FlurstueckChooser.Status.UNKNOWN_FLURSTUECK);
     }
 
     @Override

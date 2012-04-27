@@ -66,7 +66,7 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
             "ar_flaechennutzungen"
         };
 
-    private Boolean sollGeloeschtWerden = false;
+    private boolean sollGeloeschtWerden = false;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -514,22 +514,23 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
     }
 
     @Override
-    public Boolean getIstBuchwert() {
-        return getIst_buchwert();
+    public boolean getIstBuchwert() {
+        final Boolean bool = getIst_buchwert();
+        return (bool == null) ? false : bool;
     }
 
     @Override
-    public void setIstBuchwert(final Boolean val) {
+    public void setIstBuchwert(final boolean val) {
         setIst_buchwert(val);
     }
 
     @Override
-    public Boolean getSollGeloeschtWerden() {
+    public boolean getSollGeloeschtWerden() {
         return sollGeloeschtWerden;
     }
 
     @Override
-    public void setSollGeloeschtWerden(final Boolean val) {
+    public void setSollGeloeschtWerden(final boolean val) {
         this.sollGeloeschtWerden = val;
     }
 

@@ -748,7 +748,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     }
 
     @Override
-    public Boolean hasNewBuchung() {
+    public boolean hasNewBuchung() {
         if (getBuchungsCount() > 0) {
             return getNutzungsBuchungen().get(getNutzungsBuchungen().size() - 1).getId() == null;
         }
@@ -781,13 +781,13 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     }
 
     @Override
-    public Boolean mustBeTerminated() {
+    public boolean mustBeTerminated() {
         final NutzungBuchungCustomBean terminalBuchung = getTerminalBuchung();
-        return (terminalBuchung != null) && (terminalBuchung.getSollGeloeschtWerden() == true);
+        return (terminalBuchung != null) && terminalBuchung.getSollGeloeschtWerden();
     }
 
     @Override
-    public Boolean removeOpenNutzung() {
+    public boolean removeOpenNutzung() {
         if ((getBuchungsCount() > 1) && hasNewBuchung()) {
             getPreviousBuchung().setGueltigbis(null);
             getNutzungsBuchungen().remove(getNutzungsBuchungen().size() - 1);
@@ -809,7 +809,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         }
         final NutzungBuchungCustomBean terminalBuchung = getOpenBuchung();
         terminalBuchung.setGueltigbis(val);
-        terminalBuchung.setSollGeloeschtWerden(Boolean.TRUE);
+        terminalBuchung.setSollGeloeschtWerden(true);
     }
 
     @Override
@@ -852,7 +852,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
      *
      * @return  DOCUMENT ME!
      */
-    private Boolean isBuchungInNutzung(final NutzungBuchungCustomBean buchung) {
+    private boolean isBuchungInNutzung(final NutzungBuchungCustomBean buchung) {
         if (getBuchungsCount() > 0) {
             return getNutzungsBuchungen().contains(buchung);
         }

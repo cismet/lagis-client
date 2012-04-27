@@ -172,12 +172,13 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
     }
 
     @Override
-    public Boolean getHatNummerAlsAuspraegung() {
-        return getHat_nummer_als_auspraegung();
+    public boolean getHatNummerAlsAuspraegung() {
+        final Boolean bool = getHat_nummer_als_auspraegung();
+        return (bool == null) ? false : bool;
     }
 
     @Override
-    public void setHatNummerAlsAuspraegung(final Boolean val) {
+    public void setHatNummerAlsAuspraegung(final boolean val) {
         setHat_nummer_als_auspraegung(val);
     }
 

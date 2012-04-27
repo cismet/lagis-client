@@ -40,9 +40,8 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     //~ Instance fields --------------------------------------------------------
 
-    private Boolean modifiable;
-    private Boolean isEditable;
-    private Boolean isHidden;
+    private boolean modifiable;
+    private boolean isEditable;
 
     private Integer id;
     private VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch;
@@ -78,12 +77,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
             bean = (VerwaltungsbereichCustomBean)CidsBean.createNewCidsBeanFromTableName(
                     CidsBroker.LAGIS_DOMAIN,
                     TABLE);
-
-            // property change mechanism does not work in constructor
-            bean.setModifiable(Boolean.TRUE);
-            bean.setEditable(Boolean.FALSE);
-            bean.hide(Boolean.FALSE);
-
             return bean;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
@@ -202,12 +195,12 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     }
 
     @Override
-    public Boolean isModifiable() {
+    public boolean isModifiable() {
         return modifiable;
     }
 
     @Override
-    public void setModifiable(final Boolean val) {
+    public void setModifiable(final boolean val) {
         modifiable = val;
     }
 
@@ -288,11 +281,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
         if (!isModifiable()) {
             return false;
         }
-        if (isEditable != null) {
-            return isEditable;
-        } else {
-            return false;
-        }
+        return isEditable;
     }
 
     @Override
@@ -307,7 +296,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     @Override
     public void hide(final boolean hiding) {
-        isHidden = hiding;
     }
 
     @Override

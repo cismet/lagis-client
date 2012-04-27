@@ -145,21 +145,21 @@ public interface FlurstueckSchluessel extends Key, Serializable, Comparable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean isEchterSchluessel();
+    boolean isEchterSchluessel();
 
     /**
      * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getIstGesperrt();
+    boolean getIstGesperrt();
 
     /**
      * DOCUMENT ME!
      *
      * @param  val  DOCUMENT ME!
      */
-    void setIstGesperrt(final Boolean val);
+    void setIstGesperrt(final boolean val);
 
     /**
      * DOCUMENT ME!
@@ -229,14 +229,14 @@ public interface FlurstueckSchluessel extends Key, Serializable, Comparable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getWarStaedtisch();
+    boolean getWarStaedtisch();
 
     /**
      * DOCUMENT ME!
      *
      * @param  warStaedtisch  DOCUMENT ME!
      */
-    void setWarStaedtisch(final Boolean warStaedtisch);
+    void setWarStaedtisch(final boolean warStaedtisch);
 
     /**
      * DOCUMENT ME!

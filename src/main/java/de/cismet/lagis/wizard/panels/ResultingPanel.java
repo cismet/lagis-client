@@ -107,7 +107,7 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
             }
 
             for (int i = 0; i < splitCount; i++) {
-                final FlurstueckChooser tmpFlst = new FlurstueckChooser(FlurstueckChooser.CREATION_MODE);
+                final FlurstueckChooser tmpFlst = new FlurstueckChooser(FlurstueckChooser.Mode.CREATION);
                 tmpFlst.addValidationStateChangedListener(this);
                 if (splitCandidate != null) {
                     if (log.isDebugEnabled()) {
@@ -132,7 +132,7 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
             if (log.isDebugEnabled()) {
                 log.debug("Resultart: JoinAction");
             }
-            final FlurstueckChooser tmpFlst = new FlurstueckChooser(FlurstueckChooser.CREATION_MODE);
+            final FlurstueckChooser tmpFlst = new FlurstueckChooser(FlurstueckChooser.Mode.CREATION);
             tmpFlst.addValidationStateChangedListener(this);
             if (splitCandidate != null) {
                 if (log.isDebugEnabled()) {
@@ -191,7 +191,7 @@ public class ResultingPanel extends javax.swing.JPanel implements ValidationStat
                 resultCandidates.clear();
                 splitKeys.clear();
                 for (int i = 0; i < splitCount; i++) {
-                    final FlurstueckChooser tmpFlst = new FlurstueckChooser(FlurstueckChooser.CREATION_MODE);
+                    final FlurstueckChooser tmpFlst = new FlurstueckChooser(FlurstueckChooser.Mode.CREATION);
                     tmpFlst.addValidationStateChangedListener(this);
                     resultCandidates.add(tmpFlst);
                     panAction.add(tmpFlst);

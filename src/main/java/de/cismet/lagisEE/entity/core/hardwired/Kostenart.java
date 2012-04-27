@@ -49,14 +49,14 @@ public interface Kostenart {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getIstNebenkostenart();
+    boolean getIstNebenkostenart();
 
     /**
      * DOCUMENT ME!
      *
      * @param  val  DOCUMENT ME!
      */
-    void setIstNebenkostenart(final Boolean val);
+    void setIstNebenkostenart(final boolean val);
 
     /**
      * DOCUMENT ME!

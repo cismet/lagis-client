@@ -14,7 +14,6 @@ package de.cismet.lagis.gui.panels;
 
 import org.apache.log4j.Logger;
 
-import org.jdesktop.observablecollections.ObservableList;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 import org.jdesktop.swingx.decorator.*;
@@ -34,12 +33,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
@@ -308,7 +302,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
                         final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
                         // NO Geometry & more than one Verwaltungsbereich
-                        return ((n != null) && (n.getIstBuchwert() == null));
+                        return (n != null) && !n.getIstBuchwert();
                     } catch (Exception ex) {
                         log.error("Fehler beim Highlighting des Buchwerts vorhanden", ex);
                         return false;
@@ -330,7 +324,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
                         final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
                         // NO Geometry & more than one Verwaltungsbereich
-                        return ((n != null) && ((n.getSollGeloeschtWerden() != null) && n.getSollGeloeschtWerden()));
+                        return ((n != null) && n.getSollGeloeschtWerden());
                     } catch (Exception ex) {
                         log.error("Fehler beim Highlighting test wurde gelöscht vorhanden", ex);
                         return false;

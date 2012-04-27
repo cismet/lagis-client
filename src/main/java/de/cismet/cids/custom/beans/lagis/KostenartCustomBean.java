@@ -137,12 +137,13 @@ public class KostenartCustomBean extends BasicEntity implements Kostenart {
     }
 
     @Override
-    public Boolean getIstNebenkostenart() {
-        return getIst_nebenkostenart();
+    public boolean getIstNebenkostenart() {
+        final Boolean bool = getIst_nebenkostenart();
+        return (bool == null) ? false : bool;
     }
 
     @Override
-    public void setIstNebenkostenart(final Boolean val) {
+    public void setIstNebenkostenart(final boolean val) {
         setIst_nebenkostenart(val);
     }
 

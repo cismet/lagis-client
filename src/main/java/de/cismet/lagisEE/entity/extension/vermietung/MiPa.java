@@ -54,14 +54,14 @@ public interface MiPa extends GeometrySlot, StyledFeature, Serializable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean isModifiable();
+    boolean isModifiable();
 
     /**
      * DOCUMENT ME!
      *
      * @param  modifiable  DOCUMENT ME!
      */
-    void setModifiable(final Boolean modifiable);
+    void setModifiable(final boolean modifiable);
 
     /**
      * DOCUMENT ME!

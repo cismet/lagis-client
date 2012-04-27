@@ -435,7 +435,7 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     @Override
     public String getKeyString() {
         try {
-            if ((isEchterSchluessel() == null) || isEchterSchluessel()) {
+            if (isEchterSchluessel()) {
                 if (getFlurstueckNenner() != null) {
                     return getGemarkung().getBezeichnung() + " " + getFlur() + " " + getFlurstueckZaehler() + "/"
                                 + getFlurstueckNenner();
@@ -446,13 +446,14 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
                 return "pseudo Schluessel" + getId();
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
-            return "Eine oder mehrere Felder der Entität sind null";
+            final String msg = "Eine oder mehrere Felder der Entität sind null";
+            LOG.error(msg, ex);
+            return msg;
         }
     }
 
     @Override
-    public Boolean isEchterSchluessel() {
+    public boolean isEchterSchluessel() {
         if (getFlurstueckArt() != null) {
             if (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_PSEUDO.equals(getFlurstueckArt().getBezeichnung())) {
                 return false;
@@ -466,12 +467,13 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     }
 
     @Override
-    public Boolean getIstGesperrt() {
-        return getIst_gesperrt();
+    public boolean getIstGesperrt() {
+        final Boolean bool = getIst_gesperrt();
+        return (bool == null) ? false : bool;
     }
 
     @Override
-    public void setIstGesperrt(final Boolean val) {
+    public void setIstGesperrt(final boolean val) {
         setIst_gesperrt(val);
     }
 
@@ -529,12 +531,13 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     }
 
     @Override
-    public Boolean getWarStaedtisch() {
-        return getWar_staedtisch();
+    public boolean getWarStaedtisch() {
+        final Boolean bool = getWar_staedtisch();
+        return (bool == null) ? false : bool;
     }
 
     @Override
-    public void setWarStaedtisch(final Boolean var) {
+    public void setWarStaedtisch(final boolean var) {
         setWar_staedtisch(var);
     }
 

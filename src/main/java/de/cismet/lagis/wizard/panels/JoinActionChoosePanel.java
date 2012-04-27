@@ -300,7 +300,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddJoinMemberActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddJoinMemberActionPerformed
-        final FlurstueckChooser tmp = new FlurstueckChooser(FlurstueckChooser.CONTINUATION_MODE);
+        final FlurstueckChooser tmp = new FlurstueckChooser(FlurstueckChooser.Mode.CONTINUATION);
 
         if (joinCandidates.size() > 0) {
             final FlurstueckChooser lastChooser = joinCandidates.get(joinCandidates.size() - 1);

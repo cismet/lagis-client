@@ -170,14 +170,14 @@ public interface Nutzung extends Serializable, Cloneable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean hasNewBuchung();
+    boolean hasNewBuchung();
 
     /**
      * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    Boolean mustBeTerminated();
+    boolean mustBeTerminated();
 
     /**
      * DOCUMENT ME!
@@ -230,7 +230,7 @@ public interface Nutzung extends Serializable, Cloneable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean removeOpenNutzung();
+    boolean removeOpenNutzung();
 
     /**
      * DOCUMENT ME!

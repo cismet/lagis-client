@@ -534,7 +534,7 @@
       <SubComponents>
         <Component class="de.cismet.lagis.gui.panels.FlurstueckChooser" name="pFlurstueckChooser">
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FlurstueckChooser(FlurstueckChooser.SEARCH_MODE);"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FlurstueckChooser(FlurstueckChooser.Mode.SEARCH);"/>
           </AuxValues>
         </Component>
         <Component class="javax.swing.JSeparator" name="jSeparator1">

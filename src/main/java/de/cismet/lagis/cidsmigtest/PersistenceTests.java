@@ -135,17 +135,17 @@ public class PersistenceTests {
         LOG.info("initial: rebe.isIst_recht()  = " + rebe.isIst_recht());
         LOG.info("initial: rebe.isRecht()      = " + rebe.isRecht());
 
-        rebe.setIstRecht(null);
-        LOG.info("after rebe.setIstRecht(null): rebe.getIstRecht()  = " + rebe.getIstRecht());
-        LOG.info("after rebe.setIstRecht(null): rebe.getIst_recht() = " + rebe.getIst_recht());
-        LOG.info("after rebe.setIstRecht(null): rebe.isIst_recht()  = " + rebe.isIst_recht());
-        LOG.info("after rebe.setIstRecht(null): rebe.isRecht()      = " + rebe.isRecht());
-
-        rebe.setIst_recht(null);
-        LOG.info("after rebe.setIst_recht(null): rebe.getIstRecht()  = " + rebe.getIstRecht());
-        LOG.info("after rebe.setIst_recht(null): rebe.getIst_recht() = " + rebe.getIst_recht());
-        LOG.info("after rebe.setIst_recht(null): rebe.isIst_recht()  = " + rebe.isIst_recht());
-        LOG.info("after rebe.setIst_recht(null): rebe.isRecht()      = " + rebe.isRecht());
+//        rebe.setIstRecht(null);
+//        LOG.info("after rebe.setIstRecht(null): rebe.getIstRecht()  = " + rebe.getIstRecht());
+//        LOG.info("after rebe.setIstRecht(null): rebe.getIst_recht() = " + rebe.getIst_recht());
+//        LOG.info("after rebe.setIstRecht(null): rebe.isIst_recht()  = " + rebe.isIst_recht());
+//        LOG.info("after rebe.setIstRecht(null): rebe.isRecht()      = " + rebe.isRecht());
+//
+//        rebe.setIst_recht(null);
+//        LOG.info("after rebe.setIst_recht(null): rebe.getIstRecht()  = " + rebe.getIstRecht());
+//        LOG.info("after rebe.setIst_recht(null): rebe.getIst_recht() = " + rebe.getIst_recht());
+//        LOG.info("after rebe.setIst_recht(null): rebe.isIst_recht()  = " + rebe.isIst_recht());
+//        LOG.info("after rebe.setIst_recht(null): rebe.isRecht()      = " + rebe.isRecht());
 
         // setting up ReBe
         final RebeArtCustomBean rebeArtBean = (RebeArtCustomBean)createCB("rebe_art", 2);

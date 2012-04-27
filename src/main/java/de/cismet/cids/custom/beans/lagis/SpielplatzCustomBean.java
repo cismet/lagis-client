@@ -412,7 +412,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isKlettergeruestVorhanden() {
-        return getKlettergeruest_vorhanden();
+        final Boolean bool = getKlettergeruest_vorhanden();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -422,7 +423,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isKlettergeruestWartungErforderlich() {
-        return getIst_klettergeruest_wartung_erforderlich();
+        final Boolean bool = getIst_klettergeruest_wartung_erforderlich();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -432,7 +434,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isRutscheVorhanden() {
-        return getRutsche_vorhanden();
+        final Boolean bool = getRutsche_vorhanden();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -442,7 +445,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isRutscheWartungErforderlich() {
-        return getIst_rutsche_wartung_erforderlich();
+        final Boolean bool = getIst_rutsche_wartung_erforderlich();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -452,7 +456,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isSandkastenVorhanden() {
-        return getSandkasten_vorhanden();
+        final Boolean bool = getSandkasten_vorhanden();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -462,7 +467,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isSandkastenWartungErforderlich() {
-        return getIst_sandkasten_wartung_erforderlich();
+        final Boolean bool = getIst_sandkasten_wartung_erforderlich();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -472,7 +478,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isSchaukelVorhanden() {
-        return getSchaukel_vorhanden();
+        final Boolean bool = getSchaukel_vorhanden();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -482,7 +489,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isSchaukelWartungErforderlich() {
-        return getIst_schaukel_wartung_erforderlich();
+        final Boolean bool = getIst_schaukel_wartung_erforderlich();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -492,7 +500,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isWippeVorhanden() {
-        return getWippe_vorhanden();
+        final Boolean bool = getWippe_vorhanden();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -502,7 +511,8 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
 
     @Override
     public boolean isWippeWartungErforderlich() {
-        return getIst_wippe_wartung_erforderlich();
+        final Boolean bool = getIst_wippe_wartung_erforderlich();
+        return (bool == null) ? false : bool;
     }
 
     @Override

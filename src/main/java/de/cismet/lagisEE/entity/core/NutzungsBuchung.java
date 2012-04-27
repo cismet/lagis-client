@@ -246,28 +246,28 @@ public interface NutzungsBuchung extends Cloneable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getIstBuchwert();
+    boolean getIstBuchwert();
 
     /**
      * DOCUMENT ME!
      *
      * @param  istBuchwert  DOCUMENT ME!
      */
-    void setIstBuchwert(final Boolean istBuchwert);
+    void setIstBuchwert(final boolean istBuchwert);
 
     /**
      * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getSollGeloeschtWerden();
+    boolean getSollGeloeschtWerden();
 
     /**
      * DOCUMENT ME!
      *
      * @param  sollGeloeschtWerden  DOCUMENT ME!
      */
-    void setSollGeloeschtWerden(final Boolean sollGeloeschtWerden);
+    void setSollGeloeschtWerden(final boolean sollGeloeschtWerden);
 
     /**
      * DOCUMENT ME!

@@ -41,15 +41,14 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Boolean isEditable;
-    private Boolean isHidden;
-    private Boolean modifiable;
-    private Boolean ist_recht;
+    private boolean isEditable;
+    private boolean modifiable;
 
     private Integer id;
     private Timestamp datum_eintragung;
     private Timestamp datum_loeschung;
     private String nummer;
+    private Boolean ist_recht;
     private String beschreibung;
     private RebeArtCustomBean fk_rebe_art;
     private GeomCustomBean fk_geom;
@@ -88,13 +87,8 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
             final RebeCustomBean rebe = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
                     CidsBroker.LAGIS_DOMAIN,
                     TABLE);
-
             // property change mechanism does not work in constructor
             rebe.setIstRecht(Boolean.FALSE);
-            rebe.setModifiable(Boolean.TRUE);
-            rebe.setEditable(Boolean.FALSE);
-            rebe.hide(Boolean.FALSE);
-
             return rebe;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
@@ -210,7 +204,7 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
      * @param  val  DOCUMENT ME!
      */
     public void setIst_recht(final Boolean val) {
-        this.ist_recht = (val == null) ? Boolean.FALSE : val;
+        this.ist_recht = val;
 
         this.propertyChangeSupport.firePropertyChange("ist_recht", null, this.ist_recht);
     }
@@ -325,12 +319,12 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     }
 
     @Override
-    public Boolean isModifiable() {
+    public boolean isModifiable() {
         return modifiable;
     }
 
     @Override
-    public void setModifiable(final Boolean val) {
+    public void setModifiable(final boolean val) {
         modifiable = val;
     }
 
@@ -383,18 +377,20 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     }
 
     @Override
-    public Boolean getIstRecht() {
-        return getIst_recht();
+    public boolean getIstRecht() {
+        final Boolean bool = getIst_recht();
+        return (bool == null) ? false : bool;
     }
 
     @Override
-    public void setIstRecht(final Boolean val) {
+    public void setIstRecht(final boolean val) {
         setIst_recht(val);
     }
 
     @Override
-    public Boolean isRecht() {
-        return getIst_recht();
+    public boolean isRecht() {
+        final Boolean bool = getIst_recht();
+        return (bool == null) ? false : bool;
     }
 
     @Override
@@ -434,11 +430,7 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
         if (!isModifiable()) {
             return false;
         }
-        if (isEditable != null) {
-            return isEditable;
-        } else {
-            return false;
-        }
+        return isEditable;
     }
 
     @Override
@@ -453,7 +445,6 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
 
     @Override
     public void hide(final boolean hiding) {
-        isHidden = hiding;
     }
 
     @Override

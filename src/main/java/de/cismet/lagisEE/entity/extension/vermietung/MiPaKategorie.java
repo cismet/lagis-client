@@ -45,14 +45,14 @@ public interface MiPaKategorie extends Serializable {
      *
      * @return  DOCUMENT ME!
      */
-    Boolean getHatNummerAlsAuspraegung();
+    boolean getHatNummerAlsAuspraegung();
 
     /**
      * DOCUMENT ME!
      *
      * @param  hatNummerAlsAuspraegung  DOCUMENT ME!
      */
-    void setHatNummerAlsAuspraegung(final Boolean hatNummerAlsAuspraegung);
+    void setHatNummerAlsAuspraegung(final boolean hatNummerAlsAuspraegung);
 
     /**
      * DOCUMENT ME!

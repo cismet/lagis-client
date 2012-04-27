@@ -40,9 +40,8 @@ public class BaumCustomBean extends BasicEntity implements Baum {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Boolean isEditable;
-    private transient Boolean isHidden;
-    private Boolean modifiable;
+    private boolean isEditable = true;
+    private boolean modifiable = false;
 
     private Integer id;
     private String lage;
@@ -91,12 +90,6 @@ public class BaumCustomBean extends BasicEntity implements Baum {
             final BaumCustomBean bean = (BaumCustomBean)CidsBean.createNewCidsBeanFromTableName(
                     CidsBroker.LAGIS_DOMAIN,
                     TABLE);
-
-            // property change mechanism does not work in constructor
-            bean.setModifiable(Boolean.TRUE);
-            bean.setEditable(Boolean.FALSE);
-            bean.hide(Boolean.FALSE);
-
             return bean;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
@@ -406,12 +399,12 @@ public class BaumCustomBean extends BasicEntity implements Baum {
     }
 
     @Override
-    public Boolean isModifiable() {
+    public boolean isModifiable() {
         return modifiable;
     }
 
     @Override
-    public void setModifiable(final Boolean val) {
+    public void setModifiable(final boolean val) {
         modifiable = val;
     }
 
@@ -452,11 +445,7 @@ public class BaumCustomBean extends BasicEntity implements Baum {
         if (!isModifiable()) {
             return false;
         }
-        if (isEditable != null) {
-            return isEditable;
-        } else {
-            return false;
-        }
+        return isEditable;
     }
 
     @Override
@@ -471,7 +460,6 @@ public class BaumCustomBean extends BasicEntity implements Baum {
 
     @Override
     public void hide(final boolean val) {
-        isHidden = val;
     }
 
     @Override

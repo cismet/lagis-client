@@ -30,7 +30,7 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Long id;
+    private Integer id;
     private String bezeichnung;
     private Collection<BaumKategorieAuspraegungCustomBean> ar_kategorie_auspraegungen;
     private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "ar_kategorie_auspraegungen" };
@@ -65,7 +65,7 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
      * @return  DOCUMENT ME!
      */
     @Override
-    public Long getId() {
+    public Integer getId() {
         return this.id;
     }
 
@@ -75,7 +75,7 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
      * @param  val  DOCUMENT ME!
      */
     @Override
-    public void setId(final Long val) {
+    public void setId(final Integer val) {
         this.id = val;
 
         this.propertyChangeSupport.firePropertyChange("id", null, this.id);
