@@ -575,7 +575,7 @@ public final class CidsBroker {
                                     + "WHERE "
                                     + "   " + metaclass.getTableName() + ".fk_gemarkung = gemarkung.id "
                                     + "   AND " + metaclass.getTableName() + ".flur = " + currentFlur.getFlurId() + " "
-                                    + "   AND " + metaclass.getTableName() + ".fk_flurstueck_art != 2 "
+                                    + "   AND " + metaclass.getTableName() + ".fk_flurstueck_art = 2 "
                                     + "   AND gemarkung.schluessel = " + currentFlur.getGemarkungsId();
                     } else if (currentFlur.isStaedtischFilterEnabled()) {
                         if (LOG.isDebugEnabled()) {
@@ -589,7 +589,7 @@ public final class CidsBroker {
                                     + "WHERE "
                                     + "   " + metaclass.getTableName() + ".fk_gemarkung = gemarkung.id "
                                     + "   AND " + metaclass.getTableName() + ".flur = " + currentFlur.getFlurId() + " "
-                                    + "   AND " + metaclass.getTableName() + ".fk_flurstueck_art != 1 "
+                                    + "   AND " + metaclass.getTableName() + ".fk_flurstueck_art = 1 "
                                     + "   AND gemarkung.schluessel = " + currentFlur.getGemarkungsId();
                     }
                     if (query != null) {
