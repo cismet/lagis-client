@@ -2455,14 +2455,20 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     bIn = new BufferedInputStream(fIn);
                     oIn = new ObjectInputStream(bIn);
 
-                    final Object obj = oIn.readObject();
-                    if (obj instanceof FlurstueckSchluesselCustomBean) {
-                        final FlurstueckSchluesselCustomBean fs = (FlurstueckSchluesselCustomBean)obj;
-                        this.pFlurstueckChooser.requestFlurstueck(fs);
+                    final String query = oIn.readUTF();
+
+                    final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+
+                    if ((mos != null) && (mos.length > 0)) {
+                        if (mos.length > 1) {
+                            throw new Exception("Multiple FlurstueckSchluessel -> should only be one but was "
+                                        + mos.length);
+                        } else {
+                            final FlurstueckSchluesselCustomBean fs = (FlurstueckSchluesselCustomBean)mos[0].getBean();
+                            this.pFlurstueckChooser.requestFlurstueck(fs);
+                        }
                     } else {
-                        this.showErrorMessage("Daten aus letzter Sitzung haben "
-                                    + "falschen Typ: "
-                                    + obj.getClass().getName());
+                        this.showErrorMessage("Ein Problem mit den Daten aus der letzten Sitzung ist aufgetreten");
                     }
                 } catch (final Exception e) {
                     LOG.error("An error occured while loading data file "
@@ -2662,7 +2668,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             bOut = new BufferedOutputStream(fOut);
             oOut = new ObjectOutputStream(bOut);
 
-            oOut.writeObject(fs);
+            final MetaClass metaClass = fs.getMetaObject().getMetaClass();
+            final String query = "SELECT " + metaClass.getID() + ", " + metaClass.getPrimaryKey()
+                        + " FROM " + metaClass.getTableName()
+                        + " WHERE id = " + fs.getId();
+
+            oOut.writeUTF(query);
         } catch (final Exception e) {
             LOG.error("An error occured while writing app data: " + e);
             this.showErrorMessage("Konnte Daten zu der letzten Sitzung nicht "

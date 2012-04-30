@@ -651,7 +651,6 @@ public final class CidsBroker {
                 return null;
             }
 
-
             final MetaObject[] mos = CidsBroker.getInstance()
                         .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                             + metaclass.getPrimaryKey() + " "
