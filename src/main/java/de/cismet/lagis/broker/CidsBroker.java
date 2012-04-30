@@ -650,11 +650,17 @@ public final class CidsBroker {
             if (metaclass == null) {
                 return null;
             }
+
+
             final MetaObject[] mos = CidsBroker.getInstance()
                         .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                             + metaclass.getPrimaryKey() + " "
-                            + "FROM " + metaclass.getTableName() + " "
-                            + "WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = " + key.getId());
+                            + " FROM " + metaclass.getTableName() + ", flurstueck_schluessel fk"
+                            + " WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = fk.id "
+                            + " AND fk.flur = " + key.getFlur()
+                            + " AND fk.fk_gemarkung = " + key.getGemarkung().getId()
+                            + " AND fk.flurstueck_zaehler = " + key.getFlurstueckZaehler()
+                            + " AND fk.flurstueck_nenner  = " + key.getFlurstueckNenner());
 
             if ((mos != null) && (mos.length > 0)) {
                 if (mos.length > 1) {

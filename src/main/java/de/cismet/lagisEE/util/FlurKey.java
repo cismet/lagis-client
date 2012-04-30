@@ -15,6 +15,8 @@
  */
 package de.cismet.lagisEE.util;
 
+import org.apache.log4j.Logger;
+
 import java.io.Serializable;
 
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
@@ -28,6 +30,10 @@ import de.cismet.lagisEE.interfaces.Key;
  * @version  $Revision$, $Date$
  */
 public class FlurKey implements Key, Serializable, Comparable {
+
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final Logger LOG = Logger.getLogger(FlurKey.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -161,18 +167,21 @@ public class FlurKey implements Key, Serializable, Comparable {
                 if (((gemarkungsId != null) && (other.getGemarkungsId() != null)
                                 && gemarkungsId.equals(other.getGemarkungsId()))
                             || ((gemarkungsId == null) && (other.getGemarkungsId() == null))) {
-                    System.out.println("Gemarkung stimmt überein");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Gemarkung stimmt überein");
+                    }
                     if (((flurId != null) && (other.getFlurId() != null) && flurId.equals(other.getFlurId()))
                                 || ((flurId == null) && (other.getFlurId() == null))) {
-                        System.out.println("Alle Felder stimmen überein --> equals");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Alle Felder stimmen überein --> equals");
+                        }
                         return true;
                     }
                 }
             }
             return false;
         } catch (Exception ex) {
-            System.out.println("Fehler in equals Flurkey");
-            ex.printStackTrace();
+            LOG.error("Fehler in equals Flurkey", ex);
         }
         return false;
     }
