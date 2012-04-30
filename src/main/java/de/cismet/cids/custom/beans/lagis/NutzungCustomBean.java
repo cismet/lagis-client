@@ -7,6 +7,8 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
+import org.openide.util.Exceptions;
+
 import java.util.*;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -186,7 +188,9 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     @Override
     public void addBuchung(final NutzungBuchungCustomBean val) throws AddingOfBuchungNotPossibleException,
         IllegalNutzungStateException {
-        System.out.println("addBuchung");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("addBuchung");
+        }
         if (val == null) {
             return;
         }
@@ -207,16 +211,22 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         final Date bookingDate = new Date();
         val.setGueltigvon(bookingDate);
         if (getBuchungsCount() == 0) {
-            System.out.println("Keine Nutzung vorhanden");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Keine Nutzung vorhanden");
+            }
             val.setIstBuchwert(true);
             val.setNutzung(this);
             getNutzungsBuchungen().add(val);
             return;
         } else {
-            System.out.println("Checke Buchwert");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Checke Buchwert");
+            }
             getBuchwert();
         }
-        System.out.println("Ende getBuchwert");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Ende getBuchwert");
+        }
         if (isTerminated()) {
             throw new AddingOfBuchungNotPossibleException(
                 "Die Nutzung ist Terminiert, hinzufügen neuer Nutzungen nicht möglich");
@@ -234,7 +244,9 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             return;
         }
         if (!isBuchungInNutzung(val)) {
-            System.out.println("Buchung gehört nicht zu dieser Nutzung");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Buchung gehört nicht zu dieser Nutzung");
+            }
             throw new BuchungNotInNutzungException();
         }
         if (getBuchungsCount() < 1) {
@@ -521,7 +533,9 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
     @Override
     public Collection<NUTZUNG_STATES> getNutzungsState() throws IllegalNutzungStateException {
-        System.out.println("Bestimme Status der Nutzungskette");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Bestimme Status der Nutzungskette");
+        }
         final Set<NUTZUNG_STATES> nutzungStates = new HashSet<NUTZUNG_STATES>();
         if (getId() == null) {
             nutzungStates.add(NUTZUNG_STATES.NUTZUNG_CREATED);

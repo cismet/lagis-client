@@ -12,6 +12,7 @@ import net.sf.jasperreports.engine.JRException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
@@ -24,7 +25,7 @@ import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
  * @author   bfriedrich
  * @version  $Revision$, $Date$
  */
-public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> implements JRDataSource {
+public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> implements JRDataSource {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -40,7 +41,9 @@ public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> i
 
     //~ Instance fields --------------------------------------------------------
 
-    private NutzungCustomBean currentNutzung;
+    private transient NutzungCustomBean currentNutzung;
+
+    private transient HashMap<NutzungBuchungCustomBean, NutzungCustomBean> buchungNutzungMapping;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -64,6 +67,8 @@ public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> i
 
     @Override
     protected List<NutzungBuchungCustomBean> retrieveData() {
+        this.buchungNutzungMapping = new HashMap<NutzungBuchungCustomBean, NutzungCustomBean>();
+
         final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
         final Collection<NutzungCustomBean> nutzungen = currentFlurstueck.getNutzungen();
 
@@ -73,6 +78,7 @@ public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> i
                 for (final NutzungBuchungCustomBean buchung : tmpNutzung.getNutzungsBuchungen()) {
                     if (buchung.getGueltigbis() == null) {
                         buchungen.add(buchung);
+                        this.buchungNutzungMapping.put(buchung, tmpNutzung);
                     }
                 }
             }
@@ -84,7 +90,12 @@ public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> i
     @Override
     public boolean next() throws JRException {
         if (super.next()) {
-            this.currentNutzung = this.currentItem.getNutzung();
+            this.currentNutzung = this.buchungNutzungMapping.get(this.currentItem);
+
+            if (this.currentNutzung == null) {
+                throw new JRException("There is no Nutzung associated to Buchung " + this.currentItem);
+            }
+
             return true;
         }
 
@@ -107,7 +118,7 @@ public class NutzungenDataSource extends ADataSource<NutzungBuchungCustomBean> i
         }
 
         try {
-            final NutzungCustomBean nutzung = buchung.getNutzung();
+            final NutzungCustomBean nutzung = this.buchungNutzungMapping.get(buchung);
             Double stilleReserve = nutzung.getStilleReserveForBuchung(buchung);
 
             if (stilleReserve == null) {
