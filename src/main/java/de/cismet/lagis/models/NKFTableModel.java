@@ -122,6 +122,10 @@ public class NKFTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
+            if (currentBuchungen.isEmpty()) {
+                return null;
+            }
+
             final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
 //            final NutzungBuchungCustomBean selectedBuchung = nutzung.getBuchungForExactDate(currentDate);
             final NutzungCustomBean nutzung = (selectedBuchung != null) ? selectedBuchung.getNutzung() : null;

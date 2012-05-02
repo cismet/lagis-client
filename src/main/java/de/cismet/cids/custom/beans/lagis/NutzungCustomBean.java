@@ -176,6 +176,12 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
         this.propertyChangeSupport.firePropertyChange("n_buchungen", null, this.n_buchungen);
 
+        for (final NutzungBuchungCustomBean buchung : val) {
+            // NOTE: this Nutzung is not persisted in NutzungBuchungCustomBean since this would cause
+            // infinite recursive persistence calls on server side (problem with 1-n relations)
+            buchung.setNutzung(this);
+        }
+
         sortedBuchungen.clear();
         sortedBuchungen.addAll(val);
     }
@@ -202,7 +208,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             throw new AddingOfBuchungNotPossibleException(
                 "Buchung kann nicht hinzugefügt werden, die Buchung gehört schon zu einer Nutzung.");
         }
-        if (val.getId() != null) {
+        if (val.getId() != -1) {
             throw new AddingOfBuchungNotPossibleException(
                 "Buchung kann nicht hinzugefügt werden, die Buchung wurde schon einmal gespeichert");
         }
@@ -216,7 +222,10 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             }
             val.setIstBuchwert(true);
             val.setNutzung(this);
+
+            this.n_buchungen.add(val);
             getNutzungsBuchungen().add(val);
+
             return;
         } else {
             if (LOG.isDebugEnabled()) {
@@ -234,6 +243,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         final NutzungBuchungCustomBean lastBuchung = getOpenBuchung();
         lastBuchung.setGueltigbis(bookingDate);
         val.setNutzung(this);
+        this.n_buchungen.add(val);
         getNutzungsBuchungen().add(val);
     }
 

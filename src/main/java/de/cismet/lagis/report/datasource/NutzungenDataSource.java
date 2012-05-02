@@ -43,8 +43,6 @@ public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomB
 
     private transient NutzungCustomBean currentNutzung;
 
-    private transient HashMap<NutzungBuchungCustomBean, NutzungCustomBean> buchungNutzungMapping;
-
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -67,8 +65,6 @@ public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomB
 
     @Override
     protected List<NutzungBuchungCustomBean> retrieveData() {
-        this.buchungNutzungMapping = new HashMap<NutzungBuchungCustomBean, NutzungCustomBean>();
-
         final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
         final Collection<NutzungCustomBean> nutzungen = currentFlurstueck.getNutzungen();
 
@@ -78,7 +74,6 @@ public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomB
                 for (final NutzungBuchungCustomBean buchung : tmpNutzung.getNutzungsBuchungen()) {
                     if (buchung.getGueltigbis() == null) {
                         buchungen.add(buchung);
-                        this.buchungNutzungMapping.put(buchung, tmpNutzung);
                     }
                 }
             }
@@ -90,7 +85,7 @@ public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomB
     @Override
     public boolean next() throws JRException {
         if (super.next()) {
-            this.currentNutzung = this.buchungNutzungMapping.get(this.currentItem);
+            this.currentNutzung = this.currentItem.getNutzung(); // this.buchungNutzungMapping.get(this.currentItem);
 
             if (this.currentNutzung == null) {
                 throw new JRException("There is no Nutzung associated to Buchung " + this.currentItem);
@@ -118,7 +113,7 @@ public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomB
         }
 
         try {
-            final NutzungCustomBean nutzung = this.buchungNutzungMapping.get(buchung);
+            final NutzungCustomBean nutzung = buchung.getNutzung(); // this.buchungNutzungMapping.get(buchung);
             Double stilleReserve = nutzung.getStilleReserveForBuchung(buchung);
 
             if (stilleReserve == null) {

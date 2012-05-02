@@ -68,6 +68,8 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
 
     private boolean sollGeloeschtWerden = false;
 
+    private NutzungCustomBean nutzung;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -492,7 +494,7 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
 
     @Override
     public NutzungBuchungCustomBean cloneBuchung() {
-        final NutzungBuchungCustomBean newBuchung = new NutzungBuchungCustomBean();
+        final NutzungBuchungCustomBean newBuchung = NutzungBuchungCustomBean.createNew();
         newBuchung.setAnlageklasse(getAnlageklasse());
         newBuchung.setNutzungsart(getNutzungsart());
         if (getFlaeche() != null) {
@@ -536,12 +538,16 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
 
     @Override
     public NutzungCustomBean getNutzung() {
-        return getFk_nutzung();
+        // NOTE: Nutzung is not intended to be persisted -> causes infinite recursive persistence calls on server side
+        // (problem with 1-n relations)
+        return this.nutzung;
     }
 
     @Override
     public void setNutzung(final NutzungCustomBean val) {
-        setFk_nutzung(val);
+        // NOTE: Nutzung is not intended to be persisted -> causes infinite recursive persistence calls on server side
+        // (problem with 1-n relations)
+        this.nutzung = val;
     }
 
     @Override

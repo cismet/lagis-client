@@ -10,11 +10,16 @@ package de.cismet.lagis.gui.panels;
 import Sirius.navigator.connection.Connection;
 import Sirius.navigator.connection.SessionManager;
 
+import Sirius.server.middleware.types.MetaClass;
+import Sirius.server.middleware.types.MetaObject;
+
 import com.vividsolutions.jts.geom.Geometry;
 
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+
+import org.jdom.Element;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -59,12 +64,17 @@ import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.lagisEE.util.FlurKey;
 
+import de.cismet.tools.configuration.Configurable;
+import de.cismet.tools.configuration.NoWriteError;
+
 /**
  * DOCUMENT ME!
  *
  * @version  $Revision$, $Date$
  */
-public class FlurstueckChooser extends AbstractWidget implements FlurstueckChangeListener, FlurstueckRequester {
+public class FlurstueckChooser extends AbstractWidget implements FlurstueckChangeListener,
+    FlurstueckRequester,
+    Configurable {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -89,6 +99,10 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     private static final String FILTER_STAEDTISCH = "nur städtische";
     // modes
     private static final Logger LOG = Logger.getLogger(FlurstueckChooser.class);
+
+    private static final String CONF_FS_CHOOSER = "flurstueckChooser";
+    private static final String CONF_RECENT_FS_KEY = "recentFlurstueckSchluessel";
+    private static final String CONF_ATTR_FS_KEY_ID = "fsKeyId";
 
     //~ Enums ------------------------------------------------------------------
 
@@ -228,6 +242,79 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public void configure(final Element parent) {
+        if (parent == null) {
+            LOG.warn("There is no local configuration for FlurstueckChooser.");
+            return;
+        }
+
+        final Element fsChooserCfgElement = parent.getChild(CONF_FS_CHOOSER);
+        if (fsChooserCfgElement == null) {
+            LOG.warn("There is no local configuration for FlurstueckChooser.");
+            return;
+        }
+
+        final Element fsKeyCfgElement = fsChooserCfgElement.getChild(CONF_RECENT_FS_KEY);
+        if (fsKeyCfgElement == null) {
+            LOG.warn("There is no local configuration for current FlurstueckKey.");
+            return;
+        }
+
+        final String fsKeyId = fsKeyCfgElement.getAttributeValue(CONF_ATTR_FS_KEY_ID);
+        if (fsKeyId == null) {
+            LOG.error("Config element '" + CONF_RECENT_FS_KEY + "' has no '" + CONF_ATTR_FS_KEY_ID + "' attribute");
+            return;
+        }
+
+        final FlurstueckSchluesselCustomBean info = FlurstueckSchluesselCustomBean.createNew();
+        final MetaClass metaClass = info.getMetaObject().getMetaClass();
+        final String query = "SELECT " + metaClass.getID() + ", " + metaClass.getPrimaryKey()
+                    + " FROM " + metaClass.getTableName()
+                    + " WHERE id = " + fsKeyId;
+
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+
+        if ((mos != null) && (mos.length > 0)) {
+            if (mos.length > 1) {
+                LOG.error("Multiple FlurstueckSchluessel -> should only be one but was " + mos.length);
+            } else {
+                final FlurstueckSchluesselCustomBean fs = (FlurstueckSchluesselCustomBean)mos[0].getBean();
+                this.requestFlurstueck(fs);
+            }
+        } else {
+            LOG.error("could not find FlurstueckSchluessel with id " + fsKeyId);
+        }
+    }
+
+    @Override
+    public void masterConfigure(final Element parent) {
+    }
+
+    @Override
+    public Element getConfiguration() throws NoWriteError {
+        final Element root = new Element(CONF_FS_CHOOSER);
+
+        if (this.currentFlurstueckBean == null) {
+            LOG.warn("Current Flurstueck is null -> can not create configuration entry for element"
+                        + CONF_RECENT_FS_KEY);
+        } else {
+            final FlurstueckSchluesselCustomBean currentFKey = this.currentFlurstueckBean.getFlurstueckSchluessel();
+            if (currentFKey == null) {
+                LOG.warn("Current FlurstueckSchluessel is null -> can not create configuration entry for element"
+                            + CONF_RECENT_FS_KEY);
+            } else {
+                final Element fsKeyElement = new Element(CONF_RECENT_FS_KEY);
+                fsKeyElement.setAttribute(
+                    CONF_ATTR_FS_KEY_ID,
+                    String.valueOf(currentFKey.getId()));
+                root.addContent(fsKeyElement);
+            }
+        }
+
+        return root;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The

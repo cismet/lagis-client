@@ -298,11 +298,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 @Override
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     try {
-                        final int displayedIndex = componentAdapter.row;
-                        final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
-                        final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
-                        // NO Geometry & more than one Verwaltungsbereich
-                        return (n != null) && !n.getIstBuchwert();
+                        if (componentAdapter.getRowCount() > 0) {
+                            final int displayedIndex = componentAdapter.row;
+                            final int modelIndex = ((JXTable)tNutzung).getFilters()
+                                        .convertRowIndexToModel(displayedIndex);
+                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                            // NO Geometry & more than one Verwaltungsbereich
+                            return (n != null) && !n.getIstBuchwert();
+                        } else {
+                            return false;
+                        }
                     } catch (Exception ex) {
                         log.error("Fehler beim Highlighting des Buchwerts vorhanden", ex);
                         return false;
@@ -320,11 +325,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 @Override
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     try {
-                        final int displayedIndex = componentAdapter.row;
-                        final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
-                        final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
-                        // NO Geometry & more than one Verwaltungsbereich
-                        return ((n != null) && n.getSollGeloeschtWerden());
+                        if (componentAdapter.getRowCount() > 0) {
+                            final int displayedIndex = componentAdapter.row;
+                            final int modelIndex = ((JXTable)tNutzung).getFilters()
+                                        .convertRowIndexToModel(displayedIndex);
+                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                            // NO Geometry & more than one Verwaltungsbereich
+                            return ((n != null) && n.getSollGeloeschtWerden());
+                        } else {
+                            return false;
+                        }
                     } catch (Exception ex) {
                         log.error("Fehler beim Highlighting test wurde gelöscht vorhanden", ex);
                         return false;

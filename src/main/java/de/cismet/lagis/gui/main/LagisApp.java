@@ -711,6 +711,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             configManager.addConfigurable(pKarte);
             configManager.configure(pKarte);
 
+            configManager.addConfigurable(this.pFlurstueckChooser);
+            configManager.configure(this.pFlurstueckChooser);
+
             LOG.info("Konstruktion des LaGIS Objektes erfolgreich");
             Runtime.getRuntime().addShutdownHook(new Thread() {
 
@@ -903,8 +906,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         } catch (Exception ex) {
             LOG.fatal("Fehler beim konstruieren des LaGIS Objektes", ex);
         }
-
-        this.loadAppData(FILEPATH_DEFAULT_APP_DATA);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -2426,74 +2427,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             HEADER_ERR_MSG,
             JOptionPane.INFORMATION_MESSAGE);
     }
-    /**
-     * DEFAULT_APP_DATA_PATH.
-     *
-     * @param   fileName  DOCUMENT ME!
-     *
-     * @throws  NullPointerException      DOCUMENT ME!
-     * @throws  IllegalArgumentException  DOCUMENT ME!
-     */
-    public void loadAppData(final String fileName) {
-        if (fileName == null) {
-            throw new NullPointerException("File name must not be NULL");
-        }
-
-        if (fileName.trim().isEmpty()) {
-            throw new IllegalArgumentException("File name must not be empty");
-        }
-
-        final File file = new File(fileName);
-        if (file.exists()) {
-            if (file.canRead()) {
-                FileInputStream fIn = null;
-                BufferedInputStream bIn = null;
-                ObjectInputStream oIn = null;
-
-                try {
-                    fIn = new FileInputStream(file);
-                    bIn = new BufferedInputStream(fIn);
-                    oIn = new ObjectInputStream(bIn);
-
-                    final String query = oIn.readUTF();
-
-                    final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
-
-                    if ((mos != null) && (mos.length > 0)) {
-                        if (mos.length > 1) {
-                            throw new Exception("Multiple FlurstueckSchluessel -> should only be one but was "
-                                        + mos.length);
-                        } else {
-                            final FlurstueckSchluesselCustomBean fs = (FlurstueckSchluesselCustomBean)mos[0].getBean();
-                            this.pFlurstueckChooser.requestFlurstueck(fs);
-                        }
-                    } else {
-                        this.showErrorMessage("Ein Problem mit den Daten aus der letzten Sitzung ist aufgetreten");
-                    }
-                } catch (final Exception e) {
-                    LOG.error("An error occured while loading data file "
-                                + fileName
-                                + ": " + e);
-
-                    this.showErrorMessage("1 Ein interner Fehler ist aufgetreten. " + e);
-                } finally {
-                    try {
-                        if (oIn != null) {
-                            oIn.close();
-                        }
-                    } catch (final Exception e2) {
-                        LOG.error("An error occured while closing input stream: "
-                                    + e2);
-
-                        this.showErrorMessage("2 Ein interner Fehler ist aufgetreten." + e2);
-                    }
-                }
-            } else {
-                this.showErrorMessage("Die Daten aus der letzten Sitzung konnten"
-                            + " nicht gelesen werden.");
-            }
-        }
-    }
 
     /**
      * DOCUMENT ME!
@@ -2622,79 +2555,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     /**
      * DOCUMENT ME!
      *
-     * @param   fileName  DOCUMENT ME!
-     *
-     * @throws  NullPointerException      DOCUMENT ME!
-     * @throws  IllegalArgumentException  DOCUMENT ME!
-     */
-    public void saveAppData(final String fileName) {
-        final LagisBroker lb = LagisBroker.getInstance();
-        final FlurstueckSchluesselCustomBean fs = lb.getCurrentFlurstueckSchluessel();
-
-        if (fs == null) {
-            // nothing to do
-            LOG.warn("Current FlurstueckSchluessel is null");
-            return;
-        }
-
-        if (fileName == null) {
-            throw new NullPointerException("File name must not be NULL");
-        }
-
-        if (fileName.trim().isEmpty()) {
-            throw new IllegalArgumentException("File name must not be empty");
-        }
-
-        final File file = new File(fileName);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (final Exception e) {
-                LOG.error("An error occured while creating a new app data file: "
-                            + e);
-
-                this.showErrorMessage("Es konnte keine Datei erstellt werden um "
-                            + "die Daten aus der letzten Sitzung zu "
-                            + "speichern");
-            }
-        }
-
-        FileOutputStream fOut = null;
-        BufferedOutputStream bOut = null;
-        ObjectOutputStream oOut = null;
-
-        try {
-            fOut = new FileOutputStream(file);
-            bOut = new BufferedOutputStream(fOut);
-            oOut = new ObjectOutputStream(bOut);
-
-            final MetaClass metaClass = fs.getMetaObject().getMetaClass();
-            final String query = "SELECT " + metaClass.getID() + ", " + metaClass.getPrimaryKey()
-                        + " FROM " + metaClass.getTableName()
-                        + " WHERE id = " + fs.getId();
-
-            oOut.writeUTF(query);
-        } catch (final Exception e) {
-            LOG.error("An error occured while writing app data: " + e);
-            this.showErrorMessage("Konnte Daten zu der letzten Sitzung nicht "
-                        + "schreiben.");
-        } finally {
-            try {
-                if (oOut != null) {
-                    oOut.close();
-                }
-            } catch (final Exception e2) {
-                LOG.error("An error occured while closing output stream: " + e2);
-                this.showErrorMessage("Ein interner Fehler ist aufgetreten.");
-            }
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
      * @param  file  DOCUMENT ME!
      */
+    // TODO add to configure method
     public void saveLayout(final String file) {
         LagisBroker.getInstance().setTitleBarComponentpainter(LagisBroker.DEFAULT_MODE_COLOR);
         if (LOG.isDebugEnabled()) {
@@ -2704,12 +2567,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         try {
             if (!layoutFile.exists()) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Saving Layout.. File does not exit");
+                    LOG.debug("Saving Layout.. File '" + file + "' does not exit");
                 }
                 layoutFile.createNewFile();
             } else {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Saving Layout.. File does exit");
+                    LOG.debug("Saving Layout.. File '" + file + "' does exit");
                 }
             }
             final FileOutputStream layoutOutput = new FileOutputStream(layoutFile);
@@ -2726,7 +2589,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 "W\u00E4hrend dem Speichern des Layouts ist ein Fehler aufgetreten.",
                 "Fehler",
                 JOptionPane.INFORMATION_MESSAGE);
-            LOG.error("A failure occured during writing the layout file", ex);
+            LOG.error("A failure occured during writing the layout file " + file, ex);
         }
     }
 
@@ -3256,33 +3119,41 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     @Override
     public void configure(final Element parent) {
         final Element prefs = parent.getChild("cismapPluginUIPreferences");
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("setting windowsize of application");
+        if (prefs == null) {
+            LOG.warn("there is no local configuration 'cismapPluginUIPreferences'");
+        } else {
+            try {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("setting windowsize of application");
+                }
+                final Element window = prefs.getChild("window");
+                if (window == null) {
+                    LOG.warn("there is no 'window' configuration in 'cismapPluginUIPreferences'");
+                } else {
+                    final int windowHeight = window.getAttribute("height").getIntValue();
+                    final int windowWidth = window.getAttribute("width").getIntValue();
+                    final int windowX = window.getAttribute("x").getIntValue();
+                    final int windowY = window.getAttribute("y").getIntValue();
+                    final boolean windowMaximised = window.getAttribute("max").getBooleanValue();
+                    windowSize = new Dimension(windowWidth, windowHeight);
+                    windowLocation = new Point(windowX, windowY);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("windowSize: width " + windowWidth + " heigth " + windowHeight);
+                    }
+                    // TODO why is this not working
+                    // mapComponent.formComponentResized(null);
+                    if (windowMaximised) {
+                        this.setExtendedState(MAXIMIZED_BOTH);
+                    } else {
+                    }
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("setting of window successful");
+                    }
+                }
+            } catch (Exception t) {
+                // TODO defaults
+                LOG.error("Error while setting windowsize", t);
             }
-            final Element window = prefs.getChild("window");
-            final int windowHeight = window.getAttribute("height").getIntValue();
-            final int windowWidth = window.getAttribute("width").getIntValue();
-            final int windowX = window.getAttribute("x").getIntValue();
-            final int windowY = window.getAttribute("y").getIntValue();
-            final boolean windowMaximised = window.getAttribute("max").getBooleanValue();
-            windowSize = new Dimension(windowWidth, windowHeight);
-            windowLocation = new Point(windowX, windowY);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("windowSize: width " + windowWidth + " heigth " + windowHeight);
-            }
-            // TODO why is this not working
-            // mapComponent.formComponentResized(null);
-            if (windowMaximised) {
-                this.setExtendedState(MAXIMIZED_BOTH);
-            } else {
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("setting of window successful");
-            }
-        } catch (Throwable t) {
-            // TODO defaults
-            LOG.error("Error while setting windowsize", t);
         }
     }
     // TODO optimize
@@ -3401,9 +3272,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
         setVisible(false);
         LOG.info("Dispose(): Lagis wird heruntergefahren");
+
+//        this.saveAppData(FILEPATH_DEFAULT_APP_DATA);
+
+        configManager.writeConfiguration();
         saveLayout(FILEPATH_DEFAULT_LAYOUT);
 
-        this.saveAppData(FILEPATH_DEFAULT_APP_DATA);
         super.dispose();
         System.exit(0);
     }
@@ -3644,7 +3518,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 }
             }
         }
-        configManager.writeConfiguration();
+//        configManager.writeConfiguration();
     }
 
     @Override
