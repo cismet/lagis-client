@@ -2046,7 +2046,14 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 }
 
                 final Geometry result = worker.get();
+                if (result == null) {
+                    LOG.warn("could not retrieve WFS geometry");
+                    LagisBroker.getInstance().flurstueckChangeFinished(FlurstueckChooser.this);
+                    return;
+                }
+
                 result.setSRID(25832);
+
                 LagisBroker.getInstance().setCurrentWFSGeometry(result);
                 LOG.info("CurrentWFSGeometry SRS=" + ((result != null) ? result.getSRID() : "?") + " " + result);
                 if (worker.hadErrors()) {

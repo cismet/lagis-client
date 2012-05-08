@@ -2836,7 +2836,7 @@ public final class CidsBroker {
                     + "   " + metaclass.getTableName() + ", "
                     + "   flurstueck "
                     + "WHERE "
-                    + "   " + metaclass.getTableName() + ".fk_nachfolger = flurstueck.id "
+                    + "   " + metaclass.getTableName() + ".fk_vorgaenger = flurstueck.id "
                     + "   AND flurstueck.fk_flurstueck_schluessel = " + flurstueckSchluessel.getId();
 
         final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);

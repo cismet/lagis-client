@@ -1568,7 +1568,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
                 featureWrapper.setEditable(true);
                 mappingComponent.getFeatureCollection().addFeature(featureWrapper);
-
                 if (log.isDebugEnabled()) {
                     log.debug("Geometrie wurde an element: " + slotInfo.getSlotIdentifier() + " attached");
                 }
@@ -1577,7 +1576,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                     log.debug("Geometrie wurde nicht attached");
                 }
             }
-        } else if (pf.getFeature() instanceof GeomCustomBean) {
         }
     }
 
