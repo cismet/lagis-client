@@ -451,6 +451,7 @@ public class BaumCustomBean extends BasicEntity implements Baum {
     @Override
     public void setEditable(final boolean editable) {
         isEditable = editable;
+        this.setModifiable(editable);
     }
 
     @Override

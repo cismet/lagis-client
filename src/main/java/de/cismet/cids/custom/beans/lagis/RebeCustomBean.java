@@ -436,6 +436,7 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     @Override
     public void setEditable(final boolean editable) {
         isEditable = editable;
+        this.setModifiable(editable);
     }
 
     @Override

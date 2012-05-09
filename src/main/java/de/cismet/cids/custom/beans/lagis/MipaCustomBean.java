@@ -469,6 +469,7 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
     @Override
     public void setEditable(final boolean editable) {
         isEditable = editable;
+        this.setModifiable(editable);
     }
 
     @Override

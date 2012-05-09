@@ -287,6 +287,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     @Override
     public void setEditable(final boolean val) {
         isEditable = val;
+        this.setModifiable(val);
     }
 
     @Override
