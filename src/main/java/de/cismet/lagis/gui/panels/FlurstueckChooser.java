@@ -268,23 +268,13 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             return;
         }
 
-        final FlurstueckSchluesselCustomBean info = FlurstueckSchluesselCustomBean.createNew();
-        final MetaClass metaClass = info.getMetaObject().getMetaClass();
-        final String query = "SELECT " + metaClass.getID() + ", " + metaClass.getPrimaryKey()
-                    + " FROM " + metaClass.getTableName()
-                    + " WHERE id = " + fsKeyId;
+        final FlurstueckSchluesselCustomBean fsKey = FlurstueckSchluesselCustomBean.createNewById(Integer.valueOf(
+                    fsKeyId));
 
-        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
-
-        if ((mos != null) && (mos.length > 0)) {
-            if (mos.length > 1) {
-                LOG.error("Multiple FlurstueckSchluessel -> should only be one but was " + mos.length);
-            } else {
-                final FlurstueckSchluesselCustomBean fs = (FlurstueckSchluesselCustomBean)mos[0].getBean();
-                this.requestFlurstueck(fs);
-            }
-        } else {
+        if (fsKey == null) {
             LOG.error("could not find FlurstueckSchluessel with id " + fsKeyId);
+        } else {
+            this.requestFlurstueck(fsKey);
         }
     }
 
@@ -1317,7 +1307,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                     selectedGemarkung = CidsBroker.getInstance().completeGemarkung(selectedGemarkung);
                                 }
                             }
-                            if ((selectedGemarkung != null) && (selectedGemarkung.getId() != null)) {
+                            if ((selectedGemarkung != null)
+                                        && (selectedGemarkung.getId() != null)
+                                        && (selectedGemarkung.getId() != -1)) {
                                 wasResolved = true;
                                 return null;
                             } else {
@@ -1789,7 +1781,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         selectedFlurstueck = tmpKey;
                     }
 
-                    if (selectedFlurstueck.getId() != null) {
+                    if ((selectedFlurstueck.getId() != null) && (selectedFlurstueck.getId() != -1)) {
                         if (currentMode == Mode.SEARCH) {
                             EventQueue.invokeLater(new Runnable() {
 
@@ -2072,7 +2064,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                         worker.getKeyObject();
                     if (result != null) {
                         // TODO GUESSING ACHTUNG FALLS FEHLER
-                        if (flurstueckKey.getId() == null) {
+                        if ((flurstueckKey.getId() == null) || (flurstueckKey.getId() == -1)) {
                             LagisBroker.getInstance().setCurrentFlurstueckSchluessel(flurstueckKey, true);
                         }
                         Feature tmpFeature = null;

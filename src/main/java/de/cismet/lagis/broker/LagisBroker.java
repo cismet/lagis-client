@@ -906,7 +906,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         final Vector<VerwaltungsbereichCustomBean> newBereicheVector = new Vector(newBereiche);
                         for (final VerwaltungsbereichCustomBean currentBereich : newBereiche) {
                             try {
-                                if ((currentBereich.getId() == null) && !oldBereiche.contains(currentBereich)) {
+                                if (((currentBereich.getId() == null)
+                                                || (currentBereich.getId() == -1))
+                                            && !oldBereiche.contains(currentBereich)) {
                                     log.info("Es wurden ein neuer Verwaltungsbereich angelegt: " + currentBereich);
                                     // TODO duplicated code see checkofdifferences
                                     final VerwaltendeDienststelleCustomBean currentDienstelle =

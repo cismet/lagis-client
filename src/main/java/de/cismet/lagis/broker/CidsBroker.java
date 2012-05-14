@@ -1167,17 +1167,7 @@ public final class CidsBroker {
      */
     public FlurstueckSchluesselCustomBean completeFlurstueckSchluessel(
             final FlurstueckSchluesselCustomBean flurstueckSchluessel) {
-//        try {
-//            FlurstueckSchluesselCustomBean schluessel = (FlurstueckSchluesselCustomBean) em.createNamedQuery(
-//                    "findOneFlurstueckSchluessel").setParameter("gId", fs.getGemarkung().getSchluessel()).setParameter("fId", fs.getFlur()).setParameter("fZaehler", fs.getFlurstueckZaehler()).setParameter("fNenner", fs.getFlurstueckNenner()).getSingleResult();
-//            return schluessel;
-//        } catch (Exception ex) {
-//            //System.out.println("GemarkungCustomBean: "+fs.getGemarkung().getId()+" Schluessel: "+fs.getGemarkung().getSchluessel());
-//            System.out.println("Fehler beim Kompletieren eines Flurstückschluessels: " + fs.getKeyString());
-//            ex.printStackTrace();
-//        }
-
-        return null;
+        return FlurstueckSchluesselCustomBean.createNewByFsKey(flurstueckSchluessel);
     }
 
     /**

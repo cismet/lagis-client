@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
+import Sirius.server.middleware.types.MetaClass;
+import Sirius.server.middleware.types.MetaObject;
+
 import java.sql.Timestamp;
 
 import java.util.Date;
@@ -31,6 +34,12 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             FlurstueckSchluesselCustomBean.class);
     public static final String TABLE = "flurstueck_schluessel";
+
+    private static final String META_CLASS_PK = "ID";
+    private static final int META_CLASS_ID = 28;
+
+    private static final String BASE_QUERY = " SELECT " + META_CLASS_ID + ',' + META_CLASS_PK
+                + " FROM " + TABLE;
 
     //~ Instance fields --------------------------------------------------------
 
@@ -89,6 +98,75 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   query  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private static FlurstueckSchluesselCustomBean retrieve(final String query) {
+        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+
+        if ((mos != null) && (mos.length > 0)) {
+            if (mos.length > 1) {
+                LOG.error("Multiple FlurstueckSchluessel -> should only be one but was " + mos.length);
+                return null;
+            } else {
+                return (FlurstueckSchluesselCustomBean)mos[0].getBean();
+            }
+        } else {
+            LOG.error("could not find FlurstueckSchluessel with query: " + query);
+            return null;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   id  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  NullPointerException      DOCUMENT ME!
+     * @throws  IllegalArgumentException  DOCUMENT ME!
+     */
+    public static FlurstueckSchluesselCustomBean createNewById(final Integer id) {
+        if (id == null) {
+            throw new NullPointerException("Given id must not be null");
+        }
+
+        if (id == -1) {
+            throw new IllegalArgumentException("ID -1 is not valid");
+        }
+
+        final String query = BASE_QUERY + " WHERE id = " + id;
+        return retrieve(query);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   other  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  NullPointerException  DOCUMENT ME!
+     */
+    public static FlurstueckSchluesselCustomBean createNewByFsKey(final FlurstueckSchluessel other) {
+        if (other == null) {
+            throw new NullPointerException("Given FlurstueckSchluessel must not be null");
+        }
+
+        final String query = BASE_QUERY
+                    + " WHERE flur = " + other.getFlur()
+                    + " and   flurstueck_zaehler = " + other.getFlurstueckZaehler()
+                    + " AND   flurstueck_nenner = " + other.getFlurstueckNenner()
+                    + " AND   fk_gemarkung = " + other.getGemarkung().getId();
+
+        return retrieve(query);
     }
 
     /**
