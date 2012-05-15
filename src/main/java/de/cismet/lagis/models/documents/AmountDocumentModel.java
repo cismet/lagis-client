@@ -93,21 +93,21 @@ public class AmountDocumentModel extends SimpleDocumentModel {
                 assignValue(betrag.doubleValue());
                 return VALID;
             } catch (Exception ex1) {
-                log.error("Fehler Betrag parsen: Betrag hat nicht die Form ##0,00 € ", ex1);
+                log.warn("Fehler Betrag parsen: Betrag hat nicht die Form ##0,00 € ", ex1);
                 try {
                     final Number betrag = nf.parse(valueToCheck.trim() + " " + EURO);
                     statusDescription = "";
                     assignValue(betrag.doubleValue());
                     return VALID;
                 } catch (Exception ex2) {
-                    log.error("Fehler Betrag parsen: Betrag hat nicht die Form ##0,00", ex2);
+                    log.warn("Fehler Betrag parsen: Betrag hat nicht die Form ##0,00", ex2);
                 }
 //
                 if (valueToCheck.length() == 0) {
                     statusDescription = "";
                     final Double nullDouble = null;
                     assignValue(nullDouble);
-                    log.error("Betrag ist null");
+                    log.warn("Betrag ist null");
                     return VALID;
                 }
                 // TODO GOOD Sentence

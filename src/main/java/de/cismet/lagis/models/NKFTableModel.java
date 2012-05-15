@@ -312,7 +312,7 @@ public class NKFTableModel extends AbstractTableModel {
             NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
             NutzungBuchungCustomBean oldBuchung = null;
             if ((selectedBuchung.getGueltigbis() == null) && !LagisBroker.getInstance().isNkfAdminPermission()) {
-                if (selectedBuchung.getId() != null) {
+                if ((selectedBuchung.getId() != null) && (selectedBuchung.getId() != -1)) {
                     if (log.isDebugEnabled()) {
                         log.debug("neue Buchung wird angelegt");
                     }
@@ -411,7 +411,9 @@ public class NKFTableModel extends AbstractTableModel {
                     return;
                 }
             }
-            if ((selectedBuchung != null) && (oldBuchung != null) && (selectedBuchung.getId() == null)) {
+            if ((selectedBuchung != null)
+                        && (oldBuchung != null)
+                        && ((selectedBuchung.getId() == null) || (selectedBuchung.getId() == -1))) {
                 if (log.isDebugEnabled()) {
                     log.debug("Prüfe ob die Nutzung sich wirklich verändert hat");
                 }
@@ -474,7 +476,7 @@ public class NKFTableModel extends AbstractTableModel {
             if (log.isDebugEnabled()) {
                 log.debug("Nutzung die entfernt werden soll ist in Modell vorhanden.");
             }
-            if (nutzungToRemove.getId() == null) {
+            if ((nutzungToRemove.getId() == null) || (nutzungToRemove.getId() == -1)) {
                 if (log.isDebugEnabled()) {
                     log.debug("Nutzung die Entfernt wurde war noch nicht in Datenbank");
                 }
@@ -483,7 +485,8 @@ public class NKFTableModel extends AbstractTableModel {
                 if (log.isDebugEnabled()) {
                     log.debug("Nutzung ist in Datenbank vorhanden");
                 }
-                if ((selectedBuchung != null) && (selectedBuchung.getId() == null)) {
+                if ((selectedBuchung != null)
+                            && ((selectedBuchung.getId() == null) || (selectedBuchung.getId() == -1))) {
                     if (log.isDebugEnabled()) {
                         log.debug("Die Betroffene Buchung ist neu und kann gelöscht werden");
                     }

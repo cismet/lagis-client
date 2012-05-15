@@ -391,7 +391,7 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public String getLaufendeNummer() {
-        if (getId() != null) {
+        if ((getId() != null) && (getId() != -1)) {
             return "VV-" + getId();
         } else {
             return "";

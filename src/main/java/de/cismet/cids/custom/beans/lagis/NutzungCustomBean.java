@@ -547,7 +547,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             LOG.debug("Bestimme Status der Nutzungskette");
         }
         final Set<NUTZUNG_STATES> nutzungStates = new HashSet<NUTZUNG_STATES>();
-        if (getId() == null) {
+        if ((getId() == null) || (getId() == -1)) {
             nutzungStates.add(NUTZUNG_STATES.NUTZUNG_CREATED);
         }
         if (getBuchungsCount() > 0) {
@@ -564,7 +564,9 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Es ist genau eine Buchung vorhanden");
                 }
-                if (getNutzungsBuchungen().get(0).getId() == null) {
+
+                final Integer id = getNutzungsBuchungen().get(0).getId();
+                if ((id == null) || (id == -1)) {
                     nutzungStates.add(NUTZUNG_STATES.BUCHUNG_CREATED);
                 }
             } else {
@@ -774,7 +776,8 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     @Override
     public boolean hasNewBuchung() {
         if (getBuchungsCount() > 0) {
-            return getNutzungsBuchungen().get(getNutzungsBuchungen().size() - 1).getId() == null;
+            final Integer id = getNutzungsBuchungen().get(getNutzungsBuchungen().size() - 1).getId();
+            return (id == null) || (id == -1);
         }
         return false;
     }

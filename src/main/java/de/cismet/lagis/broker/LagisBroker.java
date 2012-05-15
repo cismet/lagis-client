@@ -923,7 +923,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                             log.debug("neuer Verwaltungsbereich angelegt ohne Dienstellenzuordnung");
                                         }
                                     }
-                                } else if ((currentBereich.getId() != null) && oldBereiche.contains(currentBereich)) {
+                                } else if ((currentBereich.getId() != null)
+                                            && (currentBereich.getId() != -1)
+                                            && oldBereiche.contains(currentBereich)) {
                                     final int index = oldBereicheVector.indexOf(currentBereich);
                                     log.info("Verwaltungsbereich war schon in Datenbank: " + currentBereich
                                                 + " index in altem Datenbestand=" + index);
@@ -970,7 +972,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                                 oldDienststelle));
                                     }
                                     oldBereicheVector.remove(currentBereich);
-                                } else if (currentBereich.getId() != null) {
+                                } else if ((currentBereich.getId() != null) && (currentBereich.getId() != -1)) {
                                     log.error(
                                         "Verwaltungsbereich hat eine ID, existiert aber nicht in altem Datenbestand --> equals funktioniert nicht");
                                     messages.add(Message.createNewMessage(
