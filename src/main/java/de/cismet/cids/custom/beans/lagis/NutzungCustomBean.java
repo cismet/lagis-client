@@ -74,11 +74,23 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     /**
      * DOCUMENT ME!
      *
+     * @param   addDummyBuchung  DOCUMENT ME!
+     *
      * @return  DOCUMENT ME!
      */
-    public static NutzungCustomBean createNew() {
+    public static NutzungCustomBean createNew(final boolean addDummyBuchung) {
         try {
-            return (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            final NutzungCustomBean nutzung = (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    CidsBroker.LAGIS_DOMAIN,
+                    TABLE);
+
+            if (addDummyBuchung) {
+                final NutzungBuchungCustomBean buchung = NutzungBuchungCustomBean.createNew();
+                buchung.setIstBuchwert(true);
+                nutzung.addBuchung(buchung);
+            }
+
+            return nutzung;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;
@@ -86,9 +98,24 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     }
 
     /**
-     * TODO kann der constructor so übernommen werden ?!
+     * This Constructor creates Nutzung with an inital Buchung which is a Buchwert. This should be no Problem for
+     * Hibernate because it will simply overwrite the settings done by setting the available Nutzungsbuchungen. A
+     * important constraint of the class is that it is not possible to have nutzungs object either with a null
+     * nutzungsset nor without a inital buchung.
      *
-     * @param   initialBuchwert  DOCUMENT ME!
+     * @return  DOCUMENT ME!
+     */
+    public static NutzungCustomBean createNew() {
+        return NutzungCustomBean.createNew(true);
+    }
+
+    /**
+     * This Constructor creates a Nutzung with a given inital buchwert. If the argument is null a empty default buchwert
+     * is created like in the default constructor. All metainformation fields of the NutzungsBuchung are overwritten, in
+     * order to guarantee this object has a valid Nutzungsbuchung list. If the Buchung is already contained in another
+     * Nutzung a clone of the Buchung will be created.
+     *
+     * @param   initialBuchwert  the inital buchwert of the nutzung (first buchung)
      *
      * @return  DOCUMENT ME!
      *
@@ -97,7 +124,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
      */
     public static NutzungCustomBean createNew(NutzungBuchungCustomBean initialBuchwert)
             throws AddingOfBuchungNotPossibleException, IllegalNutzungStateException {
-        final NutzungCustomBean bean = createNew();
+        final NutzungCustomBean bean = createNew(false);
         if (initialBuchwert == null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Initial Buchwert is null... creating buchung.");

@@ -498,7 +498,7 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
         newBuchung.setAnlageklasse(getAnlageklasse());
         newBuchung.setNutzungsart(getNutzungsart());
         if (getFlaeche() != null) {
-            newBuchung.setFlaeche(new Integer(getFlaeche()));
+            newBuchung.setFlaeche(Integer.valueOf(getFlaeche()));
         }
         if (getBebauung() != null) {
             newBuchung.setBebauung(new HashSet<BebauungCustomBean>(getBebauung()));

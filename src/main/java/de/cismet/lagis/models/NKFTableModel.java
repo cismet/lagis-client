@@ -133,7 +133,7 @@ public class NKFTableModel extends AbstractTableModel {
             switch (columnIndex) {
                 case 0: {
                     if (nutzung != null) {
-                        return nutzung.getId();
+                        return (nutzung.getId() == -1) ? null : nutzung.getId();
                     } else {
                         return null;
                     }
