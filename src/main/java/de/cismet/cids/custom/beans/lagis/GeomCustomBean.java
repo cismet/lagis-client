@@ -113,8 +113,9 @@ public class GeomCustomBean extends BasicEntity implements Geom {
 
     @Override
     public void setGeomField(final Geometry val) {
-        val.setSRID(25832);
-//        val.setSRID(31466);
+        if (val != null) {
+            val.setSRID(25832);
+        }
 
         setGeo_field(val);
     }
