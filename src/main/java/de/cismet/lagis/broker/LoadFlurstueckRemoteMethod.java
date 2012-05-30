@@ -11,10 +11,20 @@
  */
 package de.cismet.lagis.broker;
 
+import org.openide.util.lookup.ServiceProvider;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
+
+import de.cismet.remote.AbstractRESTRemoteControlMethod;
+import de.cismet.remote.RESTRemoteControlMethod;
 
 /**
  * DOCUMENT ME!
@@ -22,14 +32,18 @@ import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
  * @author   spuhl
  * @version  $Revision$, $Date$
  */
-public class LagisCrossover {
+@Path("/loadFlurstueck")
+@ServiceProvider(service = RESTRemoteControlMethod.class)
+public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LagisCrossover.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
+            LoadFlurstueckRemoteMethod.class);
 
     //~ Instance fields --------------------------------------------------------
 
+    @Context
     private UriInfo context;
 
     //~ Constructors -----------------------------------------------------------
@@ -37,7 +51,8 @@ public class LagisCrossover {
     /**
      * Creates a new LagisCrossover object.
      */
-    public LagisCrossover() {
+    public LoadFlurstueckRemoteMethod() {
+        super(-1, "/loadFlurstueck");
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -52,7 +67,12 @@ public class LagisCrossover {
      *
      * @return  DOCUMENT ME!
      */
-    public String loadFlurstueck(final String gemarkung, final int flur, final int zaehler, final int nenner) {
+    @GET
+    @Produces("text/html")
+    public String loadFlurstueck(@QueryParam("gemarkung") final String gemarkung,
+            @QueryParam("flur") final int flur,
+            @QueryParam("zaehler") final int zaehler,
+            @QueryParam("nenner") final int nenner) {
         try {
             final String host = context.getBaseUri().getHost();
             if (!host.equals("localhost") && !host.equals("127.0.0.1")) {

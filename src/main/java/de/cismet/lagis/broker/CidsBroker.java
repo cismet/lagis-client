@@ -36,7 +36,8 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
 
-import de.cismet.lagisEE.crossover.entity.WfsFlurstuecke;
+
+//import de.cismet.lagisEE.crossover.entity.WfsFlurstuecke;
 
 import de.cismet.lagisEE.interfaces.Key;
 
@@ -2587,84 +2588,80 @@ public final class CidsBroker {
     /**
      * DOCUMENT ME!
      *
-     * @param   wfsFlurstuecke  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
+     * @param  flurstueckHistorie  DOCUMENT ME!
+     * @param  allEdges            DOCUMENT ME!
+     * @param  direction           DOCUMENT ME!
      */
-    public Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselForWFSFlurstueck(
-            final Collection<WfsFlurstuecke> wfsFlurstuecke) throws ActionNotSuccessfulException {
-        final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<FlurstueckSchluesselCustomBean>();
-        try {
-            if ((wfsFlurstuecke != null) && (wfsFlurstuecke.size() > 0)) {
-                for (final WfsFlurstuecke curWfsFlurstueck : wfsFlurstuecke) {
-                    final FlurstueckSchluesselCustomBean curFlurstueckSchluessel =
-                        getFlurstueckSchluesselForWFSFlurstueck(curWfsFlurstueck);
-                    if (curFlurstueckSchluessel == null) {
-                        if (LOG.isDebugEnabled()) {
-                            // throw new ActionNotSuccessfulException("FlurstueckSchluesselCustomBean abfrage nicht
-                            // erfolgreich. Kein Gegenstück zu WfSFlurstuecke vorhanden.");
-                            LOG.debug(
-                                "FlurstueckSchluessel abfrage nicht erfolgreich. Kein Gegenstück zu WfSFlurstuecke vorhanden.");
-                        }
-                        continue;
-                    }
-                    result.add(curFlurstueckSchluessel);
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(
-                        "WfsFlurstueck == null oder leer. Kann korrespondierenden Flurstueckschluessel nicht abrufen");
-                }
-                return result;
-            }
-        } catch (Exception ex) {
-            final String errorMessage = "Fehler beim Kompletieren eines Flurstückschluessels: ";
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(errorMessage, ex);
-            }
-            throw new ActionNotSuccessfulException(errorMessage, ex);
-        }
-        return result;
-    }
+// public Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselForWFSFlurstueck(
+// final Collection<WfsFlurstuecke> wfsFlurstuecke) throws ActionNotSuccessfulException {
+// final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<FlurstueckSchluesselCustomBean>();
+// try {
+// if ((wfsFlurstuecke != null) && (wfsFlurstuecke.size() > 0)) {
+// for (final WfsFlurstuecke curWfsFlurstueck : wfsFlurstuecke) {
+// final FlurstueckSchluesselCustomBean curFlurstueckSchluessel =
+// getFlurstueckSchluesselForWFSFlurstueck(curWfsFlurstueck);
+// if (curFlurstueckSchluessel == null) {
+// if (LOG.isDebugEnabled()) {
+// // throw new ActionNotSuccessfulException("FlurstueckSchluesselCustomBean abfrage nicht
+// // erfolgreich. Kein Gegenstück zu WfSFlurstuecke vorhanden.");
+// LOG.debug(
+// "FlurstueckSchluessel abfrage nicht erfolgreich. Kein Gegenstück zu WfSFlurstuecke vorhanden.");
+// }
+// continue;
+// }
+// result.add(curFlurstueckSchluessel);
+// }
+// } else {
+// if (LOG.isDebugEnabled()) {
+// LOG.debug(
+// "WfsFlurstueck == null oder leer. Kann korrespondierenden Flurstueckschluessel nicht abrufen");
+// }
+// return result;
+// }
+// } catch (Exception ex) {
+// final String errorMessage = "Fehler beim Kompletieren eines Flurstückschluessels: ";
+// if (LOG.isDebugEnabled()) {
+// LOG.debug(errorMessage, ex);
+// }
+// throw new ActionNotSuccessfulException(errorMessage, ex);
+// }
+// return result;
+// }
     /**
      * TODO Jean: WFSFlurstueck CustomBean
      *
-     * @param   wfsFlurstueck  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
+     * @param  flurstueckHistorie  wfsFlurstueck DOCUMENT ME!
+     * @param  allEdges            DOCUMENT ME!
+     * @param  direction           DOCUMENT ME!
      */
-    public FlurstueckSchluesselCustomBean getFlurstueckSchluesselForWFSFlurstueck(
-            final WfsFlurstuecke wfsFlurstueck) throws ActionNotSuccessfulException {
-//        try {
-//            if (wfsFlurstueck != null) {
-//                final FlurstueckSchluesselCustomBean fkey = new FlurstueckSchluesselCustomBean();
-//                final GemarkungCustomBean gem = new GemarkungCustomBean();
-//                gem.setSchluessel(wfsFlurstueck.getGem());
-//                fkey.setGemarkung(gem);
-//                fkey.setFlur(wfsFlurstueck.getFlur());
-//                fkey.setFlurstueckZaehler(wfsFlurstueck.getFlurstz());
-//                fkey.setFlurstueckNenner(wfsFlurstueck.getFlurstn());
-//                return completeFlurstueckSchluessel(fkey);
-//            } else {
-//                if (LOG.isDebugEnabled()) {
-//                    LOG.debug("WfsFlurstueck == null. Kann korrespondierenden Flurstueckschluessel nicht abrufen");
-//                }
-//                return null;
-//            }
-//        } catch (Exception ex) {
-//            final String errorMessage =
-//                "Fehler beim Kompletieren eines Flurstückschluessels. Flurstueck vielleicht nicht vorhanden ";
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug(errorMessage + wfsFlurstueck, ex);
-//            }
-//            return null;
-//        }
-        return null;
-    }
+// public FlurstueckSchluesselCustomBean getFlurstueckSchluesselForWFSFlurstueck(
+// final WfsFlurstuecke wfsFlurstueck) throws ActionNotSuccessfulException {
+// try {
+// if (wfsFlurstueck != null) {
+// final FlurstueckSchluesselCustomBean fkey = new FlurstueckSchluesselCustomBean();
+// final GemarkungCustomBean gem = new GemarkungCustomBean();
+// gem.setSchluessel(wfsFlurstueck.getGem());
+// fkey.setGemarkung(gem);
+// fkey.setFlur(wfsFlurstueck.getFlur());
+// fkey.setFlurstueckZaehler(wfsFlurstueck.getFlurstz());
+// fkey.setFlurstueckNenner(wfsFlurstueck.getFlurstn());
+// return completeFlurstueckSchluessel(fkey);
+// } else {
+// if (LOG.isDebugEnabled()) {
+// LOG.debug("WfsFlurstueck == null. Kann korrespondierenden Flurstueckschluessel nicht abrufen");
+// }
+// return null;
+// }
+// } catch (Exception ex) {
+// final String errorMessage =
+// "Fehler beim Kompletieren eines Flurstückschluessels. Flurstueck vielleicht nicht vorhanden ";
+// if (LOG.isDebugEnabled()) {
+// LOG.debug(errorMessage + wfsFlurstueck, ex);
+// }
+// return null;
+// }
+// return null;
+// }
 
     /**
      * DOCUMENT ME!
