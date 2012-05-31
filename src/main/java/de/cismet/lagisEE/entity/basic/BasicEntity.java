@@ -42,7 +42,8 @@ public abstract class BasicEntity extends CidsBean implements Serializable {
                 return true;
             } else if ((other == null) || (!this.getClass().isAssignableFrom(other.getClass()))) {
                 return false;
-            } else if ((this.getId() == null) || (anEntity.getId() == null)) {
+            } else if ((this.getId() == null) || (this.getId() == -1) || (anEntity.getId() == null)
+                        || (anEntity.getId() == -1)) {
                 return false;
             } else {
                 return this.getId().equals(anEntity.getId());

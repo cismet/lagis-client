@@ -154,12 +154,8 @@ public final class FlurstueckInfoClipboard implements FlurstueckChangeListener {
         final FlurstueckCustomBean oldCopyFS = this.copyFS;
         this.copyFS = LagisBroker.getInstance().getCurrentFlurstueck();
 
-        if (this.copyFS.equals(oldCopyFS)) {
-            // nothing to do
-            return;
-        }
 
-        if ((oldCopyFS != null) && !this.wasCopyPastedOnce) {
+        if ((oldCopyFS != null) && (!this.copyFS.equals(oldCopyFS)) && !this.wasCopyPastedOnce) {
             final int answer = JOptionPane.showOptionDialog(
                     this.lagisApp,
                     "Die zuletzt kopierten Informationen zu dem Flurstück \""
