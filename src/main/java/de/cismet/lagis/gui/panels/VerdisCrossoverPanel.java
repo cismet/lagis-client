@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
 
-import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.*;
 
@@ -362,18 +361,18 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCloseActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
+    private void btnCloseActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCloseActionPerformed
         closeDialog();
-    }//GEN-LAST:event_btnCloseActionPerformed
+    }                                                                            //GEN-LAST:event_btnCloseActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnLoadSelectedKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadSelectedKassenzeichenActionPerformed
+    private void btnLoadSelectedKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnLoadSelectedKassenzeichenActionPerformed
         loadSelectedKassenzeichen();
-    }//GEN-LAST:event_btnLoadSelectedKassenzeichenActionPerformed
+    }                                                                                                //GEN-LAST:event_btnLoadSelectedKassenzeichenActionPerformed
     /**
      * ToDo ugly.
      */
@@ -698,7 +697,6 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         @Override
         protected Set<CidsBean> doInBackground() throws Exception {
             final FlurstueckSchluesselCustomBean currentKey = LagisBroker.getInstance()
-                        .getInstance()
                         .getCurrentFlurstueckSchluessel();
             if (currentKey != null) {
                 Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();

@@ -30,6 +30,7 @@ import de.cismet.remote.RESTRemoteControlMethod;
  * DOCUMENT ME!
  *
  * @author   spuhl
+ * @author   Benjamin Friedrich (benjamin.friedrich@cismet.de)
  * @version  $Revision$, $Date$
  */
 @Path("/loadFlurstueck")
@@ -97,9 +98,9 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
                 gem = CidsBroker.getInstance().completeGemarkung(gem);
                 if (gem == null) {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Change of Flurstueck not possible no such gemarkung: " + key);
+                        LOG.debug("Change of Flurstueck not possible! No such Gemarkung: " + key);
                     }
-                    return "<html>Test</html>";
+                    return "<html>Change of Flurstueck not possible! No such Gemarkung: " + key + "</html>";
                 }
                 key.setGemarkung(gem);
                 key.setFlur(flur);
@@ -115,9 +116,9 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
                     LagisBroker.getInstance().getParentComponent().toFront();
                 } else {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Change of Flurstueck not possible no such key: " + key);
+                        LOG.debug("Change of Flurstueck not possible! No such key: " + key);
                     }
-                    return "<html>Test</html>";
+                    return "<html>Change of Flurstueck not possible! No such key: " + key + "</html>";
                 }
             } catch (Exception ex) {
                 LOG.error("Failure during loadFlurstueck: ", ex);
