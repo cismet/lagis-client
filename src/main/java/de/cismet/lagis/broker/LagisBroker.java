@@ -40,23 +40,11 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -1062,10 +1050,10 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
                 currentFlurstueck.persist();
 
-                sendMessages();
-                if (log.isDebugEnabled()) {
-                    log.debug("sendMessages() returned");
-                }
+//                sendMessages();
+//                if (log.isDebugEnabled()) {
+//                    log.debug("sendMessages() returned");
+//                }
             }
         } catch (Exception ex) {
             final StringBuffer buffer = new StringBuffer("Das Flurstück konnte nicht gespeichert werden.\nFehler: ");
@@ -1090,159 +1078,161 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /**
      * TODO if you leave this method --> you doesn't need the class EmailConfig, just configure auth etc directly TODO
      * NO HARDCODING !!!!!!!!! / MORE INFORMATIONS WHAT FLURSTÜCK, WHAT VERWALTUNGSGEBRAUCH
+     *
+     * @return  DOCUMENT ME!
      */
-    private void sendMessages() {
-        // TODO extra Thread nötig ??
-        // HOT FIX Geht wahrscheinlich nicht bekomme mal keine Emails !!!
-        final Thread t = new Thread() {
-
-                @Override
-                public void run() {
-                    try {
-                        if (log.isDebugEnabled()) {
-                            log.debug("send Messages()");
-                        }
-                        if (messages != null) {
-                            if (messages.size() > 0) {
-                                final MailAuthenticator auth = new MailAuthenticator(emailConfig.getUsername(),
-                                        emailConfig.getPassword());
-                                final Properties properties = new Properties();
-                                properties.put("mail.smtp.host", emailConfig.getSmtpServer());
-                                final Session session = Session.getDefaultInstance(properties, auth);
-                                for (final Message currentMessage : messages) {
-                                    try {
-                                        final javax.mail.Message msg = new MimeMessage(session);
-                                        msg.setFrom(new InternetAddress(emailConfig.getSenderAddress()));
-                                        // TODO OPTIMIZATION OVERALL CATEGORY
-                                        if (currentMessage.getMessageType() == Message.VERWALTUNGSBEREICH_CHANGED) {
-                                            final Vector messageObjects = currentMessage.getMessageObjects();
-                                            final VerwaltendeDienststelleCustomBean oldDienststelle =
-                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
-                                            final VerwaltendeDienststelleCustomBean newDienststelle =
-                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(1);
-                                            // TODO OPTIMIZE
-                                            if ((oldDienststelle.getEmailAdresse() == null)
-                                                        || (newDienststelle.getEmailAdresse() == null)) {
-                                                throw new Exception(
-                                                    "Eine Emailaddresse eines Verwaltungsbereichs ist nicht gesetzt: "
-                                                            + oldDienststelle.getEmailAdresse()
-                                                            + " "
-                                                            + newDienststelle.getEmailAdresse());
-                                            }
-                                            msg.setRecipients(
-                                                javax.mail.Message.RecipientType.TO,
-                                                InternetAddress.parse(
-                                                    oldDienststelle.getEmailAdresse()
-                                                            + ","
-                                                            + newDienststelle.getEmailAdresse(),
-                                                    false));
-                                            msg.setSubject("Lagis - Änderung Zuständigkeitsbereiche");
-                                            // TODO mit replacements arbeiten config file msg.setText("Bei dieser Mail
-                                            // handelt es sich um eine automatisch von LagIS erstellte
-                                            // Benachrichtigung.\n\n" + "Folgendener Fehler ist zur Laufzeit
-                                            // aufgetreten:\n\n" + messageObjects.get(0)+"n\n" + "Zugehöriger
-                                            // Stacktrace:\n\n" + messageObjects.get(1));
-                                            msg.setText("Bei dem Flurstück:\n"
-                                                        + currentFlurstueck + "\n"
-                                                        + "wurde die Zuordnung zur unterhaltenden Dienststelle geändert.");
-                                        } else if (currentMessage.getMessageType() == Message.VERWALTUNGSBEREICH_NEW) {
-                                            final Vector messageObjects = currentMessage.getMessageObjects();
-                                            final VerwaltendeDienststelleCustomBean newDienststelle =
-                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
-                                            // TODO OPTIMIZE
-                                            if (newDienststelle.getEmailAdresse() == null) {
-                                                throw new Exception(
-                                                    "Eine Emailaddresse eines Verwaltungsbereichs ist nicht gesetzt: "
-                                                            + newDienststelle.getEmailAdresse());
-                                            }
-                                            msg.setRecipients(
-                                                javax.mail.Message.RecipientType.TO,
-                                                InternetAddress.parse(newDienststelle.getEmailAdresse(), false));
-                                            msg.setSubject("Lagis - Änderung Zuständigkeitsbereiche");
-                                            msg.setText("Bei dem Flurstück:\n"
-                                                        + currentFlurstueck + "\n"
-                                                        + "wurde die Zuordnung zur unterhaltenden Dienststelle hinzugefügt.");
-                                        } else if (currentMessage.getMessageType()
-                                                    == Message.VERWALTUNGSBEREICH_DELETED) {
-                                            final Vector messageObjects = currentMessage.getMessageObjects();
-                                            final VerwaltendeDienststelleCustomBean oldDienststelle =
-                                                (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
-                                            // TODO OPTIMIZE
-                                            if (oldDienststelle.getEmailAdresse() == null) {
-                                                throw new Exception(
-                                                    "Eine Emailaddresse eines Verwaltungsbereichs ist nicht gesetzt: "
-                                                            + oldDienststelle.getEmailAdresse());
-                                            }
-                                            msg.setRecipients(
-                                                javax.mail.Message.RecipientType.TO,
-                                                InternetAddress.parse(oldDienststelle.getEmailAdresse(), false));
-                                            msg.setSubject("Lagis - Änderung Zuständigkeitsbereiche");
-                                            msg.setText("Dienststelle deleted");
-                                            msg.setText("Bei dem Flurstück:\n"
-                                                        + currentFlurstueck + "\n"
-                                                        + "wurde die Zuordnung zur unterhaltenden Dienststelle entfernt.");
-                                        } else if (currentMessage.getMessageType()
-                                                    == Message.VERWALTUNGSBEREICH_ERROR) {
-                                            msg.setRecipients(
-                                                javax.mail.Message.RecipientType.TO,
-                                                InternetAddress.parse(
-                                                    developerRecipients
-                                                            + ","
-                                                            + maintenanceMailAddresses,
-                                                    false));
-                                            final Vector messageObjects = currentMessage.getMessageObjects();
-                                            msg.setSubject("Lagis - Fehler beim Abgleichen von Verwaltungsbereichen");
-                                            msg.setText(
-                                                "Bei dieser Mail handelt es sich um eine automatisch von LagIS erstellte Fehlermeldung.\n\n"
-                                                        + "Folgendener Fehler ist zur Laufzeit aufgetreten:\n\n"
-                                                        + messageObjects.get(0)
-                                                        + "n\n"
-                                                        + "Zugehöriger Stacktrace:\n\n"
-                                                        + messageObjects.get(1));
-                                        } else if (currentMessage.getMessageType() == Message.GENERAL_ERROR) {
-                                            msg.setRecipients(
-                                                javax.mail.Message.RecipientType.TO,
-                                                InternetAddress.parse(
-                                                    developerRecipients
-                                                            + ","
-                                                            + maintenanceMailAddresses,
-                                                    false));
-                                            final Vector messageObjects = currentMessage.getMessageObjects();
-                                            msg.setSubject((String)messageObjects.get(0));
-                                            msg.setText(
-                                                "Bei dieser Mail handelt es sich um eine automatisch von LagIS erstellte Fehlermeldung.\n\n"
-                                                        + "Folgendener Fehler ist zur Laufzeit aufgetreten:\n\n"
-                                                        + "Eine oder Mehrere Emails konnten nicht erstellt werden\n\n"
-                                                        + "Zugehöriger Stacktrace:\n\n"
-                                                        + messageObjects.get(1));
-                                        }
-                                        // Hier lassen sich HEADER-Informationen hinzufügen
-                                        // msg.setHeader("Test", "Test");
-                                        msg.setSentDate(new Date());
-                                        Transport.send(msg);
-                                    } catch (Exception ex) {
-                                        log.fatal("Fehler beim senden einer Emails: ", ex);
-                                        // TODO Benutzer benachrichtigen
-                                    }
-                                }
-                            } else {
-                                log.warn("Keine Meldungen zum versenden vorhanden == 0");
-                            }
-                        } else {
-                            log.warn("Keine Meldungen zum versenden vorhanden == null");
-                        }
-                    } catch (Exception ex) {
-                        log.fatal("Fehler beim senden von Emails: ", ex);
-                        // TODO Benutzer benachrichtigen
-                    }
-                    if (log.isDebugEnabled()) {
-                        log.debug("sendMessage() end");
-                    }
-                }
-            };
-        t.setPriority(Thread.NORM_PRIORITY);
-        t.start();
-    }
+// private void sendMessages() {
+// // TODO extra Thread nötig ??
+// // HOT FIX Geht wahrscheinlich nicht bekomme mal keine Emails !!!
+// final Thread t = new Thread() {
+//
+// @Override
+// public void run() {
+// try {
+// if (log.isDebugEnabled()) {
+// log.debug("send Messages()");
+// }
+// if (messages != null) {
+// if (messages.size() > 0) {
+// final MailAuthenticator auth = new MailAuthenticator(emailConfig.getUsername(),
+// emailConfig.getPassword());
+// final Properties properties = new Properties();
+// properties.put("mail.smtp.host", emailConfig.getSmtpServer());
+// final Session session = Session.getDefaultInstance(properties, auth);
+// for (final Message currentMessage : messages) {
+// try {
+// final javax.mail.Message msg = new MimeMessage(session);
+// msg.setFrom(new InternetAddress(emailConfig.getSenderAddress()));
+// // TODO OPTIMIZATION OVERALL CATEGORY
+// if (currentMessage.getMessageType() == Message.VERWALTUNGSBEREICH_CHANGED) {
+// final Vector messageObjects = currentMessage.getMessageObjects();
+// final VerwaltendeDienststelleCustomBean oldDienststelle =
+// (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
+// final VerwaltendeDienststelleCustomBean newDienststelle =
+// (VerwaltendeDienststelleCustomBean)messageObjects.get(1);
+// // TODO OPTIMIZE
+// if ((oldDienststelle.getEmailAdresse() == null)
+// || (newDienststelle.getEmailAdresse() == null)) {
+// throw new Exception(
+// "Eine Emailaddresse eines Verwaltungsbereichs ist nicht gesetzt: "
+// + oldDienststelle.getEmailAdresse()
+// + " "
+// + newDienststelle.getEmailAdresse());
+// }
+// msg.setRecipients(
+// javax.mail.Message.RecipientType.TO,
+// InternetAddress.parse(
+// oldDienststelle.getEmailAdresse()
+// + ","
+// + newDienststelle.getEmailAdresse(),
+// false));
+// msg.setSubject("Lagis - Änderung Zuständigkeitsbereiche");
+// // TODO mit replacements arbeiten config file msg.setText("Bei dieser Mail
+// // handelt es sich um eine automatisch von LagIS erstellte
+// // Benachrichtigung.\n\n" + "Folgendener Fehler ist zur Laufzeit
+// // aufgetreten:\n\n" + messageObjects.get(0)+"n\n" + "Zugehöriger
+// // Stacktrace:\n\n" + messageObjects.get(1));
+// msg.setText("Bei dem Flurstück:\n"
+// + currentFlurstueck + "\n"
+// + "wurde die Zuordnung zur unterhaltenden Dienststelle geändert.");
+// } else if (currentMessage.getMessageType() == Message.VERWALTUNGSBEREICH_NEW) {
+// final Vector messageObjects = currentMessage.getMessageObjects();
+// final VerwaltendeDienststelleCustomBean newDienststelle =
+// (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
+// // TODO OPTIMIZE
+// if (newDienststelle.getEmailAdresse() == null) {
+// throw new Exception(
+// "Eine Emailaddresse eines Verwaltungsbereichs ist nicht gesetzt: "
+// + newDienststelle.getEmailAdresse());
+// }
+// msg.setRecipients(
+// javax.mail.Message.RecipientType.TO,
+// InternetAddress.parse(newDienststelle.getEmailAdresse(), false));
+// msg.setSubject("Lagis - Änderung Zuständigkeitsbereiche");
+// msg.setText("Bei dem Flurstück:\n"
+// + currentFlurstueck + "\n"
+// + "wurde die Zuordnung zur unterhaltenden Dienststelle hinzugefügt.");
+// } else if (currentMessage.getMessageType()
+// == Message.VERWALTUNGSBEREICH_DELETED) {
+// final Vector messageObjects = currentMessage.getMessageObjects();
+// final VerwaltendeDienststelleCustomBean oldDienststelle =
+// (VerwaltendeDienststelleCustomBean)messageObjects.get(0);
+// // TODO OPTIMIZE
+// if (oldDienststelle.getEmailAdresse() == null) {
+// throw new Exception(
+// "Eine Emailaddresse eines Verwaltungsbereichs ist nicht gesetzt: "
+// + oldDienststelle.getEmailAdresse());
+// }
+// msg.setRecipients(
+// javax.mail.Message.RecipientType.TO,
+// InternetAddress.parse(oldDienststelle.getEmailAdresse(), false));
+// msg.setSubject("Lagis - Änderung Zuständigkeitsbereiche");
+// msg.setText("Dienststelle deleted");
+// msg.setText("Bei dem Flurstück:\n"
+// + currentFlurstueck + "\n"
+// + "wurde die Zuordnung zur unterhaltenden Dienststelle entfernt.");
+// } else if (currentMessage.getMessageType()
+// == Message.VERWALTUNGSBEREICH_ERROR) {
+// msg.setRecipients(
+// javax.mail.Message.RecipientType.TO,
+// InternetAddress.parse(
+// developerRecipients
+// + ","
+// + maintenanceMailAddresses,
+// false));
+// final Vector messageObjects = currentMessage.getMessageObjects();
+// msg.setSubject("Lagis - Fehler beim Abgleichen von Verwaltungsbereichen");
+// msg.setText(
+// "Bei dieser Mail handelt es sich um eine automatisch von LagIS erstellte Fehlermeldung.\n\n"
+// + "Folgendener Fehler ist zur Laufzeit aufgetreten:\n\n"
+// + messageObjects.get(0)
+// + "n\n"
+// + "Zugehöriger Stacktrace:\n\n"
+// + messageObjects.get(1));
+// } else if (currentMessage.getMessageType() == Message.GENERAL_ERROR) {
+// msg.setRecipients(
+// javax.mail.Message.RecipientType.TO,
+// InternetAddress.parse(
+// developerRecipients
+// + ","
+// + maintenanceMailAddresses,
+// false));
+// final Vector messageObjects = currentMessage.getMessageObjects();
+// msg.setSubject((String)messageObjects.get(0));
+// msg.setText(
+// "Bei dieser Mail handelt es sich um eine automatisch von LagIS erstellte Fehlermeldung.\n\n"
+// + "Folgendener Fehler ist zur Laufzeit aufgetreten:\n\n"
+// + "Eine oder Mehrere Emails konnten nicht erstellt werden\n\n"
+// + "Zugehöriger Stacktrace:\n\n"
+// + messageObjects.get(1));
+// }
+// // Hier lassen sich HEADER-Informationen hinzufügen
+// // msg.setHeader("Test", "Test");
+// msg.setSentDate(new Date());
+// Transport.send(msg);
+// } catch (Exception ex) {
+// log.fatal("Fehler beim senden einer Emails: ", ex);
+// // TODO Benutzer benachrichtigen
+// }
+// }
+// } else {
+// log.warn("Keine Meldungen zum versenden vorhanden == 0");
+// }
+// } else {
+// log.warn("Keine Meldungen zum versenden vorhanden == null");
+// }
+// } catch (Exception ex) {
+// log.fatal("Fehler beim senden von Emails: ", ex);
+// // TODO Benutzer benachrichtigen
+// }
+// if (log.isDebugEnabled()) {
+// log.debug("sendMessage() end");
+// }
+// }
+// };
+// t.setPriority(Thread.NORM_PRIORITY);
+// t.start();
+// }
 
     /**
      * DOCUMENT ME!
@@ -1990,54 +1980,52 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         this.domain = domain;
     }
 
-    //~ Inner Classes ----------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @version  $Revision$, $Date$
-     */
-    class MailAuthenticator extends Authenticator {
-
-        //~ Instance fields ----------------------------------------------------
-
-        /**
-         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
-         * dieser Klasse enthalten wird.
-         */
-        private final String user;
-        /**
-         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
-         * dieser Klasse enthalten wird.
-         */
-        private final String password;
-
-        //~ Constructors -------------------------------------------------------
-
-        /**
-         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
-         * aus den beiden Parametern user und passwort.
-         *
-         * @param  user      String, der Username fuer den Mailaccount.
-         * @param  password  String, das Passwort fuer den Mailaccount.
-         */
-        public MailAuthenticator(final String user, final String password) {
-            this.user = user;
-            this.password = password;
-        }
-
-        //~ Methods ------------------------------------------------------------
-
-        /**
-         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
-         *
-         * @return  DOCUMENT ME!
-         *
-         * @see     javax.mail.Authenticator#getPasswordAuthentication()
-         */
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(this.user, this.password);
-        }
-    }
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @version  $Revision$, $Date$
+//     */
+//    class MailAuthenticator extends Authenticator {
+//
+//        //~ Instance fields ----------------------------------------------------
+//
+//        /**
+//         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
+//         * dieser Klasse enthalten wird.
+//         */
+//        private final String user;
+//        /**
+//         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
+//         * dieser Klasse enthalten wird.
+//         */
+//        private final String password;
+//
+//        //~ Constructors -------------------------------------------------------
+//
+//        /**
+//         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
+//         * aus den beiden Parametern user und passwort.
+//         *
+//         * @param  user      String, der Username fuer den Mailaccount.
+//         * @param  password  String, das Passwort fuer den Mailaccount.
+//         */
+//        public MailAuthenticator(final String user, final String password) {
+//            this.user = user;
+//            this.password = password;
+//        }
+//
+//        //~ Methods ------------------------------------------------------------
+//
+//        /**
+//         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
+//         *
+//         * @return  DOCUMENT ME!
+//         *
+//         * @see     javax.mail.Authenticator#getPasswordAuthentication()
+//         */
+//        @Override
+//        protected PasswordAuthentication getPasswordAuthentication() {
+//            return new PasswordAuthentication(this.user, this.password);
+//        }
+//    }
 }

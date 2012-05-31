@@ -20,13 +20,6 @@ import java.text.DecimalFormat;
 
 import java.util.*;
 
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -35,9 +28,6 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
-
-
-//import de.cismet.lagisEE.crossover.entity.WfsFlurstuecke;
 
 import de.cismet.lagisEE.interfaces.Key;
 
@@ -66,7 +56,7 @@ public final class CidsBroker {
     private static CidsBroker instance = null;
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CidsBroker.class);
 
-    private static Vector<Session> nkfSessions = new Vector<Session>();
+//    private static Vector<Session> nkfSessions = new Vector<Session>();
     private static DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
 
     //~ Enums ------------------------------------------------------------------
@@ -99,10 +89,10 @@ public final class CidsBroker {
 
     private ConnectionProxy proxy = null;
 
-// @Resource(name = "mail/nkf_mailaddress")
-    private Session nkfMailer;
-
     //~ Constructors -----------------------------------------------------------
+
+// @Resource(name = "mail/nkf_mailaddress")
+// private Session nkfMailer;
 
     /**
      * Creates a new instance of CidsBroker.
@@ -3050,7 +3040,7 @@ public final class CidsBroker {
                         message.append(flurstueckKey);
                         message.append(" wurde eine neue Nutzung angelegt: \n\n");
                         message.append(curNutzung.getOpenBuchung().getPrettyString());
-                        sendEmail("Lagis - Neue Nutzung", message.toString(), nkfSessions);
+//                        sendEmail("Lagis - Neue Nutzung", message.toString(), nkfSessions);
                     } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_CHANGED)) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Nutzungskette wurde modifiziert "
@@ -3072,7 +3062,7 @@ public final class CidsBroker {
                             message.append(curNutzung.getPreviousBuchung().getPrettyString());
                             message.append("\nwie folgt geändert:\n\n");
                             message.append(curNutzung.getOpenBuchung().getNutzungsart().getPrettyString());
-                            sendEmail("Lagis - Änderung einer Nutzungsart", message.toString(), nkfSessions);
+//                            sendEmail("Lagis - Änderung einer Nutzungsart", message.toString(), nkfSessions);
                         }
                         if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_CREATED)) {
                             if (LOG.isDebugEnabled()) {
@@ -3208,7 +3198,7 @@ public final class CidsBroker {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Es wird eine Nachricht an die zuständige Behörde geschickt");
                         }
-                        sendEmail(emailSubject, emailMessage.toString(), nkfSessions);
+//                        sendEmail(emailSubject, emailMessage.toString(), nkfSessions);
                     }
                 }
             } else {
@@ -3224,65 +3214,63 @@ public final class CidsBroker {
     /**
      * DOCUMENT ME!
      *
-     * @param  subject   DOCUMENT ME!
-     * @param  message   DOCUMENT ME!
-     * @param  sessions  DOCUMENT ME!
+     * @param  locks  subject DOCUMENT ME!
      */
-    private void sendEmail(final String subject,
-            final String message, final Vector<Session> sessions) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Sende Email benachrichtigung");
-        }
-        try {
-            final Properties lagisEEproperties = new Properties();
-            // lagisEEproperties.load(getClass().getResourceAsStream("/de/cismet/lagis/eeServer/defaultLagisEEServer.properties"));
-
-            // System.out.println("NKF EMAIL Address: "+lagisEEproperties.getProperty("nkf_Mailaddress"));
-            // System.out.println("System Property test: "+System.getProperty("lagis.test"));
-            // System.out.println("Session properties: "+nkfMailer.getProperties()); System.out.println("Session
-            // Property: "+nkfMailer.getProperty("mail.lagis.test")); if
-            // (lagisEEproperties.getProperty("nkf_Mailaddress") != null) {
-            // System.out.println("Benachrichtigungsmailadresse gesetzt: " +
-            // lagisEEproperties.getProperty("nkf_Mailaddress")); } else {
-            // System.out.println("Benachrichtigungsmailadresse nicht gesetzt --> keine Mail"); return; }
-            if (System.getProperty("lagis.nkfmail") != null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Benachrichtigungsmailadresse gesetzt: " + System.getProperty("lagis.nkfmail"));
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Benachrichtigungsmailadresse nicht gesetzt --> keine Mail");
-                }
-                return;
-            }
-            // Problem with different auth --> see if multiple email addresses are needed
+// private void sendEmail(final String subject,
+// final String message, final Vector<Session> sessions) {
+// if (LOG.isDebugEnabled()) {
+// LOG.debug("Sende Email benachrichtigung");
+// }
+// try {
+// //final Properties lagisEEproperties = new Properties();
+// // lagisEEproperties.load(getClass().getResourceAsStream("/de/cismet/lagis/eeServer/defaultLagisEEServer.properties"));
+//
+//            // System.out.println("NKF EMAIL Address: "+lagisEEproperties.getProperty("nkf_Mailaddress"));
+//            // System.out.println("System Property test: "+System.getProperty("lagis.test"));
+//            // System.out.println("Session properties: "+nkfMailer.getProperties()); System.out.println("Session
+//            // Property: "+nkfMailer.getProperty("mail.lagis.test")); if
+//            // (lagisEEproperties.getProperty("nkf_Mailaddress") != null) {
+//            // System.out.println("Benachrichtigungsmailadresse gesetzt: " +
+//            // lagisEEproperties.getProperty("nkf_Mailaddress")); } else {
+//            // System.out.println("Benachrichtigungsmailadresse nicht gesetzt --> keine Mail"); return; }
+//            if (System.getProperty("lagis.nkfmail") != null) {
+//                if (LOG.isDebugEnabled()) {
+//                    LOG.debug("Benachrichtigungsmailadresse gesetzt: " + System.getProperty("lagis.nkfmail"));
+//                }
+//            } else {
+//                if (LOG.isDebugEnabled()) {
+//                    LOG.debug("Benachrichtigungsmailadresse nicht gesetzt --> keine Mail");
+//                }
+//                return;
+//            }
+//            // Problem with different auth --> see if multiple email addresses are needed
 // MailAuthenticator auth = new MailAuthenticator("", "");
-
-            final Iterator<Session> sessionItr = sessions.iterator();
-            // if (sessions != null && sessions.size() > 0) {
-            // while (sessionItr.hasNext()) {
-            // sessionItr.next();
-            // Properties properties = new Properties();
-            // properties.put("mail.smtp.host", "smtp.uni-saarland.de");
-            // Session mailer = Session.getDefaultInstance(properties, null);
-            final javax.mail.Message msg = new MimeMessage(nkfMailer);
-            msg.setFrom(new InternetAddress("sebastian.puhl@cismet.de"));
-            // TODO Surround with try catch
-            msg.setRecipients(
-                javax.mail.Message.RecipientType.TO,
-                InternetAddress.parse(System.getProperty("lagis.nkfmail"), false));
-            msg.setSubject(subject);
-            msg.setText(message);
-            msg.setSentDate(new Date());
-            Transport.send(msg);
-            // }
-            // } else {
-            // System.out.println("Keine Session vorhanden");
-            // }
-        } catch (Exception ex) {
-            LOG.error("Fehler beim senden einer email", ex);
-        }
-    }
+//
+//            //final Iterator<Session> sessionItr = sessions.iterator();
+//            // if (sessions != null && sessions.size() > 0) {
+//            // while (sessionItr.hasNext()) {
+//            // sessionItr.next();
+//            // Properties properties = new Properties();
+//            // properties.put("mail.smtp.host", "smtp.uni-saarland.de");
+//            // Session mailer = Session.getDefaultInstance(properties, null);
+//            final javax.mail.Message msg = new MimeMessage(nkfMailer);
+//            msg.setFrom(new InternetAddress("sebastian.puhl@cismet.de"));
+//            // TODO Surround with try catch
+//            msg.setRecipients(
+//                javax.mail.Message.RecipientType.TO,
+//                InternetAddress.parse(System.getProperty("lagis.nkfmail"), false));
+//            msg.setSubject(subject);
+//            msg.setText(message);
+//            msg.setSentDate(new Date());
+//            Transport.send(msg);
+//            // }
+//            // } else {
+//            // System.out.println("Keine Session vorhanden");
+//            // }
+//        } catch (Exception ex) {
+//            LOG.error("Fehler beim senden einer email", ex);
+//        }
+//    }
 
     /**
      * DOCUMENT ME!
@@ -3534,54 +3522,52 @@ public final class CidsBroker {
         return mos;
     }
 
-    //~ Inner Classes ----------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @version  $Revision$, $Date$
-     */
-    class MailAuthenticator extends Authenticator {
-
-        //~ Instance fields ----------------------------------------------------
-
-        /**
-         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
-         * dieser Klasse enthalten wird.
-         */
-        private final String user;
-        /**
-         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
-         * dieser Klasse enthalten wird.
-         */
-        private final String password;
-
-        //~ Constructors -------------------------------------------------------
-
-        /**
-         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
-         * aus den beiden Parametern user und passwort.
-         *
-         * @param  user      String, der Username fuer den Mailaccount.
-         * @param  password  String, das Passwort fuer den Mailaccount.
-         */
-        public MailAuthenticator(final String user, final String password) {
-            this.user = user;
-            this.password = password;
-        }
-
-        //~ Methods ------------------------------------------------------------
-
-        /**
-         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
-         *
-         * @return  DOCUMENT ME!
-         *
-         * @see     javax.mail.Authenticator#getPasswordAuthentication()
-         */
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(this.user, this.password);
-        }
-    }
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @version  $Revision$, $Date$
+//     */
+//    class MailAuthenticator extends Authenticator {
+//
+//        //~ Instance fields ----------------------------------------------------
+//
+//        /**
+//         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
+//         * dieser Klasse enthalten wird.
+//         */
+//        private final String user;
+//        /**
+//         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
+//         * dieser Klasse enthalten wird.
+//         */
+//        private final String password;
+//
+//        //~ Constructors -------------------------------------------------------
+//
+//        /**
+//         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
+//         * aus den beiden Parametern user und passwort.
+//         *
+//         * @param  user      String, der Username fuer den Mailaccount.
+//         * @param  password  String, das Passwort fuer den Mailaccount.
+//         */
+//        public MailAuthenticator(final String user, final String password) {
+//            this.user = user;
+//            this.password = password;
+//        }
+//
+//        //~ Methods ------------------------------------------------------------
+//
+//        /**
+//         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
+//         *
+//         * @return  DOCUMENT ME!
+//         *
+//         * @see     javax.mail.Authenticator#getPasswordAuthentication()
+//         */
+//        @Override
+//        protected PasswordAuthentication getPasswordAuthentication() {
+//            return new PasswordAuthentication(this.user, this.password);
+//        }
+//    }
 }
