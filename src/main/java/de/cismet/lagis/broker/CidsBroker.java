@@ -176,6 +176,7 @@ public final class CidsBroker {
         try {
             processNutzungen(flurstueck.getNutzungen(), flurstueck.getFlurstueckSchluessel().getKeyString());
             checkIfFlurstueckWasStaedtisch(flurstueck.getFlurstueckSchluessel(), null);
+            flurstueck.persist();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Flurstück gespeichert");
             }
@@ -236,6 +237,7 @@ public final class CidsBroker {
                 }
                 checkIfFlurstueckWasStaedtisch(key, null);
             }
+            key.persist();
         } catch (final Throwable t) {
             LOG.error("Fehler beim speichern der Entität", t);
         }
