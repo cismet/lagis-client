@@ -2468,7 +2468,7 @@ public final class CidsBroker {
 
         final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
         if (mos != null) {
-            if (mos.length > 0) {
+            if (mos.length == 0) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Ergebnisliste ist leer");
                 }
@@ -2519,6 +2519,7 @@ public final class CidsBroker {
                     }
 
                     key.setGueltigBis(null);
+                    key.persist();
                     return true;
                 } else {
                     throw new ActionNotSuccessfulException(
