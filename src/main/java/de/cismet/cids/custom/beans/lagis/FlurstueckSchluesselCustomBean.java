@@ -112,13 +112,14 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
 
         if ((mos != null) && (mos.length > 0)) {
             if (mos.length > 1) {
-                LOG.error("Multiple FlurstueckSchluessel -> should only be one but was " + mos.length);
+                LOG.warn("Multiple FlurstueckSchluessel -> should only be one but was " + mos.length + ". query: "
+                            + query);
                 return null;
             } else {
                 return (FlurstueckSchluesselCustomBean)mos[0].getBean();
             }
         } else {
-            LOG.error("could not find FlurstueckSchluessel with query: " + query);
+            LOG.warn("could not find FlurstueckSchluessel with query: " + query);
             return null;
         }
     }
@@ -160,11 +161,30 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
             throw new NullPointerException("Given FlurstueckSchluessel must not be null");
         }
 
+        final Integer flur = other.getFlur();
+        final Integer fsZaehler = other.getFlurstueckZaehler();
+        final Integer fsNenner = other.getFlurstueckNenner();
+
+        Integer gemarkungsId = null;
+
+        final GemarkungCustomBean gemarkung = other.getGemarkung();
+        if (gemarkung != null) {
+            gemarkungsId = gemarkung.getId();
+        }
+
+        if ((flur == null) && (fsZaehler == null) && (fsNenner == null) && (gemarkungsId == null)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(other + " is a Pseudo FlurstueckSchluessel -> return null");
+            }
+            return null;
+        }
+
         final String query = BASE_QUERY
-                    + " WHERE flur = " + other.getFlur()
-                    + " and   flurstueck_zaehler = " + other.getFlurstueckZaehler()
-                    + " AND   flurstueck_nenner = " + other.getFlurstueckNenner()
-                    + " AND   fk_gemarkung = " + other.getGemarkung().getId();
+                    + " WHERE flur " + ((flur == null) ? " is NULL " : (" = " + flur))
+                    + " and   flurstueck_zaehler " + ((fsZaehler == null) ? " is NULL " : (" = " + fsZaehler))
+                    + " AND   flurstueck_nenner " + ((fsNenner == null) ? " is NULL " : (" = " + fsNenner))
+                    + " AND   fk_gemarkung "
+                    + (((gemarkungsId == null)) ? " is NULL " : (" = " + gemarkungsId));
 
         return retrieve(query);
     }

@@ -642,15 +642,59 @@ public final class CidsBroker {
                 return null;
             }
 
-            final MetaObject[] mos = CidsBroker.getInstance()
-                        .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                            + metaclass.getPrimaryKey() + " "
-                            + " FROM " + metaclass.getTableName() + ", flurstueck_schluessel fk"
-                            + " WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = fk.id "
-                            + " AND fk.flur = " + key.getFlur()
-                            + " AND fk.fk_gemarkung = " + key.getGemarkung().getId()
-                            + " AND fk.flurstueck_zaehler = " + key.getFlurstueckZaehler()
-                            + " AND fk.flurstueck_nenner  = " + key.getFlurstueckNenner());
+            final Integer flur = key.getFlur();
+            final Integer fsZaehler = key.getFlurstueckZaehler();
+            final Integer fsNenner = key.getFlurstueckNenner();
+            final Integer gemarkung = (key.getGemarkung() == null) ? null : key.getGemarkung().getId();
+
+            final MetaObject[] mos;
+            if ((flur != null) && (fsZaehler != null) && (fsNenner != null) && (gemarkung != null)) {
+                mos = CidsBroker.getInstance()
+                            .getLagisMetaObject(
+                                    "SELECT "
+                                    + metaclass.getID()
+                                    + ", "
+                                    + metaclass.getTableName()
+                                    + "."
+                                    + metaclass.getPrimaryKey()
+                                    + " "
+                                    + " FROM "
+                                    + metaclass.getTableName()
+                                    + ", flurstueck_schluessel fk"
+                                    + " WHERE "
+                                    + metaclass.getTableName()
+                                    + ".fk_flurstueck_schluessel = fk.id "
+                                    + " AND fk.flur = "
+                                    + key.getFlur()
+                                    + " AND fk.fk_gemarkung = "
+                                    + key.getGemarkung().getId()
+                                    + " AND fk.flurstueck_zaehler = "
+                                    + key.getFlurstueckZaehler()
+                                    + " AND fk.flurstueck_nenner  = "
+                                    + key.getFlurstueckNenner());
+            } else {
+                mos = CidsBroker.getInstance()
+                            .getLagisMetaObject(
+                                    "SELECT "
+                                    + metaclass.getID()
+                                    + ", "
+                                    + metaclass.getTableName()
+                                    + "."
+                                    + metaclass.getPrimaryKey()
+                                    + " "
+                                    + " FROM "
+                                    + metaclass.getTableName()
+                                    + ", flurstueck_schluessel fk"
+                                    + " WHERE "
+                                    + metaclass.getTableName()
+                                    + ".fk_flurstueck_schluessel = fk.id "
+                                    + " AND fk.id = "
+                                    + key.getId()
+                                    + " AND fk.flur is NULL "
+                                    + " AND fk.fk_gemarkung is NULL "
+                                    + " AND fk.flurstueck_zaehler is NULL "
+                                    + " AND fk.flurstueck_nenner  is NULL ");
+            }
 
             if ((mos != null) && (mos.length > 0)) {
                 if (mos.length > 1) {
@@ -1176,13 +1220,29 @@ public final class CidsBroker {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("createFlurstueck: key ist != null");
                 }
-                final FlurstueckSchluesselCustomBean checkedKey = completeFlurstueckSchluessel(key);
+
+                final FlurstueckSchluesselCustomBean checkedKey = this.completeFlurstueckSchluessel(key);
                 if (checkedKey != null) {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("createFlurstueck: Vervollständigter key ist != null");
+                        LOG.debug("createFlurstueck: Vervollständigter key ist == null");
                     }
                     return null;
                 }
+
+//                final Integer keyId = key.getId();
+//
+//                if ((keyId == null) || (keyId == -1)) {
+//                    if (LOG.isDebugEnabled()) {
+//                        LOG.debug("createFlurstueck: Vervollständigter key ist != null");
+//                    }
+//                    return null;
+//                }
+
+//                }
+//                else {
+//                    checkedKey = FlurstueckSchluesselCustomBean.createNewById(key.getId());
+//                }
+
                 final FlurstueckCustomBean newFlurstueck = FlurstueckCustomBean.createNew();
                 // datamodell refactoring 22.10.07
                 final Date datumEntstehung = new Date();
@@ -1591,20 +1651,15 @@ public final class CidsBroker {
                             LOG.debug("Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück");
                         }
                     } else {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Spliten des Flurstücks nicht möglich, es gibt schon einen Nachfolger");
-                        }
                         releaseLock(lock);
-                        return;
-//TODO Exception!!!!! sonst sagt der Wizard alles Erfogreich
+                        throw new ActionNotSuccessfulException(
+                            "Spliten des Flurstücks nicht möglich, es gibt schon einen Nachfolger");
                     }
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Flurstück konnte nicht historisch gesetzt werden");
-                    }
+                } else {
                     releaseLock(lock);
-                    return;
-//TODO Exception
+                    throw new ActionNotSuccessfulException("Flurstück konnte nicht historisch gesetzt werden");
                 }
+
                 while (it.hasNext()) {
                     final FlurstueckCustomBean newFlurstueck = createFlurstueck(it.next());
                     if (LOG.isDebugEnabled()) {
@@ -1675,7 +1730,7 @@ public final class CidsBroker {
         }
         // TODO ROLLBACK IF ONE OF THE METHODS FAILS
         try {
-            final FlurstueckSchluesselCustomBean dummySchluessel = FlurstueckSchluesselCustomBean.createNew();
+            FlurstueckSchluesselCustomBean dummySchluessel = FlurstueckSchluesselCustomBean.createNew();
             // dummySchluessel.setWarStaedtisch(true);
             // UGLY minimum Konstante aus der jeweiligen Klasse benutzen
             for (final FlurstueckArtCustomBean current : getAllFlurstueckArten()) {
@@ -1684,8 +1739,10 @@ public final class CidsBroker {
                     break;
                 }
             }
-            createFlurstueckSchluessel(dummySchluessel);
-            // Flurstueck dummyFlurstueck = createFlurstueck(dummySchluessel);
+
+            dummySchluessel = (FlurstueckSchluesselCustomBean)dummySchluessel.persist();
+//            createFlurstueckSchluessel(dummySchluessel);
+
             joinFlurstuecke(joinMembers, dummySchluessel, benutzerkonto);
             // TODO problem first have to check all keys
             splitFlurstuecke(dummySchluessel, splitMembers, benutzerkonto);
@@ -2332,10 +2389,8 @@ public final class CidsBroker {
                                 throw new ActionNotSuccessfulException(
                                     "Das Flurstück war schon mal in Stadtbesitz, aber es existiert kein Datum wann");
                             }
-//flurstueck.getFlurstueckSchluessel().setGueltigBis(new Date());
-                            // return new HistoricResult(true,false);
+                            flurstueck.persist();
                             return true;
-                                // }
                         }
                         throw new ActionNotSuccessfulException("Die Flurstückart "
                                     + FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH
@@ -2349,30 +2404,26 @@ public final class CidsBroker {
                         final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
                         if (flurstueck != null) {
 //TODO Nutzungsrefactoring
-                            // setCurrentNutzungenHistoric(flurstueck.getNutzungen(), currentDate);
+                            flurstueck.setFlurstueckSchluessel(key);
+                            flurstueck.persist();
                         }
-                        flurstueck.setFlurstueckSchluessel(key);
-                        // return new HistoricResult(true,false);
+
                         return true;
                     }
                 } else {
-                    // return new HistoricResult(false,false);
                     return true;
                 }
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Flurstueck war noch nie staedtisch wird historisch gesetzt");
                 }
-                // deleteFlurstueck(retrieveFlurstueck(key));
                 key.setGueltigBis(date);
-                // return new HistoricResult(true,true);
+                key.persist();
+
                 return true;
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim historisch setzen eines Flurstücks", ex);
-//            ActionNotSuccessfulException tmpEx = new ActionNotSuccessfulException("Flurstück konnte nicht historisch gesetzt werden");
-//            tmpEx.setStackTrace(ex.getStackTrace());
-//            throw tmpEx;
             if (ex instanceof ActionNotSuccessfulException) {
                 throw (ActionNotSuccessfulException)ex;
             } else {
@@ -2976,7 +3027,7 @@ public final class CidsBroker {
             return false;
         }
         final String query = "SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                    + metaclass.getTableName() + "." + metaclass.getPrimaryKey() + " "
+                    + metaclass.getPrimaryKey() + " "
                     + "FROM " + metaclass.getTableName() + " "
                     + "WHERE " + metaclass.getTableName() + ".fk_vorgaenger = " + flurstueckToCheck.getId();
 
