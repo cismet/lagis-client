@@ -1045,15 +1045,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             ex));
                     // TODO Nachricht an Benutzer
                 }
+                
+                // modifyFlurstueck() does also save the current state of the Flurstueck (or throws an exception)
                 CidsBroker.getInstance().modifyFlurstueck(currentFlurstueck);
-                // TODO only sending if the flurstück is saved definetly
-
-                currentFlurstueck.persist();
-
-//                sendMessages();
-//                if (log.isDebugEnabled()) {
-//                    log.debug("sendMessages() returned");
-//                }
             }
         } catch (Exception ex) {
             final StringBuffer buffer = new StringBuffer("Das Flurstück konnte nicht gespeichert werden.\nFehler: ");
