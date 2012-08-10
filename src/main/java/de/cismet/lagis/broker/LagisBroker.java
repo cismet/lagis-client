@@ -1045,7 +1045,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             ex));
                     // TODO Nachricht an Benutzer
                 }
-                
+
                 // modifyFlurstueck() does also save the current state of the Flurstueck (or throws an exception)
                 CidsBroker.getInstance().modifyFlurstueck(currentFlurstueck);
             }
