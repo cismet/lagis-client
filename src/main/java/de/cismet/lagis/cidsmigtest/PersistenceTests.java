@@ -44,7 +44,7 @@ public class PersistenceTests {
     public static final String CALLSERVER_URL = "http://localhost:9917/callserver/binary";
     public static final String CALLSERVER_DOMAIN = "LAGIS";
     public static final String CALLSERVER_USER = "admin";
-    public static final String CALLSERVER_PASSWORD = "cismet";
+    public static final String CALLSERVER_PASSWORD = "";
     public static final String CALLSERVER_GROUP = "Administratoren";
 
     private static final Logger LOG = Logger.getLogger(PersistenceTests.class);
