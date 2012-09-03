@@ -28,6 +28,7 @@ import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
+
 import de.cismet.tools.gui.StaticSwingTools;
 
 /**
@@ -204,7 +205,7 @@ public final class FlurstueckInfoClipboard implements FlurstueckChangeListener {
                 this.lagisApp,
                 true,
                 this);
-        
+
         StaticSwingTools.showDialog(widget);
     }
 

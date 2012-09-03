@@ -14,6 +14,7 @@ package de.cismet.lagis.gui.copypaste;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -75,18 +76,16 @@ public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialo
      * @param  modal      determines if dialog is modal or not
      * @param  clipboard  instance of FlurstueckInfoClipboard which manages the copy workflow
      */
-    public FlurstueckInfoClipboardPasteWidget(final Component component,
+    public FlurstueckInfoClipboardPasteWidget(final Frame component,
             final boolean modal,
             final FlurstueckInfoClipboard clipboard) {
-        super(StaticSwingTools.getParentFrame(component), modal);
+        super(component, modal);
 
         parentComponent = component;
         this.clipboard = clipboard;
 
         initComponents();
         panDesc.setBackground(new Color(216, 228, 248));
-
-        this.setLocationRelativeTo(parentComponent);
 
         getRootPane().setDefaultButton(cmdOk);
 
@@ -371,27 +370,27 @@ public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialo
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void formComponentShown(final java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
-    }//GEN-LAST:event_formComponentShown
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
+    }                                                                          //GEN-LAST:event_formComponentShown
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
         close();
-    }//GEN-LAST:event_cmdCancelActionPerformed
+    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdOkActionPerformed
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
         this.clipboard.performPaste(copiedDataList);
         close();
-    }//GEN-LAST:event_cmdOkActionPerformed
+    }                                                                         //GEN-LAST:event_cmdOkActionPerformed
 
     //~ Inner Classes ----------------------------------------------------------
 

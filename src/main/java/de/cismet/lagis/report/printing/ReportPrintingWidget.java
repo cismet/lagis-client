@@ -120,19 +120,17 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * Creates new form PrintingWidget.
      *
-     * @param  component  mappingComponent DOCUMENT ME!
-     * @param  modal      DOCUMENT ME!
+     * @param  frame  component mappingComponent DOCUMENT ME!
+     * @param  modal  DOCUMENT ME!
      */
-    public ReportPrintingWidget(final Component component, final boolean modal) {
-        super(StaticSwingTools.getParentFrame(component), modal);
+    public ReportPrintingWidget(final Frame frame, final boolean modal) {
+        super(frame, modal);
 
-        parentComponent = component;
+        parentComponent = frame;
 
         pdfWait = new PDFCreatingWaitDialog(StaticSwingTools.getParentFrame(this), true);
         initComponents();
         panDesc.setBackground(new Color(216, 228, 248));
-
-        this.setLocationRelativeTo(parentComponent);
 
         getRootPane().setDefaultButton(cmdOk);
         this.notizenTextArea.requestFocus();
@@ -311,7 +309,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      *
      * @return  DOCUMENT ME!
      */
-    public ReportPrintingWidget cloneWithNewParent(final boolean modal, final Component component) {
+    public ReportPrintingWidget cloneWithNewParent(final boolean modal, final Frame component) {
         final ReportPrintingWidget newWidget = new ReportPrintingWidget(component, modal);
         return newWidget;
     }
@@ -661,24 +659,24 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void formComponentShown(final java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
-    }//GEN-LAST:event_formComponentShown
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
+    }                                                                          //GEN-LAST:event_formComponentShown
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
         close();
-    }//GEN-LAST:event_cmdCancelActionPerformed
+    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdOkActionPerformed
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
         final Runnable r = new Runnable() {
 
                 @Override
@@ -747,7 +745,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         CismetThreadPool.execute(r);
 
         setVisible(false);
-    }//GEN-LAST:event_cmdOkActionPerformed
+    } //GEN-LAST:event_cmdOkActionPerformed
 
     /**
      * DOCUMENT ME!

@@ -35,6 +35,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import de.cismet.tools.BrowserLauncher;
+
 import de.cismet.tools.gui.StaticSwingTools;
 
 /**

@@ -93,7 +93,6 @@ public class EuroEditor extends DefaultCellEditor {
 
     //~ Methods ----------------------------------------------------------------
 
-
     // Override to ensure that the value remains an Integer.
     @Override
     public Object getCellEditorValue() {
@@ -113,7 +112,6 @@ public class EuroEditor extends DefaultCellEditor {
             return t;
         }
     }
-
 
     /**
      * Lets the user know that the text they entered is bad. Returns true if the user elects to revert to the last good
