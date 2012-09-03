@@ -120,19 +120,17 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * Creates new form PrintingWidget.
      *
-     * @param  component  mappingComponent DOCUMENT ME!
-     * @param  modal      DOCUMENT ME!
+     * @param  frame  component mappingComponent DOCUMENT ME!
+     * @param  modal  DOCUMENT ME!
      */
-    public ReportPrintingWidget(final Component component, final boolean modal) {
-        super(StaticSwingTools.getParentFrame(component), modal);
+    public ReportPrintingWidget(final Frame frame, final boolean modal) {
+        super(frame, modal);
 
-        parentComponent = component;
+        parentComponent = frame;
 
         pdfWait = new PDFCreatingWaitDialog(StaticSwingTools.getParentFrame(this), true);
         initComponents();
         panDesc.setBackground(new Color(216, 228, 248));
-
-        this.setLocationRelativeTo(parentComponent);
 
         getRootPane().setDefaultButton(cmdOk);
         this.notizenTextArea.requestFocus();
@@ -311,7 +309,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      *
      * @return  DOCUMENT ME!
      */
-    public ReportPrintingWidget cloneWithNewParent(final boolean modal, final Component component) {
+    public ReportPrintingWidget cloneWithNewParent(final boolean modal, final Frame component) {
         final ReportPrintingWidget newWidget = new ReportPrintingWidget(component, modal);
         return newWidget;
     }
@@ -689,8 +687,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
                                     @Override
                                     public void run() {
-                                        pdfWait.setLocationRelativeTo(parentComponent);
-                                        pdfWait.setVisible(true);
+                                        StaticSwingTools.showDialog(pdfWait);
                                     }
                                 });
 

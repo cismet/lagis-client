@@ -29,6 +29,8 @@ import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 
+import de.cismet.tools.gui.StaticSwingTools;
+
 /**
  * Clipboard implementation for copying and pasting Flurstück related information.
  *
@@ -203,7 +205,8 @@ public final class FlurstueckInfoClipboard implements FlurstueckChangeListener {
                 this.lagisApp,
                 true,
                 this);
-        widget.setVisible(true);
+
+        StaticSwingTools.showDialog(widget);
     }
 
     /**

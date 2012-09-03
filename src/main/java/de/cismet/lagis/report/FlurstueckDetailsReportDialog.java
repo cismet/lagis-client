@@ -14,6 +14,10 @@ package de.cismet.lagis.report;
 
 import java.util.HashMap;
 
+import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.tools.gui.StaticSwingTools;
+
 /**
  * DOCUMENT ME!
  *
@@ -410,9 +414,10 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
                 @Override
                 public void run() {
                     final FlurstueckDetailsReportDialog dialog = new FlurstueckDetailsReportDialog(
-                            new javax.swing.JFrame(),
+                            LagisBroker.getInstance().getParentComponent(),
                             true);
-                    dialog.setVisible(true);
+
+                    StaticSwingTools.showDialog(dialog);
                 }
             });
     }
