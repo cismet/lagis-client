@@ -12,6 +12,8 @@
  */
 package de.cismet.lagis.report;
 
+import de.cismet.lagis.broker.LagisBroker;
+import de.cismet.tools.gui.StaticSwingTools;
 import java.util.HashMap;
 
 /**
@@ -307,90 +309,90 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void nutzungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_nutzungenCheckBoxActionPerformed
+    private void nutzungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nutzungenCheckBoxActionPerformed
         this.handleParamMap(PARAM_NUTZUNGEN, this.nutzungenCheckBox.isSelected());
-    }                                                                                     //GEN-LAST:event_nutzungenCheckBoxActionPerformed
+    }//GEN-LAST:event_nutzungenCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void baumdateiCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_baumdateiCheckBoxActionPerformed
+    private void baumdateiCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baumdateiCheckBoxActionPerformed
         this.handleParamMap(PARAM_BAUMDATEI, this.baumdateiCheckBox.isSelected());
-    }                                                                                     //GEN-LAST:event_baumdateiCheckBoxActionPerformed
+    }//GEN-LAST:event_baumdateiCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void vermietungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_vermietungenCheckBoxActionPerformed
+    private void vermietungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vermietungenCheckBoxActionPerformed
         this.handleParamMap(PARAM_MIPA, this.vermietungenCheckBox.isSelected());
-    }                                                                                        //GEN-LAST:event_vermietungenCheckBoxActionPerformed
+    }//GEN-LAST:event_vermietungenCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void notizenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_notizenCheckBoxActionPerformed
+    private void notizenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notizenCheckBoxActionPerformed
 
         final boolean isSelected = this.notizenCheckBox.isSelected();
         this.notizenTextArea.setEnabled(isSelected);
         this.notizenTextArea.setEditable(isSelected);
         this.handleParamMap(PARAM_NOTIZEN, isSelected);
-    } //GEN-LAST:event_notizenCheckBoxActionPerformed
+    }//GEN-LAST:event_notizenCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void vorgaengeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_vorgaengeCheckBoxActionPerformed
+    private void vorgaengeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vorgaengeCheckBoxActionPerformed
         this.handleParamMap(PARAM_VORGAENGE, this.vorgaengeCheckBox.isSelected());
-    }                                                                                     //GEN-LAST:event_vorgaengeCheckBoxActionPerformed
+    }//GEN-LAST:event_vorgaengeCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void historieCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_historieCheckBoxActionPerformed
+    private void historieCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_historieCheckBoxActionPerformed
         this.handleParamMap(PARAM_HISTORY, this.historieCheckBox.isSelected());
-    }                                                                                    //GEN-LAST:event_historieCheckBoxActionPerformed
+    }//GEN-LAST:event_historieCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cancelButtonActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cancelButtonActionPerformed
+    private void cancelButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.close();
-    }                                                                                //GEN-LAST:event_cancelButtonActionPerformed
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void okButtonActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_okButtonActionPerformed
+    private void okButtonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         if (this.notizenCheckBox.isSelected()) {
             this.paramMap.put(PARAM_NOTIZEN, this.notizenTextArea.getText());
         }
 
         FlurstueckDetailsReport.showReport(this.paramMap);
         this.close();
-    } //GEN-LAST:event_okButtonActionPerformed
+    }//GEN-LAST:event_okButtonActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rebeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_rebeCheckBoxActionPerformed
+    private void rebeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rebeCheckBoxActionPerformed
         this.handleParamMap(PARAM_REBE, this.rebeCheckBox.isSelected());
-    }                                                                                //GEN-LAST:event_rebeCheckBoxActionPerformed
+    }//GEN-LAST:event_rebeCheckBoxActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -410,9 +412,10 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
                 @Override
                 public void run() {
                     final FlurstueckDetailsReportDialog dialog = new FlurstueckDetailsReportDialog(
-                            new javax.swing.JFrame(),
+                            LagisBroker.getInstance().getParentComponent(),
                             true);
-                    dialog.setVisible(true);
+
+                    StaticSwingTools.showDialog(dialog);
                 }
             });
     }

@@ -35,6 +35,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import de.cismet.tools.BrowserLauncher;
+import de.cismet.tools.gui.StaticSwingTools;
 
 /**
  * DOCUMENT ME!
@@ -98,8 +99,7 @@ public class ReportSwingWorker extends SwingWorker<Boolean, Object> {
 
                     @Override
                     public void run() {
-                        dialog.setLocationRelativeTo(dialog.getParent());
-                        dialog.setVisible(true);
+                        StaticSwingTools.showDialog(dialog);
                     }
                 });
         }

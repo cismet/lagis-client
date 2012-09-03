@@ -38,11 +38,6 @@ import de.cismet.tools.gui.StaticSwingTools;
  */
 public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialog {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(
-            FlurstueckInfoClipboardPasteWidget.class);
-
     //~ Instance fields --------------------------------------------------------
 
     private final Component parentComponent;
@@ -376,27 +371,27 @@ public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialo
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
-    }                                                                          //GEN-LAST:event_formComponentShown
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+    }//GEN-LAST:event_formComponentShown
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed
         close();
-    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
+    }//GEN-LAST:event_cmdCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdOkActionPerformed
         this.clipboard.performPaste(copiedDataList);
         close();
-    }                                                                         //GEN-LAST:event_cmdOkActionPerformed
+    }//GEN-LAST:event_cmdOkActionPerformed
 
     //~ Inner Classes ----------------------------------------------------------
 
