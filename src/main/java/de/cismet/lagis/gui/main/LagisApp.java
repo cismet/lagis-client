@@ -1883,7 +1883,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mniOptions.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/menue/tooloptions.png"))); // NOI18N
         mniOptions.setText("Optionen");
-        mniOptions.setEnabled(false);
         mniOptions.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
