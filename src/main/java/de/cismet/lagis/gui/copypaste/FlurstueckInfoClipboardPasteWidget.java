@@ -14,6 +14,7 @@ package de.cismet.lagis.gui.copypaste;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -37,11 +38,6 @@ import de.cismet.tools.gui.StaticSwingTools;
  * @version  1.0, 2011-10-25
  */
 public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialog {
-
-    //~ Static fields/initializers ---------------------------------------------
-
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(
-            FlurstueckInfoClipboardPasteWidget.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -80,18 +76,16 @@ public final class FlurstueckInfoClipboardPasteWidget extends javax.swing.JDialo
      * @param  modal      determines if dialog is modal or not
      * @param  clipboard  instance of FlurstueckInfoClipboard which manages the copy workflow
      */
-    public FlurstueckInfoClipboardPasteWidget(final Component component,
+    public FlurstueckInfoClipboardPasteWidget(final Frame component,
             final boolean modal,
             final FlurstueckInfoClipboard clipboard) {
-        super(StaticSwingTools.getParentFrame(component), modal);
+        super(component, modal);
 
         parentComponent = component;
         this.clipboard = clipboard;
 
         initComponents();
         panDesc.setBackground(new Color(216, 228, 248));
-
-        this.setLocationRelativeTo(parentComponent);
 
         getRootPane().setDefaultButton(cmdOk);
 

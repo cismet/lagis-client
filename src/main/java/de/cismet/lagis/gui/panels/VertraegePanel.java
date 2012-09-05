@@ -56,6 +56,8 @@ import de.cismet.lagis.validation.Validator;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
+import de.cismet.tools.gui.StaticSwingTools;
+
 /**
  * DOCUMENT ME!
  *
@@ -1234,8 +1236,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         dialog.pack();
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
-        dialog.setLocationRelativeTo(LagisBroker.getInstance().getParentComponent());
-        dialog.setVisible(true);
+        StaticSwingTools.showDialog(dialog);
     }                                                                                         //GEN-LAST:event_btnAddExitingContractActionPerformed
 
     /**
