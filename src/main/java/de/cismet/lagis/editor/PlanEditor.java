@@ -95,8 +95,7 @@ public class PlanEditor extends AbstractCellEditor implements TableCellEditor, A
             }
             dialog.add(new PlanPanel(new PlanTableModel(plaene)));
             dialog.pack();
-            dialog.setLocationRelativeTo(LagisBroker.getInstance().getParentComponent());
-            dialog.setVisible(true);
+            StaticSwingTools.showDialog(dialog);
             fireEditingStopped(); // Make the renderer reappear.
         } else {                  // User pressed dialog's "OK" button.
             // currentColor = colorChooser.getColor();
