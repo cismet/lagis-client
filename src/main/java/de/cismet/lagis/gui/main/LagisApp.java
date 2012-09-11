@@ -677,7 +677,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             setWindowSize();
             mapComponent.setInternalLayerWidgetAvailable(true);
-            validateTree();
+            synchronized (getTreeLock()) {
+                validateTree();
+            }
             for (final Scale s : mapComponent.getScales()) {
                 if (s.getDenominator() > 0) {
                     menExtras.add(getScaleMenuItem(s.getText(), s.getDenominator()));
@@ -1068,7 +1070,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         configManager.addConfigurable(mapComponent);
 
         try {
-            validateTree();
+            synchronized (getTreeLock()) {
+                validateTree();
+            }
         } catch (final Throwable t) {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
