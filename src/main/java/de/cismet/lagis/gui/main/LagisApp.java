@@ -677,9 +677,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             setWindowSize();
             mapComponent.setInternalLayerWidgetAvailable(true);
-            synchronized (getTreeLock()) {
-                validateTree();
-            }
             for (final Scale s : mapComponent.getScales()) {
                 if (s.getDenominator() > 0) {
                     menExtras.add(getScaleMenuItem(s.getText(), s.getDenominator()));
@@ -1069,20 +1066,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         configManager.addConfigurable((ActiveLayerModel)mappingModel);
         configManager.addConfigurable(mapComponent);
 
-        try {
-            synchronized (getTreeLock()) {
-                validateTree();
-            }
-        } catch (final Throwable t) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        LOG.warn("Fehler in validateTree()", t);
-                        validateTree();
-                    }
-                });
-        }
         // First local configuration than serverconfiguration
         configManager.configure(mappingModel);
         mapComponent.preparationSetMappingModel(mappingModel);
