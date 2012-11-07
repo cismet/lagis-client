@@ -92,7 +92,7 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
                     LOG.debug("Crossover: Rest Method load flurstueck called with params: " + gemarkung + " " + flur
                                 + " " + zaehler + "/" + nenner);
                 }
-                FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
+                final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
                 GemarkungCustomBean gem = GemarkungCustomBean.createNew();
                 gem.setBezeichnung(gemarkung);
                 gem = CidsBroker.getInstance().completeGemarkung(gem);
@@ -106,7 +106,6 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
                 key.setFlur(flur);
                 key.setFlurstueckZaehler(zaehler);
                 key.setFlurstueckNenner(nenner);
-                key = CidsBroker.getInstance().completeFlurstueckSchluessel(key);
                 if (key != null) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("found a key on server: " + key);
