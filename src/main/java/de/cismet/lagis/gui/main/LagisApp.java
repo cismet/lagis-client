@@ -134,6 +134,7 @@ import de.cismet.tools.configuration.ConfigurationManager;
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
+import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 import de.cismet.tools.gui.startup.StaticStartupTools;
 
 /**
@@ -733,6 +734,24 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         .getProgressObserver()
                         .setProgress(850, "Initialisieren und Starten des Hintergrundthreads...");
             }
+
+            final KeyStroke configLoggerKeyStroke = KeyStroke.getKeyStroke('L', InputEvent.CTRL_MASK);
+            final Action configAction = new AbstractAction() {
+
+                    @Override
+                    public void actionPerformed(final ActionEvent e) {
+                        java.awt.EventQueue.invokeLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    Log4JQuickConfig.getSingletonInstance().setVisible(true);
+                                }
+                            });
+                    }
+                };
+            getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(configLoggerKeyStroke, "CONFIGLOGGING");
+            getRootPane().getActionMap().put("CONFIGLOGGING", configAction);
+
             updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                     @Override
@@ -3168,50 +3187,35 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
-            CidsBroker.getInstance();
             try {
                 final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
-                final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
+                final LagisBroker broker = LagisBroker.getInstance();
+                try {
+                    final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
+                    }
+                    initCrossoverServer(Integer.parseInt(crossoverServerPort));
+                } catch (Exception ex) {
+                    LOG.warn("Crossover: Error while starting Server", ex);
                 }
-                initCrossoverServer(Integer.parseInt(crossoverServerPort));
-            } catch (Exception ex) {
-                LOG.warn("Crossover: Error while starting Server", ex);
-            }
-            try {
-                final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
-                final String verdisHost = crossoverPrefs.getChild("VerdisConfiguration").getChildText("Host");
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Crossover: verdisHost: " + verdisHost);
+                try {
+                    broker.setVerdisCrossoverPort(Integer.parseInt(crossoverPrefs.getChildText("VerdisCrossoverPort")));
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Crossover: verdisCrossoverPort: " + broker.getVerdisCrossoverPort());
+                    }
+                } catch (Exception ex) {
+                    LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
                 }
-//                final String verdisORBPort = crossoverPrefs.getChild("VerdisConfiguration").getChildText("ORBPort");
-//                if (LOG.isDebugEnabled()) {
-//                    LOG.debug("Crossover: verdisORBPort: " + verdisORBPort);
-//                }
-                LagisBroker.getInstance()
-                        .setVerdisCrossoverPort(Integer.parseInt(
-                                crossoverPrefs.getChild("VerdisConfiguration").getChildText("VerdisCrossoverPort")));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Crossover: verdisCrossoverPort: " + LagisBroker.getInstance().getVerdisCrossoverPort());
+                try {
+                    final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText(
+                                "KassenzeichenBuffer"));
+                    broker.setKassenzeichenBuffer(kassenzeichenBuffer);
+                } catch (Exception ex) {
+                    LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
                 }
-                // TODO Jean : verdisServer mit cids nachbilden
-// final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(
-// verdisHost,
-// verdisORBPort,
-// KassenzeichenFacadeRemote.class)
-// .getEjbInterface();
-// LagisBroker.getInstance().setVerdisServer(verdisServer);
             } catch (Exception ex) {
-                LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
-            }
-            try {
-                final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
-                final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText(
-                            "KassenzeichenBuffer"));
-                LagisBroker.getInstance().setKassenzeichenBuffer(kassenzeichenBuffer);
-            } catch (Exception ex) {
-                LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
+                LOG.error("Crossover: Fehler beim Konfigurieren.", ex);
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);

@@ -67,6 +67,8 @@ import de.cismet.lagisEE.util.FlurKey;
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
 
+import de.cismet.tools.gui.StaticSwingTools;
+
 /**
  * DOCUMENT ME!
  *
@@ -473,9 +475,9 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      * DOCUMENT ME!
      */
     private void configureComponents() {
-        AutoCompleteDecorator.decorate(cboGemarkung);
-        AutoCompleteDecorator.decorate(cboFlur);
-        AutoCompleteDecorator.decorate(cboFlurstueck);
+        StaticSwingTools.decorateWithFixedAutoCompleteDecorator(cboGemarkung);
+        StaticSwingTools.decorateWithFixedAutoCompleteDecorator(cboFlur);
+        StaticSwingTools.decorateWithFixedAutoCompleteDecorator(cboFlurstueck);
 
         final FocusListener focusListener = new FocusListenerImpl();
         cboGemarkung.getEditor().getEditorComponent().addFocusListener(focusListener);
