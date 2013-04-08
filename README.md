@@ -24,4 +24,4 @@ Don't hesitate to contact us if you have any questions.
 License
 =======
 
-lagis-client is distributed under [LGPLv3](https://github.com/cismet/lagis-client/blob/dev/LICENSE)
+lagis-client is distributed under [GPLv3](https://github.com/cismet/lagis-client/blob/dev/LICENSE)
