@@ -5,7 +5,9 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.cismap.printing.templateinscriber;
+package de.cismet.lagis.printing.templateinscriber;
+
+import de.cismet.cismap.printing.templateinscriber.A4HPersistent;
 
 /**
  * DOCUMENT ME!
