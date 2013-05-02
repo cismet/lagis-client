@@ -97,7 +97,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     ArrayList<Date> dateToTicks;
     ArrayList<NutzungBuchungCustomBean> historicNutzungenDayClasses;
     boolean isOnlyHistoric = false;
-
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private FlurstueckCustomBean currentFlurstueck;
     private final NKFTableModel tableModel = new NKFTableModel();
@@ -121,6 +120,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private Date first;
     private Date last;
     private NutzungBuchungCustomBean currentPopupNutzung = null;
+    private int previously_sorted_column_index = 0;
+    private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNutzung;
     private javax.swing.JButton btnCopyNutzung;
@@ -137,6 +138,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private javax.swing.JLabel lblHistoricIcon;
     private javax.swing.JSlider slrHistory;
     private javax.swing.JTable tNutzung;
+    private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
     // TODO nicht die Methode überschreiben sondern ein Feld in der Superklasse anlegen und dieses Feld in der erbenden
     // Klasse überschreiben
@@ -233,6 +235,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
     }
+
     /**
      * TODO Forbid if time bar mode is active.
      */
@@ -454,6 +457,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         btnPasteNutzung = new javax.swing.JButton();
         btnCopyNutzung = new javax.swing.JButton();
         btnFlipBuchung = new javax.swing.JButton();
+        tbtnSort = new javax.swing.JToggleButton();
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
@@ -573,6 +577,24 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
             });
 
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setToolTipText("Sortierung An / Aus");
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
+        tbtnSort.setMaximumSize(new java.awt.Dimension(56, 32));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(56, 32));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(56, 32));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        tbtnSort.addItemListener(new java.awt.event.ItemListener() {
+
+                @Override
+                public void itemStateChanged(final java.awt.event.ItemEvent evt) {
+                    tbtnSortItemStateChanged(evt);
+                }
+            });
+
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -587,8 +609,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         Short.MAX_VALUE).add(
                         layout.createSequentialGroup().add(jLabel1).addPreferredGap(
                             org.jdesktop.layout.LayoutStyle.RELATED,
-                            351,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             Short.MAX_VALUE).add(
+                            tbtnSort,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            32,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
                             btnFlipBuchung,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                             28,
@@ -636,7 +663,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(
                         layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
                             btnAddNutzung,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -646,9 +673,26 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                             23,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(btnPasteNutzung).add(
-                            btnCopyNutzung)).add(btnFlipBuchung)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        btnPasteNutzung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        btnCopyNutzung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        btnFlipBuchung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        tbtnSort,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                     403,
@@ -671,6 +715,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             new java.awt.Component[] { btnAddNutzung, btnRemoveNutzung },
             org.jdesktop.layout.GroupLayout.VERTICAL);
     } // </editor-fold>//GEN-END:initComponents
+
     /**
      * DOCUMENT ME!
      *
@@ -714,6 +759,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
+        tbtnSort.setSelected(true);                                                   // this disables the sort of the
+                                                                                      // table
         tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
     }                                                                                 //GEN-LAST:event_btnAddNutzungActionPerformed
@@ -796,6 +843,21 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             log.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
     }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) { //GEN-FIRST:event_tbtnSortItemStateChanged
+        if (tbtnSort.isSelected()) {                                            // disable sort
+            previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
+            previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
+            ((JXTable)tNutzung).setSortable(false);
+        } else {                                                                // sort the table
+            ((JXTable)tNutzung).setSortable(true);
+            ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
+        }
+    }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
 
     @Override
     public String getWidgetName() {
@@ -1109,6 +1171,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
         }
     }
+
     /**
      * ToDo refactor.
      */
