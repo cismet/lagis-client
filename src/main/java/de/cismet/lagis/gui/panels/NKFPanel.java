@@ -578,13 +578,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             });
 
         tbtnSort.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
-        tbtnSort.setSelected(true);
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
         tbtnSort.setToolTipText("Sortieren");
         tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
         tbtnSort.setMaximumSize(new java.awt.Dimension(56, 32));
         tbtnSort.setMinimumSize(new java.awt.Dimension(56, 32));
         tbtnSort.setPreferredSize(new java.awt.Dimension(56, 32));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
         tbtnSort.addItemListener(new java.awt.event.ItemListener() {
 
                 @Override
@@ -671,15 +673,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                             23,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                            btnPasteNutzung,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(
-                            btnCopyNutzung,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE)).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        btnPasteNutzung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        btnCopyNutzung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
                         org.jdesktop.layout.GroupLayout.TRAILING,
                         btnFlipBuchung,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
@@ -756,7 +759,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
-        tbtnSort.setSelected(false);
+        tbtnSort.setSelected(true);                                                   // this disables the sort of the
+                                                                                      // table
         tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
     }                                                                                 //GEN-LAST:event_btnAddNutzungActionPerformed
@@ -845,13 +849,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * @param  evt  DOCUMENT ME!
      */
     private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) { //GEN-FIRST:event_tbtnSortItemStateChanged
-        if (tbtnSort.isSelected()) {                                            // sort the table
-            ((JXTable)tNutzung).setSortable(true);
-            ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
-        } else {                                                                // disable sort
+        if (tbtnSort.isSelected()) {                                            // disable sort
             previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
             previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
             ((JXTable)tNutzung).setSortable(false);
+        } else {                                                                // sort the table
+            ((JXTable)tNutzung).setSortable(true);
+            ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
     }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
 
