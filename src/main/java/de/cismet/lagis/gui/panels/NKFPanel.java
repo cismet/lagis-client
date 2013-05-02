@@ -1,10 +1,12 @@
-/***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+/**
+ * *************************************************
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ * 
+* ... and it just works.
+ * 
+***************************************************
+ */
 /*
  * RechteTabellenPanel.java
  *
@@ -72,32 +74,28 @@ import de.cismet.tools.configuration.Configurable;
 /**
  * DOCUMENT ME!
  *
- * @author   Puhl
- * @version  $Revision$, $Date$
+ * @author Puhl
+ * @version $Revision$, $Date$
  */
 public class NKFPanel extends AbstractWidget implements MouseListener,
-    FlurstueckChangeListener,
-    FlurstueckSaver,
-    TableModelListener,
-    ChangeListener,
-    ListSelectionListener,
-    Configurable {
+        FlurstueckChangeListener,
+        FlurstueckSaver,
+        TableModelListener,
+        ChangeListener,
+        ListSelectionListener,
+        Configurable {
 
     //~ Static fields/initializers ---------------------------------------------
-
     private static final String WIDGET_NAME = "NKF Datenpanel";
     private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
     private static final int YEAR_SCALE = 1;
     private static final int MONTH_SCALE = 2;
     private static final int DAY_SCALE = 3;
-
     //~ Instance fields --------------------------------------------------------
-
     // perhaps not good
     ArrayList<Date> dateToTicks;
     ArrayList<NutzungBuchungCustomBean> historicNutzungenDayClasses;
     boolean isOnlyHistoric = false;
-
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private FlurstueckCustomBean currentFlurstueck;
     private final NKFTableModel tableModel = new NKFTableModel();
@@ -105,13 +103,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isFlurstueckEditable = true;
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
+            "/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
     private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
+            "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
     private Icon icoBooked = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
+            "/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
     private Icon icoNotBooked = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
+            "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
     private final ArrayList<NutzungCustomBean> copyPasteList = new ArrayList();
     private JPopupMenu predecessorPopup;
     private Date currentDate;
@@ -143,7 +141,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     // Klasse überschreiben
 
     //~ Constructors -----------------------------------------------------------
-
     /**
      * Creates new form RechteTabellenPanel.
      */
@@ -166,74 +163,73 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Methods ----------------------------------------------------------------
-
     /**
      * DOCUMENT ME!
      */
     private void configBackgroundThread() {
         updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                                    .getFlurstueckArt();
-                        if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist städtisch und kann editiert werden");
-                            }
-                            isFlurstueckEditable = true;
-                        } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
-                            }
-                            isFlurstueckEditable = false;
-                        }
-                        final Collection<NutzungCustomBean> newNutzungen = getCurrentObject().getNutzungen();
-                        tableModel.refreshTableModel(newNutzungen);
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        if (newNutzungen != null) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
-                            }
-                        }
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        updateSlider();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
-                    } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
+            @Override
+            protected void update() {
+                try {
+                    if (isUpdateAvailable()) {
+                        cleanup();
+                        return;
                     }
+                    clearComponent();
+                    if (isUpdateAvailable()) {
+                        cleanup();
+                        return;
+                    }
+                    final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
+                            .getFlurstueckArt();
+                    if ((flurstueckArt != null)
+                            && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Flurstück ist städtisch und kann editiert werden");
+                        }
+                        isFlurstueckEditable = true;
+                    } else {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                        }
+                        isFlurstueckEditable = false;
+                    }
+                    final Collection<NutzungCustomBean> newNutzungen = getCurrentObject().getNutzungen();
+                    tableModel.refreshTableModel(newNutzungen);
+                    if (isUpdateAvailable()) {
+                        cleanup();
+                        return;
+                    }
+                    if (newNutzungen != null) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
+                        }
+                    }
+                    if (isUpdateAvailable()) {
+                        cleanup();
+                        return;
+                    }
+                    updateSlider();
+                    if (isUpdateAvailable()) {
+                        cleanup();
+                        return;
+                    }
+                    LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
+                } catch (Exception ex) {
+                    log.error("Fehler im refresh thread: ", ex);
+                    LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
                 }
+            }
 
-                @Override
-                protected void cleanup() {
-                }
-            };
+            @Override
+            protected void cleanup() {
+            }
+        };
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
     }
+
     /**
      * TODO Forbid if time bar mode is active.
      */
@@ -241,19 +237,18 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         predecessorPopup = new JPopupMenu();
         final JMenuItem findPredecessor = new JMenuItem(FIND_PREDECESSOR_MENU_NAME);
         findPredecessor.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(final ActionEvent e) {
-                    findPredecessorForNutzung(e);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                findPredecessorForNutzung(e);
+            }
+        });
         predecessorPopup.add(findPredecessor);
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  e  DOCUMENT ME!
+     * @param e DOCUMENT ME!
      */
     private void findPredecessorForNutzung(final ActionEvent e) {
         if (log.isDebugEnabled()) {
@@ -275,13 +270,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.getSelectionModel().addListSelectionListener(this);
         tableModel.addTableModelListener(this);
         final JComboBox cboAK = new JComboBox(new Vector<AnlageklasseCustomBean>(
-                    CidsBroker.getInstance().getAllAnlageklassen()));
+                CidsBroker.getInstance().getAllAnlageklassen()));
         cboAK.addItem("");
         tNutzung.setDefaultEditor(AnlageklasseCustomBean.class, new DefaultCellEditor(cboAK));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<NutzungsartCustomBean>(CidsBroker.getInstance()
-                        .getAllNutzungsarten());
+                .getAllNutzungsarten());
         Collections.sort(nutzungsarten);
         final JComboBox cboNA = new JComboBox(nutzungsarten);
         cboNA.addItem("");
@@ -295,26 +290,25 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.addMouseListener(new PopupListener());
         tableModel.addTableModelListener(this);
         final HighlightPredicate buchungsStatusPredicate = new HighlightPredicate() {
-
-                @Override
-                public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
-                    try {
-                        if (componentAdapter.getRowCount() > 0) {
-                            final int displayedIndex = componentAdapter.row;
-                            final int modelIndex = ((JXTable)tNutzung).getFilters()
-                                        .convertRowIndexToModel(displayedIndex);
-                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
-                            // NO Geometry & more than one Verwaltungsbereich
-                            return (n != null) && !n.getIstBuchwert();
-                        } else {
-                            return false;
-                        }
-                    } catch (Exception ex) {
-                        log.error("Fehler beim Highlighting des Buchwerts vorhanden", ex);
+            @Override
+            public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
+                try {
+                    if (componentAdapter.getRowCount() > 0) {
+                        final int displayedIndex = componentAdapter.row;
+                        final int modelIndex = ((JXTable) tNutzung).getFilters()
+                                .convertRowIndexToModel(displayedIndex);
+                        final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                        // NO Geometry & more than one Verwaltungsbereich
+                        return (n != null) && !n.getIstBuchwert();
+                    } else {
                         return false;
                     }
+                } catch (Exception ex) {
+                    log.error("Fehler beim Highlighting des Buchwerts vorhanden", ex);
+                    return false;
                 }
-            };
+            }
+        };
 
         final Highlighter buchungsStatusHighlighter = new ColorHighlighter(
                 buchungsStatusPredicate,
@@ -322,36 +316,35 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 null);
         // (LagisBroker.grey, null, 0, -1)
         final HighlightPredicate geloeschtPredicate = new HighlightPredicate() {
-
-                @Override
-                public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
-                    try {
-                        if (componentAdapter.getRowCount() > 0) {
-                            final int displayedIndex = componentAdapter.row;
-                            final int modelIndex = ((JXTable)tNutzung).getFilters()
-                                        .convertRowIndexToModel(displayedIndex);
-                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
-                            // NO Geometry & more than one Verwaltungsbereich
-                            return ((n != null) && n.getSollGeloeschtWerden());
-                        } else {
-                            return false;
-                        }
-                    } catch (Exception ex) {
-                        log.error("Fehler beim Highlighting test wurde gelöscht vorhanden", ex);
+            @Override
+            public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
+                try {
+                    if (componentAdapter.getRowCount() > 0) {
+                        final int displayedIndex = componentAdapter.row;
+                        final int modelIndex = ((JXTable) tNutzung).getFilters()
+                                .convertRowIndexToModel(displayedIndex);
+                        final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                        // NO Geometry & more than one Verwaltungsbereich
+                        return ((n != null) && n.getSollGeloeschtWerden());
+                    } else {
                         return false;
                     }
+                } catch (Exception ex) {
+                    log.error("Fehler beim Highlighting test wurde gelöscht vorhanden", ex);
+                    return false;
                 }
-            };
+            }
+        };
 
         final Highlighter geloeschtHighlighter = new ColorHighlighter(geloeschtPredicate, LagisBroker.grey, null);
-        ((JXTable)tNutzung).setHighlighters(
-            LagisBroker.ALTERNATE_ROW_HIGHLIGHTER,
-            buchungsStatusHighlighter,
-            geloeschtHighlighter);
-        ((JXTable)tNutzung).setSortOrder(0, SortOrder.ASCENDING);
-        ((JXTable)tNutzung).setColumnControlVisible(true);
-        ((JXTable)tNutzung).setHorizontalScrollEnabled(true);
-        ((JXTable)tNutzung).packAll();
+        ((JXTable) tNutzung).setHighlighters(
+                LagisBroker.ALTERNATE_ROW_HIGHLIGHTER,
+                buchungsStatusHighlighter,
+                geloeschtHighlighter);
+        ((JXTable) tNutzung).setSortOrder(0, SortOrder.ASCENDING);
+        ((JXTable) tNutzung).setColumnControlVisible(true);
+        ((JXTable) tNutzung).setHorizontalScrollEnabled(true);
+        ((JXTable) tNutzung).packAll();
     }
     // private Thread panelRefresherThread;
 
@@ -385,7 +378,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
-                    final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+                    final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
                     final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
 
                     if (selectedBuchung.isBuchwertFlippable() && LagisBroker.getInstance().isNkfAdminPermission()) {
@@ -435,8 +428,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     /**
-     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
-     * content of this method is always regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -637,10 +631,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         layout.linkSize(new java.awt.Component[] {btnAddNutzung, btnRemoveNutzung}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
     }// </editor-fold>//GEN-END:initComponents
+
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
@@ -649,17 +644,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Remove Nutzung");
         }
-        final int currentRow = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
+        final int currentRow = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
         if (currentRow != -1) {
             if (log.isDebugEnabled()) {
                 log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: "
-                            + tNutzung.getSelectedRow());
+                        + tNutzung.getSelectedRow());
             }
             try {
                 tableModel.removeNutzung(currentRow);
@@ -667,7 +662,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 log.error("Eine Nutzung konnte nicht entfernt werden", ex);
                 final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
                         "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
-                                + "sich an den Systemadministrator",
+                        + "sich an den Systemadministrator",
                         "Fehler beim löschen einer Buchung",
                         JOptionPane.OK_OPTION);
             }
@@ -677,9 +672,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNutzungActionPerformed
+        tbtnSort.setSelected(false);
         tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
     }//GEN-LAST:event_btnAddNutzungActionPerformed
@@ -687,7 +683,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
@@ -695,7 +691,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             final int[] selectedRows = tNutzung.getSelectedRows();
             for (int i = 0; i < selectedRows.length; i++) {
                 tNutzung.getSelectedRow();
-                final int index = ((JXTable)tNutzung).convertRowIndexToModel(selectedRows[i]);
+                final int index = ((JXTable) tNutzung).convertRowIndexToModel(selectedRows[i]);
                 final NutzungBuchungCustomBean curNutzungToCopy = tableModel.getBuchungAtRow(index);
                 if (curNutzungToCopy != null) {
                     try {
@@ -703,10 +699,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     } catch (Exception ex) {
                         log.error("Fehler beim kopieren einer Buchung: ", ex);
                         JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
-                            "Die Buchung konnte nicht kopiert werden, da die zu \n"
-                                    + "kopierende Buchung Fehler enthält",
-                            "Fehler beim kopieren einer Buchung",
-                            JOptionPane.OK_OPTION);
+                                "Die Buchung konnte nicht kopiert werden, da die zu \n"
+                                + "kopierende Buchung Fehler enthält",
+                                "Fehler beim kopieren einer Buchung",
+                                JOptionPane.OK_OPTION);
                         return;
                     }
                 }
@@ -720,7 +716,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
@@ -736,13 +732,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Flippe Buchung");
         }
-        final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+        final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
         if (index != -1) {
             final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
             if (selectedBuchung.isBuchwertFlippable()) {
@@ -754,8 +750,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     log.error("Buchwert kann nicht geflipped werden, Nutzung in illegalem Zustand: ", ex);
                 } catch (BuchungNotInNutzungException ex) {
                     log.error(
-                        "Buchwert kann nicht geflipped werden, Die Buchung ist nicht in der Nutzung vorhanden: ",
-                        ex);
+                            "Buchwert kann nicht geflipped werden, Die Buchung ist nicht in der Nutzung vorhanden: ",
+                            ex);
                 }
             }
         } else {
@@ -765,13 +761,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private int previously_sorted_column_index = 0;
     private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     private void tbtnSortItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnSortItemStateChanged
-        if(tbtnSort.isSelected()){ //sort the table
-            ((JXTable)tNutzung).setSortable(false);
-            ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
+        if (tbtnSort.isSelected()) { //sort the table
+            ((JXTable) tNutzung).setSortable(false);
+            ((JXTable) tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         } else { //disable sort
-            previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
-            previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
-            ((JXTable)tNutzung).setSortable(false); 
+            previously_sorted_column_index = ((JXTable) tNutzung).getSortedColumn().getModelIndex();
+            previously_used_sort_order = ((JXTable) tNutzung).getSortOrder(previously_sorted_column_index);
+            ((JXTable) tNutzung).setSortable(false);
         }
     }//GEN-LAST:event_tbtnSortItemStateChanged
 
@@ -809,16 +805,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             final int selecetdRow = tNutzung.getSelectedRow();
             if (selecetdRow != -1) {
-                final NutzungBuchungCustomBean nutzung = tableModel.getBuchungAtRow(((JXTable)tNutzung)
-                                .convertRowIndexToModel(
-                                    selecetdRow));
+                final NutzungBuchungCustomBean nutzung = tableModel.getBuchungAtRow(((JXTable) tNutzung)
+                        .convertRowIndexToModel(
+                        selecetdRow));
                 if (cbxChanges.isSelected() && (nutzung != null) && (e.getClickCount() == 2)
-                            && (!isInEditMode
-                                || ((tNutzung.getSelectedColumn() == 1) || (tNutzung.getSelectedColumn() == 9)
-                                    || (tNutzung.getSelectedColumn() == 10)
-                                    || (tNutzung.getSelectedColumn() == 0)
-                                    || (tNutzung.getSelectedColumn() == 4)
-                                    || (tNutzung.getSelectedColumn() == 11)))) {
+                        && (!isInEditMode
+                        || ((tNutzung.getSelectedColumn() == 1) || (tNutzung.getSelectedColumn() == 9)
+                        || (tNutzung.getSelectedColumn() == 10)
+                        || (tNutzung.getSelectedColumn() == 0)
+                        || (tNutzung.getSelectedColumn() == 4)
+                        || (tNutzung.getSelectedColumn() == 11)))) {
                     jumpToPredecessorNutzung(nutzung);
                 }
             }
@@ -828,7 +824,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  buchung  DOCUMENT ME!
+     * @param buchung DOCUMENT ME!
      */
     private void jumpToPredecessorNutzung(final NutzungBuchungCustomBean buchung) {
         if (log.isDebugEnabled()) {
@@ -839,7 +835,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         }
         NutzungBuchungCustomBean vorgaenger = null;
         if ((buchung != null) && (buchung.getNutzung() != null)
-                    && ((vorgaenger = buchung.getNutzung().getPredecessorBuchung(buchung)) != null)) {
+                && ((vorgaenger = buchung.getNutzung().getPredecessorBuchung(buchung)) != null)) {
             if (log.isDebugEnabled()) {
                 log.debug("Vorgänger Nutzung gefunden");
             }
@@ -854,7 +850,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param  nutzung  DOCUMENT ME!
+     * @param nutzung DOCUMENT ME!
      */
     private void selectNutzungInHistory(final NutzungBuchungCustomBean nutzung) {
         final int tickToJump = getTickForNutzung(nutzung);
@@ -867,7 +863,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             if (log.isDebugEnabled()) {
                 log.debug("index: " + index);
             }
-            final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
+            final int displayedIndex = ((JXTable) tNutzung).getFilters().convertRowIndexToView(index);
             if (index != -1) {
                 if (log.isDebugEnabled()) {
                     log.debug("DisplayedIndex: " + displayedIndex);
@@ -907,7 +903,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     public void tableChanged(final TableModelEvent e) {
         // check if selection is still valid
         if (tNutzung.getSelectedRow() != -1) {
-            final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
             if (selectedBuchung == null) {
                 if (log.isDebugEnabled()) {
@@ -929,7 +925,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 //            ((JXTable) tNutzung).packAll();
 //        }
         if (tNutzung.getSelectedRow() != -1) {
-            final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             if (index != -1) {
                 final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
                 if (selectedBuchung.getIstBuchwert() == true) {
@@ -949,7 +945,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (cbxChanges.isSelected()) {
             if (historicNutzungenDayClasses != null) {
                 try {
-                    final JSlider source = (JSlider)e.getSource();
+                    final JSlider source = (JSlider) e.getSource();
                     if (log.isDebugEnabled()) {
                         log.debug("Aktuelle Slider position: " + source.getValue());
                     }
@@ -965,7 +961,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if (!source.getValueIsAdjusting()) {
                         if (source.getValue() < counter) {
                             tableModel.setModelToHistoryDate(historicNutzungenDayClasses.get(source.getValue())
-                                        .getGueltigbis());
+                                    .getGueltigbis());
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
                                 btnAddNutzung.setEnabled(false);
@@ -988,7 +984,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
             }
         } else {
-            final JSlider source = (JSlider)e.getSource();
+            final JSlider source = (JSlider) e.getSource();
             if (log.isDebugEnabled()) {
                 log.debug("Aktuelle Slider position: " + source.getValue());
             }
@@ -1087,6 +1083,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
         }
     }
+
     /**
      * ToDo refactor.
      */
@@ -1104,7 +1101,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 slrHistory.setMinorTickSpacing(1);
                 sortedNutzungen = tableModel.getAllBuchungen();
                 final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen =
-                    new ArrayList<NutzungBuchungCustomBean>();
+                        new ArrayList<NutzungBuchungCustomBean>();
                 if (sortedNutzungen != null) {
                     // sortedNutzungen = (Vector) tableModel.getAllNutzungen().clone();
                     counter = 0;
@@ -1137,15 +1134,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                             nutzungToTest.getGueltigbis());
                                     if (log.isDebugEnabled()) {
                                         log.debug("aktuell zu testende historische Nutzung: " + curGueltigBis
-                                                    + " millis: " + curGueltigBis.getTime());
+                                                + " millis: " + curGueltigBis.getTime());
                                     }
                                     if (log.isDebugEnabled()) {
                                         log.debug("test historische Nutzung: " + gueltigBisToTest + " millis: "
-                                                    + gueltigBisToTest.getTime());
+                                                + gueltigBisToTest.getTime());
                                     }
                                     if (log.isDebugEnabled()) {
                                         log.debug("Sind Nutzungen am gleichen Tag?: "
-                                                    + curGueltigBis.equals(gueltigBisToTest));
+                                                + curGueltigBis.equals(gueltigBisToTest));
                                     }
                                     if (!curGueltigBis.equals(gueltigBisToTest)) {
                                         if (log.isDebugEnabled()) {
@@ -1222,9 +1219,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             try {
                 isOnlyHistoric = false;
                 slrHistory.setSnapToTicks(false);
-                sortedNutzungen = (ArrayList)tableModel.getAllBuchungen();
+                sortedNutzungen = (ArrayList) tableModel.getAllBuchungen();
                 final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen =
-                    new ArrayList<NutzungBuchungCustomBean>();
+                        new ArrayList<NutzungBuchungCustomBean>();
                 first = null;
                 last = null;
                 if (sortedNutzungen != null) {
@@ -1274,15 +1271,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                 // TODO ROUND
                                 log.debug("Millisekunden zwischen den Nutzungen: " + between);
                             }
-                            final int days = (int)(Math.round(between / 1000 / 60 / 60 / 24));
+                            final int days = (int) (Math.round(between / 1000 / 60 / 60 / 24));
                             if (log.isDebugEnabled()) {
                                 log.debug("Tage zwischen den Nutzungen: " + days);
                             }
-                            final int months = (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30));
+                            final int months = (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30));
                             if (log.isDebugEnabled()) {
                                 log.debug("Monate zwischen den Nutzungen: " + months);
                             }
-                            final int years = (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
+                            final int years = (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
                             if (log.isDebugEnabled()) {
                                 log.debug("Jahre zwischen den Nutzungen: " + years);
                             }
@@ -1368,7 +1365,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     @Override
     public void valueChanged(final ListSelectionEvent e) {
         if (tNutzung.getSelectedRow() != -1) {
-            final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             // if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null && isInEditMode){
             if (index != -1) {
                 final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
@@ -1408,9 +1405,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param   current  DOCUMENT ME!
+     * @param current DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @return DOCUMENT ME!
      */
     private int getTickForNutzung(final NutzungBuchungCustomBean current) {
         if (cbxChanges.isSelected()) {
@@ -1442,17 +1439,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if (log.isDebugEnabled()) {
                         log.debug("DayScale");
                     }
-                    return (int)(Math.round(between / 1000 / 60 / 60 / 24));
+                    return (int) (Math.round(between / 1000 / 60 / 60 / 24));
                 } else if (mode == MONTH_SCALE) {
                     if (log.isDebugEnabled()) {
                         log.debug("MonthScale");
                     }
-                    return (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30));
+                    return (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30));
                 } else if (mode == YEAR_SCALE) {
                     if (log.isDebugEnabled()) {
                         log.debug("YearScale");
                     }
-                    return (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
+                    return (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
                 }
             }
             if (log.isDebugEnabled()) {
@@ -1497,7 +1494,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if ((currentBuchung.getFlaeche() != null) && (currentBuchung.getQuadratmeterpreis() != null)) {
                         if (log.isDebugEnabled()) {
                             log.debug("Neuer Preis: "
-                                        + (currentBuchung.getFlaeche() * currentBuchung.getQuadratmeterpreis()));
+                                    + (currentBuchung.getFlaeche() * currentBuchung.getQuadratmeterpreis()));
                         }
                     } else {
                         if (log.isDebugEnabled()) {
@@ -1511,7 +1508,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 return Validatable.ERROR;
             } else if (!existsAtLeastOneValidCurrentNutzung && !LagisBroker.getInstance().isNkfAdminPermission()) {
                 validationMessage =
-                    "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
+                        "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
                 return Validatable.ERROR;
             } else {
                 return Validatable.VALID;
@@ -1547,16 +1544,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Inner Classes ----------------------------------------------------------
-
     /**
      * DOCUMENT ME!
      *
-     * @version  $Revision$, $Date$
+     * @version $Revision$, $Date$
      */
     class PopupListener extends MouseAdapter {
 
         //~ Methods ------------------------------------------------------------
-
         @Override
         public void mouseClicked(final MouseEvent e) {
             showPopup(e);
@@ -1570,7 +1565,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         /**
          * DOCUMENT ME!
          *
-         * @param  e  DOCUMENT ME!
+         * @param e DOCUMENT ME!
          */
         private void showPopup(final MouseEvent e) {
             if (log.isDebugEnabled()) {
@@ -1584,11 +1579,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 final int rowAtPoint = tNutzung.rowAtPoint(new Point(e.getX(), e.getY()));
                 NutzungBuchungCustomBean selectedNutzung = null;
                 if ((rowAtPoint != -1)
-                            && ((selectedNutzung = tableModel.getBuchungAtRow(
-                                            ((JXTable)tNutzung).getFilters().convertRowIndexToModel(rowAtPoint)))
-                                != null)
-                            && (selectedNutzung.getNutzung() != null)
-                            && (selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null)) {
+                        && ((selectedNutzung = tableModel.getBuchungAtRow(
+                        ((JXTable) tNutzung).getFilters().convertRowIndexToModel(rowAtPoint)))
+                        != null)
+                        && (selectedNutzung.getNutzung() != null)
+                        && (selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null)) {
                     if (log.isDebugEnabled()) {
                         log.debug("nutzung found");
                     }
