@@ -1,12 +1,10 @@
-/**
- * *************************************************
- *
- * cismet GmbH, Saarbruecken, Germany
- * 
-* ... and it just works.
- * 
-***************************************************
- */
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * RechteTabellenPanel.java
  *
@@ -74,24 +72,27 @@ import de.cismet.tools.configuration.Configurable;
 /**
  * DOCUMENT ME!
  *
- * @author Puhl
- * @version $Revision$, $Date$
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class NKFPanel extends AbstractWidget implements MouseListener,
-        FlurstueckChangeListener,
-        FlurstueckSaver,
-        TableModelListener,
-        ChangeListener,
-        ListSelectionListener,
-        Configurable {
+    FlurstueckChangeListener,
+    FlurstueckSaver,
+    TableModelListener,
+    ChangeListener,
+    ListSelectionListener,
+    Configurable {
 
     //~ Static fields/initializers ---------------------------------------------
+
     private static final String WIDGET_NAME = "NKF Datenpanel";
     private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
     private static final int YEAR_SCALE = 1;
     private static final int MONTH_SCALE = 2;
     private static final int DAY_SCALE = 3;
+
     //~ Instance fields --------------------------------------------------------
+
     // perhaps not good
     ArrayList<Date> dateToTicks;
     ArrayList<NutzungBuchungCustomBean> historicNutzungenDayClasses;
@@ -103,13 +104,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isFlurstueckEditable = true;
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
-            "/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
+                "/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
     private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
-            "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
+                "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
     private Icon icoBooked = new javax.swing.ImageIcon(getClass().getResource(
-            "/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
+                "/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
     private Icon icoNotBooked = new javax.swing.ImageIcon(getClass().getResource(
-            "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
+                "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
     private final ArrayList<NutzungCustomBean> copyPasteList = new ArrayList();
     private JPopupMenu predecessorPopup;
     private Date currentDate;
@@ -119,6 +120,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private Date first;
     private Date last;
     private NutzungBuchungCustomBean currentPopupNutzung = null;
+    private int previously_sorted_column_index = 0;
+    private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNutzung;
     private javax.swing.JButton btnCopyNutzung;
@@ -141,6 +144,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     // Klasse überschreiben
 
     //~ Constructors -----------------------------------------------------------
+
     /**
      * Creates new form RechteTabellenPanel.
      */
@@ -163,69 +167,71 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Methods ----------------------------------------------------------------
+
     /**
      * DOCUMENT ME!
      */
     private void configBackgroundThread() {
         updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-            @Override
-            protected void update() {
-                try {
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    clearComponent();
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                            .getFlurstueckArt();
-                    if ((flurstueckArt != null)
-                            && flurstueckArt.getBezeichnung().equals(
-                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Flurstück ist städtisch und kann editiert werden");
-                        }
-                        isFlurstueckEditable = true;
-                    } else {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
-                        }
-                        isFlurstueckEditable = false;
-                    }
-                    final Collection<NutzungCustomBean> newNutzungen = getCurrentObject().getNutzungen();
-                    tableModel.refreshTableModel(newNutzungen);
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    if (newNutzungen != null) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
-                        }
-                    }
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    updateSlider();
-                    if (isUpdateAvailable()) {
-                        cleanup();
-                        return;
-                    }
-                    LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
-                } catch (Exception ex) {
-                    log.error("Fehler im refresh thread: ", ex);
-                    LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
-                }
-            }
 
-            @Override
-            protected void cleanup() {
-            }
-        };
+                @Override
+                protected void update() {
+                    try {
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        clearComponent();
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
+                                    .getFlurstueckArt();
+                        if ((flurstueckArt != null)
+                                    && flurstueckArt.getBezeichnung().equals(
+                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Flurstück ist städtisch und kann editiert werden");
+                            }
+                            isFlurstueckEditable = true;
+                        } else {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                            }
+                            isFlurstueckEditable = false;
+                        }
+                        final Collection<NutzungCustomBean> newNutzungen = getCurrentObject().getNutzungen();
+                        tableModel.refreshTableModel(newNutzungen);
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        if (newNutzungen != null) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
+                            }
+                        }
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        updateSlider();
+                        if (isUpdateAvailable()) {
+                            cleanup();
+                            return;
+                        }
+                        LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
+                    } catch (Exception ex) {
+                        log.error("Fehler im refresh thread: ", ex);
+                        LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
+                    }
+                }
+
+                @Override
+                protected void cleanup() {
+                }
+            };
         updateThread.setPriority(Thread.NORM_PRIORITY);
         updateThread.start();
     }
@@ -237,18 +243,19 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         predecessorPopup = new JPopupMenu();
         final JMenuItem findPredecessor = new JMenuItem(FIND_PREDECESSOR_MENU_NAME);
         findPredecessor.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                findPredecessorForNutzung(e);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    findPredecessorForNutzung(e);
+                }
+            });
         predecessorPopup.add(findPredecessor);
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param e DOCUMENT ME!
+     * @param  e  DOCUMENT ME!
      */
     private void findPredecessorForNutzung(final ActionEvent e) {
         if (log.isDebugEnabled()) {
@@ -270,13 +277,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.getSelectionModel().addListSelectionListener(this);
         tableModel.addTableModelListener(this);
         final JComboBox cboAK = new JComboBox(new Vector<AnlageklasseCustomBean>(
-                CidsBroker.getInstance().getAllAnlageklassen()));
+                    CidsBroker.getInstance().getAllAnlageklassen()));
         cboAK.addItem("");
         tNutzung.setDefaultEditor(AnlageklasseCustomBean.class, new DefaultCellEditor(cboAK));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<NutzungsartCustomBean>(CidsBroker.getInstance()
-                .getAllNutzungsarten());
+                        .getAllNutzungsarten());
         Collections.sort(nutzungsarten);
         final JComboBox cboNA = new JComboBox(nutzungsarten);
         cboNA.addItem("");
@@ -290,25 +297,26 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.addMouseListener(new PopupListener());
         tableModel.addTableModelListener(this);
         final HighlightPredicate buchungsStatusPredicate = new HighlightPredicate() {
-            @Override
-            public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
-                try {
-                    if (componentAdapter.getRowCount() > 0) {
-                        final int displayedIndex = componentAdapter.row;
-                        final int modelIndex = ((JXTable) tNutzung).getFilters()
-                                .convertRowIndexToModel(displayedIndex);
-                        final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
-                        // NO Geometry & more than one Verwaltungsbereich
-                        return (n != null) && !n.getIstBuchwert();
-                    } else {
+
+                @Override
+                public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
+                    try {
+                        if (componentAdapter.getRowCount() > 0) {
+                            final int displayedIndex = componentAdapter.row;
+                            final int modelIndex = ((JXTable)tNutzung).getFilters()
+                                        .convertRowIndexToModel(displayedIndex);
+                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                            // NO Geometry & more than one Verwaltungsbereich
+                            return (n != null) && !n.getIstBuchwert();
+                        } else {
+                            return false;
+                        }
+                    } catch (Exception ex) {
+                        log.error("Fehler beim Highlighting des Buchwerts vorhanden", ex);
                         return false;
                     }
-                } catch (Exception ex) {
-                    log.error("Fehler beim Highlighting des Buchwerts vorhanden", ex);
-                    return false;
                 }
-            }
-        };
+            };
 
         final Highlighter buchungsStatusHighlighter = new ColorHighlighter(
                 buchungsStatusPredicate,
@@ -316,35 +324,36 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 null);
         // (LagisBroker.grey, null, 0, -1)
         final HighlightPredicate geloeschtPredicate = new HighlightPredicate() {
-            @Override
-            public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
-                try {
-                    if (componentAdapter.getRowCount() > 0) {
-                        final int displayedIndex = componentAdapter.row;
-                        final int modelIndex = ((JXTable) tNutzung).getFilters()
-                                .convertRowIndexToModel(displayedIndex);
-                        final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
-                        // NO Geometry & more than one Verwaltungsbereich
-                        return ((n != null) && n.getSollGeloeschtWerden());
-                    } else {
+
+                @Override
+                public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
+                    try {
+                        if (componentAdapter.getRowCount() > 0) {
+                            final int displayedIndex = componentAdapter.row;
+                            final int modelIndex = ((JXTable)tNutzung).getFilters()
+                                        .convertRowIndexToModel(displayedIndex);
+                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                            // NO Geometry & more than one Verwaltungsbereich
+                            return ((n != null) && n.getSollGeloeschtWerden());
+                        } else {
+                            return false;
+                        }
+                    } catch (Exception ex) {
+                        log.error("Fehler beim Highlighting test wurde gelöscht vorhanden", ex);
                         return false;
                     }
-                } catch (Exception ex) {
-                    log.error("Fehler beim Highlighting test wurde gelöscht vorhanden", ex);
-                    return false;
                 }
-            }
-        };
+            };
 
         final Highlighter geloeschtHighlighter = new ColorHighlighter(geloeschtPredicate, LagisBroker.grey, null);
-        ((JXTable) tNutzung).setHighlighters(
-                LagisBroker.ALTERNATE_ROW_HIGHLIGHTER,
-                buchungsStatusHighlighter,
-                geloeschtHighlighter);
-        ((JXTable) tNutzung).setSortOrder(0, SortOrder.ASCENDING);
-        ((JXTable) tNutzung).setColumnControlVisible(true);
-        ((JXTable) tNutzung).setHorizontalScrollEnabled(true);
-        ((JXTable) tNutzung).packAll();
+        ((JXTable)tNutzung).setHighlighters(
+            LagisBroker.ALTERNATE_ROW_HIGHLIGHTER,
+            buchungsStatusHighlighter,
+            geloeschtHighlighter);
+        ((JXTable)tNutzung).setSortOrder(0, SortOrder.ASCENDING);
+        ((JXTable)tNutzung).setColumnControlVisible(true);
+        ((JXTable)tNutzung).setHorizontalScrollEnabled(true);
+        ((JXTable)tNutzung).packAll();
     }
     // private Thread panelRefresherThread;
 
@@ -378,7 +387,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
-                    final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+                    final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
                     final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
 
                     if (selectedBuchung.isBuchwertFlippable() && LagisBroker.getInstance().isNkfAdminPermission()) {
@@ -428,19 +437,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
+     * content of this method is always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
         jScrollPane1 = new javax.swing.JScrollPane();
         tNutzung = new JXTable();
         jLabel1 = new javax.swing.JLabel();
         btnAddNutzung = new javax.swing.JButton();
         btnRemoveNutzung = new javax.swing.JButton();
-        slrHistory = new JSlider(JSlider.HORIZONTAL,0,15,15);
+        slrHistory = new JSlider(JSlider.HORIZONTAL, 0, 15, 15);
         jLabel2 = new javax.swing.JLabel();
         lblCurrentHistoryPostion = new javax.swing.JLabel();
         cbxChanges = new javax.swing.JCheckBox();
@@ -454,43 +461,64 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"21-510", "Straße", "k0211100", "Grünfläche,Grünfläche,Wohnbaufläche", "", "842", "1€", "842€"},
-                {"21-740", "Gehölz", "k0211100", null, "", "2325", "1€", "2325"}
-            },
-            new String [] {
-                "Nutzungsartenschlüssel", "Nutzungsart", "Anlageklasse", "Flächennutzungsplan", "Bebauungsplan", "Fläche m²", "Preis qm²", "Berechnung"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
+                new Object[][] {
+                    { "21-510", "Straße", "k0211100", "Grünfläche,Grünfläche,Wohnbaufläche", "", "842", "1€", "842€" },
+                    { "21-740", "Gehölz", "k0211100", null, "", "2325", "1€", "2325" }
+                },
+                new String[] {
+                    "Nutzungsartenschlüssel",
+                    "Nutzungsart",
+                    "Anlageklasse",
+                    "Flächennutzungsplan",
+                    "Bebauungsplan",
+                    "Fläche m²",
+                    "Preis qm²",
+                    "Berechnung"
+                }) {
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+                Class[] types = new Class[] {
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class
+                    };
+
+                @Override
+                public Class getColumnClass(final int columnIndex) {
+                    return types[columnIndex];
+                }
+            });
         jScrollPane1.setViewportView(tNutzung);
 
         jLabel1.setText("Nutzungen:");
 
-        btnAddNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddNutzung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddNutzung.setBorder(null);
         btnAddNutzung.setBorderPainted(false);
         btnAddNutzung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddNutzungActionPerformed(evt);
-            }
-        });
 
-        btnRemoveNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddNutzungActionPerformed(evt);
+                }
+            });
+
+        btnRemoveNutzung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveNutzung.setBorder(null);
         btnRemoveNutzung.setBorderPainted(false);
         btnRemoveNutzung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRemoveNutzungActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemoveNutzungActionPerformed(evt);
+                }
+            });
 
         slrHistory.setMaximum(0);
 
@@ -501,43 +529,56 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         cbxChanges.setText(" Nach Änderungen");
         cbxChanges.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbxChanges.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbxChangesActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cbxChangesActionPerformed(evt);
+                }
+            });
 
         jLabel4.setText("Filter");
 
-        lblHistoricIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"))); // NOI18N
+        lblHistoricIcon.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"))); // NOI18N
 
-        btnPasteNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"))); // NOI18N
+        btnPasteNutzung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"))); // NOI18N
         btnPasteNutzung.setToolTipText("Buchung einfügen");
         btnPasteNutzung.setBorderPainted(false);
         btnPasteNutzung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPasteNutzungActionPerformed(evt);
-            }
-        });
 
-        btnCopyNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnPasteNutzungActionPerformed(evt);
+                }
+            });
+
+        btnCopyNutzung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"))); // NOI18N
         btnCopyNutzung.setToolTipText("Buchung kopieren");
         btnCopyNutzung.setBorderPainted(false);
         btnCopyNutzung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCopyNutzungActionPerformed(evt);
-            }
-        });
 
-        btnFlipBuchung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnCopyNutzungActionPerformed(evt);
+                }
+            });
+
+        btnFlipBuchung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"))); // NOI18N
         btnFlipBuchung.setToolTipText("Buchwert / kein Buchwert");
         btnFlipBuchung.setBorderPainted(false);
         btnFlipBuchung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnFlipBuchungActionPerformed(evt);
-            }
-        });
 
-        tbtnSort.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnFlipBuchungActionPerformed(evt);
+                }
+            });
+
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
         tbtnSort.setSelected(true);
         tbtnSort.setToolTipText("Sortieren");
         tbtnSort.setBorderPainted(false);
@@ -545,116 +586,156 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tbtnSort.setMinimumSize(new java.awt.Dimension(56, 32));
         tbtnSort.setPreferredSize(new java.awt.Dimension(56, 32));
         tbtnSort.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                tbtnSortItemStateChanged(evt);
-            }
-        });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+                @Override
+                public void itemStateChanged(final java.awt.event.ItemEvent evt) {
+                    tbtnSortItemStateChanged(evt);
+                }
+            });
+
+        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(tbtnSort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnFlipBuchung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnCopyNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnPasteNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnAddNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnRemoveNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, slrHistory, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
-                                .add(cbxChanges)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jLabel5))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(lblCurrentHistoryPostion))
-                            .add(jLabel4))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 261, Short.MAX_VALUE)
-                        .add(lblHistoricIcon)))
-                .addContainerGap())
-        );
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                layout.createSequentialGroup().addContainerGap().add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                        org.jdesktop.layout.GroupLayout.LEADING,
+                        jScrollPane1,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        574,
+                        Short.MAX_VALUE).add(
+                        layout.createSequentialGroup().add(jLabel1).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            tbtnSort,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            32,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            btnFlipBuchung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            28,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            btnCopyNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            28,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            btnPasteNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            28,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            btnAddNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            25,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            btnRemoveNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            15,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
+                        org.jdesktop.layout.GroupLayout.LEADING,
+                        slrHistory,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        574,
+                        Short.MAX_VALUE).add(
+                        layout.createSequentialGroup().add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                                layout.createSequentialGroup().add(10, 10, 10).add(cbxChanges).addPreferredGap(
+                                    org.jdesktop.layout.LayoutStyle.RELATED).add(jLabel5)).add(
+                                layout.createSequentialGroup().add(jLabel2).addPreferredGap(
+                                    org.jdesktop.layout.LayoutStyle.RELATED).add(lblCurrentHistoryPostion)).add(
+                                jLabel4)).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED,
+                            261,
+                            Short.MAX_VALUE).add(lblHistoricIcon))).addContainerGap()));
 
-        layout.linkSize(new java.awt.Component[] {btnAddNutzung, btnRemoveNutzung}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(
+            new java.awt.Component[] { btnAddNutzung, btnRemoveNutzung },
+            org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel1)
-                        .add(btnAddNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 28, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(btnRemoveNutzung, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(btnPasteNutzung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(btnCopyNutzung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, btnFlipBuchung, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tbtnSort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(15, 15, 15)
-                        .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(cbxChanges)
-                            .add(jLabel5))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel2)
-                            .add(lblCurrentHistoryPostion)))
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(lblHistoricIcon)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(slrHistory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                layout.createSequentialGroup().addContainerGap().add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(
+                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
+                            btnAddNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            28,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                            btnRemoveNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            23,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
+                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
+                            btnPasteNutzung,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            btnCopyNutzung,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE)).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        btnFlipBuchung,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        tbtnSort,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane1,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    403,
+                    Short.MAX_VALUE).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        layout.createSequentialGroup().add(15, 15, 15).add(jLabel4).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(cbxChanges).add(
+                                jLabel5)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(
+                                lblCurrentHistoryPostion))).add(
+                        layout.createSequentialGroup().addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            lblHistoricIcon))).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    slrHistory,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()));
 
-        layout.linkSize(new java.awt.Component[] {btnAddNutzung, btnRemoveNutzung}, org.jdesktop.layout.GroupLayout.VERTICAL);
-
-    }// </editor-fold>//GEN-END:initComponents
+        layout.linkSize(
+            new java.awt.Component[] { btnAddNutzung, btnRemoveNutzung },
+            org.jdesktop.layout.GroupLayout.VERTICAL);
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
-     * @param evt DOCUMENT ME!
+     * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }//GEN-LAST:event_cbxChangesActionPerformed
+    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param evt DOCUMENT ME!
+     * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
+    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveNutzungActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Remove Nutzung");
         }
-        final int currentRow = ((JXTable) tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
+        final int currentRow = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
         if (currentRow != -1) {
             if (log.isDebugEnabled()) {
                 log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: "
-                        + tNutzung.getSelectedRow());
+                            + tNutzung.getSelectedRow());
             }
             try {
                 tableModel.removeNutzung(currentRow);
@@ -662,36 +743,36 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 log.error("Eine Nutzung konnte nicht entfernt werden", ex);
                 final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
                         "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
-                        + "sich an den Systemadministrator",
+                                + "sich an den Systemadministrator",
                         "Fehler beim löschen einer Buchung",
                         JOptionPane.OK_OPTION);
             }
         }
-    }//GEN-LAST:event_btnRemoveNutzungActionPerformed
+    }                                                                                    //GEN-LAST:event_btnRemoveNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param evt DOCUMENT ME!
+     * @param  evt  DOCUMENT ME!
      */
-    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNutzungActionPerformed
+    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
         tbtnSort.setSelected(false);
         tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
-    }//GEN-LAST:event_btnAddNutzungActionPerformed
+    }                                                                                 //GEN-LAST:event_btnAddNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param evt DOCUMENT ME!
+     * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
             for (int i = 0; i < selectedRows.length; i++) {
                 tNutzung.getSelectedRow();
-                final int index = ((JXTable) tNutzung).convertRowIndexToModel(selectedRows[i]);
+                final int index = ((JXTable)tNutzung).convertRowIndexToModel(selectedRows[i]);
                 final NutzungBuchungCustomBean curNutzungToCopy = tableModel.getBuchungAtRow(index);
                 if (curNutzungToCopy != null) {
                     try {
@@ -699,10 +780,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     } catch (Exception ex) {
                         log.error("Fehler beim kopieren einer Buchung: ", ex);
                         JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
-                                "Die Buchung konnte nicht kopiert werden, da die zu \n"
-                                + "kopierende Buchung Fehler enthält",
-                                "Fehler beim kopieren einer Buchung",
-                                JOptionPane.OK_OPTION);
+                            "Die Buchung konnte nicht kopiert werden, da die zu \n"
+                                    + "kopierende Buchung Fehler enthält",
+                            "Fehler beim kopieren einer Buchung",
+                            JOptionPane.OK_OPTION);
                         return;
                     }
                 }
@@ -711,14 +792,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }//GEN-LAST:event_btnCopyNutzungActionPerformed
+    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param evt DOCUMENT ME!
+     * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -727,18 +808,18 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }//GEN-LAST:event_btnPasteNutzungActionPerformed
+    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param evt DOCUMENT ME!
+     * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Flippe Buchung");
         }
-        final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+        final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
         if (index != -1) {
             final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
             if (selectedBuchung.isBuchwertFlippable()) {
@@ -750,26 +831,29 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     log.error("Buchwert kann nicht geflipped werden, Nutzung in illegalem Zustand: ", ex);
                 } catch (BuchungNotInNutzungException ex) {
                     log.error(
-                            "Buchwert kann nicht geflipped werden, Die Buchung ist nicht in der Nutzung vorhanden: ",
-                            ex);
+                        "Buchwert kann nicht geflipped werden, Die Buchung ist nicht in der Nutzung vorhanden: ",
+                        ex);
                 }
             }
         } else {
             log.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }//GEN-LAST:event_btnFlipBuchungActionPerformed
-    private int previously_sorted_column_index = 0;
-    private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
-    private void tbtnSortItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnSortItemStateChanged
-        if (tbtnSort.isSelected()) { //sort the table
-            ((JXTable) tNutzung).setSortable(false);
-            ((JXTable) tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
-        } else { //disable sort
-            previously_sorted_column_index = ((JXTable) tNutzung).getSortedColumn().getModelIndex();
-            previously_used_sort_order = ((JXTable) tNutzung).getSortOrder(previously_sorted_column_index);
-            ((JXTable) tNutzung).setSortable(false);
+    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) { //GEN-FIRST:event_tbtnSortItemStateChanged
+        if (tbtnSort.isSelected()) {                                            // sort the table
+            ((JXTable)tNutzung).setSortable(true);
+            ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
+        } else {                                                                // disable sort
+            previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
+            previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
+            ((JXTable)tNutzung).setSortable(false);
         }
-    }//GEN-LAST:event_tbtnSortItemStateChanged
+    }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
 
     @Override
     public String getWidgetName() {
@@ -805,16 +889,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             final int selecetdRow = tNutzung.getSelectedRow();
             if (selecetdRow != -1) {
-                final NutzungBuchungCustomBean nutzung = tableModel.getBuchungAtRow(((JXTable) tNutzung)
-                        .convertRowIndexToModel(
-                        selecetdRow));
+                final NutzungBuchungCustomBean nutzung = tableModel.getBuchungAtRow(((JXTable)tNutzung)
+                                .convertRowIndexToModel(
+                                    selecetdRow));
                 if (cbxChanges.isSelected() && (nutzung != null) && (e.getClickCount() == 2)
-                        && (!isInEditMode
-                        || ((tNutzung.getSelectedColumn() == 1) || (tNutzung.getSelectedColumn() == 9)
-                        || (tNutzung.getSelectedColumn() == 10)
-                        || (tNutzung.getSelectedColumn() == 0)
-                        || (tNutzung.getSelectedColumn() == 4)
-                        || (tNutzung.getSelectedColumn() == 11)))) {
+                            && (!isInEditMode
+                                || ((tNutzung.getSelectedColumn() == 1) || (tNutzung.getSelectedColumn() == 9)
+                                    || (tNutzung.getSelectedColumn() == 10)
+                                    || (tNutzung.getSelectedColumn() == 0)
+                                    || (tNutzung.getSelectedColumn() == 4)
+                                    || (tNutzung.getSelectedColumn() == 11)))) {
                     jumpToPredecessorNutzung(nutzung);
                 }
             }
@@ -824,7 +908,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param buchung DOCUMENT ME!
+     * @param  buchung  DOCUMENT ME!
      */
     private void jumpToPredecessorNutzung(final NutzungBuchungCustomBean buchung) {
         if (log.isDebugEnabled()) {
@@ -835,7 +919,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         }
         NutzungBuchungCustomBean vorgaenger = null;
         if ((buchung != null) && (buchung.getNutzung() != null)
-                && ((vorgaenger = buchung.getNutzung().getPredecessorBuchung(buchung)) != null)) {
+                    && ((vorgaenger = buchung.getNutzung().getPredecessorBuchung(buchung)) != null)) {
             if (log.isDebugEnabled()) {
                 log.debug("Vorgänger Nutzung gefunden");
             }
@@ -850,7 +934,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param nutzung DOCUMENT ME!
+     * @param  nutzung  DOCUMENT ME!
      */
     private void selectNutzungInHistory(final NutzungBuchungCustomBean nutzung) {
         final int tickToJump = getTickForNutzung(nutzung);
@@ -863,7 +947,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             if (log.isDebugEnabled()) {
                 log.debug("index: " + index);
             }
-            final int displayedIndex = ((JXTable) tNutzung).getFilters().convertRowIndexToView(index);
+            final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
             if (index != -1) {
                 if (log.isDebugEnabled()) {
                     log.debug("DisplayedIndex: " + displayedIndex);
@@ -903,7 +987,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     public void tableChanged(final TableModelEvent e) {
         // check if selection is still valid
         if (tNutzung.getSelectedRow() != -1) {
-            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
             if (selectedBuchung == null) {
                 if (log.isDebugEnabled()) {
@@ -925,7 +1009,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 //            ((JXTable) tNutzung).packAll();
 //        }
         if (tNutzung.getSelectedRow() != -1) {
-            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             if (index != -1) {
                 final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
                 if (selectedBuchung.getIstBuchwert() == true) {
@@ -945,7 +1029,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (cbxChanges.isSelected()) {
             if (historicNutzungenDayClasses != null) {
                 try {
-                    final JSlider source = (JSlider) e.getSource();
+                    final JSlider source = (JSlider)e.getSource();
                     if (log.isDebugEnabled()) {
                         log.debug("Aktuelle Slider position: " + source.getValue());
                     }
@@ -961,7 +1045,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if (!source.getValueIsAdjusting()) {
                         if (source.getValue() < counter) {
                             tableModel.setModelToHistoryDate(historicNutzungenDayClasses.get(source.getValue())
-                                    .getGueltigbis());
+                                        .getGueltigbis());
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
                                 btnAddNutzung.setEnabled(false);
@@ -984,7 +1068,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
             }
         } else {
-            final JSlider source = (JSlider) e.getSource();
+            final JSlider source = (JSlider)e.getSource();
             if (log.isDebugEnabled()) {
                 log.debug("Aktuelle Slider position: " + source.getValue());
             }
@@ -1101,7 +1185,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 slrHistory.setMinorTickSpacing(1);
                 sortedNutzungen = tableModel.getAllBuchungen();
                 final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen =
-                        new ArrayList<NutzungBuchungCustomBean>();
+                    new ArrayList<NutzungBuchungCustomBean>();
                 if (sortedNutzungen != null) {
                     // sortedNutzungen = (Vector) tableModel.getAllNutzungen().clone();
                     counter = 0;
@@ -1134,15 +1218,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                             nutzungToTest.getGueltigbis());
                                     if (log.isDebugEnabled()) {
                                         log.debug("aktuell zu testende historische Nutzung: " + curGueltigBis
-                                                + " millis: " + curGueltigBis.getTime());
+                                                    + " millis: " + curGueltigBis.getTime());
                                     }
                                     if (log.isDebugEnabled()) {
                                         log.debug("test historische Nutzung: " + gueltigBisToTest + " millis: "
-                                                + gueltigBisToTest.getTime());
+                                                    + gueltigBisToTest.getTime());
                                     }
                                     if (log.isDebugEnabled()) {
                                         log.debug("Sind Nutzungen am gleichen Tag?: "
-                                                + curGueltigBis.equals(gueltigBisToTest));
+                                                    + curGueltigBis.equals(gueltigBisToTest));
                                     }
                                     if (!curGueltigBis.equals(gueltigBisToTest)) {
                                         if (log.isDebugEnabled()) {
@@ -1219,9 +1303,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             try {
                 isOnlyHistoric = false;
                 slrHistory.setSnapToTicks(false);
-                sortedNutzungen = (ArrayList) tableModel.getAllBuchungen();
+                sortedNutzungen = (ArrayList)tableModel.getAllBuchungen();
                 final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen =
-                        new ArrayList<NutzungBuchungCustomBean>();
+                    new ArrayList<NutzungBuchungCustomBean>();
                 first = null;
                 last = null;
                 if (sortedNutzungen != null) {
@@ -1271,15 +1355,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                 // TODO ROUND
                                 log.debug("Millisekunden zwischen den Nutzungen: " + between);
                             }
-                            final int days = (int) (Math.round(between / 1000 / 60 / 60 / 24));
+                            final int days = (int)(Math.round(between / 1000 / 60 / 60 / 24));
                             if (log.isDebugEnabled()) {
                                 log.debug("Tage zwischen den Nutzungen: " + days);
                             }
-                            final int months = (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30));
+                            final int months = (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30));
                             if (log.isDebugEnabled()) {
                                 log.debug("Monate zwischen den Nutzungen: " + months);
                             }
-                            final int years = (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
+                            final int years = (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
                             if (log.isDebugEnabled()) {
                                 log.debug("Jahre zwischen den Nutzungen: " + years);
                             }
@@ -1365,7 +1449,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     @Override
     public void valueChanged(final ListSelectionEvent e) {
         if (tNutzung.getSelectedRow() != -1) {
-            final int index = ((JXTable) tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
+            final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             // if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null && isInEditMode){
             if (index != -1) {
                 final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
@@ -1405,9 +1489,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      *
-     * @param current DOCUMENT ME!
+     * @param   current  DOCUMENT ME!
      *
-     * @return DOCUMENT ME!
+     * @return  DOCUMENT ME!
      */
     private int getTickForNutzung(final NutzungBuchungCustomBean current) {
         if (cbxChanges.isSelected()) {
@@ -1439,17 +1523,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if (log.isDebugEnabled()) {
                         log.debug("DayScale");
                     }
-                    return (int) (Math.round(between / 1000 / 60 / 60 / 24));
+                    return (int)(Math.round(between / 1000 / 60 / 60 / 24));
                 } else if (mode == MONTH_SCALE) {
                     if (log.isDebugEnabled()) {
                         log.debug("MonthScale");
                     }
-                    return (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30));
+                    return (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30));
                 } else if (mode == YEAR_SCALE) {
                     if (log.isDebugEnabled()) {
                         log.debug("YearScale");
                     }
-                    return (int) (Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
+                    return (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
                 }
             }
             if (log.isDebugEnabled()) {
@@ -1494,7 +1578,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if ((currentBuchung.getFlaeche() != null) && (currentBuchung.getQuadratmeterpreis() != null)) {
                         if (log.isDebugEnabled()) {
                             log.debug("Neuer Preis: "
-                                    + (currentBuchung.getFlaeche() * currentBuchung.getQuadratmeterpreis()));
+                                        + (currentBuchung.getFlaeche() * currentBuchung.getQuadratmeterpreis()));
                         }
                     } else {
                         if (log.isDebugEnabled()) {
@@ -1508,7 +1592,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 return Validatable.ERROR;
             } else if (!existsAtLeastOneValidCurrentNutzung && !LagisBroker.getInstance().isNkfAdminPermission()) {
                 validationMessage =
-                        "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
+                    "Es muss mindestens eine aktuelle Nutzung mit Nutzungsart angelegt sein,\num das Flurstück speichern zu können.";
                 return Validatable.ERROR;
             } else {
                 return Validatable.VALID;
@@ -1544,14 +1628,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Inner Classes ----------------------------------------------------------
+
     /**
      * DOCUMENT ME!
      *
-     * @version $Revision$, $Date$
+     * @version  $Revision$, $Date$
      */
     class PopupListener extends MouseAdapter {
 
         //~ Methods ------------------------------------------------------------
+
         @Override
         public void mouseClicked(final MouseEvent e) {
             showPopup(e);
@@ -1565,7 +1651,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         /**
          * DOCUMENT ME!
          *
-         * @param e DOCUMENT ME!
+         * @param  e  DOCUMENT ME!
          */
         private void showPopup(final MouseEvent e) {
             if (log.isDebugEnabled()) {
@@ -1579,11 +1665,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 final int rowAtPoint = tNutzung.rowAtPoint(new Point(e.getX(), e.getY()));
                 NutzungBuchungCustomBean selectedNutzung = null;
                 if ((rowAtPoint != -1)
-                        && ((selectedNutzung = tableModel.getBuchungAtRow(
-                        ((JXTable) tNutzung).getFilters().convertRowIndexToModel(rowAtPoint)))
-                        != null)
-                        && (selectedNutzung.getNutzung() != null)
-                        && (selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null)) {
+                            && ((selectedNutzung = tableModel.getBuchungAtRow(
+                                            ((JXTable)tNutzung).getFilters().convertRowIndexToModel(rowAtPoint)))
+                                != null)
+                            && (selectedNutzung.getNutzung() != null)
+                            && (selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null)) {
                     if (log.isDebugEnabled()) {
                         log.debug("nutzung found");
                     }
