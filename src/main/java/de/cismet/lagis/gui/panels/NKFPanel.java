@@ -91,6 +91,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private static final int MONTH_SCALE = 2;
     private static final int DAY_SCALE = 3;
 
+    /** Creates new form RechteTabellenPanel. */
+
+    private static final NKFPanel instance = new NKFPanel();
+
     //~ Instance fields --------------------------------------------------------
 
     // perhaps not good
@@ -146,9 +150,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates new form RechteTabellenPanel.
+     * Creates a new NKFPanel object.
      */
-    public NKFPanel() {
+    private NKFPanel() {
         setIsCoreWidget(true);
         initComponents();
         slrHistory.addChangeListener(this);
@@ -167,6 +171,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static NKFPanel getInstance() {
+        return instance;
+    }
 
     /**
      * DOCUMENT ME!
