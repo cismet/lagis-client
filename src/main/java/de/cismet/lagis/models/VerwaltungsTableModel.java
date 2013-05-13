@@ -32,6 +32,10 @@ import de.cismet.cismap.commons.features.Feature;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.panels.VerwaltungsPanel;
+
+import de.cismet.lagis.util.TableSelectionUtils;
+
 /**
  * DOCUMENT ME!
  *
@@ -138,6 +142,15 @@ public class VerwaltungsTableModel extends AbstractTableModel {
 
     /**
      * DOCUMENT ME!
+     */
+    public void refreshTableModel() {
+        TableSelectionUtils.fireTableDataChangedAndKeepSelection(
+            this,
+            VerwaltungsPanel.getInstance().getNutzungTable());
+    }
+
+    /**
+     * DOCUMENT ME!
      *
      * @param  verwaltungsbereiche  DOCUMENT ME!
      */
@@ -152,7 +165,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
             log.error("Fehler beim refreshen des Models", ex);
             this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
         }
-        fireTableDataChanged();
+        refreshTableModel();
     }
 
     @Override
@@ -212,7 +225,7 @@ public class VerwaltungsTableModel extends AbstractTableModel {
                     return;
                 }
             }
-            fireTableDataChanged();
+            refreshTableModel();
         } catch (Exception ex) {
             log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
