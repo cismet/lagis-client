@@ -770,8 +770,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         "Fehler beim löschen einer Buchung",
                         JOptionPane.OK_OPTION);
             }
+            SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        tNutzung.clearSelection();
+                    }
+                });
         }
-    }                                                                                    //GEN-LAST:event_btnRemoveNutzungActionPerformed
+    } //GEN-LAST:event_btnRemoveNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
