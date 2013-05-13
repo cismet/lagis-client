@@ -613,30 +613,6 @@ public class NKFTableModel extends AbstractTableModel {
         currentDate = historyDate;
         currentBuchungen.clear();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
-//            log.debug("historydate"+historyDate);
-//            log.debug("currentDate"+currentDate);
-//            System.out.println("historydate"+historyDate);
-//            System.out.println("currentDate"+currentDate);
-//            final NutzungBuchungCustomBean open = curNutzung.getOpenBuchung();
-//            log.debug("openBuchung: "+open+"");
-//            final NutzungBuchungCustomBean terminated = curNutzung.getTerminalBuchung();
-//            log.debug("getTerminated"+terminated);
-//            if(terminated != null){
-//                log.debug("id: "+terminated+" gueltig_bis: "+terminated.getGueltigbis());
-//                log.debug("Terminated NutzungCustomBean Date: "+curNutzung.getTerminalBuchung().getGueltigbis());
-//                log.debug("millis"+curNutzung.getTerminalBuchung().getGueltigbis().getTime());
-//                if(historyDate != null){
-//                log.debug("millis"+historyDate.getTime());
-//                }
-//                log.debug("Termination id: "+curNutzung.getTerminalBuchung().getId());
-//                log.debug("curNutzung size"+curNutzung.getBuchungsCount());
-//                log.debug("BuchungForDate: "+curNutzung.getBuchungForDate(curNutzung.getTerminalBuchung().getGueltigbis()));
-//                System.out.println("marker: "+curNutzung.getBuchungForDate(historyDate));
-//            }
-//            log.debug("historydate"+historyDate);
-//            log.debug("currentDate"+currentDate);
-//            System.out.println("historydate"+historyDate);
-//            System.out.println("currentDate"+currentDate);
             final Collection buchungenForDay = curNutzung.getBuchungForDay(historyDate);
             if (log.isDebugEnabled()) {
                 log.debug("Anzahl buchungen: " + buchungenForDay.size());
