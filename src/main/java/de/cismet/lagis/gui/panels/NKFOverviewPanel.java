@@ -310,7 +310,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnBuchenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuchenActionPerformed
+    private void btnBuchenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnBuchenActionPerformed
         // TODO add your handling code here:
         final int answer = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
                 "Wollen Sie alle Stillen Reserven des Flurstücks buchen?",
@@ -352,7 +352,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     JOptionPane.ERROR_MESSAGE);
             }
         }
-    }//GEN-LAST:event_btnBuchenActionPerformed
+    } //GEN-LAST:event_btnBuchenActionPerformed
 
     @Override
     public String getWidgetName() {

@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 
 import java.util.*;
 
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
@@ -30,6 +31,8 @@ import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.panels.NKFOverviewPanel;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
 
@@ -113,7 +116,17 @@ public class NKFOverviewTableModel extends AbstractTableModel {
             this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
 
+        final int selection = NKFOverviewPanel.getInstance().getSummeNutzungenTable().getSelectedRow();
         fireTableDataChanged();
+        SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    NKFOverviewPanel.getInstance()
+                            .getSummeNutzungenTable()
+                            .setRowSelectionInterval(selection, selection);
+                }
+            });
     }
 
     @Override
