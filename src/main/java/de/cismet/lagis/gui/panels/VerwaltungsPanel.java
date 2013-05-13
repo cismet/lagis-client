@@ -1460,20 +1460,20 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveVerwaltungActionPerformed
+    private void btnRemoveVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVerwaltungActionPerformed
         final int currentRow = tNutzung.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeVerwaltungsbereich(((JXTable)tNutzung).convertRowIndexToModel(currentRow));
         }
-    }//GEN-LAST:event_btnRemoveVerwaltungActionPerformed
+    } //GEN-LAST:event_btnRemoveVerwaltungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddVerwaltungActionPerformed
+    private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
         try {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
@@ -1485,14 +1485,14 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } catch (Exception ex) {
             log.error("error creating bean for verwaltungsbereiche", ex);
         }
-    }//GEN-LAST:event_btnAddVerwaltungActionPerformed
+    } //GEN-LAST:event_btnAddVerwaltungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1522,7 +1522,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             log.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    }//GEN-LAST:event_cbSperreActionPerformed
+    } //GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!

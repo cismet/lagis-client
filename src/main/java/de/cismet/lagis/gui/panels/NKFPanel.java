@@ -793,6 +793,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 @Override
                 public void run() {
                     tNutzung.setRowSelectionInterval(tNutzung.getRowCount() - 1, tNutzung.getRowCount() - 1);
+                    tNutzung.scrollRectToVisible(tNutzung.getCellRect(tNutzung.getRowCount() - 1, 0, true));
                 }
             });
 
@@ -891,6 +892,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             ((JXTable)tNutzung).setSortable(true);
             ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
+        tNutzung.scrollRectToVisible(tNutzung.getCellRect(tNutzung.getSelectedRow(), 0, true));
     }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
 
     @Override
