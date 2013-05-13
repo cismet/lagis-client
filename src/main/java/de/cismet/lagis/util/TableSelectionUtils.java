@@ -29,7 +29,7 @@ public class TableSelectionUtils {
      * @param  tableModel  DOCUMENT ME!
      * @param  table       DOCUMENT ME!
      */
-    public static void fireTableDataChanged_keepSelection(final AbstractTableModel tableModel, final JTable table) {
+    public static void fireTableDataChangedAndKeepSelection(final AbstractTableModel tableModel, final JTable table) {
         final int selection = table.getSelectedRow();
         tableModel.fireTableDataChanged();
         SwingUtilities.invokeLater(new Runnable() {

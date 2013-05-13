@@ -624,7 +624,7 @@ public class NKFTableModel extends AbstractTableModel {
         if (log.isDebugEnabled()) {
             log.debug("anzahl rows: " + getRowCount());
         }
-        TableSelectionUtils.fireTableDataChanged_keepSelection(this, NKFPanel.getInstance().getNutzungTable());
+        TableSelectionUtils.fireTableDataChangedAndKeepSelection(this, NKFPanel.getInstance().getNutzungTable());
     }
 
     /**

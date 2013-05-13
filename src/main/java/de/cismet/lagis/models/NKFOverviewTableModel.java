@@ -118,7 +118,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
             this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
 
-        TableSelectionUtils.fireTableDataChanged_keepSelection(this, NKFOverviewPanel.getInstance().getSummeNutzungenTable());
+        TableSelectionUtils.fireTableDataChangedAndKeepSelection(this, NKFOverviewPanel.getInstance().getSummeNutzungenTable());
     }
 
     @Override
