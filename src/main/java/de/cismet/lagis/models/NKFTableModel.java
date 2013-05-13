@@ -39,6 +39,7 @@ import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.NKFPanel;
+
 import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.BebauungsVector;

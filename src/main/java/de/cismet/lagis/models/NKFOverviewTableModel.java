@@ -34,6 +34,7 @@ import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.NKFOverviewPanel;
+
 import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
@@ -118,7 +119,9 @@ public class NKFOverviewTableModel extends AbstractTableModel {
             this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
 
-        TableSelectionUtils.fireTableDataChangedAndKeepSelection(this, NKFOverviewPanel.getInstance().getSummeNutzungenTable());
+        TableSelectionUtils.fireTableDataChangedAndKeepSelection(
+            this,
+            NKFOverviewPanel.getInstance().getSummeNutzungenTable());
     }
 
     @Override
