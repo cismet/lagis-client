@@ -23,6 +23,7 @@ import java.util.*;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -38,6 +39,7 @@ import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.NKFPanel;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.BebauungsVector;
 import de.cismet.lagis.utillity.FlaechennutzungsVector;
@@ -622,15 +624,7 @@ public class NKFTableModel extends AbstractTableModel {
         if (log.isDebugEnabled()) {
             log.debug("anzahl rows: " + getRowCount());
         }
-        final int selection = NKFPanel.getInstance().getNutzungTable().getSelectedRow();
-        fireTableDataChanged();
-        SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    NKFPanel.getInstance().getNutzungTable().setRowSelectionInterval(selection, selection);
-                }
-            });
+        TableSelectionUtils.fireTableDataChanged_keepSelection(this, NKFPanel.getInstance().getNutzungTable());
     }
 
     /**
