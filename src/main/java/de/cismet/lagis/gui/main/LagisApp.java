@@ -1216,7 +1216,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         LOG.info("Initialisieren der einzelnen Komponenten");
         pFlurstueck = new VerwaltungsPanel();
         pVertraege = new VertraegePanel();
-        pNKFOverview = new NKFOverviewPanel();
+        pNKFOverview = NKFOverviewPanel.getInstance();
         pDMS = new DMSPanel();
         pKarte = new KartenPanel();
         pNKF = NKFPanel.getInstance();

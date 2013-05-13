@@ -57,6 +57,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "NKF Übersicht";
+    private static final NKFOverviewPanel instance = new NKFOverviewPanel();
 
     //~ Instance fields --------------------------------------------------------
 
@@ -82,7 +83,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     /**
      * Creates new form NKFPanel.
      */
-    public NKFOverviewPanel() {
+    private NKFOverviewPanel() {
         setIsCoreWidget(true);
         initComponents();
         tSummeNutzungen.setModel(tableModel);
@@ -97,6 +98,15 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static NKFOverviewPanel getInstance() {
+        return instance;
+    }
 
     /**
      * DOCUMENT ME!
