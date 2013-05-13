@@ -122,6 +122,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private static final String WIDGET_NAME = "Verwaltungspanel";
 
     private static final String COPY_DISPLAY_ICON = "/de/cismet/lagis/ressource/icons/verwaltungsbereich16.png";
+    private static final VerwaltungsPanel instance = new VerwaltungsPanel();
 
     //~ Instance fields --------------------------------------------------------
 
@@ -188,7 +189,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     /**
      * Creates new form VerwaltungsPanel.
      */
-    public VerwaltungsPanel() {
+    private VerwaltungsPanel() {
         this.copyDisplayIcon = new ImageIcon(this.getClass().getResource(COPY_DISPLAY_ICON));
         setIsCoreWidget(true);
         initComponents();
@@ -206,6 +207,24 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static VerwaltungsPanel getInstance() {
+        return instance;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JTable getNutzungTable() {
+        return tNutzung;
+    }
 
     /**
      * DOCUMENT ME!
