@@ -622,13 +622,13 @@ public class NKFTableModel extends AbstractTableModel {
         if (log.isDebugEnabled()) {
             log.debug("anzahl rows: " + getRowCount());
         }
-        final int selection = NKFPanel.getInstance().gettNutzung().getSelectedRow();
+        final int selection = NKFPanel.getInstance().getNutzungTable().getSelectedRow();
         fireTableDataChanged();
         SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    NKFPanel.getInstance().gettNutzung().setRowSelectionInterval(selection, selection);
+                    NKFPanel.getInstance().getNutzungTable().setRowSelectionInterval(selection, selection);
                 }
             });
     }

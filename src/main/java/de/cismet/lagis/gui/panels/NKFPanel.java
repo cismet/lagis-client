@@ -175,7 +175,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @return  DOCUMENT ME!
      */
-    public JTable gettNutzung() {
+    public JTable getNutzungTable() {
         return tNutzung;
     }
 
