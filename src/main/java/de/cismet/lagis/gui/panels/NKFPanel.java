@@ -295,7 +295,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private void configureTable() {
         tNutzung.setModel(tableModel);
         tNutzung.getSelectionModel().addListSelectionListener(this);
-        tableModel.addTableModelListener(this);
         final JComboBox cboAK = new JComboBox(new Vector<AnlageklasseCustomBean>(
                     CidsBroker.getInstance().getAllAnlageklassen()));
         cboAK.addItem("");
