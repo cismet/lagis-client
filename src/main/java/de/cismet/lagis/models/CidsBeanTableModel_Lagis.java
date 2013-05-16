@@ -1,46 +1,44 @@
-/*
- * Copyright (C) 2013 cismet GmbH
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.lagis.models;
 
-import de.cismet.cids.dynamics.CidsBean;
 import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 /**
+ * DOCUMENT ME!
  *
- * @author gbaatz
+ * @author   gbaatz
+ * @version  $Revision$, $Date$
  */
 public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
 
-    private List<CidsBean> cidsBeans;
+    //~ Instance fields --------------------------------------------------------
+
+    private List<? extends CidsBean> cidsBeans;
     private final String[] columnNames;
-    private final Class[] columnClasses;
     private boolean isInEditMode = false;
+
+    //~ Constructors -----------------------------------------------------------
 
     /**
      * Creates a new CidsBeanTableModel object.
      *
-     * @param columnNames DOCUMENT ME!
-     * @param columnClasses DOCUMENT ME!
+     * @param  columnNames  DOCUMENT ME!
      */
-    protected CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses) {
+    protected CidsBeanTableModel_Lagis(final String[] columnNames) {
         this.columnNames = columnNames;
-        this.columnClasses = columnClasses;
     }
+
+    //~ Methods ----------------------------------------------------------------
 
     @Override
     public int getRowCount() {
@@ -62,19 +60,40 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
         return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && isInEditMode;
     }
 
-    public List<CidsBean> getCidsBeans() {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public List<? extends CidsBean> getCidsBeans() {
         return cidsBeans;
     }
 
-    public void setCidsBeans(List<CidsBean> cidsBeans) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  cidsBeans  DOCUMENT ME!
+     */
+    public void setCidsBeans(final List<? extends CidsBean> cidsBeans) {
         this.cidsBeans = cidsBeans;
+        fireTableDataChanged();
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public boolean isIsInEditMode() {
         return isInEditMode;
     }
 
-    public void setIsInEditMode(boolean isInEditMode) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  isInEditMode  DOCUMENT ME!
+     */
+    public void setIsInEditMode(final boolean isInEditMode) {
         this.isInEditMode = isInEditMode;
     }
 }
