@@ -29,12 +29,15 @@ public class TableSelectionUtils {
      */
     public static void fireTableDataChangedAndKeepSelection(final AbstractTableModel tableModel, final JTable table) {
         final int selection_view = table.getSelectedRow();
+
         int selection_model_tmp = -1;
         if (selection_view > -1) {
             selection_model_tmp = table.convertRowIndexToModel(selection_view);
         }
         final int selection_model = selection_model_tmp;
+
         tableModel.fireTableDataChanged();
+
         SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
