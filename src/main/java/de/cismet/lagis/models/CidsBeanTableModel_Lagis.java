@@ -41,4 +41,22 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
     }
+
+    public List<CidsBean> getCidsBeans() {
+        return cidsBeans;
+    }
+
+    public void setCidsBeans(List<CidsBean> cidsBeans) {
+        this.cidsBeans = cidsBeans;
+    }
+
+    public boolean isIsInEditMode() {
+        return isInEditMode;
+    }
+
+    public void setIsInEditMode(boolean isInEditMode) {
+        this.isInEditMode = isInEditMode;
+    }
+    
+    
 }
