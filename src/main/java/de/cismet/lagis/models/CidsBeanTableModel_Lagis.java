@@ -59,10 +59,37 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && isInEditMode;
     }
-    
-    public <C extends CidsBean> void addCidsBean(final C cidsbean){
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  <C>       DOCUMENT ME!
+     * @param  cidsbean  DOCUMENT ME!
+     */
+    public <C extends CidsBean> void addCidsBean(final C cidsbean) {
         ((List<CidsBean>)cidsBeans).add(cidsbean);
         fireTableDataChanged();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeCidsBean(final int rowIndex) {
+        cidsBeans.remove(rowIndex);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   <C>       DOCUMENT ME!
+     * @param   rowIndex  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public <C extends CidsBean> C getCidsBeanAtRow(final int rowIndex) {
+        return (C) cidsBeans.get(rowIndex);
     }
 
     /**

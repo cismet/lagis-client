@@ -507,8 +507,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void removeBeschluss(final int beschlussIndex) {
         if ((currentSelectedVertrag != null) || (beschlussIndex == -1)) {
-            final BeschlussCustomBean beschlussBean = beschluesseTableModel.getBeschlussAtRow(beschlussIndex);
-            beschluesseTableModel.removeBeschluss(beschlussIndex);
+            final BeschlussCustomBean beschlussBean = beschluesseTableModel.getCidsBeanAtRow(beschlussIndex);
+            beschluesseTableModel.removeCidsBean(beschlussIndex);
             currentSelectedVertrag.getBeschluesse().remove(beschlussBean);
             beschluesseTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {

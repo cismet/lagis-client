@@ -208,7 +208,9 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param  beschluss  DOCUMENT ME!
+     * @param   rowIndex  beschluss DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
      */
 // public Vector<BeschlussCustomBean> getBeschluesse() {
 // return beschluesse;
@@ -216,11 +218,13 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param  beschluss  DOCUMENT ME!
+     * @param   rowIndex  beschluss DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
      */
-//    public void addCidsBean(final BeschlussCustomBean beschluss) {
-//        ((List<BeschlussCustomBean>)getCidsBeans()).add(beschluss);
-//    }
+// public void addCidsBean(final BeschlussCustomBean beschluss) {
+// ((List<BeschlussCustomBean>)getCidsBeans()).add(beschluss);
+// }
 
     /**
      * DOCUMENT ME!
@@ -229,16 +233,16 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      *
      * @return  DOCUMENT ME!
      */
-    public BeschlussCustomBean getBeschlussAtRow(final int rowIndex) {
-        return (BeschlussCustomBean)getCidsBeans().get(rowIndex);
-    }
+// public BeschlussCustomBean getCidsBeanAtRow(final int rowIndex) {
+// return (BeschlussCustomBean)getCidsBeans().get(rowIndex);
+// }
 
     /**
      * DOCUMENT ME!
      *
      * @param  rowIndex  DOCUMENT ME!
      */
-    public void removeBeschluss(final int rowIndex) {
-        getCidsBeans().remove(rowIndex);
-    }
+// public void removeCidsBean(final int rowIndex) {
+// getCidsBeans().remove(rowIndex);
+// }
 }
