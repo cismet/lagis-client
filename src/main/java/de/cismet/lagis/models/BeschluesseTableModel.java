@@ -73,11 +73,11 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
         super(COLUMN_NAMES, COLUMN_CLASSES);
         try {
             // this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
-            setCidsBeans(new ArrayList<CidsBean>(beschluesse));
+            setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
             // this.beschluesse = new Vector<BeschlussCustomBean>();
-            setCidsBeans(new ArrayList<CidsBean>());
+            setCidsBeans(new ArrayList<BeschlussCustomBean>());
         }
     }
 
@@ -97,18 +97,18 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
             }
             if (beschluesse != null) {
                 // this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
-                setCidsBeans(new ArrayList<CidsBean>(beschluesse));
+                setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
                 }
                 // this.beschluesse = new Vector<BeschlussCustomBean>();
-                setCidsBeans(new ArrayList<CidsBean>());
+                setCidsBeans(new ArrayList<BeschlussCustomBean>());
             }
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
             // this.beschluesse = new Vector<BeschlussCustomBean>();
-            setCidsBeans(new ArrayList<CidsBean>());
+            setCidsBeans(new ArrayList<BeschlussCustomBean>());
         }
         fireTableDataChanged();
     }
