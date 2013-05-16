@@ -32,17 +32,17 @@ import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
  * @author   Puhl
  * @version  $Revision$, $Date$
  */
-public class BeschluesseTableModel extends AbstractTableModel {
+public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String[] COLUMN_HEADER = { "Beschlussart", "Datum" };
+    //private static final String[] COLUMN_HEADER = { "Beschlussart", "Datum" };
 
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<BeschlussCustomBean> beschluesse;
-    private boolean isInEditMode = false;
+//    private Vector<BeschlussCustomBean> beschluesse;
+//    private boolean isInEditMode = false;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -101,9 +101,9 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @param  isEditable  DOCUMENT ME!
      */
-    public void setIsInEditMode(final boolean isEditable) {
-        isInEditMode = isEditable;
-    }
+//    public void setIsInEditMode(final boolean isEditable) {
+//        isInEditMode = isEditable;
+//    }
 
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
@@ -199,9 +199,9 @@ public class BeschluesseTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<BeschlussCustomBean> getBeschluesse() {
-        return beschluesse;
-    }
+//    public Vector<BeschlussCustomBean> getBeschluesse() {
+//        return beschluesse;
+//    }
 
     /**
      * DOCUMENT ME!
