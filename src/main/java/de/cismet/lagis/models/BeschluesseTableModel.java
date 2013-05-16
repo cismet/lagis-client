@@ -42,6 +42,11 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
 
     private static final String[] COLUMN_NAMES = { "Beschlussart", "Datum" };
 
+    private static final Class[] COLUMN_CLASSES = {
+            BeschlussartCustomBean.class,
+            Date.class
+        };
+
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
@@ -55,7 +60,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      */
     public BeschluesseTableModel() {
         // beschluesse = new Vector<BeschlussCustomBean>();
-        super(COLUMN_NAMES);
+        super(COLUMN_NAMES, COLUMN_CLASSES);
         setCidsBeans(new ArrayList<BeschlussCustomBean>());
     }
 
@@ -65,7 +70,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      * @param  beschluesse  DOCUMENT ME!
      */
     public BeschluesseTableModel(final Collection<BeschlussCustomBean> beschluesse) {
-        super(COLUMN_NAMES);
+        super(COLUMN_NAMES, COLUMN_CLASSES);
         try {
             // this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
             setCidsBeans(new ArrayList<CidsBean>(beschluesse));
@@ -161,21 +166,21 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
 //    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
 //        return (COLUMN_HEADER.length > columnIndex) && (beschluesse.size() > rowIndex) && isInEditMode;
 //    }
-    @Override
-    public Class<?> getColumnClass(final int columnIndex) {
-        switch (columnIndex) {
-            case 0: {
-                return BeschlussartCustomBean.class;
-            }
-            case 1: {
-                return Date.class;
-            }
-            default: {
-                log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
-                return null;
-            }
-        }
-    }
+//    @Override
+//    public Class<?> getColumnClass(final int columnIndex) {
+//        switch (columnIndex) {
+//            case 0: {
+//                return BeschlussartCustomBean.class;
+//            }
+//            case 1: {
+//                return Date.class;
+//            }
+//            default: {
+//                log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
+//                return null;
+//            }
+//        }
+//    }
 
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {

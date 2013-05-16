@@ -25,6 +25,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
 
     private List<? extends CidsBean> cidsBeans;
     private final String[] columnNames;
+    private final Class[] columnClasses;
     private boolean isInEditMode = false;
 
     //~ Constructors -----------------------------------------------------------
@@ -32,10 +33,12 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     /**
      * Creates a new CidsBeanTableModel object.
      *
-     * @param  columnNames  DOCUMENT ME!
+     * @param  columnNames    DOCUMENT ME!
+     * @param  columnClasses  DOCUMENT ME!
      */
-    protected CidsBeanTableModel_Lagis(final String[] columnNames) {
+    protected CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses) {
         this.columnNames = columnNames;
+        this.columnClasses = columnClasses;
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -53,6 +56,11 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     @Override
     public String getColumnName(final int column) {
         return columnNames[column];
+    }
+
+    @Override
+    public Class getColumnClass(final int column) {
+        return columnClasses[column];
     }
 
     @Override
@@ -89,7 +97,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      * @return  DOCUMENT ME!
      */
     public <C extends CidsBean> C getCidsBeanAtRow(final int rowIndex) {
-        return (C) cidsBeans.get(rowIndex);
+        return (C)cidsBeans.get(rowIndex);
     }
 
     /**
