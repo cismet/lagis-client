@@ -42,6 +42,26 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
         this.columnClasses = columnClasses;
     }
 
+    @Override
+    public int getRowCount() {
+        return cidsBeans.size();
+    }
+
+    @Override
+    public int getColumnCount() {
+        return columnNames.length;
+    }
+
+    @Override
+    public String getColumnName(final int column) {
+        return columnNames[column];
+    }
+
+    @Override
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && isInEditMode;
+    }
+
     public List<CidsBean> getCidsBeans() {
         return cidsBeans;
     }
@@ -57,6 +77,4 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     public void setIsInEditMode(boolean isInEditMode) {
         this.isInEditMode = isInEditMode;
     }
-    
-    
 }

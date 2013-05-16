@@ -130,25 +130,25 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
         }
     }
 
-    @Override
-    public int getRowCount() {
-        return beschluesse.size();
-    }
+//    @Override
+//    public int getRowCount() {
+//        return beschluesse.size();
+//    }
+//
+//    @Override
+//    public int getColumnCount() {
+//        return COLUMN_HEADER.length;
+//    }
 
-    @Override
-    public int getColumnCount() {
-        return COLUMN_HEADER.length;
-    }
+//    @Override
+//    public String getColumnName(final int column) {
+//        return COLUMN_HEADER[column];
+//    }
 
-    @Override
-    public String getColumnName(final int column) {
-        return COLUMN_HEADER[column];
-    }
-
-    @Override
-    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        return (COLUMN_HEADER.length > columnIndex) && (beschluesse.size() > rowIndex) && isInEditMode;
-    }
+//    @Override
+//    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+//        return (COLUMN_HEADER.length > columnIndex) && (beschluesse.size() > rowIndex) && isInEditMode;
+//    }
 
     @Override
     public Class<?> getColumnClass(final int columnIndex) {
