@@ -444,7 +444,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
         if (currentSelectedVertrag != null) {
             try {
                 final BeschlussCustomBean beschlussBean = BeschlussCustomBean.createNew();
-                beschluesseTableModel.addBeschluss(beschlussBean);
+                beschluesseTableModel.addCidsBean(beschlussBean);
                 currentSelectedVertrag.getBeschluesse().add(beschlussBean);
                 beschluesseTableModel.fireTableDataChanged();
                 if (log.isDebugEnabled()) {

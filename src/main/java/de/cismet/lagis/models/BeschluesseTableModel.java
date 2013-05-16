@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.table.AbstractTableModel;
@@ -28,7 +29,6 @@ import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
 import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
-import java.util.List;
 
 /**
  * DOCUMENT ME!
@@ -218,9 +218,9 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      *
      * @param  beschluss  DOCUMENT ME!
      */
-    public void addBeschluss(final BeschlussCustomBean beschluss) {
-        ((List<BeschlussCustomBean>)getCidsBeans()).add(beschluss);
-    }
+//    public void addCidsBean(final BeschlussCustomBean beschluss) {
+//        ((List<BeschlussCustomBean>)getCidsBeans()).add(beschluss);
+//    }
 
     /**
      * DOCUMENT ME!
