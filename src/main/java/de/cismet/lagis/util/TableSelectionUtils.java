@@ -11,8 +11,6 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.lagis.gui.panels.NKFOverviewPanel;
-
 /**
  * DOCUMENT ME!
  *
@@ -30,16 +28,23 @@ public class TableSelectionUtils {
      * @param  table       DOCUMENT ME!
      */
     public static void fireTableDataChangedAndKeepSelection(final AbstractTableModel tableModel, final JTable table) {
-        final int selection = table.getSelectedRow();
+        final int selection_view = table.getSelectedRow();
+        int selection_model_tmp = -1;
+        if (selection_view > -1) {
+            selection_model_tmp = table.convertRowIndexToModel(selection_view);
+        }
+        final int selection_model = selection_model_tmp;
         tableModel.fireTableDataChanged();
         SwingUtilities.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    if ((selection == -1) || (selection >= table.getRowCount())) {
+                    if ((selection_view == -1) || (selection_view >= table.getRowCount())) {
                         table.clearSelection();
                     } else {
-                        table.setRowSelectionInterval(selection, selection);
+                        final int selection_view_tmp = table.convertRowIndexToView(selection_model);
+                        table.setRowSelectionInterval(selection_view_tmp, selection_view_tmp);
+                        table.scrollRectToVisible(table.getCellRect(selection_view_tmp, 0, true));
                     }
                 }
             });
