@@ -10,7 +10,10 @@ package de.cismet.lagis.gui.tables;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.SortOrder;
 
+import java.awt.Event;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import java.beans.PropertyChangeListener;
 
@@ -33,6 +36,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
 
     private int previously_sorted_column_index = 0;
     private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
+    private JToggleButton tbtnSort;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -120,5 +124,23 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
             ((JXTable)this).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
         this.scrollRectToVisible(this.getCellRect(this.getSelectedRow(), 0, true));
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  sortButton  DOCUMENT ME!
+     */
+    public void setSortButton(final JToggleButton sortButton) {
+        tbtnSort = sortButton;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JToggleButton getSortButton() {
+        return tbtnSort;
     }
 }

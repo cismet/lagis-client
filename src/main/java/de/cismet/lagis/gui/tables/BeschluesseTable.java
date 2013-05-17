@@ -7,7 +7,11 @@
 ****************************************************/
 package de.cismet.lagis.gui.tables;
 
+import org.jdesktop.swingx.JXTable;
+
 import java.awt.event.ActionEvent;
+
+import javax.swing.SwingUtilities;
 
 import de.cismet.lagis.models.documents.VertragDocumentModelContainer;
 

@@ -1037,6 +1037,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     return types[columnIndex];
                 }
             });
+        ((BeschluesseTable)tblBeschluesse).setSortButton(tbtnSort);
         jScrollPane6.setViewportView(tblBeschluesse);
 
         btnAddBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getAddAction());
