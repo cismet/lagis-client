@@ -370,6 +370,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             }
             btnAddExitingContract.setEnabled(isEditable);
             btnAddVertrag.setEnabled(isEditable);
+            tbtnSort.setEnabled(isEditable);
             documentContainer.getBeschluesseTableModel().setIsInEditMode(isEditable);
             documentContainer.getKostenTableModel().setIsInEditMode(isEditable);
             tblKosten.setEnabled(isEditable);

@@ -21,6 +21,6 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
 
     @Override
     protected void btnAddActionPerformed(final ActionEvent evt) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        documentContainer.addNewBeschluss();
     }
 }
