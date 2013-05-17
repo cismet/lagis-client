@@ -20,15 +20,9 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-import java.util.Vector;
-
-import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
 import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
-
-import de.cismet.cids.dynamics.CidsBean;
 
 /**
  * DOCUMENT ME!
@@ -151,7 +145,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
                     return;
                 }
             }
-            fireTableDataChanged();
+            fireTableDataChangedAndKeepSelection();
         } catch (Exception ex) {
             log.error("Fehler beim setzem der Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
