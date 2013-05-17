@@ -9,9 +9,13 @@ package de.cismet.lagis.models;
 
 import java.util.List;
 
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
 
 /**
  * DOCUMENT ME!
@@ -27,6 +31,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     private final String[] columnNames;
     private final Class[] columnClasses;
     private boolean isInEditMode = false;
+    private AbstractCidsBeanTable_Lagis table;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -135,5 +140,52 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public void setIsInEditMode(final boolean isInEditMode) {
         this.isInEditMode = isInEditMode;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JTable getTable() {
+        return table;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  table  DOCUMENT ME!
+     */
+    public void setTable(final AbstractCidsBeanTable_Lagis table) {
+        this.table = table;
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void fireTableDataChangedAndKeepSelection() {
+        final int selection_view = table.getSelectedRow();
+
+        int selection_model_tmp = -1;
+        if (selection_view > -1) {
+            selection_model_tmp = table.convertRowIndexToModel(selection_view);
+        }
+        final int selection_model = selection_model_tmp;
+
+        this.fireTableDataChanged();
+
+        SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    if ((selection_view == -1) || (selection_view >= table.getRowCount())) {
+                        table.clearSelection();
+                    } else {
+                        final int selection_view_tmp = table.convertRowIndexToView(selection_model);
+                        table.setRowSelectionInterval(selection_view_tmp, selection_view_tmp);
+                        table.scrollRectToVisible(table.getCellRect(selection_view_tmp, 0, true));
+                    }
+                }
+            });
     }
 }
