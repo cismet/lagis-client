@@ -50,8 +50,6 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-//    private Vector<BeschlussCustomBean> beschluesse;
-//    private boolean isInEditMode = false;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -72,11 +70,9 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
     public BeschluesseTableModel(final Collection<BeschlussCustomBean> beschluesse) {
         super(COLUMN_NAMES, COLUMN_CLASSES);
         try {
-            // this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
             setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
         } catch (Exception ex) {
             log.error("Fehler beim anlegen des Models", ex);
-            // this.beschluesse = new Vector<BeschlussCustomBean>();
             setCidsBeans(new ArrayList<BeschlussCustomBean>());
         }
     }
@@ -84,9 +80,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * public void setBeschluesseModelData(Set<Beschluss> beschluesse) { try{ this.beschluesse = new
-     * Vector<Beschluss>(beschluesse); }catch(Exception ex){ log.error("Fehler beim aktualisieren der Modelldaten",ex);
-     * this.beschluesse = new Vector<Beschluss>(); } }.
+     * DOCUMENT ME!
      *
      * @param  beschluesse  DOCUMENT ME!
      */
@@ -96,18 +90,15 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
                 log.debug("Refresh des BeschlussTableModell");
             }
             if (beschluesse != null) {
-                // this.beschluesse = new Vector<BeschlussCustomBean>(beschluesse);
                 setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
             } else {
                 if (log.isDebugEnabled()) {
                     log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
                 }
-                // this.beschluesse = new Vector<BeschlussCustomBean>();
                 setCidsBeans(new ArrayList<BeschlussCustomBean>());
             }
         } catch (Exception ex) {
             log.error("Fehler beim refreshen des Models", ex);
-            // this.beschluesse = new Vector<BeschlussCustomBean>();
             setCidsBeans(new ArrayList<BeschlussCustomBean>());
         }
         fireTableDataChanged();
@@ -121,22 +112,15 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      *
      * @return  DOCUMENT ME!
      */
-// public void setIsInEditMode(final boolean isEditable) {
-// isInEditMode = isEditable;
-// }
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
             final BeschlussCustomBean beschluss = (BeschlussCustomBean)getCidsBeans().get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    // BeschlussartCustomBean art = beschluss.getBeschlussart();
-                    // return art != null ? art.getBezeichnung() : null;
                     return beschluss.getBeschlussart();
                 }
                 case 1: {
-                    // Date datum = beschluss.getDatum(); return datum != null ?
-                    // DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
                     return beschluss.getDatum();
                 }
                 default: {
@@ -149,53 +133,16 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
         }
     }
 
-//    @Override
-//    public int getRowCount() {
-//        return beschluesse.size();
-//    }
-//
-//    @Override
-//    public int getColumnCount() {
-//        return COLUMN_HEADER.length;
-//    }
-//    @Override
-//    public String getColumnName(final int column) {
-//        return COLUMN_HEADER[column];
-//    }
-//    @Override
-//    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-//        return (COLUMN_HEADER.length > columnIndex) && (beschluesse.size() > rowIndex) && isInEditMode;
-//    }
-//    @Override
-//    public Class<?> getColumnClass(final int columnIndex) {
-//        switch (columnIndex) {
-//            case 0: {
-//                return BeschlussartCustomBean.class;
-//            }
-//            case 1: {
-//                return Date.class;
-//            }
-//            default: {
-//                log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
-//                return null;
-//            }
-//        }
-//    }
-
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
             final BeschlussCustomBean beschluss = (BeschlussCustomBean)getCidsBeans().get(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    // BeschlussartCustomBean art = beschluss.getBeschlussart();
-                    // return art != null ? art.getBezeichnung() : null;
                     beschluss.setBeschlussart((BeschlussartCustomBean)aValue);
                     break;
                 }
                 case 1: {
-                    // Date datum = beschluss.getDatum(); return datum != null ?
-                    // DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(datum) : null;
                     beschluss.setDatum((Date)aValue);
                     break;
                 }
@@ -209,45 +156,4 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
             log.error("Fehler beim setzem der Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
     }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   rowIndex  beschluss DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-// public Vector<BeschlussCustomBean> getBeschluesse() {
-// return beschluesse;
-// }
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   rowIndex  beschluss DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-// public void addCidsBean(final BeschlussCustomBean beschluss) {
-// ((List<BeschlussCustomBean>)getCidsBeans()).add(beschluss);
-// }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   rowIndex  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-// public BeschlussCustomBean getCidsBeanAtRow(final int rowIndex) {
-// return (BeschlussCustomBean)getCidsBeans().get(rowIndex);
-// }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  rowIndex  DOCUMENT ME!
-     */
-// public void removeCidsBean(final int rowIndex) {
-// getCidsBeans().remove(rowIndex);
-// }
 }
