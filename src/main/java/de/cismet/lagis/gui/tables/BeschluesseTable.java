@@ -29,15 +29,6 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
 
     //~ Methods ----------------------------------------------------------------
 
-    @Override
-    protected void btnRemoveActionPerformed(final ActionEvent evt) {
-        final int currentRow = this.getSelectedRow();
-        if (currentRow != -1) {
-            documentContainer.removeBeschluss(this.getFilters().convertRowIndexToModel(
-                    currentRow));
-        }
-    }
-
     /**
      * DOCUMENT ME!
      *
@@ -59,5 +50,11 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void addNewItem() {
         documentContainer.addNewBeschluss();
+    }
+
+    @Override
+    protected void removeItem(final int row) {
+        documentContainer.removeBeschluss(this.getFilters().convertRowIndexToModel(
+                row));
     }
 }

@@ -117,11 +117,27 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
 
     /**
      * DOCUMENT ME!
+     */
+    protected abstract void addNewItem();
+
+    /**
+     * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    protected abstract void btnRemoveActionPerformed(ActionEvent evt);
+    protected void btnRemoveActionPerformed(final ActionEvent evt) {
+        final int currentRow = this.getSelectedRow();
+        if (currentRow != -1) {
+            removeItem(currentRow);
+        }
+    }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  row  DOCUMENT ME!
+     */
+    protected abstract void removeItem(int row);
     /**
      * DOCUMENT ME!
      *
@@ -156,9 +172,4 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
     public JToggleButton getSortButton() {
         return tbtnSort;
     }
-
-    /**
-     * DOCUMENT ME!
-     */
-    protected abstract void addNewItem();
 }
