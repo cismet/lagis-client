@@ -21,6 +21,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -99,7 +100,20 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      *
      * @param  evt  DOCUMENT ME!
      */
-    protected abstract void btnAddActionPerformed(ActionEvent evt);
+    protected void btnAddActionPerformed(final ActionEvent evt) {
+        getSortButton().setSelected(true);
+        this.setSortable(false);
+        addNewItem();
+        SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    final AbstractCidsBeanTable_Lagis table = AbstractCidsBeanTable_Lagis.this;
+                    table.setRowSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
+                    table.scrollRectToVisible(table.getCellRect(table.getRowCount() - 1, 0, true));
+                }
+            });
+    }
 
     /**
      * DOCUMENT ME!
@@ -142,4 +156,9 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
     public JToggleButton getSortButton() {
         return tbtnSort;
     }
+
+    /**
+     * DOCUMENT ME!
+     */
+    protected abstract void addNewItem();
 }
