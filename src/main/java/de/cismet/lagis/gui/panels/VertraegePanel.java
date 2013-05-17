@@ -1050,13 +1050,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBeschluss.setBorder(null);
 
-        tbtnSort.setAction(((BeschluesseTable)tblBeschluesse).getSortAction());
         tbtnSort.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
         tbtnSort.setBorder(null);
-        tbtnSort.setMaximumSize(new java.awt.Dimension(16, 16));
-        tbtnSort.setMinimumSize(new java.awt.Dimension(16, 16));
-        tbtnSort.setPreferredSize(new java.awt.Dimension(16, 16));
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
         tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
 
