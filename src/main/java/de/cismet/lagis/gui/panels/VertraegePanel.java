@@ -532,9 +532,9 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         jScrollPane6 = new javax.swing.JScrollPane();
         tblBeschluesse = new BeschluesseTable();
         pnlBeschluesseControls = new javax.swing.JPanel();
-        btnAddBeschluss = ((BeschluesseTable)tblBeschluesse).getBtnAdd();
+        btnAddBeschluss = new javax.swing.JButton();
         btnRemoveBeschluss = new javax.swing.JButton();
-        tbtnSort = ((BeschluesseTable)tblBeschluesse).getTbtnSort();
+        tbtnSort = new javax.swing.JToggleButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -1039,25 +1039,25 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             });
         jScrollPane6.setViewportView(tblBeschluesse);
 
+        btnAddBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getAddAction());
         btnAddBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBeschluss.setBorder(null);
 
+        btnRemoveBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getRemoveAction());
         btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBeschluss.setBorder(null);
-        btnRemoveBeschluss.addActionListener(new java.awt.event.ActionListener() {
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveBeschlussActionPerformed(evt);
-                }
-            });
-
+        tbtnSort.setAction(((BeschluesseTable)tblBeschluesse).getSortAction());
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
         tbtnSort.setBorder(null);
         tbtnSort.setMaximumSize(new java.awt.Dimension(16, 16));
         tbtnSort.setMinimumSize(new java.awt.Dimension(16, 16));
         tbtnSort.setPreferredSize(new java.awt.Dimension(16, 16));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
 
         final org.jdesktop.layout.GroupLayout pnlBeschluesseControlsLayout = new org.jdesktop.layout.GroupLayout(
                 pnlBeschluesseControls);
@@ -1244,20 +1244,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
     }                                                                                         //GEN-LAST:event_btnAddExitingContractActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveBeschlussActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveBeschlussActionPerformed
-        final int currentRow = tblBeschluesse.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            documentContainer.removeBeschluss(((JXTable)tblBeschluesse).getFilters().convertRowIndexToModel(
-                    currentRow));
-        }
-    } //GEN-LAST:event_btnRemoveBeschlussActionPerformed
 
     /**
      * DOCUMENT ME!

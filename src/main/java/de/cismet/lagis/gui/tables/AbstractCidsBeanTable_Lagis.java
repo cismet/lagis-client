@@ -12,6 +12,10 @@ import org.jdesktop.swingx.decorator.SortOrder;
 
 import java.awt.event.ActionEvent;
 
+import java.beans.PropertyChangeListener;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 
@@ -27,9 +31,6 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
 
     //~ Instance fields --------------------------------------------------------
 
-    private JButton btnAdd;
-    private JButton btnRemove;
-    private JToggleButton tbtnSort;
     private int previously_sorted_column_index = 0;
     private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
 
@@ -39,42 +40,54 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      * Creates a new AbstractCidsBeanTable_Lagis object.
      */
     public AbstractCidsBeanTable_Lagis() {
-        initComponents();
+        super();
     }
 
     //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
      */
-    private void initComponents() {
-        btnAdd = new javax.swing.JButton();
-        tbtnSort = new javax.swing.JToggleButton();
-
-        btnAdd.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png")));
-        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+    public Action getAddAction() {
+        return new AbstractAction() {
 
                 @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddActionPerformed(evt);
+                public void actionPerformed(final ActionEvent e) {
+                    btnAddActionPerformed(e);
                 }
-            });
+            };
+    }
 
-        tbtnSort.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
-        tbtnSort.setToolTipText("Sortierung An / Aus");
-        tbtnSort.setBorderPainted(false);
-        tbtnSort.setContentAreaFilled(false);
-        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
-        tbtnSort.addItemListener(new java.awt.event.ItemListener() {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Action getRemoveAction() {
+        return new AbstractAction() {
 
                 @Override
-                public void itemStateChanged(final java.awt.event.ItemEvent evt) {
-                    tbtnSortItemStateChanged(evt);
+                public void actionPerformed(final ActionEvent e) {
+                    btnRemoveActionPerformed(e);
                 }
-            });
+            };
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Action getSortAction() {
+        return new AbstractAction() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    tbtnSortActionPerformed(e);
+                }
+            };
     }
 
     /**
@@ -89,7 +102,15 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      *
      * @param  evt  DOCUMENT ME!
      */
-    protected void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) {
+    protected abstract void btnRemoveActionPerformed(ActionEvent evt);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    protected void tbtnSortActionPerformed(final ActionEvent evt) {
+        final JToggleButton tbtnSort = (JToggleButton)evt.getSource();
         if (tbtnSort.isSelected()) { // disable sort
             previously_sorted_column_index = ((JXTable)this).getSortedColumn().getModelIndex();
             previously_used_sort_order = ((JXTable)this).getSortOrder(previously_sorted_column_index);
@@ -99,32 +120,5 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
             ((JXTable)this).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
         this.scrollRectToVisible(this.getCellRect(this.getSelectedRow(), 0, true));
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public JButton getBtnAdd() {
-        return btnAdd;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public JButton getBtnRemove() {
-        return btnRemove;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public JToggleButton getTbtnSort() {
-        return tbtnSort;
     }
 }

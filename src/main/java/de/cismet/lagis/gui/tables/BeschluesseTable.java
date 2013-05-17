@@ -30,6 +30,15 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
         documentContainer.addNewBeschluss();
     }
 
+    @Override
+    protected void btnRemoveActionPerformed(final ActionEvent evt) {
+        final int currentRow = this.getSelectedRow();
+        if (currentRow != -1) {
+            documentContainer.removeBeschluss(this.getFilters().convertRowIndexToModel(
+                    currentRow));
+        }
+    }
+
     /**
      * DOCUMENT ME!
      *
