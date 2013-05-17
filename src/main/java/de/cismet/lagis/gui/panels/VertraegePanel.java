@@ -197,6 +197,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         cboVertragsart.addActionListener(documentContainer);
 
         tblKosten.setModel(documentContainer.getKostenTableModel());
+        ((BeschluesseTable)tblBeschluesse).setDocumentContainer(documentContainer);
         tblBeschluesse.setModel(documentContainer.getBeschluesseTableModel());
         // Set vertragsarten = null;
 // if(vertragsarten != null){
