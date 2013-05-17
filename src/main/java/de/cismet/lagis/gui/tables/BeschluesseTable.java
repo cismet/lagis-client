@@ -31,7 +31,18 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
 
     @Override
     protected void btnAddActionPerformed(final ActionEvent evt) {
+        getSortButton().setSelected(true);
+        this.setSortable(false);
         documentContainer.addNewBeschluss();
+        SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    final BeschluesseTable table = BeschluesseTable.this;
+                    table.setRowSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
+                    table.scrollRectToVisible(table.getCellRect(table.getRowCount() - 1, 0, true));
+                }
+            });
     }
 
     @Override
