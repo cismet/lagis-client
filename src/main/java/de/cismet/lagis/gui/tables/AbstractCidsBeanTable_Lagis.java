@@ -84,12 +84,12 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      *
      * @return  DOCUMENT ME!
      */
-    public Action getSortAction() {
-        return new AbstractAction() {
+    public ItemListener getSortItemListener() {
+        return new ItemListener() {
 
                 @Override
-                public void actionPerformed(final ActionEvent e) {
-                    tbtnSortActionPerformed(e);
+                public void itemStateChanged(final ItemEvent evt) {
+                    tbtnSortItemStateChanged(evt);
                 }
             };
     }
@@ -113,8 +113,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      *
      * @param  evt  DOCUMENT ME!
      */
-    protected void tbtnSortActionPerformed(final ActionEvent evt) {
-        final JToggleButton tbtnSort = (JToggleButton)evt.getSource();
+    protected void tbtnSortItemStateChanged(final ItemEvent evt) {
         if (tbtnSort.isSelected()) { // disable sort
             previously_sorted_column_index = ((JXTable)this).getSortedColumn().getModelIndex();
             previously_used_sort_order = ((JXTable)this).getSortOrder(previously_sorted_column_index);

@@ -1098,6 +1098,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                         Short.MAX_VALUE)).addContainerGap()));
 
+        tbtnSort.addItemListener(((BeschluesseTable)tblBeschluesse).getSortItemListener());
+
         final org.jdesktop.layout.GroupLayout panBeschlussLayout = new org.jdesktop.layout.GroupLayout(panBeschluss);
         panBeschluss.setLayout(panBeschlussLayout);
         panBeschlussLayout.setHorizontalGroup(
