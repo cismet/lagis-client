@@ -748,9 +748,9 @@
                               <Border info="null"/>
                             </Property>
                           </Properties>
-                          <Events>
-                            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnAddBeschlussActionPerformed"/>
-                          </Events>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="((BeschluesseTable) tblBeschluesse).getBtnAdd()"/>
+                          </AuxValues>
                         </Component>
                         <Component class="javax.swing.JButton" name="btnRemoveBeschluss">
                           <Properties>
@@ -767,6 +767,9 @@
                         </Component>
                         <Component class="javax.swing.JToggleButton" name="tbtnSort">
                           <Properties>
+                            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                              <Border info="null"/>
+                            </Property>
                             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                               <Dimension value="[16, 16]"/>
                             </Property>

@@ -532,7 +532,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         jScrollPane6 = new javax.swing.JScrollPane();
         tblBeschluesse = new BeschluesseTable();
         pnlBeschluesseControls = new javax.swing.JPanel();
-        btnAddBeschluss = new javax.swing.JButton();
+        btnAddBeschluss = ((BeschluesseTable)tblBeschluesse).getBtnAdd();
         btnRemoveBeschluss = new javax.swing.JButton();
         tbtnSort = ((BeschluesseTable)tblBeschluesse).getTbtnSort();
 
@@ -1042,13 +1042,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBeschluss.setBorder(null);
-        btnAddBeschluss.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddBeschlussActionPerformed(evt);
-                }
-            });
 
         btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
@@ -1061,6 +1054,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             });
 
+        tbtnSort.setBorder(null);
         tbtnSort.setMaximumSize(new java.awt.Dimension(16, 16));
         tbtnSort.setMinimumSize(new java.awt.Dimension(16, 16));
         tbtnSort.setPreferredSize(new java.awt.Dimension(16, 16));
@@ -1264,17 +1258,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     currentRow));
         }
     } //GEN-LAST:event_btnRemoveBeschlussActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddBeschlussActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddBeschlussActionPerformed
-        // ((JXTable)tblBeschluesse).setSortable(false);
-        documentContainer.addNewBeschluss();
-        // ((JXTable)tblBeschluesse).setSortable(true);
-    } //GEN-LAST:event_btnAddBeschlussActionPerformed
 
     /**
      * DOCUMENT ME!
