@@ -189,6 +189,8 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      *
      * @param  newModel  DOCUMENT ME!
      */
+    // TODO change this when every Table extends from this Table. The instanceof check is propably dangerous and
+    // causes side effects a programmer can not see immediately.
     @Override
     public void setModel(final TableModel newModel) {
         super.setModel(newModel);

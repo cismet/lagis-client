@@ -115,7 +115,7 @@ public class KostenTableModel extends CidsBeanTableModel_Lagis {
                     return;
                 }
             }
-            fireTableDataChanged();
+            fireTableDataChangedAndKeepSelection();
         } catch (Exception ex) {
             LOG.error("Fehler beim setzem der Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
