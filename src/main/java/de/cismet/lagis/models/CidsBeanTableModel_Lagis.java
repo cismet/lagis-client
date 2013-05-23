@@ -210,11 +210,12 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
 
         this.fireTableDataChanged();
 
-        //does the same thing, only point of time changes
+        // does the same thing, only point of time changes
         if (SwingUtilities.isEventDispatchThread()) {
             resetSelection(selection_index_model);
         } else {
             SwingUtilities.invokeLater(new Runnable() {
+
                     @Override
                     public void run() {
                         resetSelection(selection_index_model);
