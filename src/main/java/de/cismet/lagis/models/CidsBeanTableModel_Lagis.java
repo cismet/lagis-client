@@ -7,6 +7,7 @@
 ****************************************************/
 package de.cismet.lagis.models;
 
+import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
 import java.util.List;
 
 import javax.swing.JTable;
@@ -16,6 +17,9 @@ import javax.swing.table.AbstractTableModel;
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
+import java.util.ArrayList;
+import java.util.Collection;
+import org.apache.log4j.Logger;
 
 /**
  * DOCUMENT ME!
@@ -26,7 +30,7 @@ import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
 public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
 
     //~ Instance fields --------------------------------------------------------
-
+private static final Logger LOG = org.apache.log4j.Logger.getLogger(CidsBeanTableModel_Lagis.class);
     private List<? extends CidsBean> cidsBeans;
     private final String[] columnNames;
     private final Class[] columnClasses;
@@ -158,6 +162,31 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public void setTable(final AbstractCidsBeanTable_Lagis table) {
         this.table = table;
+    }
+    
+        /**
+     * DOCUMENT ME!
+     *
+     * @param  beschluesse  DOCUMENT ME!
+     */
+    public void refreshTableModel(final Collection<CidsBean> cidsbeans) {
+        try {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Refresh des BeschlussTableModell");
+            }
+            if (cidsbeans != null) {
+                setCidsBeans(new ArrayList<CidsBean>(cidsbeans));
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Beschlüssevektor == null --> Erstelle Vektor.");
+                }
+                setCidsBeans(new ArrayList<CidsBean>());
+            }
+        } catch (Exception ex) {
+            LOG.error("Fehler beim refreshen des Models", ex);
+            setCidsBeans(new ArrayList<CidsBean>());
+        }
+        fireTableDataChanged();
     }
 
     /**

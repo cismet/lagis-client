@@ -43,7 +43,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(BeschluesseTableModel.class);
 
     //~ Constructors -----------------------------------------------------------
 
@@ -66,37 +66,12 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
         try {
             setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
         } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
+            LOG.error("Fehler beim anlegen des Models", ex);
             setCidsBeans(new ArrayList<BeschlussCustomBean>());
         }
     }
 
     //~ Methods ----------------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  beschluesse  DOCUMENT ME!
-     */
-    public void refreshTableModel(final Collection<BeschlussCustomBean> beschluesse) {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Refresh des BeschlussTableModell");
-            }
-            if (beschluesse != null) {
-                setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Beschlüssevektor == null --> Erstelle Vektor.");
-                }
-                setCidsBeans(new ArrayList<BeschlussCustomBean>());
-            }
-        } catch (Exception ex) {
-            log.error("Fehler beim refreshen des Models", ex);
-            setCidsBeans(new ArrayList<BeschlussCustomBean>());
-        }
-        fireTableDataChanged();
-    }
 
     /**
      * DOCUMENT ME!
@@ -122,7 +97,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
                 }
             }
         } catch (Exception ex) {
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
     }
@@ -141,13 +116,13 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
                     break;
                 }
                 default: {
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
+                    LOG.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
                 }
             }
             fireTableDataChangedAndKeepSelection();
         } catch (Exception ex) {
-            log.error("Fehler beim setzem der Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim setzem der Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
     }
 }
