@@ -17,13 +17,12 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 
 import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
 import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
-
-import java.util.ArrayList;
 
 /**
  * DOCUMENT ME!
@@ -42,9 +41,7 @@ public class KostenTableModel extends CidsBeanTableModel_Lagis {
             Date.class
         };
 
-    //~ Instance fields --------------------------------------------------------
-
-    private static final  Logger LOG = org.apache.log4j.Logger.getLogger(KostenTableModel.class);
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(KostenTableModel.class);
 
     //~ Constructors -----------------------------------------------------------
 
@@ -52,7 +49,7 @@ public class KostenTableModel extends CidsBeanTableModel_Lagis {
      * Creates a new instance of KostenTableModel.
      */
     public KostenTableModel() {
-        //kosten = new Vector<KostenCustomBean>();
+        // kosten = new Vector<KostenCustomBean>();
         super(COLUMN_NAMES, COLUMN_CLASSES);
         setCidsBeans(new ArrayList<KostenCustomBean>());
     }

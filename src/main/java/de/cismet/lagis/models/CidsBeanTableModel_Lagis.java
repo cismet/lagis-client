@@ -7,19 +7,21 @@
 ****************************************************/
 package de.cismet.lagis.models;
 
-import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
+
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
-import java.util.ArrayList;
-import java.util.Collection;
-import org.apache.log4j.Logger;
 
 /**
  * DOCUMENT ME!
@@ -29,8 +31,12 @@ import org.apache.log4j.Logger;
  */
 public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(CidsBeanTableModel_Lagis.class);
+
     //~ Instance fields --------------------------------------------------------
-private static final Logger LOG = org.apache.log4j.Logger.getLogger(CidsBeanTableModel_Lagis.class);
+
     private List<? extends CidsBean> cidsBeans;
     private final String[] columnNames;
     private final Class[] columnClasses;
@@ -163,11 +169,12 @@ private static final Logger LOG = org.apache.log4j.Logger.getLogger(CidsBeanTabl
     public void setTable(final AbstractCidsBeanTable_Lagis table) {
         this.table = table;
     }
-    
-        /**
+
+    /**
      * DOCUMENT ME!
      *
-     * @param  beschluesse  DOCUMENT ME!
+     * @param  <T>        beschluesse DOCUMENT ME!
+     * @param  cidsbeans  DOCUMENT ME!
      */
     public <T extends CidsBean> void refreshTableModel(final Collection<T> cidsbeans) {
         try {

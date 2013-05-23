@@ -41,8 +41,6 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
             Date.class
         };
 
-    //~ Instance fields --------------------------------------------------------
-
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(BeschluesseTableModel.class);
 
     //~ Constructors -----------------------------------------------------------
