@@ -103,8 +103,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setGesamtpreis(betrag);
-                        // vertraegeTableModel.fireTableDataChangedAndKeepSelection();
-                        vertraegeTableModel.fireTableDataChanged();
+                        vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                     }
                 }
             };
@@ -118,8 +117,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setQuadratmeterpreis(betrag);
-                        // vertraegeTableModel.fireTableDataChangedAndKeepSelection();
-                        vertraegeTableModel.fireTableDataChanged();
+                        vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                     }
                 }
             };
@@ -179,7 +177,6 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     if ((currentSelectedVertrag != null) && (getStatus() == VALID)) {
                         currentSelectedVertrag.setAktenzeichen(newValue);
                         vertraegeTableModel.fireTableDataChangedAndKeepSelection();
-                        vertraegeTableModel.fireTableDataChanged();
                     }
                 }
             };
@@ -303,7 +300,6 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     vertragsartComboBoxModel.setSelectedItem(currentSelectedVertrag.getVertragsart());
 
                     kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
-                    // beschluesseTableModel = new BeschluesseTableModel(currentSelectedVertrag.getBeschluesse());
                     beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
                     table.changeSelection(table.getFilters().convertRowIndexToView(currentRow),
                         currentColumn,
