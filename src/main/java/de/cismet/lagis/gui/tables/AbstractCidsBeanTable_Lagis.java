@@ -113,21 +113,39 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
         getSortButton().setSelected(true);
         this.setSortable(false);
         addNewItem();
-        SwingUtilities.invokeLater(new Runnable() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            selectAndScrollToLastRow();
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
 
-                @Override
-                public void run() {
-                    final AbstractCidsBeanTable_Lagis table = AbstractCidsBeanTable_Lagis.this;
-                    table.setRowSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
-                    table.scrollRectToVisible(table.getCellRect(table.getRowCount() - 1, 0, true));
-                }
-            });
+                    @Override
+                    public void run() {
+                        selectAndScrollToLastRow();
+                    }
+                });
+        }
+        execAfterAddActionPerformed();
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void selectAndScrollToLastRow() {
+        final AbstractCidsBeanTable_Lagis table = AbstractCidsBeanTable_Lagis.this;
+        table.setRowSelectionInterval(table.getRowCount() - 1, table.getRowCount() - 1);
+        table.scrollRectToVisible(table.getCellRect(table.getRowCount() - 1, 0, true));
     }
 
     /**
      * This method gets called in btnAddActionPerformed().
      */
     protected abstract void addNewItem();
+
+    /**
+     * DOCUMENT ME!
+     */
+    protected void execAfterAddActionPerformed() {
+    }
 
     /**
      * DOCUMENT ME!
@@ -147,12 +165,6 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      * @param  row  DOCUMENT ME!
      */
     protected abstract void removeItem(int row);
-
-    /**
-     * DOCUMENT ME!
-     */
-    protected void execAfterAddActionPerformed() {
-    }
 
     /**
      * DOCUMENT ME!
