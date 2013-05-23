@@ -200,28 +200,41 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      * DOCUMENT ME!
      */
     public void fireTableDataChangedAndKeepSelection() {
-        final int selection_view = table.getSelectedRow();
+        final int selection_index_view = table.getSelectedRow();
 
         int selection_model_tmp = -1;
-        if (selection_view > -1) {
-            selection_model_tmp = table.convertRowIndexToModel(selection_view);
+        if (selection_index_view > -1) {
+            selection_model_tmp = table.convertRowIndexToModel(selection_index_view);
         }
-        final int selection_model = selection_model_tmp;
+        final int selection_index_model = selection_model_tmp;
 
         this.fireTableDataChanged();
 
-        SwingUtilities.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    if ((selection_view == -1) || (selection_view >= table.getRowCount())) {
-                        table.clearSelection();
-                    } else {
-                        final int selection_view_tmp = table.convertRowIndexToView(selection_model);
-                        table.setRowSelectionInterval(selection_view_tmp, selection_view_tmp);
-                        table.scrollRectToVisible(table.getCellRect(selection_view_tmp, 0, true));
+        //does the same thing, only point of time changes
+        if (SwingUtilities.isEventDispatchThread()) {
+            resetSelection(selection_index_model);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        resetSelection(selection_index_model);
                     }
-                }
-            });
+                });
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  selection_index_model  DOCUMENT ME!
+     */
+    private void resetSelection(final int selection_index_model) {
+        if ((selection_index_model == -1) || (selection_index_model >= this.getRowCount())) {
+            table.clearSelection();
+        } else {
+            final int selection_index_view = table.convertRowIndexToView(selection_index_model);
+            table.setRowSelectionInterval(selection_index_view, selection_index_view);
+            table.scrollRectToVisible(table.getCellRect(selection_index_view, 0, true));
+        }
     }
 }
