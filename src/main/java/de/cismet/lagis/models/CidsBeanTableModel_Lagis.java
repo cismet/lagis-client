@@ -169,22 +169,22 @@ private static final Logger LOG = org.apache.log4j.Logger.getLogger(CidsBeanTabl
      *
      * @param  beschluesse  DOCUMENT ME!
      */
-    public void refreshTableModel(final Collection<CidsBean> cidsbeans) {
+    public <T extends CidsBean> void refreshTableModel(final Collection<T> cidsbeans) {
         try {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Refresh des BeschlussTableModell");
             }
             if (cidsbeans != null) {
-                setCidsBeans(new ArrayList<CidsBean>(cidsbeans));
+                setCidsBeans(new ArrayList<T>(cidsbeans));
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Beschlüssevektor == null --> Erstelle Vektor.");
                 }
-                setCidsBeans(new ArrayList<CidsBean>());
+                setCidsBeans(new ArrayList<T>());
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim refreshen des Models", ex);
-            setCidsBeans(new ArrayList<CidsBean>());
+            setCidsBeans(new ArrayList<T>());
         }
         fireTableDataChanged();
     }
