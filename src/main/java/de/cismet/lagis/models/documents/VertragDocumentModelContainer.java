@@ -246,7 +246,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
             }
             if (currentRow != -1) {
                 currentRow = table.getFilters().convertRowIndexToModel(currentRow);
-                currentSelectedVertrag = vertraegeTableModel.getVertragAtRow(currentRow);
+                currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(currentRow);
                 try {
                     kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
                     if (currentSelectedVertrag.getGesamtpreis() != null) {

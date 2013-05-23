@@ -444,7 +444,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 return Validatable.ERROR;
             }
         }
-        final Vector<VertragCustomBean> alleVertraege = vTableModel.getVertraege();
+        final ArrayList<VertragCustomBean> alleVertraege = (ArrayList<VertragCustomBean>)vTableModel.getCidsBeans();
         if (alleVertraege != null) {
             for (final VertragCustomBean currentVertrag : alleVertraege) {
                 if ((currentVertrag != null) && (currentVertrag.getVertragsart() == null)) {
@@ -1191,16 +1191,16 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEintragungActionPerformed
+    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_txtEintragungActionPerformed
 // TODO add your handling code here:
-    }//GEN-LAST:event_txtEintragungActionPerformed
+    } //GEN-LAST:event_txtEintragungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboVertragsartActionPerformed
+    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboVertragsartActionPerformed
         final Object selectedItem = cboVertragsart.getSelectedItem();
         if ((selectedItem != null) && (selectedItem instanceof VertragsartCustomBean)) {
             final VertragsartCustomBean art = (VertragsartCustomBean)selectedItem;
@@ -1218,56 +1218,56 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             }
         }
-    }//GEN-LAST:event_cboVertragsartActionPerformed
+    }                                                                                  //GEN-LAST:event_cboVertragsartActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingContractActionPerformed
+    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingContractActionPerformed
         final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
         dialog.add(new AddExistingVorgangPanel(currentFlurstueck, vTableModel, lstCrossRefs.getModel()));
         dialog.pack();
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
-    }//GEN-LAST:event_btnAddExitingContractActionPerformed
+    }                                                                                         //GEN-LAST:event_btnAddExitingContractActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveVertragActionPerformed
+    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVertragActionPerformed
         final int currentRow = tblVertraege.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            vTableModel.removeVertrag(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
+            vTableModel.removeCidsBean(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
             updateCrossRefs();
             // vTableModel.fireTableDataChanged();
         }
         documentContainer.clearComponents();
         enableSlaveFlieds(false);
-    }//GEN-LAST:event_btnRemoveVertragActionPerformed
+    } //GEN-LAST:event_btnRemoveVertragActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddVertragActionPerformed
+    private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVertragActionPerformed
         try {
             // ((JXTable)tblVertraege).setSortable(false);
             final VertragCustomBean newVertrag = VertragCustomBean.createNew();
             newVertrag.setVertragsart((VertragsartCustomBean)cboVertragsart.getItemAt(0));
-            vTableModel.addVertrag(newVertrag);
+            vTableModel.addCidsBean(newVertrag);
             // vTableModel.fireTableDataChanged();
             // vTableModel.fireTableDataChanged();
         } catch (Exception ex) {
             LOG.error("error creating vertrag bean", ex);
         }
-    }//GEN-LAST:event_btnAddVertragActionPerformed
+    } //GEN-LAST:event_btnAddVertragActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1277,7 +1277,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             LOG.debug("Update der Querverweise");
         }
         final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
-                    .getCrossreferencesForVertraege(new HashSet(vTableModel.getVertraege()));
+                    .getCrossreferencesForVertraege(new HashSet(vTableModel.getCidsBeans()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {
             if (LOG.isDebugEnabled()) {
@@ -1339,10 +1339,10 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<VertragCustomBean> vertraege = flurstueck.getVertraege();
         if (vertraege != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(vertraege, vTableModel.getVertraege());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vertraege, vTableModel.getCidsBeans());
         } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
             final HashSet newSet = new HashSet();
-            newSet.addAll(vTableModel.getVertraege());
+            newSet.addAll(vTableModel.getCidsBeans());
             flurstueck.setVertraege(newSet);
         }
     }
