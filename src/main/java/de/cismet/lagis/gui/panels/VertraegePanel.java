@@ -38,6 +38,7 @@ import de.cismet.lagis.editor.EuroEditor;
 
 import de.cismet.lagis.gui.tables.BeschluesseTable;
 import de.cismet.lagis.gui.tables.KostenTable;
+import de.cismet.lagis.gui.tables.VertraegeTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
@@ -164,6 +165,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         // tblKosten.setModel(kTableModel);
         tblVertraege.setModel(vTableModel);
         // tblVertraege.addMouseListener(this);
+        ((VertraegeTable)tblVertraege).setDocumentContainer(documentContainer);
         documentContainer = new VertragDocumentModelContainer(vTableModel);
         tblVertraege.addMouseListener(documentContainer);
         // log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
@@ -377,6 +379,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             btnAddVertrag.setEnabled(isEditable);
             tbtnSortBeschluss.setEnabled(isEditable);
             tbtnSortKosten.setEnabled(isEditable);
+            tbtnSortVertrag.setEnabled(isEditable);
             documentContainer.getBeschluesseTableModel().setIsInEditMode(isEditable);
             documentContainer.getKostenTableModel().setIsInEditMode(isEditable);
             tblKosten.setEnabled(isEditable);
@@ -505,7 +508,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddExitingContract = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblVertraege = new JXTable();
+        tblVertraege = new de.cismet.lagis.gui.tables.VertraegeTable();
         panBemerkung = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         txtBemerkung = new javax.swing.JTextArea();
@@ -551,6 +554,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         pnlKostenControls1.setLayout(new java.awt.GridBagLayout());
 
+        btnAddVertrag.setAction(((VertraegeTable)tblVertraege).getAddAction());
         btnAddVertrag.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVertrag.setBorder(null);
@@ -609,7 +613,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
         pnlKostenControls1.add(tbtnSortVertrag, gridBagConstraints);
-        tbtnSortKosten.addItemListener(((KostenTable)tblKosten).getSortItemListener());
+        tbtnSortVertrag.addItemListener(((de.cismet.lagis.gui.tables.VertraegeTable)tblVertraege)
+                    .getSortItemListener());
 
         btnAddExitingContract.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
@@ -662,6 +667,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             });
         tblVertraege.setPreferredSize(new java.awt.Dimension(100, 16));
+        ((VertraegeTable)tblVertraege).setSortButton(tbtnSortVertrag);
         jScrollPane1.setViewportView(tblVertraege);
 
         final org.jdesktop.layout.GroupLayout panVertraegeLayout = new org.jdesktop.layout.GroupLayout(panVertraege);
@@ -947,8 +953,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         pnlKostenControls.setLayout(new java.awt.GridBagLayout());
 
         btnAddKosten.setAction(((KostenTable)tblKosten).getAddAction());
-        btnAddKosten.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddKosten.setBorder(null);
         btnAddKosten.setBorderPainted(false);
         btnAddKosten.setContentAreaFilled(false);

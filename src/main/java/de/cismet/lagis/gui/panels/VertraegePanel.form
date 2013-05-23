@@ -107,6 +107,9 @@
               <SubComponents>
                 <Component class="javax.swing.JButton" name="btnAddVertrag">
                   <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="((VertraegeTable)tblVertraege).getAddAction()" type="code"/>
+                    </Property>
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/de/cismet/lagis/ressource/icons/buttons/add.png"/>
                     </Property>
@@ -187,7 +190,7 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="tbtnSortKosten.addItemListener(((KostenTable)tblKosten).getSortItemListener());"/>
+                    <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="tbtnSortVertrag.addItemListener(((de.cismet.lagis.gui.tables.VertraegeTable)tblVertraege).getSortItemListener());"/>
                     <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="VertraegePanel_tbtnSort"/>
                   </AuxValues>
                   <Constraints>
@@ -270,7 +273,8 @@
                     </Property>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new JXTable();"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new de.cismet.lagis.gui.tables.VertraegeTable();"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((VertraegeTable)tblVertraege).setSortButton(tbtnSortVertrag);"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -622,9 +626,6 @@
                           <Properties>
                             <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                               <Connection code="((KostenTable)tblKosten).getAddAction()" type="code"/>
-                            </Property>
-                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/buttons/add.png"/>
                             </Property>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="null"/>

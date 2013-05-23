@@ -103,6 +103,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setGesamtpreis(betrag);
+                        // vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                         vertraegeTableModel.fireTableDataChanged();
                     }
                 }
@@ -117,6 +118,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setQuadratmeterpreis(betrag);
+                        // vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                         vertraegeTableModel.fireTableDataChanged();
                     }
                 }
@@ -176,6 +178,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     fireValidationStateChanged(this);
                     if ((currentSelectedVertrag != null) && (getStatus() == VALID)) {
                         currentSelectedVertrag.setAktenzeichen(newValue);
+                        vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                         vertraegeTableModel.fireTableDataChanged();
                     }
                 }
@@ -211,7 +214,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     public void actionPerformed(final ActionEvent e) {
         if (currentSelectedVertrag != null) {
             currentSelectedVertrag.setVertragsart((VertragsartCustomBean)vertragsartComboBoxModel.getSelectedItem());
-            vertraegeTableModel.fireTableDataChanged();
+            vertraegeTableModel.fireTableDataChangedAndKeepSelection();
         }
     }
 
@@ -477,6 +480,16 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                 log.debug("Es konnten keine neue Kosten angelegt werden --> currentSelected Vertrag = null");
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void addNewVertrag() {
+        final VertragCustomBean newVertrag = VertragCustomBean.createNew();
+        // set a Vertragsart as default
+        newVertrag.setVertragsart((VertragsartCustomBean)vertragsartComboBoxModel.getElementAt(0));
+        vertraegeTableModel.addCidsBean(newVertrag);
     }
 
     /**
