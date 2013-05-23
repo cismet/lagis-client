@@ -1212,16 +1212,16 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_txtEintragungActionPerformed
+    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEintragungActionPerformed
 // TODO add your handling code here:
-    } //GEN-LAST:event_txtEintragungActionPerformed
+    }//GEN-LAST:event_txtEintragungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboVertragsartActionPerformed
+    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboVertragsartActionPerformed
         final Object selectedItem = cboVertragsart.getSelectedItem();
         if ((selectedItem != null) && (selectedItem instanceof VertragsartCustomBean)) {
             final VertragsartCustomBean art = (VertragsartCustomBean)selectedItem;
@@ -1239,28 +1239,28 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             }
         }
-    }                                                                                  //GEN-LAST:event_cboVertragsartActionPerformed
+    }//GEN-LAST:event_cboVertragsartActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingContractActionPerformed
+    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingContractActionPerformed
         final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
         dialog.add(new AddExistingVorgangPanel(currentFlurstueck, vTableModel, lstCrossRefs.getModel()));
         dialog.pack();
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
-    }                                                                                         //GEN-LAST:event_btnAddExitingContractActionPerformed
+    }//GEN-LAST:event_btnAddExitingContractActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVertragActionPerformed
+    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveVertragActionPerformed
         final int currentRow = tblVertraege.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
@@ -1270,7 +1270,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         }
         documentContainer.clearComponents();
         enableSlaveFlieds(false);
-    } //GEN-LAST:event_btnRemoveVertragActionPerformed
+    }//GEN-LAST:event_btnRemoveVertragActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1310,34 +1310,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         return WIDGET_NAME;
     }
 
-//    public void mouseReleased(MouseEvent e) {
-//    }
-//
-//    public void mousePressed(MouseEvent e) {
-//    }
-//
-//    public void mouseExited(MouseEvent e) {
-//    }
-//
-//    public void mouseEntered(MouseEvent e) {
-//    }
-//
-//    public void mouseClicked(MouseEvent e) {
-//        Object source = e.getSource();
-//        if(source instanceof JXTable){
-//
-//            JXTable currentTable = (JXTable) source;
-//            if(currentTable.getModel().equals(vTableModel)){
-//
-//            } else if(currentTable.getModel().equals(documentContainer.getBeschluesseTableModel())){
-//                log.debug("Mit maus auf Beschlusstabelle geklickt");
-//
-//            } else if(currentTable.getModel().equals(documentContainer.getKostenTableModel())) {
-//                log.debug("Mit maus auf Kostentabelle geklickt");
-//
-//            }
-//        }
-//    }
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<VertragCustomBean> vertraege = flurstueck.getVertraege();

@@ -142,7 +142,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
     protected abstract void addNewItem();
 
     /**
-     * DOCUMENT ME!
+     * This method gets called at the end of btnAddActionPerformed(). It is empty so it does not need to be implemented by the child classes.
      */
     protected void execAfterAddActionPerformed() {
     }
