@@ -466,7 +466,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     public void addNewKosten() {
         if (currentSelectedVertrag != null) {
             final KostenCustomBean kostenBean = KostenCustomBean.createNew();
-            kostenTableModel.addKosten(kostenBean);
+            kostenTableModel.addCidsBean(kostenBean);
             currentSelectedVertrag.getKosten().add(kostenBean);
             kostenTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {
@@ -486,8 +486,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void removeKosten(final int kostenIndex) {
         if ((currentSelectedVertrag != null) || (kostenIndex == -1)) {
-            final KostenCustomBean kostenBean = kostenTableModel.getKostenAtRow(kostenIndex);
-            kostenTableModel.removeKosten(kostenIndex);
+            final KostenCustomBean kostenBean = kostenTableModel.getCidsBeanAtRow(kostenIndex);
+            kostenTableModel.removeCidsBean(kostenIndex);
             currentSelectedVertrag.getKosten().remove(kostenBean);
             kostenTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {

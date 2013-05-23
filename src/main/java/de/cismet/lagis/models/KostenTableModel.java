@@ -17,8 +17,6 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.text.DecimalFormat;
-
 import java.util.Collection;
 import java.util.Date;
 
