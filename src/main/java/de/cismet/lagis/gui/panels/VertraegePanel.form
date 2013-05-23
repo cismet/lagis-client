@@ -627,6 +627,9 @@
                             <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                               <Connection code="((KostenTable)tblKosten).getAddAction()" type="code"/>
                             </Property>
+                            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/buttons/add.png"/>
+                            </Property>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="null"/>
                             </Property>
