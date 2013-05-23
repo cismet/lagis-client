@@ -150,6 +150,12 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
 
     /**
      * DOCUMENT ME!
+     */
+    protected void execAfterAddActionPerformed() {
+    }
+
+    /**
+     * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
