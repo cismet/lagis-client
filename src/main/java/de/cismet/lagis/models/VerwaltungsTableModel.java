@@ -50,7 +50,6 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Instance fields --------------------------------------------------------
 
-    private boolean isInEditMode = false;
     private double currentWFSSize = 0;
 
     //~ Constructors -----------------------------------------------------------
@@ -123,7 +122,7 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         // "Fläche m²" is not editable, therefore -1 is needed
-        return ((COLUMN_NAMES.length - 1) > columnIndex) && (getRowCount() > rowIndex) && isInEditMode;
+        return ((COLUMN_NAMES.length - 1) > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode();
     }
 
     @Override
