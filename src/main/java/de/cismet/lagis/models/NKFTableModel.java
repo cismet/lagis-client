@@ -564,6 +564,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             LOG.debug("AnzahlNutzungen: " + allNutzungen.size());
         }
         // TODO wann ändert sich currentDate, nur dann Selection halten?
+        final boolean dateChanged = !currentDate.equals(historyDate) ? true : false;
         currentDate = historyDate;
         currentBuchungen.clear();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
@@ -576,8 +577,11 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         if (LOG.isDebugEnabled()) {
             LOG.debug("anzahl rows: " + getRowCount());
         }
-        this.fireTableDataChanged();
-        // TableSelectionUtils.fireTableDataChangedAndKeepSelection(this, NKFPanel.getInstance().getNutzungTable());
+        if (dateChanged) {
+            this.fireTableDataChanged();
+        } else {
+            this.fireTableDataChangedAndKeepSelection();
+        }
     }
 
     /**
