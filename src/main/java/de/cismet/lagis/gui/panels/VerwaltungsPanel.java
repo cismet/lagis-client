@@ -61,6 +61,7 @@ import de.cismet.lagis.editor.FlaecheEditor;
 
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.tables.VerwaltungsTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -765,6 +766,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         ((JXTable)tNutzung).setSortOrder(0, SortOrder.ASCENDING);
         tNutzung.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tNutzung).packAll();
+        ((VerwaltungsTable)tNutzung).setSortButton(tbtnSort);
     }
 
     /**
@@ -1281,7 +1283,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         lblBelastungen = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tNutzung = new JXTable();
+        tNutzung = new VerwaltungsTable();
         lblBemSperre = new javax.swing.JLabel();
         lblWFSInfo = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -1338,6 +1340,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
+        btnAddVerwaltung.setAction(((VerwaltungsTable)tNutzung).getAddAction());
         btnAddVerwaltung.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVerwaltung.setBorder(null);
@@ -1346,13 +1349,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnAddVerwaltung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnAddVerwaltung.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddVerwaltungActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -1363,6 +1359,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.weighty = 1.0;
         jPanel2.add(btnAddVerwaltung, gridBagConstraints);
 
+        btnRemoveVerwaltung.setAction(((VerwaltungsTable)tNutzung).getRemoveAction());
         btnRemoveVerwaltung.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVerwaltung.setBorder(null);
@@ -1371,13 +1368,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnRemoveVerwaltung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnRemoveVerwaltung.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveVerwaltungActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -1405,6 +1395,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         jPanel2.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((VerwaltungsTable)tNutzung).getSortItemListener());
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -1490,38 +1481,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                 lblRechte).add(org.jdesktop.layout.GroupLayout.TRAILING, lblBelastungen))))
                             .addContainerGap()));
     } // </editor-fold>//GEN-END:initComponents
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVerwaltungActionPerformed
-        final int currentRow = tNutzung.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            tableModel.removeCidsBean(((JXTable)tNutzung).convertRowIndexToModel(currentRow));
-        }
-    } //GEN-LAST:event_btnRemoveVerwaltungActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
-        try {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
-            }
-
-            this.tableModel.addCidsBean(tmp);
-        } catch (Exception ex) {
-            LOG.error("error creating bean for verwaltungsbereiche", ex);
-        }
-    } //GEN-LAST:event_btnAddVerwaltungActionPerformed
 
     /**
      * DOCUMENT ME!
