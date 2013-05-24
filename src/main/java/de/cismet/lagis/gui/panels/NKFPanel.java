@@ -84,6 +84,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     Configurable {
 
     //~ Static fields/initializers ---------------------------------------------
+
     private static final String WIDGET_NAME = "NKF Datenpanel";
     private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
     private static final int YEAR_SCALE = 1;
@@ -739,16 +740,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }//GEN-LAST:event_cbxChangesActionPerformed
+    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
+    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveNutzungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Remove Nutzung");
         }
@@ -776,14 +777,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     }
                 });
         }
-    }//GEN-LAST:event_btnRemoveNutzungActionPerformed
+    } //GEN-LAST:event_btnRemoveNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNutzungActionPerformed
+    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
         tbtnSort.setSelected(true);                                                   // this disables the sort of the
                                                                                       // table
         tableModel.addNutzung(NutzungCustomBean.createNew());
@@ -797,14 +798,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             });
 
         LOG.info("New Nutzung added to Model");
-    }//GEN-LAST:event_btnAddNutzungActionPerformed
+    } //GEN-LAST:event_btnAddNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
@@ -830,14 +831,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }//GEN-LAST:event_btnCopyNutzungActionPerformed
+    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -846,14 +847,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }//GEN-LAST:event_btnPasteNutzungActionPerformed
+    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Flippe Buchung");
         }
@@ -876,13 +877,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }//GEN-LAST:event_btnFlipBuchungActionPerformed
+    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnSortItemStateChanged
+    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) { //GEN-FIRST:event_tbtnSortItemStateChanged
         if (tbtnSort.isSelected()) {                                            // disable sort
             previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
             previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
@@ -892,7 +893,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
         tNutzung.scrollRectToVisible(tNutzung.getCellRect(tNutzung.getSelectedRow(), 0, true));
-    }//GEN-LAST:event_tbtnSortItemStateChanged
+    }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
 
     @Override
     public String getWidgetName() {

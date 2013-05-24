@@ -78,11 +78,6 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
         return columnClasses[column];
     }
 
-    @Override
-    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && isInEditMode;
-    }
-
     /**
      * DOCUMENT ME!
      *
@@ -150,6 +145,11 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public void setIsInEditMode(final boolean isInEditMode) {
         this.isInEditMode = isInEditMode;
+    }
+
+    @Override
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && isInEditMode;
     }
 
     /**
