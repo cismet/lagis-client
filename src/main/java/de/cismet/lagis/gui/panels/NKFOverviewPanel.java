@@ -37,6 +37,9 @@ import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.tables.NKFOverviewTable;
+import de.cismet.lagis.gui.tables.NKFTable;
+
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagis.models.NKFOverviewTableModel;
@@ -72,11 +75,14 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"));
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuchen;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblHistoricIcon;
     private javax.swing.JLabel lblStilleReserven;
     private javax.swing.JLabel lblStilleReservenBetrag;
     private javax.swing.JTable tSummeNutzungen;
+    private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -94,6 +100,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         ((JXTable)tSummeNutzungen).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
         ((JXTable)tSummeNutzungen).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable)tSummeNutzungen).packAll();
+        ((NKFOverviewTable)tSummeNutzungen).setSortButton(tbtnSort);
         configBackgroundThread();
         btnBuchen.setEnabled(false);
     }
@@ -232,85 +239,127 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tSummeNutzungen = new JXTable();
+        tSummeNutzungen = new NKFOverviewTable();
+        jPanel1 = new javax.swing.JPanel();
         lblStilleReserven = new javax.swing.JLabel();
         lblStilleReservenBetrag = new javax.swing.JLabel();
         btnBuchen = new javax.swing.JButton();
         lblHistoricIcon = new javax.swing.JLabel();
+        tbtnSort = new javax.swing.JToggleButton();
+
+        setLayout(new java.awt.GridBagLayout());
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         tSummeNutzungen.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tSummeNutzungen.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][] {
-                    { null, null },
-                    { null, null },
-                    { null, null },
-                    { null, null },
-                    { null, null }
-                },
-                new String[] { "Title 1", "Title 2" }));
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2"
+            }
+        ));
         jScrollPane1.setViewportView(tSummeNutzungen);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 50;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jScrollPane1, gridBagConstraints);
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
         lblStilleReserven.setText("Stille Reserven:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(lblStilleReserven, gridBagConstraints);
 
         lblStilleReservenBetrag.setText("0,0 €");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
+        jPanel1.add(lblStilleReservenBetrag, gridBagConstraints);
 
         btnBuchen.setText("Buchen");
         btnBuchen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuchenActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        jPanel1.add(btnBuchen, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnBuchenActionPerformed(evt);
-                }
-            });
+        lblHistoricIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
+        jPanel1.add(lblHistoricIcon, gridBagConstraints);
 
-        lblHistoricIcon.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"))); // NOI18N
+        tbtnSort.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
+        tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel1.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((NKFOverviewTable)tSummeNutzungen).getSortItemListener());
 
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        jScrollPane1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        235,
-                        Short.MAX_VALUE).add(
-                        layout.createSequentialGroup().add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                btnBuchen,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                lblStilleReserven,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                lblHistoricIcon).add(lblStilleReservenBetrag)))).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    121,
-                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(lblStilleReservenBetrag)
-                                .add(lblStilleReserven)).add(5, 5, 5).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(btnBuchen).add(
-                        lblHistoricIcon)).addContainerGap()));
-    } // </editor-fold>//GEN-END:initComponents
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jPanel1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(13, 13, 13, 13);
+        add(jPanel2, gridBagConstraints);
+    }// </editor-fold>//GEN-END:initComponents
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnBuchenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnBuchenActionPerformed
+    private void btnBuchenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuchenActionPerformed
         // TODO add your handling code here:
         final int answer = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
                 "Wollen Sie alle Stillen Reserven des Flurstücks buchen?",
@@ -352,7 +401,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     JOptionPane.ERROR_MESSAGE);
             }
         }
-    } //GEN-LAST:event_btnBuchenActionPerformed
+    }//GEN-LAST:event_btnBuchenActionPerformed
 
     @Override
     public String getWidgetName() {
