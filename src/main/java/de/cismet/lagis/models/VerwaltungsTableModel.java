@@ -17,12 +17,8 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Vector;
-
-import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
@@ -32,9 +28,7 @@ import de.cismet.cismap.commons.features.Feature;
 
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagis.gui.panels.VerwaltungsPanel;
-
-import de.cismet.lagis.util.TableSelectionUtils;
+import java.util.ArrayList;
 
 /**
  * DOCUMENT ME!
@@ -42,18 +36,16 @@ import de.cismet.lagis.util.TableSelectionUtils;
  * @author   Puhl
  * @version  $Revision$, $Date$
  */
-public class VerwaltungsTableModel extends AbstractTableModel {
+public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String[] COLUMN_HEADER = { "Dienststelle", "Gebrauch", "Fläche m²" };
+    private static final String[] COLUMN_NAMES = { "Dienststelle", "Gebrauch", "Fläche m²" };
+    private static final Class[] COLUMN_CLASSES = { VerwaltendeDienststelleCustomBean.class, VerwaltungsgebrauchCustomBean.class, Integer.class };
 
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<VerwaltungsbereichCustomBean> verwaltungsbereiche;
-    private Vector<VerwaltungsgebrauchCustomBean> verwaltungsgebraeuche;
-    private Vector<VerwaltendeDienststelleCustomBean> verwaltendeDienstellen;
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VerwaltungsTableModel.class);
     private boolean isInEditMode = false;
     private double currentWFSSize = 0;
 
@@ -63,7 +55,8 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      * Creates a new VerwaltungsTableModel object.
      */
     public VerwaltungsTableModel() {
-        verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
+        super(COLUMN_NAMES, COLUMN_CLASSES);
+        setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>());
     }
 
     /**
@@ -72,59 +65,42 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      * @param  verwaltungsbereiche  DOCUMENT ME!
      */
     public VerwaltungsTableModel(final Set<VerwaltungsbereichCustomBean> verwaltungsbereiche) {
+        super(COLUMN_NAMES, COLUMN_CLASSES);
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Initialisierung des VerwaltungsbereichTableModell");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Initialisierung des VerwaltungsbereichTableModell");
             }
-            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>(verwaltungsbereiche);
+                    setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>(verwaltungsbereiche));
         } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
-            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
+            LOG.error("Fehler beim anlegen des Models", ex);
+        setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>());
         }
     }
 
     //~ Methods ----------------------------------------------------------------
 
-// public void setVerwaltungsGebrauchList(Set<Verwaltungsgebrauch> verwaltungsgebraeuche){
-// try{
-// log.debug("Initialisierung der VerwaltungsGebrauchList");
-// this.verwaltungsgebraeuche = new Vector<Verwaltungsgebrauch>(verwaltungsgebraeuche);
-// }catch(Exception ex){
-// log.error("Fehler beim anlegen der VerwaltungsGebrauchList",ex);
-// this.verwaltungsgebraeuche = new Vector<Verwaltungsgebrauch>();
-// }
-// }
-// public void setVerwaltendenDienstellenList(Set<VerwaltendeDienststelle> verwaltendeDienstellen){
-// try{
-// log.debug("Initialisierung der VerwaltendenDienstellenList");
-// this.verwaltendeDienstellen = new Vector<VerwaltendeDienststelle>(verwaltendeDienstellen);
-// }catch(Exception ex){
-// log.error("Fehler beim anlegen der VerwaltendenDienstellenList",ex);
-// this.verwaltendeDienstellen = new Vector<VerwaltendeDienststelle>();
-// }
-// }
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("ausgewählte zeile/spalte" + rowIndex + "/" + columnIndex);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("ausgewählte zeile/spalte" + rowIndex + "/" + columnIndex);
             }
-            final VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
+            final VerwaltungsbereichCustomBean vBereich = getCidsBeanAtRow(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     return vBereich.getDienststelle();
                 }
 
                 case 1: {
-                    if (log.isDebugEnabled()) {
-                        log.debug("aktueller Gebrauch: " + vBereich.getGebrauch());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("aktueller Gebrauch: " + vBereich.getGebrauch());
                     }
                     return vBereich.getGebrauch();
                 }
 
                 case 2: {
                     // if there is only one VerwaltungsbereichCustomBean & the WFS Geometry is used
-                    if (verwaltungsbereiche.size() == 1) {
+                    if (getRowCount() == 1) {
                         return (int)Math.round(currentWFSSize);
                     } else {
                         return vBereich.getFlaeche();
@@ -135,84 +111,29 @@ public class VerwaltungsTableModel extends AbstractTableModel {
                 }
             }
         } catch (Exception ex) {
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
     }
-
-    /**
-     * DOCUMENT ME!
-     */
-    public void refreshTableModel() {
-        TableSelectionUtils.fireTableDataChangedAndKeepSelection(
-            this,
-            VerwaltungsPanel.getInstance().getNutzungTable());
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  verwaltungsbereiche  DOCUMENT ME!
-     */
-    public void refreshTableModel(final Collection<VerwaltungsbereichCustomBean> verwaltungsbereiche) {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Refresh des VerwaltungsbereichTableModell");
-            }
-            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>(verwaltungsbereiche);
-            // updateAreaInformation(null);
-        } catch (Exception ex) {
-            log.error("Fehler beim refreshen des Models", ex);
-            this.verwaltungsbereiche = new Vector<VerwaltungsbereichCustomBean>();
-        }
-        refreshTableModel();
-    }
-
-    @Override
-    public int getRowCount() {
-        return verwaltungsbereiche.size();
-    }
-
-    @Override
-    public int getColumnCount() {
-        return COLUMN_HEADER.length;
-    }
-
-    @Override
-    public String getColumnName(final int column) {
-        return COLUMN_HEADER[column];
-    }
-
-//    @Override
-//    public Class<?> getColumnClass(int columnIndex) {
-//        return getValueAt(0,columnIndex).getClass();
-//    }
+    
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        return ((COLUMN_HEADER.length - 1) > columnIndex) && (verwaltungsbereiche.size() > rowIndex) && isInEditMode;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  isEditable  DOCUMENT ME!
-     */
-    public void setIsInEditMode(final boolean isEditable) {
-        isInEditMode = isEditable;
+        //"Fläche m²" is not editable, therefore -1 is needed
+        return ((COLUMN_NAMES.length - 1) > columnIndex) && (getRowCount() > rowIndex) && isInEditMode;
     }
 
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            final VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
+            final VerwaltungsbereichCustomBean vBereich = getCidsBeanAtRow(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     vBereich.setDienststelle((VerwaltendeDienststelleCustomBean)aValue);
                     break;
                 }
                 case 1: {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Setze Wert: " + aValue);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Setze Wert: " + aValue);
                     }
                     vBereich.setGebrauch((VerwaltungsgebrauchCustomBean)aValue);
                     break;
@@ -221,63 +142,14 @@ public class VerwaltungsTableModel extends AbstractTableModel {
 //                    vBereich.setFlaeche((Integer)aValue);
 //                    break;
                 default: {
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
+                    LOG.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
                 }
             }
-            refreshTableModel();
+            fireTableDataChangedAndKeepSelection();
         } catch (Exception ex) {
-            log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
-//        VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
-//        if(vBereich != null){
-//            switch(columnIndex){
-//                case 0:
-//                    if(aValue instanceof VerwaltendeDienststelleCustomBean ){
-//                        log.debug("Dienstelle gesetzt");
-//                    } else if(aValue instanceof String){
-//                        log.debug("Versuche VerwaltendeDienstelle zu setzen");
-//                        Iterator<VerwaltendeDienststelle> it = verwaltendeDienstellen.iterator();
-//                        while(it.hasNext()){
-//                            VerwaltendeDienststelleCustomBean curVD = it.next();
-//                            if(curVD.toString().equals(((String) aValue).trim())){
-//                                vBereich.setDienststelle(curVD);
-//                                log.debug("Übereinstimmung gefunden, neuer Wert: "+curVD);
-//                            }
-//                        }
-//                    }
-//                    break;
-//                case 1:
-//                    if(aValue instanceof VerwaltungsgebrauchCustomBean){
-//                        log.debug("VerwaltungsgebrauchCustomBean gesetzt");
-//                    } else if(aValue instanceof  String){
-//                        log.debug("Versuche VerwaltungsgebrauchCustomBean zu setzen");
-//                        //TODO ugly
-//                        Iterator<Verwaltungsgebrauch> it = verwaltungsgebraeuche.iterator();
-//                        while(it.hasNext()){
-//                            VerwaltungsgebrauchCustomBean curVG = it.next();
-//                            if(curVG.toString().equals(((String) aValue).trim())){
-//                                vBereich.setGebrauch(curVG);
-//                                log.debug("Übereinstimmung gefunden, neuer Wert: "+curVG);
-//                            }
-//                        }
-//                    }
-//                    break;
-//                case 2:
-//                    if(aValue instanceof Integer){
-//                        log.debug("flaeche Gesetzt");
-//                    } else if(aValue instanceof String){
-//                        log.debug("Fläche wird Manuell gesetzt");
-//                        try{
-//                            vBereich.setFlaeche(Integer.parseInt((String)aValue));
-//                        }catch(NumberFormatException ex){
-//
-//                        }
-//                        break;
-//                    }
-//            }
-//
-//        }
     }
     /**
      * public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
@@ -289,9 +161,10 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<Feature> getAllVerwaltungsFeatures() {
-        final Vector<Feature> tmp = new Vector<Feature>();
-        if (verwaltungsbereiche != null) {
+    public ArrayList<Feature> getAllVerwaltungsFeatures() {
+        final ArrayList<Feature> tmp = new ArrayList<Feature>();
+        ArrayList<VerwaltungsbereichCustomBean> verwaltungsbereiche = (ArrayList<VerwaltungsbereichCustomBean>) getCidsBeans();
+        if (verwaltungsbereiche!= null) {
             final Iterator<VerwaltungsbereichCustomBean> it = verwaltungsbereiche.iterator();
             while (it.hasNext()) {
                 final VerwaltungsbereichCustomBean curVB = it.next();
@@ -308,42 +181,26 @@ public class VerwaltungsTableModel extends AbstractTableModel {
     /**
      * DOCUMENT ME!
      *
-     * @param  vBereich  DOCUMENT ME!
-     */
-    public void addVerwaltungsbereich(final VerwaltungsbereichCustomBean vBereich) {
-        verwaltungsbereiche.add(vBereich);
-        fireTableDataChanged();
-        // updateAreaInformation(null);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   rowIndex  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public VerwaltungsbereichCustomBean getVerwaltungsbereichAtRow(final int rowIndex) {
-        if (rowIndex < verwaltungsbereiche.size()) {
-            return verwaltungsbereiche.get(rowIndex);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
      * @param  rowIndex  DOCUMENT ME!
      */
-    public void removeVerwaltungsbereich(final int rowIndex) {
-        final VerwaltungsbereichCustomBean vBereich = verwaltungsbereiche.get(rowIndex);
+    @Override
+    public void removeCidsBean(final int rowIndex) {
+        final VerwaltungsbereichCustomBean vBereich = getCidsBeanAtRow(rowIndex);
         if ((vBereich != null) && (vBereich.getGeometry() != null)) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(vBereich);
         }
-        verwaltungsbereiche.remove(rowIndex);
+        getCidsBeans().remove(rowIndex);
         fireTableDataChanged();
-        // updateAreaInformation(null);
+    } 
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  currentWFSSize  DOCUMENT ME!
+     */
+    public void setCurrentWFSSize(final double currentWFSSize) {
+        this.currentWFSSize = currentWFSSize;
+        fireTableDataChangedAndKeepSelection();
     }
     /**
      * //TODO CHECK FOR BETTER Solution public synchronized void updateAreaInformation(final Double singleSizeUpdate){
@@ -372,49 +229,6 @@ public class VerwaltungsTableModel extends AbstractTableModel {
      * curBereich.setFlaeche(0); fireTableDataChanged(); //TODO setSelection on new Entry } else { log.debug("Fläche hat
      * sich nicht geändert"); } } else { log.warn("Keiner der Fälle trifft zu"); } } } }catch(Exception ex){
      * log.error("Fehler beim updaten der Flächeninformation",ex); } }
-     *
-     * @return  DOCUMENT ME!
      */
-    public Vector<VerwaltungsbereichCustomBean> getVerwaltungsbereiche() {
-        return verwaltungsbereiche;
-    }
-    /**
-     * public void selectVerwaltungsbereich(VerwaltungsbereichCustomBean vBereich){ }.
-     *
-     * @param   vBereich  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public int getIndexOfVerwaltungsbereich(final VerwaltungsbereichCustomBean vBereich) {
-        return verwaltungsbereiche.indexOf(vBereich);
-    }
 
-    @Override
-    public Class<?> getColumnClass(final int columnIndex) {
-        switch (columnIndex) {
-            case 0: {
-                return VerwaltendeDienststelleCustomBean.class;
-            }
-            case 1: {
-                return VerwaltungsgebrauchCustomBean.class;
-            }
-            case 2: {
-                return Integer.class;
-            }
-            default: {
-                log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
-                return null;
-            }
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  currentWFSSize  DOCUMENT ME!
-     */
-    public void setCurrentWFSSize(final double currentWFSSize) {
-        this.currentWFSSize = currentWFSSize;
-        fireTableDataChanged();
-    }
 }
