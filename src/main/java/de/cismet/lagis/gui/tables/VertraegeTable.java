@@ -49,7 +49,7 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void execAfterAddActionPerformed() {
+    protected void execAfterItemAdded() {
         final MouseEvent me = new MouseEvent(this, 0, 0, 0, 100, 100, 1, false);
         for (final MouseListener ml : this.getMouseListeners()) {
             ml.mouseClicked(me);

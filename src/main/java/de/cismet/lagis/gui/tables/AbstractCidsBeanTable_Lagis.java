@@ -124,7 +124,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
                     }
                 });
         }
-        execAfterAddActionPerformed();
+        execAfterItemAdded();
     }
 
     /**
@@ -142,9 +142,10 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
     protected abstract void addNewItem();
 
     /**
-     * This method gets called at the end of btnAddActionPerformed(). It is empty so it does not need to be implemented by the child classes.
+     * This method gets called at the end of btnAddActionPerformed(). It is empty so it does not need to be implemented
+     * by the child classes.
      */
-    protected void execAfterAddActionPerformed() {
+    protected void execAfterItemAdded() {
     }
 
     /**
@@ -165,6 +166,13 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      * @param  row  DOCUMENT ME!
      */
     protected abstract void removeItem(int row);
+
+    /**
+     * This method gets called at the end of btnRemoveActionPerformed(). It is empty so it does not need to be
+     * implemented by the child classes.
+     */
+    protected void execAfterItemRemoved() {
+    }
 
     /**
      * DOCUMENT ME!
