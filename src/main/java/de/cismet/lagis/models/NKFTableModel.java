@@ -102,7 +102,6 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     // ToDo Selection über Datum noch nicht ganz optimal weil sehr oft im EDT benutzt und kostspielig
     private ArrayList<NutzungBuchungCustomBean> currentBuchungen;
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
-    private boolean isInEditMode = false;
     private Date currentDate = null;
 
     //~ Constructors -----------------------------------------------------------
@@ -253,7 +252,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         } else {
             return (COLUMN_NAMES.length > columnIndex)
                         && (currentBuchungen.size() > rowIndex)
-                        && isInEditMode;
+                        && isIsInEditMode();
                 // && (LagisBroker.getInstance().isNkfAdminPermission());
         }
     }
