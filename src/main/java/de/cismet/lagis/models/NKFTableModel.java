@@ -88,6 +88,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             ImageIcon.class,
             String.class
         };
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(NKFTableModel.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -97,7 +98,6 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                 "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
     private Icon statusUnknown = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/statusUnknown.png"));
-    private final Logger LOG = org.apache.log4j.Logger.getLogger(NKFTableModel.class);
     private ArrayList<NutzungCustomBean> allNutzungen;
     // ToDo Selection über Datum noch nicht ganz optimal weil sehr oft im EDT benutzt und kostspielig
     private ArrayList<NutzungBuchungCustomBean> currentBuchungen;
@@ -564,7 +564,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             LOG.debug("AnzahlNutzungen: " + allNutzungen.size());
         }
         // TODO wann ändert sich currentDate, nur dann Selection halten?
-        final boolean dateChanged = !currentDate.equals(historyDate) ? true : false;
+        final boolean dateChanged = (!currentDate.equals(historyDate)) ? true : false;
         currentDate = historyDate;
         currentBuchungen.clear();
         for (final NutzungCustomBean curNutzung : allNutzungen) {

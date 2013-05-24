@@ -23,9 +23,9 @@ import de.cismet.lagis.models.NKFTableModel;
  */
 public class NKFTable extends AbstractCidsBeanTable_Lagis {
 
-    //~ Instance fields --------------------------------------------------------
+    //~ Static fields/initializers ---------------------------------------------
 
-    private final Logger LOG = org.apache.log4j.Logger.getLogger(NKFTable.class);
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(NKFTable.class);
 
     //~ Methods ----------------------------------------------------------------
 

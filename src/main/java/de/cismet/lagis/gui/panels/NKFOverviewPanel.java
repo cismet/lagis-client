@@ -59,11 +59,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
     private static final String WIDGET_NAME = "NKF Übersicht";
     private static final NKFOverviewPanel instance = new NKFOverviewPanel();
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NKFOverviewPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
     private FlurstueckCustomBean currentFlurstueck;
-    private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private NKFOverviewTableModel tableModel = new NKFOverviewTableModel();
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
@@ -145,7 +145,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                         }
                         LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
                     } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
+                        LOG.error("Fehler im refresh thread: ", ex);
                         LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
                     }
                 }
@@ -162,11 +162,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     @Override
     public synchronized void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
-            log.info("FlurstueckChanged");
+            LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
-            log.error("Fehler beim Flurstückswechsel: ", ex);
+            LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
         }
     }
@@ -200,8 +200,8 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 btnBuchen.setEnabled(isEditable);
             }
         }
-        if (log.isDebugEnabled()) {
-            log.debug("NKFOverview --> setComponentEditable finished");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("NKFOverview --> setComponentEditable finished");
         }
     }
 
@@ -215,8 +215,8 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
     @Override
     public synchronized void refresh(final Object refreshObject) {
-        if (log.isDebugEnabled()) {
-            log.debug("Refresh NKFPanel");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Refresh NKFPanel");
         }
         if ((refreshObject != null) && (refreshObject instanceof NutzungsContainer)) {
             final NutzungsContainer container = (NutzungsContainer)refreshObject;
@@ -320,7 +320,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
             try {
                 LagisBroker.getInstance().acceptChanges();
                 if (LagisBroker.getInstance().isInEditMode()) {
-                    log.warn("Stille Reserven konnten nicht gebucht werden, immernoch im Editmodus");
+                    LOG.warn("Stille Reserven konnten nicht gebucht werden, immernoch im Editmodus");
                     JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
                         "Es war nicht möglich aus dem Editiermodus herauszuwechseln.",
                         "Stille Reserven",
@@ -339,11 +339,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 if (ex instanceof ActionNotSuccessfulException) {
                     final ActionNotSuccessfulException reason = (ActionNotSuccessfulException)ex;
                     if (reason.hasNestedExceptions()) {
-                        log.error("Nested Rename Exceptions: ", reason.getNestedExceptions());
+                        LOG.error("Nested Rename Exceptions: ", reason.getNestedExceptions());
                     }
                     resultString.append(reason.getMessage());
                 } else {
-                    log.error("Unbekannter Fehler: ", ex);
+                    LOG.error("Unbekannter Fehler: ", ex);
                     resultString.append("Unbekannter Fehler bitte wenden Sie sich an Ihren Systemadministrator");
                 }
                 JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),

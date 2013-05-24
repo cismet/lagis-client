@@ -94,6 +94,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private static final int DAY_SCALE = 3;
 
     private static final NKFPanel instance = new NKFPanel();
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(NKFPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
@@ -101,7 +102,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     ArrayList<Date> dateToTicks;
     ArrayList<NutzungBuchungCustomBean> historicNutzungenDayClasses;
     boolean isOnlyHistoric = false;
-    private final Logger LOG = org.apache.log4j.Logger.getLogger(NKFPanel.class);
     private FlurstueckCustomBean currentFlurstueck;
     private final NKFTableModel tableModel = new NKFTableModel();
     private boolean isInEditMode = false;
