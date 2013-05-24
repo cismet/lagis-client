@@ -64,7 +64,7 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param  removeActionHelper  DOCUMENT ME!
+     * @param  removeActionHelper  DOCUMENT M
      */
     public void setRemoveActionHelper(final RemoveActionHelper removeActionHelper) {
         this.removeActionHelper = removeActionHelper;
@@ -87,6 +87,7 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     protected void removeItem(final int row) {
         ((VertraegeTableModel)getModel()).removeCidsBean(this.getFilters().convertRowIndexToModel(row));
         removeActionHelper.duringRemoveAction(this);
+        ((VertraegeTableModel)getModel()).fireTableDataChanged();
     }
 
     @Override
