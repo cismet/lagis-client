@@ -109,6 +109,10 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     public <C extends CidsBean> C getCidsBeanAtRow(final int rowIndex) {
         return (C)cidsBeans.get(rowIndex);
     }
+    
+    public <C extends CidsBean> int getIndexOfCidsBean(C cidsBean){
+        return cidsBeans.indexOf(cidsBean);
+    }
 
     /**
      * DOCUMENT ME!
