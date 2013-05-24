@@ -17,6 +17,7 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -27,8 +28,6 @@ import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 import de.cismet.cismap.commons.features.Feature;
 
 import de.cismet.lagis.broker.LagisBroker;
-
-import java.util.ArrayList;
 
 /**
  * DOCUMENT ME!
@@ -41,11 +40,16 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String[] COLUMN_NAMES = { "Dienststelle", "Gebrauch", "Fläche m²" };
-    private static final Class[] COLUMN_CLASSES = { VerwaltendeDienststelleCustomBean.class, VerwaltungsgebrauchCustomBean.class, Integer.class };
+    private static final Class[] COLUMN_CLASSES = {
+            VerwaltendeDienststelleCustomBean.class,
+            VerwaltungsgebrauchCustomBean.class,
+            Integer.class
+        };
+
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VerwaltungsTableModel.class);
 
     //~ Instance fields --------------------------------------------------------
 
-    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VerwaltungsTableModel.class);
     private boolean isInEditMode = false;
     private double currentWFSSize = 0;
 
@@ -70,10 +74,10 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Initialisierung des VerwaltungsbereichTableModell");
             }
-                    setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>(verwaltungsbereiche));
+            setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>(verwaltungsbereiche));
         } catch (Exception ex) {
             LOG.error("Fehler beim anlegen des Models", ex);
-        setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>());
+            setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>());
         }
     }
 
@@ -115,10 +119,10 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
             return null;
         }
     }
-    
+
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        //"Fläche m²" is not editable, therefore -1 is needed
+        // "Fläche m²" is not editable, therefore -1 is needed
         return ((COLUMN_NAMES.length - 1) > columnIndex) && (getRowCount() > rowIndex) && isInEditMode;
     }
 
@@ -163,8 +167,9 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
      */
     public ArrayList<Feature> getAllVerwaltungsFeatures() {
         final ArrayList<Feature> tmp = new ArrayList<Feature>();
-        ArrayList<VerwaltungsbereichCustomBean> verwaltungsbereiche = (ArrayList<VerwaltungsbereichCustomBean>) getCidsBeans();
-        if (verwaltungsbereiche!= null) {
+        final ArrayList<VerwaltungsbereichCustomBean> verwaltungsbereiche = (ArrayList<VerwaltungsbereichCustomBean>)
+            getCidsBeans();
+        if (verwaltungsbereiche != null) {
             final Iterator<VerwaltungsbereichCustomBean> it = verwaltungsbereiche.iterator();
             while (it.hasNext()) {
                 final VerwaltungsbereichCustomBean curVB = it.next();
@@ -191,7 +196,7 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
         }
         getCidsBeans().remove(rowIndex);
         fireTableDataChanged();
-    } 
+    }
 
     /**
      * DOCUMENT ME!
