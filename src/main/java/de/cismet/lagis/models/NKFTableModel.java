@@ -564,7 +564,10 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             LOG.debug("AnzahlNutzungen: " + allNutzungen.size());
         }
         // TODO wann ändert sich currentDate, nur dann Selection halten?
-        final boolean dateChanged = (!currentDate.equals(historyDate)) ? true : false;
+        boolean dateChanged = false;
+        if (currentDate != null) {
+            dateChanged = currentDate.equals(historyDate);
+        }
         currentDate = historyDate;
         currentBuchungen.clear();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
