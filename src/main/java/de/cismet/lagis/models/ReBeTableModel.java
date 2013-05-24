@@ -1,10 +1,12 @@
-/***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+/**
+ * *************************************************
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ * 
+* ... and it just works.
+ * 
+***************************************************
+ */
 /*
  * ReBeTableModel.java
  *
@@ -37,75 +39,63 @@ import de.cismet.lagis.broker.LagisBroker;
 /**
  * DOCUMENT ME!
  *
- * @author   Puhl
- * @version  $Revision$, $Date$
+ * @author Puhl
+ * @version $Revision$, $Date$
  */
-public class ReBeTableModel extends AbstractTableModel {
+public class ReBeTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
-
     private static final String[] COLUMN_HEADER = {
-            "ist Recht",
-            "Art",
-            "Art des Rechts",
-            "Nummer",
-            "Eintragung Datum",
-            "Löschung Datum",
-            "Bemerkung"
-        };
-
+        "ist Recht",
+        "Art",
+        "Art des Rechts",
+        "Nummer",
+        "Eintragung Datum",
+        "Löschung Datum",
+        "Bemerkung"
+    };
+    private static final Class[] COLUMN_CLASSES = {
+        Boolean.class,
+        RebeArtCustomBean.class,
+        String.class,
+        String.class,
+        Date.class,
+        Date.class,
+        String.class
+    };
     //~ Instance fields --------------------------------------------------------
-
-    private ArrayList<RebeCustomBean> resBes;
-    private ArrayList<RebeArtCustomBean> reBeArten;
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private boolean isInEditMode = false;
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(ReBeTableModel.class);
     private boolean isReBeKindSwitchAllowed = true;
 
     //~ Constructors -----------------------------------------------------------
-
     /**
      * Creates a new instance of ReBeTableModel.
      */
     public ReBeTableModel() {
-        resBes = new ArrayList<RebeCustomBean>();
+        super(COLUMN_HEADER, COLUMN_CLASSES);
+        setCidsBeans(new ArrayList<RebeCustomBean>());
     }
 
     /**
      * Creates a new ReBeTableModel object.
      *
-     * @param  reBe  DOCUMENT ME!
+     * @param reBe DOCUMENT ME!
      */
     public ReBeTableModel(final Collection<RebeCustomBean> reBe) {
+        super(COLUMN_HEADER, COLUMN_CLASSES);
         try {
-            this.resBes = new ArrayList<RebeCustomBean>(reBe);
+            setCidsBeans(new ArrayList<RebeCustomBean>(reBe));
         } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
-            this.resBes = new ArrayList<RebeCustomBean>();
+            LOG.error("Fehler beim anlegen des Models", ex);
+            setCidsBeans(new ArrayList<RebeCustomBean>());
         }
     }
 
     //~ Methods ----------------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  reBeArten  DOCUMENT ME!
-     */
-    public void setReBeArtenList(final Collection<RebeArtCustomBean> reBeArten) {
-        try {
-            log.error("Versuche RebenArtenListe zu setzen");
-            this.reBeArten = new ArrayList<RebeArtCustomBean>(reBeArten);
-        } catch (Exception ex) {
-            log.error("Fehler beim anlegen des RebeArtenList", ex);
-            this.reBeArten = new ArrayList<RebeArtCustomBean>();
-        }
-    }
-
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final RebeCustomBean value = resBes.get(rowIndex);
+            final RebeCustomBean value = getCidsBeanAtRow(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     return value.getIstRecht();
@@ -133,135 +123,49 @@ public class ReBeTableModel extends AbstractTableModel {
                 }
             }
         } catch (Exception ex) {
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
-        // }
-// try{
-// RebeCustomBean value = resBes.get(rowIndex);
-// switch(columnIndex){
-// case 0:
-// return value.getIstRecht() == true ? "Recht" : "Belastung";
-// case 1:
-// RebeArtCustomBean art = value.getArt();
-// if(art != null){
-// return art.getBezeichnung();
-// } else {
-// return null;
-// }
-// case 2:
-// return value.getBeschreibung();
-// case 3:
-// return value.getNummer();
-// case 4:
-// Date eintragung = value.getDatumEintragung();
-// if(eintragung != null){
-// return DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(eintragung);
-// } else {
-// return null;
-// }
-// case 5:
-// Date loeschung = value.getDatumLoeschung();
-// if(loeschung != null){
-// return DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY).format(loeschung);
-// } else {
-// return null;
-// }
-// default:
-// return "Spalte ist nicht definiert";
-// }
-// }catch(Exception ex){
-// log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: "+rowIndex+" Spalte"+columnIndex ,ex);
-// return null;
-// }
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  reBe  DOCUMENT ME!
+     * @param rowIndex DOCUMENT ME!
      */
-    public void addReBe(final RebeCustomBean reBe) {
-        resBes.add(reBe);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   rowIndex  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public RebeCustomBean getReBeAtRow(final int rowIndex) {
-        return resBes.get(rowIndex);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  rowIndex  DOCUMENT ME!
-     */
-    public void removeReBe(final int rowIndex) {
+    @Override
+    public void removeCidsBean(final int rowIndex) {
         try {
-            final RebeCustomBean reBe = resBes.get(rowIndex);
+            final RebeCustomBean reBe = getCidsBeanAtRow(rowIndex);
             if ((reBe != null) && (reBe.getGeometry() != null)) {
                 LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(reBe);
             }
             // TODO: Benni: remove CidsBean.delete() call, if removal from ObservedList is sufficient
             reBe.delete();
-            resBes.remove(rowIndex);
+            getCidsBeans().remove(rowIndex);
         } catch (final Exception ex) {
-            log.error("An error occurred while removing ReBe from RebeTableModel", ex);
+            LOG.error("An error occurred while removing ReBe from RebeTableModel", ex);
         }
     }
-
-    @Override
-    public int getRowCount() {
-        return resBes.size();
-    }
-
-    @Override
-    public int getColumnCount() {
-        return COLUMN_HEADER.length;
-    }
-
-    @Override
-    public String getColumnName(final int column) {
-        return COLUMN_HEADER[column];
-    }
-
-//    @Override
-//    public Class<?> getColumnClass(int columnIndex) {
-//        log.fatal("TMP FATAL: getColumn Class: "+ columnIndex);
-//        return getValueAt(0,columnIndex).getClass();
-//    }
 
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         if (columnIndex == 0) {
-            return (COLUMN_HEADER.length > columnIndex) && (resBes.size() > rowIndex) && isInEditMode
-                        && isReBeKindSwitchAllowed;
+            return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode()
+                    && isReBeKindSwitchAllowed;
         } else {
-            return (COLUMN_HEADER.length > columnIndex) && (resBes.size() > rowIndex) && isInEditMode;
+            return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode();
         }
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  isEditable  DOCUMENT ME!
+     * @return DOCUMENT ME!
      */
-    public void setIsInEditMode(final boolean isEditable) {
-        isInEditMode = isEditable;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Vector<Feature> getAllReBeFeatures() {
-        final Vector<Feature> tmp = new Vector<Feature>();
+    public ArrayList<Feature> getAllReBeFeatures() {
+        final ArrayList<Feature> tmp = new ArrayList<Feature>();
+        ArrayList<RebeCustomBean> resBes = (ArrayList<RebeCustomBean>) getCidsBeans();
         if (resBes != null) {
             final Iterator<RebeCustomBean> it = resBes.iterator();
             while (it.hasNext()) {
@@ -276,127 +180,58 @@ public class ReBeTableModel extends AbstractTableModel {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  resBes  DOCUMENT ME!
-     */
-    public void refreshTableModel(final Collection<RebeCustomBean> resBes) {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Refresh des RebeTableModell");
-            }
-            this.resBes = new ArrayList<RebeCustomBean>(resBes);
-        } catch (Exception ex) {
-            log.error("Fehler beim refreshen des Models", ex);
-            this.resBes = new ArrayList<RebeCustomBean>();
-        }
-        fireTableDataChanged();
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public List<RebeCustomBean> getResBes() {
-        return resBes;
-    }
-
     @Override
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
-            final RebeCustomBean value = resBes.get(rowIndex);
+            final RebeCustomBean value = getCidsBeanAtRow(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    value.setIstRecht((Boolean)aValue);
+                    value.setIstRecht((Boolean) aValue);
                     break;
                 }
                 case 1: {
-                    value.setReBeArt((RebeArtCustomBean)aValue);
+                    value.setReBeArt((RebeArtCustomBean) aValue);
                     break;
                 }
                 case 2: {
-                    value.setBeschreibung((String)aValue);
+                    value.setBeschreibung((String) aValue);
                     break;
                 }
                 case 3: {
-                    value.setNummer((String)aValue);
+                    value.setNummer((String) aValue);
                     break;
                 }
                 case 4: {
                     if ((aValue instanceof Date) || (aValue == null)) {
-                        value.setDatumEintragung((Date)aValue);
+                        value.setDatumEintragung((Date) aValue);
                     }
                     break;
                 }
                 case 5: {
                     if ((aValue instanceof Date) || (aValue == null)) {
-                        value.setDatumLoeschung((Date)aValue);
+                        value.setDatumLoeschung((Date) aValue);
                     }
                     break;
                 }
                 case 6: {
-                    value.setBemerkung((String)aValue);
+                    value.setBemerkung((String) aValue);
                     break;
                 }
                 default: {
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
+                    LOG.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
                 }
             }
-            fireTableDataChanged();
+            fireTableDataChangedAndKeepSelection();
         } catch (Exception ex) {
-            log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
-        }
-    }
-
-    @Override
-    public Class<?> getColumnClass(final int columnIndex) {
-        switch (columnIndex) {
-            case 0: {
-                return Boolean.class;
-            }
-            case 1: {
-                return RebeArtCustomBean.class;
-            }
-            case 2: {
-                return String.class;
-            }
-            case 3: {
-                return String.class;
-            }
-            case 4: {
-                return Date.class;
-            }
-            case 5: {
-                return Date.class;
-            }
-            case 6: {
-                return String.class;
-            }
-            default: {
-                log.warn("Die gewünschte Spalte exitiert nicht, es kann keine Klasse zurück geliefert werden");
-                return null;
-            }
+            LOG.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param   rebe  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public int getIndexOfReBe(final RebeCustomBean rebe) {
-        return resBes.indexOf(rebe);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  isReBeKindSwitchAllowed  DOCUMENT ME!
+     * @param isReBeKindSwitchAllowed DOCUMENT ME!
      */
     public void setIsReBeKindSwitchAllowed(final boolean isReBeKindSwitchAllowed) {
         this.isReBeKindSwitchAllowed = isReBeKindSwitchAllowed;
