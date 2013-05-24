@@ -7,9 +7,12 @@
 ****************************************************/
 package de.cismet.lagis.gui.tables;
 
+import org.apache.log4j.Logger;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import de.cismet.lagis.models.VertraegeTableModel;
 import de.cismet.lagis.models.documents.VertragDocumentModelContainer;
 
 /**
@@ -20,9 +23,14 @@ import de.cismet.lagis.models.documents.VertragDocumentModelContainer;
  */
 public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VertraegeTable.class);
+
     //~ Instance fields --------------------------------------------------------
 
     private VertragDocumentModelContainer documentContainer;
+    private RemoveActionHelper removeActionHelper;
 
     //~ Methods ----------------------------------------------------------------
 
@@ -43,6 +51,25 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     public void setDocumentContainer(final VertragDocumentModelContainer documentContainer) {
         this.documentContainer = documentContainer;
     }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public RemoveActionHelper getRemoveActionHelper() {
+        return removeActionHelper;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  removeActionHelper  DOCUMENT ME!
+     */
+    public void setRemoveActionHelper(final RemoveActionHelper removeActionHelper) {
+        this.removeActionHelper = removeActionHelper;
+    }
+
     @Override
     protected void addNewItem() {
         documentContainer.addNewVertrag();
@@ -58,6 +85,12 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
 
     @Override
     protected void removeItem(final int row) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ((VertraegeTableModel)getModel()).removeCidsBean(this.getFilters().convertRowIndexToModel(row));
+        removeActionHelper.duringRemoveAction(this);
+    }
+
+    @Override
+    protected void execAfterItemRemoved() {
+        removeActionHelper.afterRemoveAction(this);
     }
 }
