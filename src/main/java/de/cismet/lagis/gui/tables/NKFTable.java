@@ -1,55 +1,55 @@
-/*
- * Copyright (C) 2013 cismet GmbH
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 package de.cismet.lagis.gui.tables;
 
-import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-import de.cismet.lagis.models.NKFTableModel;
-import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
+import javax.swing.SwingUtilities;
+
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+
+import de.cismet.lagis.models.NKFTableModel;
+
 /**
+ * DOCUMENT ME!
  *
- * @author gbaatz
+ * @author   gbaatz
+ * @version  $Revision$, $Date$
  */
 public class NKFTable extends AbstractCidsBeanTable_Lagis {
 
+    //~ Instance fields --------------------------------------------------------
+
     private final Logger LOG = org.apache.log4j.Logger.getLogger(NKFTable.class);
+
+    //~ Methods ----------------------------------------------------------------
 
     @Override
     protected void addNewItem() {
-        ((NKFTableModel) getModel()).addNutzung(NutzungCustomBean.createNew());
+        ((NKFTableModel)getModel()).addNutzung(NutzungCustomBean.createNew());
         LOG.info("New Nutzung added to Model");
     }
 
     @Override
-    protected void removeItem(int row) {
+    protected void removeItem(final int row) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Selektierte Nutzung gefunden in Zeile: " + row + "selectedRow: "
-                    + this.getSelectedRow());
+                        + this.getSelectedRow());
         }
-        //removes a Nutzung
-        ((NKFTableModel) getModel()).removeCidsBean(row);
-        
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                NKFTable.this.clearSelection();
-            }
-        });
+        // removes a Nutzung
+        ((NKFTableModel)getModel()).removeCidsBean(row);
 
+        SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    NKFTable.this.clearSelection();
+                }
+            });
     }
 }
