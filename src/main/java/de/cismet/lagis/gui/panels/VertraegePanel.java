@@ -38,6 +38,7 @@ import de.cismet.lagis.editor.EuroEditor;
 
 import de.cismet.lagis.gui.tables.BeschluesseTable;
 import de.cismet.lagis.gui.tables.KostenTable;
+import de.cismet.lagis.gui.tables.RemoveActionHelper;
 import de.cismet.lagis.gui.tables.VertraegeTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -71,7 +72,8 @@ import de.cismet.tools.gui.StaticSwingTools;
 public class VertraegePanel extends AbstractWidget implements FlurstueckChangeListener,
     FlurstueckSaver,
     ListSelectionListener,
-    MouseListener {
+    MouseListener,
+    RemoveActionHelper {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -168,6 +170,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         documentContainer = new VertragDocumentModelContainer(vTableModel);
         ((VertraegeTable)tblVertraege).setDocumentContainer(documentContainer);
         tblVertraege.addMouseListener(documentContainer);
+        ((VertraegeTable)tblVertraege).setRemoveActionHelper(this);
         // log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
 
         txtKaufpreis.setDocument(documentContainer.getKaufpreisDocumentModel());
@@ -569,6 +572,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         pnlKostenControls1.add(btnAddVertrag, gridBagConstraints);
 
+        btnRemoveVertrag.setAction(((VertraegeTable)tblVertraege).getRemoveAction());
         btnRemoveVertrag.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVertrag.setBorder(null);
@@ -577,13 +581,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnRemoveVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnRemoveVertrag.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveVertragActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
@@ -1212,16 +1209,16 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtEintragungActionPerformed
+    private void txtEintragungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_txtEintragungActionPerformed
 // TODO add your handling code here:
-    }//GEN-LAST:event_txtEintragungActionPerformed
+    } //GEN-LAST:event_txtEintragungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboVertragsartActionPerformed
+    private void cboVertragsartActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cboVertragsartActionPerformed
         final Object selectedItem = cboVertragsart.getSelectedItem();
         if ((selectedItem != null) && (selectedItem instanceof VertragsartCustomBean)) {
             final VertragsartCustomBean art = (VertragsartCustomBean)selectedItem;
@@ -1239,38 +1236,21 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             }
         }
-    }//GEN-LAST:event_cboVertragsartActionPerformed
+    }                                                                                  //GEN-LAST:event_cboVertragsartActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingContractActionPerformed
+    private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingContractActionPerformed
         final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
         dialog.add(new AddExistingVorgangPanel(currentFlurstueck, vTableModel, lstCrossRefs.getModel()));
         dialog.pack();
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
-    }//GEN-LAST:event_btnAddExitingContractActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveVertragActionPerformed
-        final int currentRow = tblVertraege.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            vTableModel.removeCidsBean(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
-            updateCrossRefs();
-            // vTableModel.fireTableDataChanged();
-        }
-        documentContainer.clearComponents();
-        enableSlaveFlieds(false);
-    }//GEN-LAST:event_btnRemoveVertragActionPerformed
+    }                                                                                         //GEN-LAST:event_btnAddExitingContractActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1304,7 +1284,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         }
         lstCrossRefs.setModel(newModel);
     }
-    // End of variables declaration
+
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
@@ -1430,5 +1410,16 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     @Override
     public Icon getWidgetIcon() {
         return null;
+    }
+
+    @Override
+    public void duringRemoveAction(final Object source) {
+        updateCrossRefs();
+    }
+
+    @Override
+    public void afterRemoveAction(final Object source) {
+        documentContainer.clearComponents();
+        enableSlaveFlieds(false);
     }
 }
