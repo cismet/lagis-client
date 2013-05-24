@@ -136,7 +136,6 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="tbtnSort.addItemListener(((NKFTable)tNutzung).getSortItemListener());"/>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new NKFTable();"/>
           </AuxValues>
         </Component>

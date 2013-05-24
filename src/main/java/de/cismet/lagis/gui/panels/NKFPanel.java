@@ -519,7 +519,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
             });
         jScrollPane1.setViewportView(tNutzung);
-        tbtnSort.addItemListener(((NKFTable)tNutzung).getSortItemListener());
 
         jLabel1.setText("Nutzungen:");
 
