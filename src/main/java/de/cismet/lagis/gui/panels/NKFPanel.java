@@ -135,6 +135,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblCurrentHistoryPostion;
     private javax.swing.JLabel lblHistoricIcon;
@@ -461,18 +462,21 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         jScrollPane1 = new javax.swing.JScrollPane();
         tNutzung = new JXTable();
         jLabel1 = new javax.swing.JLabel();
-        btnAddNutzung = new javax.swing.JButton();
-        btnRemoveNutzung = new javax.swing.JButton();
-        slrHistory = new JSlider(JSlider.HORIZONTAL, 0, 15, 15);
+        slrHistory = new JSlider(JSlider.HORIZONTAL,0,15,15);
         jLabel2 = new javax.swing.JLabel();
         lblCurrentHistoryPostion = new javax.swing.JLabel();
         cbxChanges = new javax.swing.JCheckBox();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         lblHistoricIcon = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnAddNutzung = new javax.swing.JButton();
+        btnRemoveNutzung = new javax.swing.JButton();
         btnPasteNutzung = new javax.swing.JButton();
         btnCopyNutzung = new javax.swing.JButton();
         btnFlipBuchung = new javax.swing.JButton();
@@ -480,64 +484,25 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][] {
-                    { "21-510", "Straße", "k0211100", "Grünfläche,Grünfläche,Wohnbaufläche", "", "842", "1€", "842€" },
-                    { "21-740", "Gehölz", "k0211100", null, "", "2325", "1€", "2325" }
-                },
-                new String[] {
-                    "Nutzungsartenschlüssel",
-                    "Nutzungsart",
-                    "Anlageklasse",
-                    "Flächennutzungsplan",
-                    "Bebauungsplan",
-                    "Fläche m²",
-                    "Preis qm²",
-                    "Berechnung"
-                }) {
+            new Object [][] {
+                {"21-510", "Straße", "k0211100", "Grünfläche,Grünfläche,Wohnbaufläche", "", "842", "1€", "842€"},
+                {"21-740", "Gehölz", "k0211100", null, "", "2325", "1€", "2325"}
+            },
+            new String [] {
+                "Nutzungsartenschlüssel", "Nutzungsart", "Anlageklasse", "Flächennutzungsplan", "Bebauungsplan", "Fläche m²", "Preis qm²", "Berechnung"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
 
-                Class[] types = new Class[] {
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class
-                    };
-
-                @Override
-                public Class getColumnClass(final int columnIndex) {
-                    return types[columnIndex];
-                }
-            });
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tNutzung);
 
         jLabel1.setText("Nutzungen:");
-
-        btnAddNutzung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
-        btnAddNutzung.setBorder(null);
-        btnAddNutzung.setBorderPainted(false);
-        btnAddNutzung.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddNutzungActionPerformed(evt);
-                }
-            });
-
-        btnRemoveNutzung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
-        btnRemoveNutzung.setBorder(null);
-        btnRemoveNutzung.setBorderPainted(false);
-        btnRemoveNutzung.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveNutzungActionPerformed(evt);
-                }
-            });
 
         slrHistory.setMaximum(0);
 
@@ -548,208 +513,200 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         cbxChanges.setText(" Nach Änderungen");
         cbxChanges.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbxChanges.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cbxChangesActionPerformed(evt);
-                }
-            });
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbxChangesActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Filter");
 
-        lblHistoricIcon.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"))); // NOI18N
+        lblHistoricIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"))); // NOI18N
 
-        btnPasteNutzung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"))); // NOI18N
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        btnAddNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddNutzung.setBorder(null);
+        btnAddNutzung.setBorderPainted(false);
+        btnAddNutzung.setContentAreaFilled(false);
+        btnAddNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnAddNutzung.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddNutzungActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel1.add(btnAddNutzung, gridBagConstraints);
+
+        btnRemoveNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveNutzung.setBorder(null);
+        btnRemoveNutzung.setBorderPainted(false);
+        btnRemoveNutzung.setContentAreaFilled(false);
+        btnRemoveNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnRemoveNutzung.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveNutzungActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        jPanel1.add(btnRemoveNutzung, gridBagConstraints);
+
+        btnPasteNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"))); // NOI18N
         btnPasteNutzung.setToolTipText("Buchung einfügen");
         btnPasteNutzung.setBorderPainted(false);
+        btnPasteNutzung.setContentAreaFilled(false);
+        btnPasteNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnPasteNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnPasteNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
         btnPasteNutzung.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPasteNutzungActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel1.add(btnPasteNutzung, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnPasteNutzungActionPerformed(evt);
-                }
-            });
-
-        btnCopyNutzung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"))); // NOI18N
+        btnCopyNutzung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"))); // NOI18N
         btnCopyNutzung.setToolTipText("Buchung kopieren");
         btnCopyNutzung.setBorderPainted(false);
+        btnCopyNutzung.setContentAreaFilled(false);
+        btnCopyNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnCopyNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnCopyNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
         btnCopyNutzung.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCopyNutzungActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel1.add(btnCopyNutzung, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnCopyNutzungActionPerformed(evt);
-                }
-            });
-
-        btnFlipBuchung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"))); // NOI18N
+        btnFlipBuchung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"))); // NOI18N
         btnFlipBuchung.setToolTipText("Buchwert / kein Buchwert");
         btnFlipBuchung.setBorderPainted(false);
+        btnFlipBuchung.setContentAreaFilled(false);
+        btnFlipBuchung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnFlipBuchung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnFlipBuchung.setPreferredSize(new java.awt.Dimension(25, 25));
         btnFlipBuchung.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnFlipBuchungActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel1.add(btnFlipBuchung, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnFlipBuchungActionPerformed(evt);
-                }
-            });
-
-        tbtnSort.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
         tbtnSort.setToolTipText("Sortierung An / Aus");
         tbtnSort.setBorderPainted(false);
         tbtnSort.setContentAreaFilled(false);
-        tbtnSort.setMaximumSize(new java.awt.Dimension(56, 32));
-        tbtnSort.setMinimumSize(new java.awt.Dimension(56, 32));
-        tbtnSort.setPreferredSize(new java.awt.Dimension(56, 32));
-        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
         tbtnSort.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                tbtnSortItemStateChanged(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        jPanel1.add(tbtnSort, gridBagConstraints);
 
-                @Override
-                public void itemStateChanged(final java.awt.event.ItemEvent evt) {
-                    tbtnSortItemStateChanged(evt);
-                }
-            });
-
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        jScrollPane1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        574,
-                        Short.MAX_VALUE).add(
-                        layout.createSequentialGroup().add(jLabel1).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(
-                            tbtnSort,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            32,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnFlipBuchung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            28,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnCopyNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            28,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnPasteNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            28,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnAddNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            25,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnRemoveNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            15,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        slrHistory,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        574,
-                        Short.MAX_VALUE).add(
-                        layout.createSequentialGroup().add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                layout.createSequentialGroup().add(10, 10, 10).add(cbxChanges).addPreferredGap(
-                                    org.jdesktop.layout.LayoutStyle.RELATED).add(jLabel5)).add(
-                                layout.createSequentialGroup().add(jLabel2).addPreferredGap(
-                                    org.jdesktop.layout.LayoutStyle.RELATED).add(lblCurrentHistoryPostion)).add(
-                                jLabel4)).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            261,
-                            Short.MAX_VALUE).add(lblHistoricIcon))).addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddNutzung, btnRemoveNutzung },
-            org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, slrHistory, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 574, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(cbxChanges)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jLabel5))
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(lblCurrentHistoryPostion))
+                            .add(jLabel4))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 261, Short.MAX_VALUE)
+                        .add(lblHistoricIcon)))
+                .addContainerGap())
+        );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(
-                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
-                            btnAddNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            28,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                            btnRemoveNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            23,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        btnPasteNutzung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        btnCopyNutzung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        btnFlipBuchung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        tbtnSort,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    403,
-                    Short.MAX_VALUE).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        layout.createSequentialGroup().add(15, 15, 15).add(jLabel4).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(cbxChanges).add(
-                                jLabel5)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(
-                                lblCurrentHistoryPostion))).add(
-                        layout.createSequentialGroup().addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            lblHistoricIcon))).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    slrHistory,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddNutzung, btnRemoveNutzung },
-            org.jdesktop.layout.GroupLayout.VERTICAL);
-    } // </editor-fold>//GEN-END:initComponents
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel1)
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 32, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(15, 15, 15)
+                        .add(jLabel4)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(cbxChanges)
+                            .add(jLabel5))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel2)
+                            .add(lblCurrentHistoryPostion)))
+                    .add(layout.createSequentialGroup()
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(lblHistoricIcon)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(slrHistory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+    }// </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
+    }//GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveNutzungActionPerformed
+    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Remove Nutzung");
         }
@@ -777,14 +734,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     }
                 });
         }
-    } //GEN-LAST:event_btnRemoveNutzungActionPerformed
+    }//GEN-LAST:event_btnRemoveNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
+    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNutzungActionPerformed
         tbtnSort.setSelected(true);                                                   // this disables the sort of the
                                                                                       // table
         tableModel.addNutzung(NutzungCustomBean.createNew());
@@ -798,14 +755,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             });
 
         LOG.info("New Nutzung added to Model");
-    } //GEN-LAST:event_btnAddNutzungActionPerformed
+    }//GEN-LAST:event_btnAddNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
@@ -831,14 +788,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
+    }//GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -847,14 +804,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
+    }//GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Flippe Buchung");
         }
@@ -877,13 +834,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
+    }//GEN-LAST:event_btnFlipBuchungActionPerformed
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) { //GEN-FIRST:event_tbtnSortItemStateChanged
+    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnSortItemStateChanged
         if (tbtnSort.isSelected()) {                                            // disable sort
             previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
             previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
@@ -893,7 +850,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
         tNutzung.scrollRectToVisible(tNutzung.getCellRect(tNutzung.getSelectedRow(), 0, true));
-    }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
+    }//GEN-LAST:event_tbtnSortItemStateChanged
 
     @Override
     public String getWidgetName() {
