@@ -576,7 +576,8 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         if (LOG.isDebugEnabled()) {
             LOG.debug("anzahl rows: " + getRowCount());
         }
-        TableSelectionUtils.fireTableDataChangedAndKeepSelection(this, NKFPanel.getInstance().getNutzungTable());
+        this.fireTableDataChanged();
+        // TableSelectionUtils.fireTableDataChangedAndKeepSelection(this, NKFPanel.getInstance().getNutzungTable());
     }
 
     /**
