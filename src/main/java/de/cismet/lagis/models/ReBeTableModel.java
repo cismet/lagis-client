@@ -1,12 +1,10 @@
-/**
- * *************************************************
- *
- * cismet GmbH, Saarbruecken, Germany
- * 
-* ... and it just works.
- * 
-***************************************************
- */
+/***************************************************
+*
+* cismet GmbH, Saarbruecken, Germany
+*
+*              ... and it just works.
+*
+****************************************************/
 /*
  * ReBeTableModel.java
  *
@@ -39,35 +37,39 @@ import de.cismet.lagis.broker.LagisBroker;
 /**
  * DOCUMENT ME!
  *
- * @author Puhl
- * @version $Revision$, $Date$
+ * @author   Puhl
+ * @version  $Revision$, $Date$
  */
 public class ReBeTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
+
     private static final String[] COLUMN_HEADER = {
-        "ist Recht",
-        "Art",
-        "Art des Rechts",
-        "Nummer",
-        "Eintragung Datum",
-        "Löschung Datum",
-        "Bemerkung"
-    };
+            "ist Recht",
+            "Art",
+            "Art des Rechts",
+            "Nummer",
+            "Eintragung Datum",
+            "Löschung Datum",
+            "Bemerkung"
+        };
     private static final Class[] COLUMN_CLASSES = {
-        Boolean.class,
-        RebeArtCustomBean.class,
-        String.class,
-        String.class,
-        Date.class,
-        Date.class,
-        String.class
-    };
-    //~ Instance fields --------------------------------------------------------
+            Boolean.class,
+            RebeArtCustomBean.class,
+            String.class,
+            String.class,
+            Date.class,
+            Date.class,
+            String.class
+        };
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(ReBeTableModel.class);
+
+    //~ Instance fields --------------------------------------------------------
+
     private boolean isReBeKindSwitchAllowed = true;
 
     //~ Constructors -----------------------------------------------------------
+
     /**
      * Creates a new instance of ReBeTableModel.
      */
@@ -79,7 +81,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     /**
      * Creates a new ReBeTableModel object.
      *
-     * @param reBe DOCUMENT ME!
+     * @param  reBe  DOCUMENT ME!
      */
     public ReBeTableModel(final Collection<RebeCustomBean> reBe) {
         super(COLUMN_HEADER, COLUMN_CLASSES);
@@ -92,6 +94,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     }
 
     //~ Methods ----------------------------------------------------------------
+
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
@@ -131,7 +134,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param rowIndex DOCUMENT ME!
+     * @param  rowIndex  DOCUMENT ME!
      */
     @Override
     public void removeCidsBean(final int rowIndex) {
@@ -152,7 +155,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         if (columnIndex == 0) {
             return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode()
-                    && isReBeKindSwitchAllowed;
+                        && isReBeKindSwitchAllowed;
         } else {
             return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode();
         }
@@ -161,11 +164,11 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @return DOCUMENT ME!
+     * @return  DOCUMENT ME!
      */
     public ArrayList<Feature> getAllReBeFeatures() {
         final ArrayList<Feature> tmp = new ArrayList<Feature>();
-        ArrayList<RebeCustomBean> resBes = (ArrayList<RebeCustomBean>) getCidsBeans();
+        final ArrayList<RebeCustomBean> resBes = (ArrayList<RebeCustomBean>)getCidsBeans();
         if (resBes != null) {
             final Iterator<RebeCustomBean> it = resBes.iterator();
             while (it.hasNext()) {
@@ -186,35 +189,35 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
             final RebeCustomBean value = getCidsBeanAtRow(rowIndex);
             switch (columnIndex) {
                 case 0: {
-                    value.setIstRecht((Boolean) aValue);
+                    value.setIstRecht((Boolean)aValue);
                     break;
                 }
                 case 1: {
-                    value.setReBeArt((RebeArtCustomBean) aValue);
+                    value.setReBeArt((RebeArtCustomBean)aValue);
                     break;
                 }
                 case 2: {
-                    value.setBeschreibung((String) aValue);
+                    value.setBeschreibung((String)aValue);
                     break;
                 }
                 case 3: {
-                    value.setNummer((String) aValue);
+                    value.setNummer((String)aValue);
                     break;
                 }
                 case 4: {
                     if ((aValue instanceof Date) || (aValue == null)) {
-                        value.setDatumEintragung((Date) aValue);
+                        value.setDatumEintragung((Date)aValue);
                     }
                     break;
                 }
                 case 5: {
                     if ((aValue instanceof Date) || (aValue == null)) {
-                        value.setDatumLoeschung((Date) aValue);
+                        value.setDatumLoeschung((Date)aValue);
                     }
                     break;
                 }
                 case 6: {
-                    value.setBemerkung((String) aValue);
+                    value.setBemerkung((String)aValue);
                     break;
                 }
                 default: {
@@ -231,7 +234,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param isReBeKindSwitchAllowed DOCUMENT ME!
+     * @param  isReBeKindSwitchAllowed  DOCUMENT ME!
      */
     public void setIsReBeKindSwitchAllowed(final boolean isReBeKindSwitchAllowed) {
         this.isReBeKindSwitchAllowed = isReBeKindSwitchAllowed;

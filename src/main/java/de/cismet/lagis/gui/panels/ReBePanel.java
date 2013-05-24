@@ -181,7 +181,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                                 @Override
                                 public void run() {
                                     // LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeatures(tableModel.getAllReBeFeatures());
-                                    final Vector<Feature> features = tableModel.getAllReBeFeatures();
+                                    final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
                                     if (features != null) {
                                         for (final Feature currentFeature : features) {
                                             if (currentFeature != null) {
@@ -272,7 +272,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     final int displayedIndex = componentAdapter.row;
                     final int modelIndex = ((JXTable)tReBe).getFilters().convertRowIndexToModel(displayedIndex);
-                    final RebeCustomBean r = tableModel.getReBeAtRow(modelIndex);
+                    final RebeCustomBean r = tableModel.getCidsBeanAtRow(modelIndex);
                     return (r != null) && (r.getGeometry() == null);
                 }
             };
@@ -339,7 +339,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final List<RebeCustomBean> allReBe = this.tableModel.getResBes();
+        final List<RebeCustomBean> allReBe = (List<RebeCustomBean>)this.tableModel.getCidsBeans();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allReBe.size());
 
         for (final RebeCustomBean rebe : allReBe) {
@@ -388,11 +388,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
 
         if (entity instanceof RebeCustomBean) {
-            final List<RebeCustomBean> residentReBe = this.tableModel.getResBes();
+            final List<RebeCustomBean> residentReBe = (List<RebeCustomBean>)this.tableModel.getCidsBeans();
             if (residentReBe.contains(entity)) {
                 log.warn("ReBe " + entity + " does already exist -> ignored");
             } else {
-                this.tableModel.addReBe((RebeCustomBean)entity);
+                this.tableModel.addCidsBean((RebeCustomBean)entity);
 
                 final StyledFeatureGroupWrapper wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity,
                         PROVIDER_NAME,
@@ -425,7 +425,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        final List<RebeCustomBean> residentReBe = this.tableModel.getResBes();
+        final List<RebeCustomBean> residentReBe = (List<RebeCustomBean>)this.tableModel.getCidsBeans();
         final int rowCountBefore = this.tableModel.getRowCount();
 
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -437,7 +437,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 if (residentReBe.contains(entity)) {
                     log.warn("ReBe " + entity + " does already exist -> ignored");
                 } else {
-                    this.tableModel.addReBe((RebeCustomBean)entity);
+                    this.tableModel.addCidsBean((RebeCustomBean)entity);
                     wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     fc.addFeature(wrapper);
                 }
@@ -647,7 +647,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         final int currentRow = tReBe.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
+            tableModel.removeCidsBean(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
     } //GEN-LAST:event_btnRemoveReBeActionPerformed
@@ -664,7 +664,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 tmpReBe.setIstRecht(true);
             }
 
-            this.tableModel.addReBe(tmpReBe);
+            this.tableModel.addCidsBean(tmpReBe);
             this.tableModel.fireTableDataChanged();
         } catch (Exception ex) {
             log.error("error creating rebe bean", ex);
@@ -721,7 +721,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         } else {
             final int rowCount = tableModel.getRowCount();
             for (int i = 0; i < rowCount; i++) {
-                final RebeCustomBean currentReBe = tableModel.getReBeAtRow(i);
+                final RebeCustomBean currentReBe = tableModel.getCidsBeanAtRow(i);
                 // Geom geom;
                 if (currentReBe.getGeometry() == null) {
                     final Object idValue1 = tableModel.getValueAt(i, 0);
@@ -766,7 +766,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<RebeCustomBean> resBes = flurstueck.getRechteUndBelastungen();
         if (resBes != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getResBes());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getCidsBeans());
         } else {
             // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
         }
@@ -783,7 +783,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         for (final Feature feature : features) {
             if (feature instanceof RebeCustomBean) {
                 // TODO Refactor Name
-                final int index = tableModel.getIndexOfReBe((RebeCustomBean)feature);
+                final int index = tableModel.getIndexOfCidsBean((RebeCustomBean)feature);
                 final int displayedIndex = ((JXTable)tReBe).getFilters().convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
@@ -820,7 +820,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             }
             final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(tReBe.getSelectedRow());
             if ((index != -1) && (tReBe.getSelectedRowCount() <= 1)) {
-                final RebeCustomBean selectedReBe = tableModel.getReBeAtRow(index);
+                final RebeCustomBean selectedReBe = tableModel.getCidsBeanAtRow(index);
                 if ((selectedReBe.getGeometry() != null)
                             && !mappingComp.getFeatureCollection().isSelected(selectedReBe)) {
                     mappingComp.getFeatureCollection().select(selectedReBe);
