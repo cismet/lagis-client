@@ -231,12 +231,17 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
         }
     }
 
+    public boolean isIsReBeKindSwitchAllowed() {
+        return isReBeKindSwitchAllowed;
+    }    
+    
     /**
-     * DOCUMENT ME!
+     * isReBeKindSwitchAllowed seems to have always the opposite value as ReBePanel.isInAbteilungIXModus
      *
      * @param  isReBeKindSwitchAllowed  DOCUMENT ME!
      */
+    //TODO Jean fragen warum das so ist?
     public void setIsReBeKindSwitchAllowed(final boolean isReBeKindSwitchAllowed) {
         this.isReBeKindSwitchAllowed = isReBeKindSwitchAllowed;
-    }
+    }    
 }
