@@ -31,9 +31,9 @@ public class ReBeTable extends AbstractCidsBeanTable_Lagis {
     protected void addNewItem() {
         try {
             final RebeCustomBean tmpReBe = RebeCustomBean.createNew();
-            
-            //check if isInAbteilungIXModus. model.isReBeKindSwitchAllowed and panel.isInAbteilungIXModus seem to have always the opposite value.
-            //TODO is this correct?
+
+            // check if isInAbteilungIXModus. model.isReBeKindSwitchAllowed and panel.isInAbteilungIXModus seem to have
+            // always the opposite value. TODO is this correct?
             if (!((ReBeTableModel)getModel()).isIsReBeKindSwitchAllowed()) {
                 tmpReBe.setIstRecht(true);
             }

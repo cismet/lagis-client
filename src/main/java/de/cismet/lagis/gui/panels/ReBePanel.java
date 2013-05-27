@@ -115,8 +115,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tReBe;
+    private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -514,11 +516,15 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         jScrollPane1 = new javax.swing.JScrollPane();
         tReBe = new JXTable();
-        btnAddReBe = new javax.swing.JButton();
-        btnRemoveReBe = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnRemoveReBe = new javax.swing.JButton();
+        btnAddReBe = new javax.swing.JButton();
+        tbtnSort = new javax.swing.JToggleButton();
 
         tReBe.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tReBe.setModel(new javax.swing.table.DefaultTableModel(
@@ -564,22 +570,18 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             });
         jScrollPane1.setViewportView(tReBe);
 
-        btnAddReBe.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
-        btnAddReBe.setBorder(null);
-        btnAddReBe.setOpaque(false);
-        btnAddReBe.addActionListener(new java.awt.event.ActionListener() {
+        jLabel1.setText("Rechte und Belastungen:");
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddReBeActionPerformed(evt);
-                }
-            });
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         btnRemoveReBe.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveReBe.setBorder(null);
-        btnRemoveReBe.setOpaque(false);
+        btnRemoveReBe.setBorderPainted(false);
+        btnRemoveReBe.setContentAreaFilled(false);
+        btnRemoveReBe.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveReBe.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveReBe.setPreferredSize(new java.awt.Dimension(25, 25));
         btnRemoveReBe.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
@@ -587,8 +589,47 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     btnRemoveReBeActionPerformed(evt);
                 }
             });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(btnRemoveReBe, gridBagConstraints);
 
-        jLabel1.setText("Rechte und Belastungen:");
+        btnAddReBe.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddReBe.setBorder(null);
+        btnAddReBe.setBorderPainted(false);
+        btnAddReBe.setContentAreaFilled(false);
+        btnAddReBe.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddReBe.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddReBe.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnAddReBe.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddReBeActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(btnAddReBe, gridBagConstraints);
+
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
+        tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(tbtnSort, gridBagConstraints);
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -598,44 +639,29 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                         layout.createSequentialGroup().add(jLabel1).addPreferredGap(
                             org.jdesktop.layout.LayoutStyle.RELATED,
-                            372,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             Short.MAX_VALUE).add(
-                            btnAddReBe,
+                            jPanel1,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            25,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnRemoveReBe,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            15,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
                         jScrollPane1,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        549,
+                        631,
                         Short.MAX_VALUE)).addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddReBe, btnRemoveReBe },
-            org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
-                        btnRemoveReBe).add(
-                        btnAddReBe,
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
+                        jPanel1,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        28,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    248,
+                    243,
                     Short.MAX_VALUE).addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddReBe, btnRemoveReBe },
-            org.jdesktop.layout.GroupLayout.VERTICAL);
     } // </editor-fold>//GEN-END:initComponents
 
     /**
