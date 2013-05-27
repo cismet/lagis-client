@@ -124,9 +124,4 @@ public class VertraegeTableModel extends CidsBeanTableModel_Lagis {
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return false;
     }
-
-    @Override
-    public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
-        super.setValueAt(aValue, rowIndex, columnIndex);
-    }
 }
