@@ -22,7 +22,8 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
 
 /**
- * DOCUMENT ME!
+ * Parent class of several TableModels. See also AbstractCidsBeanTable_Lagis, as there is usually a cross-reference
+ * between a AbstractCidsBeanTable_Lagis and a CidsBeanTable_Model object.
  *
  * @author   gbaatz
  * @version  $Revision$, $Date$

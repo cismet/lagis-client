@@ -25,7 +25,10 @@ import javax.swing.table.TableModel;
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
 
 /**
- * DOCUMENT ME!
+ * Parent class of several Tables. It provides a NewItem action, a RemoveItem action and a SortItem Listener. These
+ * actions can added to buttons, so that a similar behavior is shared between the subclasses. For example the Sort
+ * ToggleButton is implemented that way. See also CidsBeanTable_Model, as there is usually a cross-reference between a
+ * AbstractCidsBeanTable_Lagis and a CidsBeanTable_Model object.
  *
  * @author   gbaatz
  * @version  $Revision$, $Date$
