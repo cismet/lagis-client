@@ -75,6 +75,10 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
         documentContainer.addNewVertrag();
     }
 
+    /**
+     * Sends a mouse clicked event to all its MouseListener. This has to be done for example to update the text boxes in
+     * VertraegePanel.
+     */
     @Override
     protected void execAfterItemAdded() {
         final MouseEvent me = new MouseEvent(this, 0, 0, 0, 100, 100, 1, false);
