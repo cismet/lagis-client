@@ -152,6 +152,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
         if (currentRow != -1) {
             removeItem(currentRow);
         }
+        execAfterItemRemoved();
     }
 
     /**
