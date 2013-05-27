@@ -86,7 +86,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public <C extends CidsBean> void addCidsBean(final C cidsbean) {
         ((List<CidsBean>)cidsBeans).add(cidsbean);
-        fireTableDataChanged();
+        fireTableDataChangedAndKeepSelection();
     }
 
     /**
@@ -96,6 +96,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public void removeCidsBean(final int rowIndex) {
         cidsBeans.remove(rowIndex);
+        fireTableDataChanged();
     }
 
     /**
