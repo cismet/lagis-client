@@ -17,7 +17,6 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -51,9 +50,21 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      * @param  columnNames    DOCUMENT ME!
      * @param  columnClasses  DOCUMENT ME!
      */
-    protected CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses) {
+    protected <T extends CidsBean> CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses, Class<T> cidsBeanClass) {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
+        cidsBeans = new ArrayList<T>();
+    }
+    
+    protected <T extends CidsBean> CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses, Collection<T> cidsBeans) {
+        this.columnNames = columnNames;
+        this.columnClasses = columnClasses;
+        try {
+            this.cidsBeans = new ArrayList<T>(cidsBeans);
+        } catch (Exception ex) {
+            LOG.error("Fehler beim anlegen des Models", ex);
+            this.cidsBeans = new ArrayList<T>();
+        }
     }
 
     //~ Methods ----------------------------------------------------------------
