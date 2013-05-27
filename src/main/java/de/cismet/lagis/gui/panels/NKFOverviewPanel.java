@@ -322,6 +322,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
         tbtnSort.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setToolTipText("Sortierung An / Aus");
         tbtnSort.setBorderPainted(false);
         tbtnSort.setContentAreaFilled(false);
         tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));

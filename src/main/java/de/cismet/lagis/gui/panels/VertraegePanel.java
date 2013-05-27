@@ -590,6 +590,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         tbtnSortVertrag.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSortVertrag.setToolTipText("Sortierung An / Aus");
         tbtnSortVertrag.setBorder(null);
         tbtnSortVertrag.setBorderPainted(false);
         tbtnSortVertrag.setContentAreaFilled(false);
@@ -917,6 +918,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         21,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
 
+        tabKB.setToolTipText("Sortierung An / Aus");
+
         jScrollPane2.setViewportView(lstCrossRefs);
 
         final org.jdesktop.layout.GroupLayout panQuerverweiseLayout = new org.jdesktop.layout.GroupLayout(
@@ -974,6 +977,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         tbtnSortKosten.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSortKosten.setToolTipText("Sortierung An / Aus");
         tbtnSortKosten.setBorder(null);
         tbtnSortKosten.setBorderPainted(false);
         tbtnSortKosten.setContentAreaFilled(false);

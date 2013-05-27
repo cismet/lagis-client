@@ -168,6 +168,7 @@
                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                       <Image iconType="3" name="/de/cismet/lagis/ressource/icons/buttons/sort.png"/>
                     </Property>
+                    <Property name="toolTipText" type="java.lang.String" value="Sortierung An / Aus"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="null"/>
                     </Property>
@@ -523,6 +524,9 @@
           </Layout>
           <SubComponents>
             <Container class="javax.swing.JTabbedPane" name="tabKB">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" value="Sortierung An / Aus"/>
+              </Properties>
               <AccessibilityProperties>
                 <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Beschluesse"/>
               </AccessibilityProperties>
@@ -682,6 +686,7 @@
                             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
                               <Image iconType="3" name="/de/cismet/lagis/ressource/icons/buttons/sort.png"/>
                             </Property>
+                            <Property name="toolTipText" type="java.lang.String" value="Sortierung An / Aus"/>
                             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                               <Border info="null"/>
                             </Property>
