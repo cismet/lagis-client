@@ -52,6 +52,7 @@ import de.cismet.lagis.editor.DateEditor;
 
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.tables.ReBeTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -285,6 +286,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         tReBe.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tReBe).packAll();
+        ((ReBeTable)tReBe).setSortButton(tbtnSort);
     }
 
     /**
@@ -519,7 +521,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         java.awt.GridBagConstraints gridBagConstraints;
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        tReBe = new JXTable();
+        tReBe = new ReBeTable();
         jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         btnRemoveReBe = new javax.swing.JButton();
@@ -574,6 +576,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        btnRemoveReBe.setAction(((ReBeTable)tReBe).getRemoveAction());
         btnRemoveReBe.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveReBe.setBorder(null);
@@ -582,19 +585,13 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         btnRemoveReBe.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveReBe.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveReBe.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnRemoveReBe.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveReBeActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(btnRemoveReBe, gridBagConstraints);
 
+        btnAddReBe.setAction(((ReBeTable)tReBe).getAddAction());
         btnAddReBe.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddReBe.setBorder(null);
@@ -603,13 +600,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         btnAddReBe.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddReBe.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddReBe.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnAddReBe.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddReBeActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -630,6 +620,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((ReBeTable)tReBe).getSortItemListener());
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -664,38 +655,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     Short.MAX_VALUE).addContainerGap()));
     } // </editor-fold>//GEN-END:initComponents
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
-        final int currentRow = tReBe.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            tableModel.removeCidsBean(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
-            tableModel.fireTableDataChanged();
-        }
-    } //GEN-LAST:event_btnRemoveReBeActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
-        try {
-            final RebeCustomBean tmpReBe = RebeCustomBean.createNew();
-            if (isInAbteilungIXModus) {
-                tmpReBe.setIstRecht(true);
-            }
-
-            this.tableModel.addCidsBean(tmpReBe);
-            this.tableModel.fireTableDataChanged();
-        } catch (Exception ex) {
-            log.error("error creating rebe bean", ex);
-        }
-    } //GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {
