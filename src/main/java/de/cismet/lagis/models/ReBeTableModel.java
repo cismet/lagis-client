@@ -74,8 +74,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
      * Creates a new instance of ReBeTableModel.
      */
     public ReBeTableModel() {
-        super(COLUMN_HEADER, COLUMN_CLASSES);
-        setCidsBeans(new ArrayList<RebeCustomBean>());
+        super(COLUMN_HEADER, COLUMN_CLASSES, RebeCustomBean.class);
     }
 
     /**
@@ -84,13 +83,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
      * @param  reBe  DOCUMENT ME!
      */
     public ReBeTableModel(final Collection<RebeCustomBean> reBe) {
-        super(COLUMN_HEADER, COLUMN_CLASSES);
-        try {
-            setCidsBeans(new ArrayList<RebeCustomBean>(reBe));
-        } catch (Exception ex) {
-            LOG.error("Fehler beim anlegen des Models", ex);
-            setCidsBeans(new ArrayList<RebeCustomBean>());
-        }
+        super(COLUMN_HEADER, COLUMN_CLASSES, reBe);
     }
 
     //~ Methods ----------------------------------------------------------------

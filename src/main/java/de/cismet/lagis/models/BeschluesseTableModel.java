@@ -49,9 +49,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      * Creates a new instance of BeschluesseTableModel.
      */
     public BeschluesseTableModel() {
-        // beschluesse = new Vector<BeschlussCustomBean>();
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        setCidsBeans(new ArrayList<BeschlussCustomBean>());
+        super(COLUMN_NAMES, COLUMN_CLASSES, BeschlussCustomBean.class);
     }
 
     /**
@@ -60,13 +58,7 @@ public class BeschluesseTableModel extends CidsBeanTableModel_Lagis {
      * @param  beschluesse  DOCUMENT ME!
      */
     public BeschluesseTableModel(final Collection<BeschlussCustomBean> beschluesse) {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        try {
-            setCidsBeans(new ArrayList<BeschlussCustomBean>(beschluesse));
-        } catch (Exception ex) {
-            LOG.error("Fehler beim anlegen des Models", ex);
-            setCidsBeans(new ArrayList<BeschlussCustomBean>());
-        }
+        super(COLUMN_NAMES, COLUMN_CLASSES, beschluesse);
     }
 
     //~ Methods ----------------------------------------------------------------

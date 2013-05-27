@@ -49,9 +49,7 @@ public class KostenTableModel extends CidsBeanTableModel_Lagis {
      * Creates a new instance of KostenTableModel.
      */
     public KostenTableModel() {
-        // kosten = new Vector<KostenCustomBean>();
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        setCidsBeans(new ArrayList<KostenCustomBean>());
+        super(COLUMN_NAMES, COLUMN_CLASSES, KostenCustomBean.class);
     }
 
     /**
@@ -60,13 +58,7 @@ public class KostenTableModel extends CidsBeanTableModel_Lagis {
      * @param  kosten  DOCUMENT ME!
      */
     public KostenTableModel(final Collection<KostenCustomBean> kosten) {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        try {
-            setCidsBeans(new ArrayList<KostenCustomBean>(kosten));
-        } catch (Exception ex) {
-            LOG.error("Fehler beim anlegen des Models", ex);
-            setCidsBeans(new ArrayList<KostenCustomBean>());
-        }
+        super(COLUMN_NAMES, COLUMN_CLASSES, kosten);
     }
 
     //~ Methods ----------------------------------------------------------------

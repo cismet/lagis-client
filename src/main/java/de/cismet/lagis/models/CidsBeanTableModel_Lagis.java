@@ -17,7 +17,6 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
-
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
@@ -47,16 +46,30 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     /**
      * Creates a new CidsBeanTableModel object.
      *
+     * @param  <T>            DOCUMENT ME!
      * @param  columnNames    DOCUMENT ME!
      * @param  columnClasses  DOCUMENT ME!
+     * @param  cidsBeanClass  DOCUMENT ME!
      */
-    protected <T extends CidsBean> CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses, Class<T> cidsBeanClass) {
+    protected <T extends CidsBean> CidsBeanTableModel_Lagis(final String[] columnNames,
+            final Class[] columnClasses,
+            final Class<T> cidsBeanClass) {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
         cidsBeans = new ArrayList<T>();
     }
-    
-    protected <T extends CidsBean> CidsBeanTableModel_Lagis(final String[] columnNames, final Class[] columnClasses, Collection<T> cidsBeans) {
+
+    /**
+     * Creates a new CidsBeanTableModel_Lagis object.
+     *
+     * @param  <T>            DOCUMENT ME!
+     * @param  columnNames    DOCUMENT ME!
+     * @param  columnClasses  DOCUMENT ME!
+     * @param  cidsBeans      DOCUMENT ME!
+     */
+    protected <T extends CidsBean> CidsBeanTableModel_Lagis(final String[] columnNames,
+            final Class[] columnClasses,
+            final Collection<T> cidsBeans) {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
         try {

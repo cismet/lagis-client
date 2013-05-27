@@ -64,7 +64,7 @@ public class VertraegeTableModel extends CidsBeanTableModel_Lagis {
      * Creates a new instance of VertraegeTableModel.
      */
     public VertraegeTableModel() {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
+        super(COLUMN_NAMES, COLUMN_CLASSES, VertragCustomBean.class);
         setCidsBeans(new ArrayList<VertragCustomBean>());
     }
 
@@ -74,14 +74,7 @@ public class VertraegeTableModel extends CidsBeanTableModel_Lagis {
      * @param  vertraege  DOCUMENT ME!
      */
     public VertraegeTableModel(final Collection<VertragCustomBean> vertraege) {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        try {
-            setCidsBeans(new ArrayList<VertragCustomBean>(vertraege));
-            // log.fatal("Voreigentuemer: "+this.vertraege.get(0).getVoreigentuemer());
-        } catch (Exception ex) {
-            LOG.error("Fehler beim anlegen des Models", ex);
-            setCidsBeans(new ArrayList<VertragCustomBean>());
-        }
+        super(COLUMN_NAMES, COLUMN_CLASSES, vertraege);
     }
 
     //~ Methods ----------------------------------------------------------------

@@ -58,8 +58,7 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
      * Creates a new VerwaltungsTableModel object.
      */
     public VerwaltungsTableModel() {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>());
+        super(COLUMN_NAMES, COLUMN_CLASSES, VerwaltungsbereichCustomBean.class);
     }
 
     /**
@@ -68,16 +67,7 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
      * @param  verwaltungsbereiche  DOCUMENT ME!
      */
     public VerwaltungsTableModel(final Set<VerwaltungsbereichCustomBean> verwaltungsbereiche) {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Initialisierung des VerwaltungsbereichTableModell");
-            }
-            setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>(verwaltungsbereiche));
-        } catch (Exception ex) {
-            LOG.error("Fehler beim anlegen des Models", ex);
-            setCidsBeans(new ArrayList<VerwaltungsbereichCustomBean>());
-        }
+        super(COLUMN_NAMES, COLUMN_CLASSES, verwaltungsbereiche);
     }
 
     //~ Methods ----------------------------------------------------------------

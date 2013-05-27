@@ -107,22 +107,22 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new instance of NKFTableModel.
+     * This is a special case for a CidsBeanTableModel_Lagis as the super.cidsbeans Collection is never used.
      */
     public NKFTableModel() {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
+        super(COLUMN_NAMES, COLUMN_CLASSES, NutzungCustomBean.class);
         allNutzungen = new ArrayList<NutzungCustomBean>();
         currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
         // nutzungenHistorisch = new Vector<Nutzung>();
     }
 
     /**
-     * Creates a new NKFTableModel object.
+     * This is a special case for a CidsBeanTableModel_Lagis as the super.cidsbeans Collection is never used.
      *
      * @param  nutzungen  DOCUMENT ME!
      */
     public NKFTableModel(final Collection<NutzungCustomBean> nutzungen) {
-        super(COLUMN_NAMES, COLUMN_CLASSES);
+        super(COLUMN_NAMES, COLUMN_CLASSES, nutzungen);
         try {
             allNutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             if (LOG.isDebugEnabled()) {
