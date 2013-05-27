@@ -78,6 +78,7 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 import de.cismet.lagis.util.LagISUtils;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
@@ -619,7 +620,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // TODO NUllSAVe
         // tableModel.setVerwaltendenDienstellenList(allVerwaltendeDienstellen);
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
-        tNutzung.setModel(tableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (VerwaltungsTable)tNutzung);
         cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
                     CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
         tNutzung.setDefaultRenderer(VerwaltungsgebrauchCustomBean.class, vgRenderer);

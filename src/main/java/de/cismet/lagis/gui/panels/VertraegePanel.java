@@ -55,6 +55,7 @@ import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.util.LagISUtils;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.Validator;
@@ -165,7 +166,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         initComponents();
         // tblBeschluesse.setModel(bTableModel);
         // tblKosten.setModel(kTableModel);
-        tblVertraege.setModel(vTableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(vTableModel, (VertraegeTable)tblVertraege);
         // tblVertraege.addMouseListener(this);
         documentContainer = new VertragDocumentModelContainer(vTableModel);
         ((VertraegeTable)tblVertraege).setDocumentContainer(documentContainer);
@@ -205,9 +206,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         cboVertragsart.addActionListener(documentContainer);
 
         ((KostenTable)tblKosten).setDocumentContainer(documentContainer);
-        tblKosten.setModel(documentContainer.getKostenTableModel());
+        TableSelectionUtils.crossReferenceModelAndTable(documentContainer.getKostenTableModel(),
+            (KostenTable)tblKosten);
         ((BeschluesseTable)tblBeschluesse).setDocumentContainer(documentContainer);
-        tblBeschluesse.setModel(documentContainer.getBeschluesseTableModel());
+        TableSelectionUtils.crossReferenceModelAndTable(documentContainer.getBeschluesseTableModel(),
+            (BeschluesseTable)tblBeschluesse);
         // Set vertragsarten = null;
 // if(vertragsarten != null){
 // vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));

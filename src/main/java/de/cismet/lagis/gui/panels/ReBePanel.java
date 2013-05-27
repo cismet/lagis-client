@@ -66,6 +66,7 @@ import de.cismet.lagis.renderer.DateRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.util.LagISUtils;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
@@ -230,7 +231,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void configureTable() {
-        tReBe.setModel(tableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (ReBeTable)tReBe);
         final Collection<RebeArtCustomBean> reBeArten = CidsBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {

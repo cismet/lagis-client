@@ -11,6 +11,10 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
+import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
+
+import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
+
 /**
  * DOCUMENT ME!
  *
@@ -51,5 +55,17 @@ public class TableSelectionUtils {
                     }
                 }
             });
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  model  DOCUMENT ME!
+     * @param  table  DOCUMENT ME!
+     */
+    public static void crossReferenceModelAndTable(final CidsBeanTableModel_Lagis model,
+            final AbstractCidsBeanTable_Lagis table) {
+        table.setModel(model);
+        model.setTable(table);
     }
 }

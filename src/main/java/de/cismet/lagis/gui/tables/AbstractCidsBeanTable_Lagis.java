@@ -203,23 +203,4 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
     public JToggleButton getSortButton() {
         return tbtnSort;
     }
-
-    /**
-     * Additional functionality for CidsBeanTableModel_Lagis models. If newModel is a subclass of
-     * CidsBeanTableModel_Lagis, then this table is added to the newModel.
-     *
-     * @param  newModel  DOCUMENT ME!
-     */
-    // TODO change this when every Table extends from this Table. The instanceof check is propably dangerous and
-    // causes side effects a programmer can not see immediately.
-    @Override
-    public void setModel(final TableModel newModel) {
-        super.setModel(newModel);
-        if (newModel instanceof CidsBeanTableModel_Lagis) {
-            ((CidsBeanTableModel_Lagis)newModel).setTable(this);
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Table was also added to model.");
-        }
-    }
 }

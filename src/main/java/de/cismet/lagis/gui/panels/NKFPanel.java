@@ -62,6 +62,7 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.NutzungsContainer;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.validation.Validatable;
 
@@ -296,7 +297,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void configureTable() {
-        tNutzung.setModel(tableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (NKFTable)tNutzung);
         tNutzung.getSelectionModel().addListSelectionListener(this);
         final JComboBox cboAK = new JComboBox(new Vector<AnlageklasseCustomBean>(
                     CidsBroker.getInstance().getAllAnlageklassen()));
