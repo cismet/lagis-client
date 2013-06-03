@@ -25,7 +25,11 @@ import java.util.Collection;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.tables.VertraegeTable;
 
 /**
  * DOCUMENT ME!
@@ -116,5 +120,11 @@ public class VertraegeTableModel extends CidsBeanTableModel_Lagis {
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         return false;
+    }
+
+    @Override
+    public void restoreBean(final CidsBean cidsBean) {
+        super.restoreBean(cidsBean);
+        ((VertraegeTable)getTable()).emulateMouseClicked();
     }
 }

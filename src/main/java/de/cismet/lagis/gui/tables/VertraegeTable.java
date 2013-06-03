@@ -81,10 +81,7 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
      */
     @Override
     protected void execAfterItemAdded() {
-        final MouseEvent me = new MouseEvent(this, 0, 0, 0, 100, 100, 1, false);
-        for (final MouseListener ml : this.getMouseListeners()) {
-            ml.mouseClicked(me);
-        }
+        emulateMouseClicked();
     }
 
     @Override
@@ -97,5 +94,16 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void execAfterItemRemoved() {
         removeActionHelper.afterRemoveAction(this);
+    }
+
+    /**
+     * Sends a mouse clicked event to all its MouseListener. This has to be done for example to update the text boxes in
+     * VertraegePanel.
+     */
+    public void emulateMouseClicked() {
+        final MouseEvent me = new MouseEvent(this, 0, 0, 0, 100, 100, 1, false);
+        for (final MouseListener ml : this.getMouseListeners()) {
+            ml.mouseClicked(me);
+        }
     }
 }
