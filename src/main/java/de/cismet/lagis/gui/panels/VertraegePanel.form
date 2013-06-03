@@ -231,6 +231,9 @@
                     <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                       <Connection code="((VertraegeTable)tblVertraege).getUndoAction()" type="code"/>
                     </Property>
+                    <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                      <Image iconType="3" name="/de/cismet/lagis/ressource/icons/buttons/undo.png"/>
+                    </Property>
                     <Property name="borderPainted" type="boolean" value="false"/>
                     <Property name="contentAreaFilled" type="boolean" value="false"/>
                     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
@@ -802,7 +805,7 @@
                           </Properties>
                           <AuxValues>
                             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new KostenTable();"/>
-                            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((KostenTable)tblKosten).setSortButton(tbtnSortKosten);"/>
+                            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((KostenTable)tblKosten).setSortButton(tbtnSortKosten);&#xa;((KostenTable)tblKosten).setUndoButton(btnUndoKosten);"/>
                           </AuxValues>
                         </Component>
                       </SubComponents>
@@ -874,7 +877,7 @@
                           </Properties>
                           <AuxValues>
                             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new BeschluesseTable()"/>
-                            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((BeschluesseTable)tblBeschluesse).setSortButton(tbtnSortBeschluss);"/>
+                            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="((BeschluesseTable)tblBeschluesse).setSortButton(tbtnSortBeschluss);&#xa;((BeschluesseTable)tblBeschluesse).setUndoButton(btnUndoBeschluss);"/>
                           </AuxValues>
                         </Component>
                       </SubComponents>
