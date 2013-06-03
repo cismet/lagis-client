@@ -9,9 +9,13 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
+import java.awt.event.ActionEvent;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
@@ -20,6 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
+import de.cismet.lagis.gui.tables.CidsBeanSupport;
 
 /**
  * Parent class of several TableModels. See also AbstractCidsBeanTable_Lagis, as there is usually a cross-reference
@@ -37,6 +42,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     //~ Instance fields --------------------------------------------------------
 
     private List<? extends CidsBean> cidsBeans;
+    private final Map<Integer, CidsBean> beanBackups = new HashMap<Integer, CidsBean>();
     private final String[] columnNames;
     private final Class[] columnClasses;
     private boolean isInEditMode = false;
@@ -57,7 +63,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
             final Class<T> cidsBeanClass) {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
-        cidsBeans = new ArrayList<T>();
+        this.cidsBeans = new ArrayList<T>();
     }
 
     /**
@@ -75,6 +81,9 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
         this.columnClasses = columnClasses;
         try {
             this.cidsBeans = new ArrayList<T>(cidsBeans);
+            for (final T bean : cidsBeans) {
+                backupBean(bean);
+            }
         } catch (Exception ex) {
             LOG.error("Fehler beim anlegen des Models", ex);
             this.cidsBeans = new ArrayList<T>();
@@ -111,6 +120,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public <C extends CidsBean> void addCidsBean(final C cidsbean) {
         ((List<CidsBean>)cidsBeans).add(cidsbean);
+        backupBean(cidsbean);
         fireTableDataChangedAndKeepSelection();
     }
 
@@ -120,6 +130,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      * @param  rowIndex  DOCUMENT ME!
      */
     public void removeCidsBean(final int rowIndex) {
+        unbackupBean(cidsBeans.get(rowIndex));
         cidsBeans.remove(rowIndex);
         fireTableDataChanged();
     }
@@ -150,6 +161,27 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
 
     /**
      * DOCUMENT ME!
+     */
+    public void clearCidsBeans() {
+        cidsBeans.clear();
+        clearBackups();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  <C>           DOCUMENT ME!
+     * @param  newCidsBeans  DOCUMENT ME!
+     */
+    public <C extends CidsBean> void addAllCidsBeans(final Collection<C> newCidsBeans) {
+        ((List<C>)cidsBeans).addAll(newCidsBeans);
+        for (final CidsBean bean : cidsBeans) {
+            backupBean(bean);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
@@ -160,10 +192,17 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     /**
      * DOCUMENT ME!
      *
+     * @param  <T>        DOCUMENT ME!
      * @param  cidsBeans  DOCUMENT ME!
      */
-    public void setCidsBeans(final List<? extends CidsBean> cidsBeans) {
+    public <T extends CidsBean> void setCidsBeans(final List<T> cidsBeans) {
+        clearBackups();
         this.cidsBeans = cidsBeans;
+
+        for (final T bean : cidsBeans) {
+            backupBean(bean);
+        }
+
         fireTableDataChanged();
     }
 
@@ -274,6 +313,60 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
             final int selection_index_view = table.convertRowIndexToView(selection_index_model);
             table.setRowSelectionInterval(selection_index_view, selection_index_view);
             table.scrollRectToVisible(table.getCellRect(selection_index_view, 0, true));
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void clearBackups() {
+        beanBackups.clear();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  cidsBean  DOCUMENT ME!
+     */
+    public final void backupBean(final CidsBean cidsBean) {
+        try {
+            final int id = (Integer)cidsBean.getProperty("id");
+            final CidsBean backupBean = CidsBeanSupport.deepcloneCidsBean(cidsBean);
+            beanBackups.put(id, backupBean);
+        } catch (Exception ex) {
+            LOG.error("error while making backup of bean", ex);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  cidsBean  DOCUMENT ME!
+     */
+    public void unbackupBean(final CidsBean cidsBean) {
+        beanBackups.remove((Integer)cidsBean.getProperty("id"));
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void restoreSelectedCidsBean() {
+        final CidsBean cidsBean = getCidsBeanAtRow(table.convertRowIndexToModel(table.getSelectedRow()));
+        restoreBean(cidsBean);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  cidsBean  DOCUMENT ME!
+     */
+    public void restoreBean(final CidsBean cidsBean) {
+        try {
+            final CidsBean backupBean = beanBackups.get((Integer)cidsBean.getProperty("id"));
+            CidsBeanSupport.copyAllProperties(backupBean, cidsBean);
+            fireTableDataChangedAndKeepSelection();
+        } catch (Exception ex) {
+            LOG.error("error while making backup of bean", ex);
         }
     }
 }

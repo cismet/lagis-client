@@ -16,11 +16,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableModel;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
 
@@ -82,6 +90,21 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
                     btnRemoveActionPerformed(e);
+                }
+            };
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Action getUndoAction() {
+        return new AbstractAction() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    btnUndoActionPerformed(e);
                 }
             };
     }
@@ -205,5 +228,14 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      */
     public JToggleButton getSortButton() {
         return tbtnSort;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  e  DOCUMENT ME!
+     */
+    private void btnUndoActionPerformed(final ActionEvent e) {
+        ((CidsBeanTableModel_Lagis)getModel()).restoreSelectedCidsBean();
     }
 }
