@@ -72,7 +72,6 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             "Buchwert",
             "Bemerkung"
         };
-
     private static final Class[] COLUMN_CLASSES = {
             Integer.class,
             Integer.class,
@@ -100,42 +99,40 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                 "/de/cismet/lagis/ressource/icons/nutzung/statusUnknown.png"));
     private ArrayList<NutzungCustomBean> allNutzungen;
     // ToDo Selection über Datum noch nicht ganz optimal weil sehr oft im EDT benutzt und kostspielig
-    private ArrayList<NutzungBuchungCustomBean> currentBuchungen;
+    // private ArrayList<NutzungBuchungCustomBean> currentBuchungen;
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private Date currentDate = null;
 
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * This is a special case for a CidsBeanTableModel_Lagis as the super.cidsbeans Collection is never used.
+     * Creates a new NKFTableModel object.
      */
     public NKFTableModel() {
-        super(COLUMN_NAMES, COLUMN_CLASSES, NutzungCustomBean.class);
+        super(COLUMN_NAMES, COLUMN_CLASSES, NutzungBuchungCustomBean.class);
         allNutzungen = new ArrayList<NutzungCustomBean>();
-        currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
-        // nutzungenHistorisch = new Vector<Nutzung>();
     }
 
     /**
-     * This is a special case for a CidsBeanTableModel_Lagis as the super.cidsbeans Collection is never used.
+     * This constructor is not used at the moment. Therefore it could not be tested.
      *
-     * @param  nutzungen  DOCUMENT ME!
+     * @param  buchungen  DOCUMENT ME!
      */
-    public NKFTableModel(final Collection<NutzungCustomBean> nutzungen) {
-        super(COLUMN_NAMES, COLUMN_CLASSES, nutzungen);
+    public NKFTableModel(final Collection<NutzungBuchungCustomBean> buchungen) {
+        super(COLUMN_NAMES, COLUMN_CLASSES, buchungen);
         try {
-            allNutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
+            allNutzungen = new ArrayList<NutzungCustomBean>();
+            for (final NutzungBuchungCustomBean buchung : buchungen) {
+                allNutzungen.add(buchung.getNutzung());
+            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Anzahl aller Nutzungen: " + allNutzungen.size());
             }
-            currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
             currentDate = null;
             setModelToHistoryDate(currentDate);
         } catch (Exception ex) {
             LOG.error("Fehler beim anlegen des Models", ex);
             this.allNutzungen = new ArrayList<NutzungCustomBean>();
-            this.currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
-            // this.nutzungenHistorisch = new Vector<Nutzung>();
         }
     }
 
@@ -144,11 +141,11 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            if (currentBuchungen.isEmpty()) {
+            if (getRowCount() == 0) {
                 return null;
             }
 
-            final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
+            final NutzungBuchungCustomBean selectedBuchung = getCidsBeanAtRow(rowIndex);
 //            final NutzungBuchungCustomBean selectedBuchung = nutzung.getBuchungForExactDate(currentDate);
             final NutzungCustomBean nutzung = (selectedBuchung != null) ? selectedBuchung.getNutzung() : null;
             final Double stilleReserve = (nutzung != null) ? nutzung.getStilleReserveForBuchung(selectedBuchung) : null;
@@ -240,18 +237,13 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     }
 
     @Override
-    public int getRowCount() {
-        return currentBuchungen.size();
-    }
-
-    @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         if ((columnIndex == 0) || (columnIndex == 1) || (columnIndex == 4) || (columnIndex == 9) || (columnIndex == 10)
                     || (columnIndex == 11)) {
             return false;
         } else {
             return (COLUMN_NAMES.length > columnIndex)
-                        && (currentBuchungen.size() > rowIndex)
+                        && (getRowCount() > rowIndex)
                         && isIsInEditMode();
                 // && (LagisBroker.getInstance().isNkfAdminPermission());
         }
@@ -262,8 +254,8 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
         try {
             // ToDo NKF gibt nur eine NutzungCustomBean spezialfall
-            final NutzungCustomBean selectedNutzung = currentBuchungen.get(rowIndex).getNutzung();
-            NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
+            NutzungBuchungCustomBean selectedBuchung = getCidsBeanAtRow(rowIndex);
+            final NutzungCustomBean selectedNutzung = selectedBuchung.getNutzung();
             NutzungBuchungCustomBean oldBuchung = null;
             if ((selectedBuchung.getGueltigbis() == null) && !LagisBroker.getInstance().isNkfAdminPermission()) {
                 if ((selectedBuchung.getId() != null) && (selectedBuchung.getId() != -1)) {
@@ -403,16 +395,18 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param   rowIndex  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
+     * @param  rowIndex  DOCUMENT ME!
      */
-    public NutzungBuchungCustomBean getBuchungAtRow(final int rowIndex) {
+    public void removeNutzung(final int rowIndex) {
         try {
-            return currentBuchungen.get(rowIndex);
-        } catch (IndexOutOfBoundsException ex) {
-            LOG.warn("Achtung der abgefragete wert ist nicht in dem Modell vorhanden", ex);
-            return null;
+            removeNutzung_helper(rowIndex);
+        } catch (TerminateNutzungNotPossibleException ex) {
+            LOG.error("Eine Nutzung konnte nicht entfernt werden", ex);
+            final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+                    "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
+                            + "sich an den Systemadministrator",
+                    "Fehler beim löschen einer Buchung",
+                    JOptionPane.OK_OPTION);
         }
     }
 
@@ -423,9 +417,9 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
      *
      * @throws  TerminateNutzungNotPossibleException  DOCUMENT ME!
      */
-    public void removeNutzung(final int rowIndex) throws TerminateNutzungNotPossibleException {
-        final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
-        final NutzungCustomBean nutzungToRemove = currentBuchungen.get(rowIndex).getNutzung();
+    private void removeNutzung_helper(final int rowIndex) throws TerminateNutzungNotPossibleException {
+        final NutzungBuchungCustomBean selectedBuchung = getCidsBeanAtRow(rowIndex);
+        final NutzungCustomBean nutzungToRemove = selectedBuchung.getNutzung();
         if (nutzungToRemove != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Nutzung die entfernt werden soll ist in Modell vorhanden.");
@@ -500,21 +494,13 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             } else {
                 allNutzungen.clear();
             }
+            getTable().clearSelection();
             setModelToHistoryDate(currentDate);
         } catch (Exception ex) {
             LOG.error("Fehler beim refreshen des Models", ex);
-            this.currentBuchungen = new ArrayList<NutzungBuchungCustomBean>();
+            setCidsBeans(new ArrayList<NutzungBuchungCustomBean>());
             this.allNutzungen = new ArrayList<NutzungCustomBean>();
         }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public ArrayList<NutzungBuchungCustomBean> getCurrentBuchungen() {
-        return currentBuchungen;
     }
 
     /**
@@ -538,6 +524,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         }
         return selectedBuchungen;
     }
+
     /**
      * public Set<Nutzung> getCurrentNutzungen() { final Set<Nutzung> currentNutzungen = new HashSet<Nutzung>(); for
      * (NutzungBuchungCustomBean curBuchung : currentBuchungen) { NutzungCustomBean curNutzung =
@@ -563,24 +550,32 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         if (LOG.isDebugEnabled()) {
             LOG.debug("AnzahlNutzungen: " + allNutzungen.size());
         }
-        // TODO wann ändert sich currentDate, nur dann Selection halten?
+
         boolean dateChanged = false;
-        if (currentDate != null) {
-            dateChanged = currentDate.equals(historyDate);
+        if ((currentDate == null) || (historyDate == null)) {
+            if ((currentDate == null) && (historyDate == null)) {
+                dateChanged = false; // both dates are null
+            } else {                 // only one date is null
+                dateChanged = true;
+            }
+        } else {                     // no date is null
+            dateChanged = !currentDate.equals(historyDate);
         }
+
         currentDate = historyDate;
-        currentBuchungen.clear();
+        getCidsBeans().clear();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
             final Collection buchungenForDay = curNutzung.getBuchungForDay(historyDate);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Anzahl buchungen: " + buchungenForDay.size());
             }
-            currentBuchungen.addAll(buchungenForDay);
+            getCidsBeans().addAll(buchungenForDay);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("anzahl rows: " + getRowCount());
         }
         if (dateChanged) {
+            getTable().clearSelection();
             this.fireTableDataChanged();
         } else {
             this.fireTableDataChangedAndKeepSelection();
@@ -594,57 +589,5 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
      */
     public Date getCurrentDate() {
         return currentDate;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   buchung  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public int getIndexOfBuchung(final NutzungBuchungCustomBean buchung) {
-        return currentBuchungen.indexOf(buchung);
-    }
-
-    /**
-     * Methods which must be overriden as this class uses two Arraylists to save its data.
-     *
-     * @param  <C>       DOCUMENT ME!
-     * @param  cidsbean  DOCUMENT ME!
-     */
-    // TODO Jean fragen
-    @Override
-    public <C extends CidsBean> void addCidsBean(final C cidsbean) {
-        addNutzung((NutzungCustomBean)cidsbean);
-    }
-
-    @Override
-    public void removeCidsBean(final int rowIndex) {
-        try {
-            removeNutzung(rowIndex);
-        } catch (TerminateNutzungNotPossibleException ex) {
-            LOG.error("Eine Nutzung konnte nicht entfernt werden", ex);
-            final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
-                    "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
-                            + "sich an den Systemadministrator",
-                    "Fehler beim löschen einer Buchung",
-                    JOptionPane.OK_OPTION);
-        }
-    }
-
-    @Override
-    public <C extends CidsBean> C getCidsBeanAtRow(final int rowIndex) {
-        return (C)getBuchungAtRow(rowIndex);
-    }
-
-    @Override
-    public List<? extends CidsBean> getCidsBeans() {
-        return getAllNutzungen();
-    }
-
-    @Override
-    public void setCidsBeans(final List<? extends CidsBean> cidsBeans) {
-        refreshTableModel(cidsBeans);
     }
 }

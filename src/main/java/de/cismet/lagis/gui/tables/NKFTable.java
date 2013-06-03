@@ -42,7 +42,7 @@ public class NKFTable extends AbstractCidsBeanTable_Lagis {
                         + this.getSelectedRow());
         }
         // removes a Nutzung
-        ((NKFTableModel)getModel()).removeCidsBean(row);
+        ((NKFTableModel)getModel()).removeNutzung(row);
 
         SwingUtilities.invokeLater(new Runnable() {
 

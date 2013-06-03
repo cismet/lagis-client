@@ -328,7 +328,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             final int displayedIndex = componentAdapter.row;
                             final int modelIndex = ((JXTable)tNutzung).getFilters()
                                         .convertRowIndexToModel(displayedIndex);
-                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                            final NutzungBuchungCustomBean n = tableModel.getCidsBeanAtRow(modelIndex);
                             // NO Geometry & more than one Verwaltungsbereich
                             return (n != null) && !n.getIstBuchwert();
                         } else {
@@ -355,7 +355,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             final int displayedIndex = componentAdapter.row;
                             final int modelIndex = ((JXTable)tNutzung).getFilters()
                                         .convertRowIndexToModel(displayedIndex);
-                            final NutzungBuchungCustomBean n = tableModel.getBuchungAtRow(modelIndex);
+                            final NutzungBuchungCustomBean n = tableModel.getCidsBeanAtRow(modelIndex);
                             // NO Geometry & more than one Verwaltungsbereich
                             return ((n != null) && n.getSollGeloeschtWerden());
                         } else {
@@ -412,7 +412,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
                     final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-                    final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
+                    final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
 
                     if (selectedBuchung.isBuchwertFlippable() && LagisBroker.getInstance().isNkfAdminPermission()) {
                         btnFlipBuchung.setEnabled(true);
@@ -724,23 +724,23 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
+    }//GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
             for (int i = 0; i < selectedRows.length; i++) {
                 tNutzung.getSelectedRow();
                 final int index = ((JXTable)tNutzung).convertRowIndexToModel(selectedRows[i]);
-                final NutzungBuchungCustomBean curNutzungToCopy = tableModel.getBuchungAtRow(index);
+                final NutzungBuchungCustomBean curNutzungToCopy = tableModel.getCidsBeanAtRow(index);
                 if (curNutzungToCopy != null) {
                     try {
                         copyPasteList.add(NutzungCustomBean.createNew(curNutzungToCopy.cloneBuchung()));
@@ -759,14 +759,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
+    }//GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -775,20 +775,20 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
+    }//GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Flippe Buchung");
         }
         final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
         if (index != -1) {
-            final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
+            final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
             if (selectedBuchung.isBuchwertFlippable()) {
                 try {
                     selectedBuchung.flipBuchungsBuchwert();
@@ -805,7 +805,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
+    }//GEN-LAST:event_btnFlipBuchungActionPerformed
 
     @Override
     public String getWidgetName() {
@@ -841,7 +841,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             final int selecetdRow = tNutzung.getSelectedRow();
             if (selecetdRow != -1) {
-                final NutzungBuchungCustomBean nutzung = tableModel.getBuchungAtRow(((JXTable)tNutzung)
+                final NutzungBuchungCustomBean nutzung = tableModel.getCidsBeanAtRow(((JXTable)tNutzung)
                                 .convertRowIndexToModel(
                                     selecetdRow));
                 if (cbxChanges.isSelected() && (nutzung != null) && (e.getClickCount() == 2)
@@ -895,7 +895,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 LOG.debug("Es wurde ein Tick gefunden zu dem gesprungen werden kann: " + tickToJump);
             }
             slrHistory.setValue(tickToJump);
-            final int index = tableModel.getIndexOfBuchung(nutzung);
+            final int index = tableModel.getIndexOfCidsBean(nutzung);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("index: " + index);
             }
@@ -940,7 +940,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         // check if selection is still valid
         if (tNutzung.getSelectedRow() != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-            final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
+            final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
             if (selectedBuchung == null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("selectedBuchung nicht länger verfügbar lösche selektierung");
@@ -963,7 +963,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (tNutzung.getSelectedRow() != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             if (index != -1) {
-                final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
+                final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
                 if (selectedBuchung.getIstBuchwert() == true) {
                     btnFlipBuchung.setIcon(icoNotBooked);
                 } else {
@@ -1404,7 +1404,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             // if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null && isInEditMode){
             if (index != -1) {
-                final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
+                final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
                 btnCopyNutzung.setEnabled(true);
                 if (selectedBuchung.getIstBuchwert() == true) {
                     btnFlipBuchung.setIcon(icoNotBooked);
@@ -1617,7 +1617,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 final int rowAtPoint = tNutzung.rowAtPoint(new Point(e.getX(), e.getY()));
                 NutzungBuchungCustomBean selectedNutzung = null;
                 if ((rowAtPoint != -1)
-                            && ((selectedNutzung = tableModel.getBuchungAtRow(
+                            && ((selectedNutzung = tableModel.getCidsBeanAtRow(
                                             ((JXTable)tNutzung).getFilters().convertRowIndexToModel(rowAtPoint)))
                                 != null)
                             && (selectedNutzung.getNutzung() != null)
