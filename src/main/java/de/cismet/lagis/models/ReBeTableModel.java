@@ -148,10 +148,10 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
         if (columnIndex == 0) {
-            return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode()
+            return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isInEditMode()
                         && isReBeKindSwitchAllowed;
         } else {
-            return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isIsInEditMode();
+            return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isInEditMode();
         }
     }
 
