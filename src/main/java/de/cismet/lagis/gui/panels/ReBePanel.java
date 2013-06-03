@@ -485,7 +485,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
 
         btnAddReBe.setEnabled(isEditable);
-        tableModel.setIsInEditMode(isEditable);
+        tableModel.setInEditMode(isEditable);
         if (log.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tReBe).getHighlighters();
 //        if(isEditable){

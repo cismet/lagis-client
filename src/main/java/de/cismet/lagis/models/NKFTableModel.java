@@ -244,7 +244,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         } else {
             return (COLUMN_NAMES.length > columnIndex)
                         && (getRowCount() > rowIndex)
-                        && isIsInEditMode();
+                        && isInEditMode();
                 // && (LagisBroker.getInstance().isNkfAdminPermission());
         }
     }

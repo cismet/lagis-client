@@ -906,7 +906,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 btnRemoveVerwaltung.setEnabled(false);
             }
             // tNutzung.setEnabled(isEditable);
-            tableModel.setIsInEditMode(isEditable);
+            tableModel.setInEditMode(isEditable);
             if (LOG.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tNutzung).getHighlighters();
 //        if(isEditable){

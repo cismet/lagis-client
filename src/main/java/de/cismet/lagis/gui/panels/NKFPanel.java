@@ -400,7 +400,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 LOG.debug("NKFPanel --> setComponentEditable");
             }
             isInEditMode = isEditable;
-            tableModel.setIsInEditMode(isEditable);
+            tableModel.setInEditMode(isEditable);
             if (isEditable) {
                 if (!slrHistory.isEnabled()) {
                     btnAddNutzung.setEnabled(true);
