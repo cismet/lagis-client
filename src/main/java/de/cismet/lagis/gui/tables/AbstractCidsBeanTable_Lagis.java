@@ -24,8 +24,11 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -41,7 +44,7 @@ import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
  * @author   gbaatz
  * @version  $Revision$, $Date$
  */
-public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
+public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements ListSelectionListener {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -52,6 +55,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
     private int previously_sorted_column_index = 0;
     private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     private JToggleButton tbtnSort;
+    private JButton btnUndo;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -60,6 +64,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      */
     public AbstractCidsBeanTable_Lagis() {
         super();
+        this.getSelectionModel().addListSelectionListener(this);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -237,5 +242,40 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable {
      */
     private void btnUndoActionPerformed(final ActionEvent e) {
         ((CidsBeanTableModel_Lagis)getModel()).restoreSelectedCidsBean();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JButton getUndoButton() {
+        return btnUndo;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  btnUndo  DOCUMENT ME!
+     */
+    public void setUndoButton(final JButton btnUndo) {
+        this.btnUndo = btnUndo;
+    }
+
+    /**
+     * Selection changed.
+     *
+     * @param  e  DOCUMENT ME!
+     */
+    @Override
+    public void valueChanged(final ListSelectionEvent e) {
+        super.valueChanged(e);
+        if (btnUndo != null) {
+            if (!((CidsBeanTableModel_Lagis)getModel()).isInEditMode() || (getSelectedRow() == -1)) {
+                btnUndo.setEnabled(false);
+            } else {
+                btnUndo.setEnabled(true);
+            }
+        }
     }
 }
