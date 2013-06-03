@@ -115,6 +115,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
+    private javax.swing.JButton btnUndo;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -285,6 +286,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         tReBe.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tReBe).packAll();
         ((ReBeTable)tReBe).setSortButton(tbtnSort);
+        ((ReBeTable)tReBe).setUndoButton(btnUndo);
     }
 
     /**
@@ -486,6 +488,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         btnAddReBe.setEnabled(isEditable);
         tableModel.setInEditMode(isEditable);
+        btnUndo.setEnabled(false);
         if (log.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tReBe).getHighlighters();
 //        if(isEditable){
@@ -525,6 +528,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         btnRemoveReBe = new javax.swing.JButton();
         btnAddReBe = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
+        btnUndo = new javax.swing.JButton();
 
         tReBe.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tReBe.setModel(new javax.swing.table.DefaultTableModel(
@@ -584,7 +588,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         btnRemoveReBe.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveReBe.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(btnRemoveReBe, gridBagConstraints);
@@ -599,7 +603,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         btnAddReBe.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddReBe.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(btnAddReBe, gridBagConstraints);
@@ -620,6 +624,21 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(tbtnSort, gridBagConstraints);
         tbtnSort.addItemListener(((ReBeTable)tReBe).getSortItemListener());
+
+        btnUndo.setAction(((ReBeTable)tReBe).getUndoAction());
+        btnUndo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
+        btnUndo.setToolTipText("Rückgängig machen");
+        btnUndo.setBorderPainted(false);
+        btnUndo.setContentAreaFilled(false);
+        btnUndo.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(btnUndo, gridBagConstraints);
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
