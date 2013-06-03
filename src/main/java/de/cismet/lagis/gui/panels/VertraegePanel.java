@@ -114,6 +114,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JButton btnRemoveKosten;
     private javax.swing.JButton btnRemoveVertrag;
     private javax.swing.JComboBox cboVertragsart;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -544,6 +545,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddKosten = new javax.swing.JButton();
         btnRemoveKosten = new javax.swing.JButton();
         tbtnSortKosten = new javax.swing.JToggleButton();
+        jButton1 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         tblKosten = new KostenTable();
         panBeschluss = new javax.swing.JPanel();
@@ -958,7 +960,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddKosten.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddKosten.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         pnlKostenControls.add(btnAddKosten, gridBagConstraints);
@@ -973,7 +975,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnRemoveKosten.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveKosten.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         pnlKostenControls.add(btnRemoveKosten, gridBagConstraints);
@@ -995,6 +997,19 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
         pnlKostenControls.add(tbtnSortKosten, gridBagConstraints);
         tbtnSortKosten.addItemListener(((KostenTable)tblKosten).getSortItemListener());
+
+        jButton1.setAction(((KostenTable)tblKosten).getUndoAction());
+        jButton1.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
+        jButton1.setToolTipText("Rückgängig machen");
+        jButton1.setBorderPainted(false);
+        jButton1.setContentAreaFilled(false);
+        jButton1.setMaximumSize(new java.awt.Dimension(25, 25));
+        jButton1.setMinimumSize(new java.awt.Dimension(25, 25));
+        jButton1.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        pnlKostenControls.add(jButton1, gridBagConstraints);
 
         jScrollPane5.setPreferredSize(new java.awt.Dimension(0, 0));
 
