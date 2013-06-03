@@ -563,13 +563,13 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         }
 
         currentDate = historyDate;
-        getCidsBeans().clear();
+        clearCidsBeans();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
             final Collection buchungenForDay = curNutzung.getBuchungForDay(historyDate);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Anzahl buchungen: " + buchungenForDay.size());
             }
-            getCidsBeans().addAll(buchungenForDay);
+            addAllCidsBeans(buchungenForDay);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("anzahl rows: " + getRowCount());

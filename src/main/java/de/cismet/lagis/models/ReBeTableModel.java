@@ -138,7 +138,7 @@ public class ReBeTableModel extends CidsBeanTableModel_Lagis {
             }
             // TODO: Benni: remove CidsBean.delete() call, if removal from ObservedList is sufficient
             reBe.delete();
-            getCidsBeans().remove(rowIndex);
+            removeCidsBean(rowIndex);
             fireTableDataChanged();
         } catch (final Exception ex) {
             LOG.error("An error occurred while removing ReBe from RebeTableModel", ex);
