@@ -170,13 +170,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnRemoveVerwaltung;
+    private javax.swing.JButton btnUndo;
     private javax.swing.JCheckBox cbSperre;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
@@ -770,6 +770,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         tNutzung.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tNutzung).packAll();
         ((VerwaltungsTable)tNutzung).setSortButton(tbtnSort);
+        ((VerwaltungsTable)tNutzung).setUndoButton(btnUndo);
     }
 
     /**
@@ -907,6 +908,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             }
             // tNutzung.setEnabled(isEditable);
             tableModel.setInEditMode(isEditable);
+            btnUndo.setEnabled(false);
             if (LOG.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tNutzung).getHighlighters();
 //        if(isEditable){
@@ -1290,11 +1292,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         lblBemSperre = new javax.swing.JLabel();
         lblWFSInfo = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         btnAddVerwaltung = new javax.swing.JButton();
         btnRemoveVerwaltung = new javax.swing.JButton();
+        btnUndo = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
-        jPanel3 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
 
         cbSperre.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbSperre.addActionListener(new java.awt.event.ActionListener() {
@@ -1345,6 +1347,24 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
+        jPanel3.setMaximumSize(new java.awt.Dimension(10, 10));
+        jPanel3.setMinimumSize(new java.awt.Dimension(10, 10));
+        jPanel3.setPreferredSize(new java.awt.Dimension(10, 10));
+
+        final org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 250, Short.MAX_VALUE));
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 10, Short.MAX_VALUE));
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel2.add(jPanel3, gridBagConstraints);
+
         btnAddVerwaltung.setAction(((VerwaltungsTable)tNutzung).getAddAction());
         btnAddVerwaltung.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
@@ -1355,10 +1375,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnAddVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 50, 0, 0);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         jPanel2.add(btnAddVerwaltung, gridBagConstraints);
 
         btnRemoveVerwaltung.setAction(((VerwaltungsTable)tNutzung).getRemoveAction());
@@ -1374,8 +1394,24 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 50);
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         jPanel2.add(btnRemoveVerwaltung, gridBagConstraints);
+
+        btnUndo.setAction(((VerwaltungsTable)tNutzung).getUndoAction());
+        btnUndo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
+        btnUndo.setToolTipText("Rückgängig machen");
+        btnUndo.setBorderPainted(false);
+        btnUndo.setContentAreaFilled(false);
+        btnUndo.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel2.add(btnUndo, gridBagConstraints);
 
         tbtnSort.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
@@ -1388,46 +1424,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        jPanel2.add(tbtnSort, gridBagConstraints);
-        tbtnSort.addItemListener(((VerwaltungsTable)tNutzung).getSortItemListener());
-
-        jPanel3.setMaximumSize(new java.awt.Dimension(10, 10));
-        jPanel3.setMinimumSize(new java.awt.Dimension(10, 10));
-        jPanel3.setOpaque(false);
-
-        final org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 96, Short.MAX_VALUE));
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 25, Short.MAX_VALUE));
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        jPanel2.add(jPanel3, gridBagConstraints);
-
-        jPanel4.setMaximumSize(new java.awt.Dimension(10, 10));
-        jPanel4.setMinimumSize(new java.awt.Dimension(10, 10));
-        jPanel4.setOpaque(false);
-
-        final org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 96, Short.MAX_VALUE));
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 25, Short.MAX_VALUE));
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        jPanel2.add(jPanel4, gridBagConstraints);
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        jPanel2.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((VerwaltungsTable)tNutzung).getSortItemListener());
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
