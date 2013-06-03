@@ -45,7 +45,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     private final Map<Integer, CidsBean> beanBackups = new HashMap<Integer, CidsBean>();
     private final String[] columnNames;
     private final Class[] columnClasses;
-    private boolean isInEditMode = false;
+    private boolean inEditMode = false;
     private AbstractCidsBeanTable_Lagis table;
 
     //~ Constructors -----------------------------------------------------------
@@ -211,8 +211,8 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      *
      * @return  DOCUMENT ME!
      */
-    public boolean isIsInEditMode() {
-        return isInEditMode;
+    public boolean isInEditMode() {
+        return inEditMode;
     }
 
     /**
@@ -220,13 +220,13 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      *
      * @param  isInEditMode  DOCUMENT ME!
      */
-    public void setIsInEditMode(final boolean isInEditMode) {
-        this.isInEditMode = isInEditMode;
+    public void setInEditMode(final boolean isInEditMode) {
+        this.inEditMode = isInEditMode;
     }
 
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && isInEditMode;
+        return (columnNames.length > columnIndex) && (cidsBeans.size() > rowIndex) && inEditMode;
     }
 
     /**
