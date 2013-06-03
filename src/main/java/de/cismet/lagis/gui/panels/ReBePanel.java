@@ -528,22 +528,46 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         tReBe.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tReBe.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {"Recht", "Baulast", "1", "Wegerecht", "12AZ7095", "28.12.03", "", null},
-                {"Belastung", "Persönliche Dienstbarkeit", "1", "Leitungsrecht", "12HU9994", "09.05.03", "", null}
-            },
-            new String [] {
-                "Recht/Belastung", "Art", "Nummer", "Beschreibung", "Eintragung AZ", "Eintragung Datum", "Löschung AZ", "Löschung Datum"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
+                new Object[][] {
+                    { "Recht", "Baulast", "1", "Wegerecht", "12AZ7095", "28.12.03", "", null },
+                    {
+                        "Belastung",
+                        "Persönliche Dienstbarkeit",
+                        "1",
+                        "Leitungsrecht",
+                        "12HU9994",
+                        "09.05.03",
+                        "",
+                        null
+                    }
+                },
+                new String[] {
+                    "Recht/Belastung",
+                    "Art",
+                    "Nummer",
+                    "Beschreibung",
+                    "Eintragung AZ",
+                    "Eintragung Datum",
+                    "Löschung AZ",
+                    "Löschung Datum"
+                }) {
 
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-        });
+                Class[] types = new Class[] {
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class,
+                        java.lang.String.class
+                    };
+
+                @Override
+                public Class getColumnClass(final int columnIndex) {
+                    return types[columnIndex];
+                }
+            });
         jScrollPane1.setViewportView(tReBe);
 
         jLabel1.setText("Rechte und Belastungen:");
@@ -551,7 +575,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         btnRemoveReBe.setAction(((ReBeTable)tReBe).getRemoveAction());
-        btnRemoveReBe.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveReBe.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveReBe.setBorder(null);
         btnRemoveReBe.setBorderPainted(false);
         btnRemoveReBe.setContentAreaFilled(false);
@@ -565,7 +590,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         jPanel1.add(btnRemoveReBe, gridBagConstraints);
 
         btnAddReBe.setAction(((ReBeTable)tReBe).getAddAction());
-        btnAddReBe.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddReBe.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddReBe.setBorder(null);
         btnAddReBe.setBorderPainted(false);
         btnAddReBe.setContentAreaFilled(false);
@@ -578,14 +604,16 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(btnAddReBe, gridBagConstraints);
 
-        tbtnSort.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
         tbtnSort.setToolTipText("Sortierung An / Aus");
         tbtnSort.setBorderPainted(false);
         tbtnSort.setContentAreaFilled(false);
         tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
-        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -593,32 +621,38 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         jPanel1.add(tbtnSort, gridBagConstraints);
         tbtnSort.addItemListener(((ReBeTable)tReBe).getSortItemListener());
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 631, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                layout.createSequentialGroup().addContainerGap().add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        layout.createSequentialGroup().add(jLabel1).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            jPanel1,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
+                        jScrollPane1,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        631,
+                        Short.MAX_VALUE)).addContainerGap()));
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel1)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-    }// </editor-fold>//GEN-END:initComponents
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                layout.createSequentialGroup().addContainerGap().add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
+                        jPanel1,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jScrollPane1,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    243,
+                    Short.MAX_VALUE).addContainerGap()));
+    } // </editor-fold>//GEN-END:initComponents
 
     // End of variables declaration
     @Override

@@ -1298,10 +1298,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
         cbSperre.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbSperre.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbSperreActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cbSperreActionPerformed(evt);
+                }
+            });
 
         jLabel1.setText("Bemerkung:");
 
@@ -1317,10 +1319,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jSeparator1.setMinimumSize(new java.awt.Dimension(50, 1));
         jSeparator1.setPreferredSize(new java.awt.Dimension(50, 1));
 
-        lblRechte.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"))); // NOI18N
+        lblRechte.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"))); // NOI18N
         lblRechte.setToolTipText("Es sind Rechte vorhanden");
 
-        lblBelastungen.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"))); // NOI18N
+        lblBelastungen.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"))); // NOI18N
         lblBelastungen.setToolTipText("Es sind Belastungen vorhanden");
 
         jPanel1.setLayout(new java.awt.BorderLayout());
@@ -1330,23 +1334,20 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3"
-            }
-        ));
+                new Object[][] {},
+                new String[] { "Title 1", "Title 2", "Title 3" }));
         tNutzung.setToolTipText("");
         tNutzung.setMinimumSize(new java.awt.Dimension(225, 48));
         jScrollPane1.setViewportView(tNutzung);
 
-        lblWFSInfo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"))); // NOI18N
+        lblWFSInfo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"))); // NOI18N
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         btnAddVerwaltung.setAction(((VerwaltungsTable)tNutzung).getAddAction());
-        btnAddVerwaltung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddVerwaltung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVerwaltung.setBorder(null);
         btnAddVerwaltung.setBorderPainted(false);
         btnAddVerwaltung.setContentAreaFilled(false);
@@ -1361,7 +1362,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jPanel2.add(btnAddVerwaltung, gridBagConstraints);
 
         btnRemoveVerwaltung.setAction(((VerwaltungsTable)tNutzung).getRemoveAction());
-        btnRemoveVerwaltung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveVerwaltung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVerwaltung.setBorder(null);
         btnRemoveVerwaltung.setBorderPainted(false);
         btnRemoveVerwaltung.setContentAreaFilled(false);
@@ -1375,11 +1377,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 50);
         jPanel2.add(btnRemoveVerwaltung, gridBagConstraints);
 
-        tbtnSort.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
         tbtnSort.setToolTipText("Sortierung An / Aus");
         tbtnSort.setBorderPainted(false);
         tbtnSort.setContentAreaFilled(false);
-        tbtnSort.setDisabledSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        tbtnSort.setDisabledSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
         tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1393,16 +1397,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jPanel3.setMinimumSize(new java.awt.Dimension(10, 10));
         jPanel3.setOpaque(false);
 
-        org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
+        final org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 96, Short.MAX_VALUE)
-        );
+            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 96, Short.MAX_VALUE));
         jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 25, Short.MAX_VALUE)
-        );
+            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 25, Short.MAX_VALUE));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -1415,16 +1415,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jPanel4.setMinimumSize(new java.awt.Dimension(10, 10));
         jPanel4.setOpaque(false);
 
-        org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
+        final org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 96, Short.MAX_VALUE)
-        );
+            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 96, Short.MAX_VALUE));
         jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 25, Short.MAX_VALUE)
-        );
+            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 25, Short.MAX_VALUE));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -1433,84 +1429,102 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.weightx = 1.0;
         jPanel2.add(jPanel4, gridBagConstraints);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(16, 16, 16)
-                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator2)
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel4)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(cbSperre)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(lblBemSperre, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(lblBelastungen)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(lblRechte)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(lblWFSInfo))
-                            .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jLabel1))
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                layout.createSequentialGroup().add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        layout.createSequentialGroup().addContainerGap().add(
+                            jSeparator1,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE)).add(
+                        layout.createSequentialGroup().add(16, 16, 16).add(
+                            jScrollPane2,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            364,
+                            Short.MAX_VALUE)).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
+                        layout.createSequentialGroup().addContainerGap().add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                                jScrollPane1,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator2).add(
+                                layout.createSequentialGroup().add(jLabel4).addPreferredGap(
+                                    org.jdesktop.layout.LayoutStyle.RELATED).add(cbSperre).addPreferredGap(
+                                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                                    lblBemSperre,
+                                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                                    lblBelastungen).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                                    lblRechte).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                                    lblWFSInfo)).add(
+                                jPanel1,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
+                        layout.createSequentialGroup().addContainerGap().add(jLabel1)).add(
+                        layout.createSequentialGroup().addContainerGap().add(
+                            jPanel2,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            0,
+                            Short.MAX_VALUE))).addContainerGap()));
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(7, 7, 7)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(9, 9, 9)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel4)
-                            .add(cbSperre)
-                            .add(lblBemSperre, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 12, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(lblWFSInfo)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, lblRechte)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, lblBelastungen))))
-                .addContainerGap())
-        );
-    }// </editor-fold>//GEN-END:initComponents
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                org.jdesktop.layout.GroupLayout.TRAILING,
+                layout.createSequentialGroup().addContainerGap().add(
+                    jScrollPane1,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    110,
+                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jPanel2,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(7, 7, 7).add(
+                    jSeparator1,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(jLabel1).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                        jPanel1,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                        jScrollPane2,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                        97,
+                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                    jSeparator2,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        layout.createSequentialGroup().add(9, 9, 9).add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel4).add(
+                                cbSperre).add(
+                                lblBemSperre,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                                12,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
+                        layout.createSequentialGroup().addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(lblWFSInfo).add(
+                                org.jdesktop.layout.GroupLayout.TRAILING,
+                                lblRechte).add(org.jdesktop.layout.GroupLayout.TRAILING, lblBelastungen))))
+                            .addContainerGap()));
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1540,7 +1554,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    }//GEN-LAST:event_cbSperreActionPerformed
+    } //GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!
