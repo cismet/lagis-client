@@ -28,9 +28,9 @@ public class BaumMerkmalCustomBean extends CidsBean implements BaumMerkmal {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Long id;
+    private Integer id;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES;
+    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -62,7 +62,7 @@ public class BaumMerkmalCustomBean extends CidsBean implements BaumMerkmal {
      * @return  DOCUMENT ME!
      */
     @Override
-    public Long getId() {
+    public Integer getId() {
         return this.id;
     }
 
@@ -72,7 +72,7 @@ public class BaumMerkmalCustomBean extends CidsBean implements BaumMerkmal {
      * @param  val  DOCUMENT ME!
      */
     @Override
-    public void setId(final Long val) {
+    public void setId(final Integer val) {
         this.id = val;
 
         this.propertyChangeSupport.firePropertyChange("id", null, this.id);
