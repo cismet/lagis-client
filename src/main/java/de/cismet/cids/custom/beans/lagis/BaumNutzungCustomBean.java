@@ -28,7 +28,7 @@ public class BaumNutzungCustomBean extends CidsBean implements BaumNutzung {
 
     //~ Instance fields --------------------------------------------------------
 
-    private Long id;
+    private Integer id;
     private BaumKategorieAuspraegungCustomBean fk_ausgewaehlte_auspraegung;
     private BaumKategorieCustomBean fk_baum_kategorie;
     private String[] PROPERTY_NAMES = new String[] { "id", "fk_ausgewaehlte_auspraegung", "fk_baum_kategorie" };
@@ -44,7 +44,7 @@ public class BaumNutzungCustomBean extends CidsBean implements BaumNutzung {
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * DOCUMENT ME!
+     * DOCUMENT ME!baummpde.
      *
      * @return  DOCUMENT ME!
      */
@@ -63,7 +63,7 @@ public class BaumNutzungCustomBean extends CidsBean implements BaumNutzung {
      * @return  DOCUMENT ME!
      */
     @Override
-    public Long getId() {
+    public Integer getId() {
         return this.id;
     }
 
@@ -73,7 +73,7 @@ public class BaumNutzungCustomBean extends CidsBean implements BaumNutzung {
      * @param  val  DOCUMENT ME!
      */
     @Override
-    public void setId(final Long val) {
+    public void setId(final Integer val) {
         this.id = val;
 
         this.propertyChangeSupport.firePropertyChange("id", null, this.id);

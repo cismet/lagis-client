@@ -26,14 +26,14 @@ public interface BaumNutzung extends Serializable {
      *
      * @return  DOCUMENT ME!
      */
-    Long getId();
+    Integer getId();
 
     /**
-     * DOCUMENT ME!
+     * Long DOCUMENT ME!
      *
      * @param  id  DOCUMENT ME!
      */
-    void setId(final Long id);
+    void setId(final Integer id);
 
     /**
      * DOCUMENT ME!

@@ -183,8 +183,7 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
         if ((vBereich != null) && (vBereich.getGeometry() != null)) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(vBereich);
         }
-        removeCidsBean(rowIndex);
-        fireTableDataChanged();
+        super.removeCidsBean(rowIndex);
     }
 
     /**

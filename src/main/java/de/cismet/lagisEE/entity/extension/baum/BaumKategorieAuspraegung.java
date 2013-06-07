@@ -27,14 +27,14 @@ public interface BaumKategorieAuspraegung extends Serializable {
      *
      * @return  DOCUMENT ME!
      */
-    Long getId();
+    Integer getId();
 
     /**
      * DOCUMENT ME!
      *
      * @param  val  DOCUMENT ME!
      */
-    void setId(final Long val);
+    void setId(final Integer val);
 
     /**
      * DOCUMENT ME!
