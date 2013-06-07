@@ -389,8 +389,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             tbtnSortBeschluss.setEnabled(isEditable);
             tbtnSortKosten.setEnabled(isEditable);
             tbtnSortVertrag.setEnabled(isEditable);
-            btnUndoBeschluss.setEnabled(false);
-            btnUndoKosten.setEnabled(false);
             documentContainer.getBeschluesseTableModel().setInEditMode(isEditable);
             documentContainer.getKostenTableModel().setInEditMode(isEditable);
             tblKosten.setEnabled(isEditable);
@@ -550,7 +548,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddKosten = new javax.swing.JButton();
         btnRemoveKosten = new javax.swing.JButton();
         tbtnSortKosten = new javax.swing.JToggleButton();
-        btnUndoKosten = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
         tblKosten = new KostenTable();
         panBeschluss = new javax.swing.JPanel();
@@ -560,7 +557,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddBeschluss = new javax.swing.JButton();
         btnRemoveBeschluss = new javax.swing.JButton();
         tbtnSortBeschluss = new javax.swing.JToggleButton();
-        btnUndoBeschluss = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -573,7 +569,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVertrag.setBorder(null);
         btnAddVertrag.setBorderPainted(false);
-        btnAddVertrag.setContentAreaFilled(false);
         btnAddVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -588,7 +583,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVertrag.setBorder(null);
         btnRemoveVertrag.setBorderPainted(false);
-        btnRemoveVertrag.setContentAreaFilled(false);
         btnRemoveVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -622,7 +616,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
         btnAddExitingContract.setBorder(null);
         btnAddExitingContract.setBorderPainted(false);
-        btnAddExitingContract.setContentAreaFilled(false);
         btnAddExitingContract.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddExitingContract.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddExitingContract.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -638,20 +631,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         pnlKostenControls1.add(btnAddExitingContract, gridBagConstraints);
-
-        btnUndoVertrag.setAction(((VertraegeTable)tblVertraege).getUndoAction());
-        btnUndoVertrag.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
-        btnUndoVertrag.setBorderPainted(false);
-        btnUndoVertrag.setContentAreaFilled(false);
-        btnUndoVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
-        btnUndoVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
-        btnUndoVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        pnlKostenControls1.add(btnUndoVertrag, gridBagConstraints);
 
         jLabel1.setText("Verträge:");
 
@@ -975,7 +954,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddKosten.setBorder(null);
         btnAddKosten.setBorderPainted(false);
-        btnAddKosten.setContentAreaFilled(false);
         btnAddKosten.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddKosten.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddKosten.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -990,7 +968,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveKosten.setBorder(null);
         btnRemoveKosten.setBorderPainted(false);
-        btnRemoveKosten.setContentAreaFilled(false);
         btnRemoveKosten.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveKosten.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveKosten.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1018,18 +995,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         pnlKostenControls.add(tbtnSortKosten, gridBagConstraints);
         tbtnSortKosten.addItemListener(((KostenTable)tblKosten).getSortItemListener());
 
-        btnUndoKosten.setAction(((KostenTable)tblKosten).getUndoAction());
-        btnUndoKosten.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
-        btnUndoKosten.setBorderPainted(false);
-        btnUndoKosten.setContentAreaFilled(false);
-        btnUndoKosten.setMaximumSize(new java.awt.Dimension(25, 25));
-        btnUndoKosten.setMinimumSize(new java.awt.Dimension(25, 25));
-        btnUndoKosten.setPreferredSize(new java.awt.Dimension(25, 25));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        pnlKostenControls.add(btnUndoKosten, gridBagConstraints);
-
         jScrollPane5.setPreferredSize(new java.awt.Dimension(0, 0));
 
         tblKosten.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
@@ -1048,7 +1013,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             });
         ((KostenTable)tblKosten).setSortButton(tbtnSortKosten);
-        ((KostenTable)tblKosten).setUndoButton(btnUndoKosten);
         jScrollPane5.setViewportView(tblKosten);
 
         final org.jdesktop.layout.GroupLayout panKostenLayout = new org.jdesktop.layout.GroupLayout(panKosten);
@@ -1099,7 +1063,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             });
         ((BeschluesseTable)tblBeschluesse).setSortButton(tbtnSortBeschluss);
-        ((BeschluesseTable)tblBeschluesse).setUndoButton(btnUndoBeschluss);
         jScrollPane6.setViewportView(tblBeschluesse);
 
         pnlBeschluesseControls.setLayout(new java.awt.GridBagLayout());
@@ -1108,7 +1071,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnAddBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBeschluss.setBorder(null);
-        btnAddBeschluss.setContentAreaFilled(false);
         btnAddBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1122,7 +1084,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBeschluss.setBorder(null);
-        btnRemoveBeschluss.setContentAreaFilled(false);
         btnRemoveBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1148,21 +1109,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
         pnlBeschluesseControls.add(tbtnSortBeschluss, gridBagConstraints);
         tbtnSortBeschluss.addItemListener(((BeschluesseTable)tblBeschluesse).getSortItemListener());
-
-        btnUndoBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getUndoAction());
-        btnUndoBeschluss.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
-        btnUndoBeschluss.setToolTipText("Rückgängig machen");
-        btnUndoBeschluss.setBorderPainted(false);
-        btnUndoBeschluss.setContentAreaFilled(false);
-        btnUndoBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
-        btnUndoBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
-        btnUndoBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        pnlBeschluesseControls.add(btnUndoBeschluss, gridBagConstraints);
 
         final org.jdesktop.layout.GroupLayout panBeschlussLayout = new org.jdesktop.layout.GroupLayout(panBeschluss);
         panBeschluss.setLayout(panBeschlussLayout);

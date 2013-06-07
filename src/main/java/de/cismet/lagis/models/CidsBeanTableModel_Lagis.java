@@ -9,8 +9,6 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.awt.event.ActionEvent;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +20,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.cismap.commons.features.Feature;
+
+import de.cismet.cismap.navigatorplugin.CidsFeature;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
 import de.cismet.lagis.gui.tables.CidsBeanSupport;
@@ -47,6 +51,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     private final Class[] columnClasses;
     private boolean inEditMode = false;
     private AbstractCidsBeanTable_Lagis table;
+    private final HashMap<CidsBean, CidsFeature> featureMap = new HashMap<CidsBean, CidsFeature>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -175,7 +180,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
      */
     public <C extends CidsBean> void addAllCidsBeans(final Collection<C> newCidsBeans) {
         ((List<C>)cidsBeans).addAll(newCidsBeans);
-        for (final CidsBean bean : cidsBeans) {
+        for (final CidsBean bean : newCidsBeans) {
             backupBean(bean);
         }
     }
@@ -363,10 +368,31 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     public void restoreBean(final CidsBean cidsBean) {
         try {
             final CidsBean backupBean = beanBackups.get((Integer)cidsBean.getProperty("id"));
-            CidsBeanSupport.copyAllProperties(backupBean, cidsBean);
-            fireTableDataChangedAndKeepSelection();
+            CidsBeanSupport.deepcopyAllProperties(backupBean, cidsBean);
+
+            if ((cidsBean instanceof Feature) && (((Feature)cidsBean).getGeometry() != null)) {
+                LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature((Feature)cidsBean);
+                LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature((Feature)cidsBean);
+            }
         } catch (Exception ex) {
             LOG.error("error while making backup of bean", ex);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   cidsBean  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public CidsFeature createCidsFeature(final CidsBean cidsBean) {
+        if (cidsBean == null) {
+            return null;
+        }
+        final CidsFeature cidsFeature = new CidsFeature(cidsBean.getMetaObject());
+        cidsFeature.setEditable(isInEditMode());
+        featureMap.put(cidsBean, cidsFeature);
+        return cidsFeature;
     }
 }

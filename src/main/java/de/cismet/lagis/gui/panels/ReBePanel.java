@@ -583,7 +583,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveReBe.setBorder(null);
         btnRemoveReBe.setBorderPainted(false);
-        btnRemoveReBe.setContentAreaFilled(false);
         btnRemoveReBe.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveReBe.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveReBe.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -598,7 +597,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddReBe.setBorder(null);
         btnAddReBe.setBorderPainted(false);
-        btnAddReBe.setContentAreaFilled(false);
         btnAddReBe.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddReBe.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddReBe.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -628,9 +626,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         btnUndo.setAction(((ReBeTable)tReBe).getUndoAction());
         btnUndo.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
-        btnUndo.setToolTipText("Rückgängig machen");
         btnUndo.setBorderPainted(false);
-        btnUndo.setContentAreaFilled(false);
         btnUndo.setMaximumSize(new java.awt.Dimension(25, 25));
         btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
         btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));

@@ -1348,8 +1348,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jPanel3.setMaximumSize(new java.awt.Dimension(10, 10));
-        jPanel3.setMinimumSize(new java.awt.Dimension(10, 10));
-        jPanel3.setPreferredSize(new java.awt.Dimension(10, 10));
 
         final org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -1370,7 +1368,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVerwaltung.setBorder(null);
         btnAddVerwaltung.setBorderPainted(false);
-        btnAddVerwaltung.setContentAreaFilled(false);
         btnAddVerwaltung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1386,7 +1383,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVerwaltung.setBorder(null);
         btnRemoveVerwaltung.setBorderPainted(false);
-        btnRemoveVerwaltung.setContentAreaFilled(false);
         btnRemoveVerwaltung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1402,7 +1398,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
         btnUndo.setToolTipText("Rückgängig machen");
         btnUndo.setBorderPainted(false);
-        btnUndo.setContentAreaFilled(false);
         btnUndo.setMaximumSize(new java.awt.Dimension(25, 25));
         btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
         btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1442,12 +1437,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             jSeparator1,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE)).add(
-                        layout.createSequentialGroup().add(16, 16, 16).add(
-                            jScrollPane2,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            364,
-                            Short.MAX_VALUE)).add(
+                            Short.MAX_VALUE)).add(layout.createSequentialGroup().add(16, 16, 16).add(jScrollPane2)).add(
                         org.jdesktop.layout.GroupLayout.TRAILING,
                         layout.createSequentialGroup().addContainerGap().add(
                             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(

@@ -125,8 +125,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private Date first;
     private Date last;
     private NutzungBuchungCustomBean currentPopupNutzung = null;
-    private int previously_sorted_column_index = 0;
-    private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNutzung;
     private javax.swing.JButton btnCopyNutzung;
@@ -439,7 +437,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 btnRemoveNutzung.setEnabled(false);
                 btnCopyNutzung.setEnabled(false);
             }
-//        }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("NKFPanel --> setComponentEditable finished");
             }
@@ -551,12 +548,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddNutzung.setBorder(null);
         btnAddNutzung.setBorderPainted(false);
-        btnAddNutzung.setContentAreaFilled(false);
         btnAddNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         jPanel1.add(btnAddNutzung, gridBagConstraints);
@@ -566,12 +562,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveNutzung.setBorder(null);
         btnRemoveNutzung.setBorderPainted(false);
-        btnRemoveNutzung.setContentAreaFilled(false);
         btnRemoveNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         jPanel1.add(btnRemoveNutzung, gridBagConstraints);
@@ -580,7 +575,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/pasteNu.png"))); // NOI18N
         btnPasteNutzung.setToolTipText("Buchung einfügen");
         btnPasteNutzung.setBorderPainted(false);
-        btnPasteNutzung.setContentAreaFilled(false);
         btnPasteNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnPasteNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnPasteNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -601,7 +595,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/copyNu.png"))); // NOI18N
         btnCopyNutzung.setToolTipText("Buchung kopieren");
         btnCopyNutzung.setBorderPainted(false);
-        btnCopyNutzung.setContentAreaFilled(false);
         btnCopyNutzung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnCopyNutzung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnCopyNutzung.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -622,7 +615,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/booked.png"))); // NOI18N
         btnFlipBuchung.setToolTipText("Buchwert / kein Buchwert");
         btnFlipBuchung.setBorderPainted(false);
-        btnFlipBuchung.setContentAreaFilled(false);
         btnFlipBuchung.setMaximumSize(new java.awt.Dimension(25, 25));
         btnFlipBuchung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnFlipBuchung.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -724,16 +716,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }//GEN-LAST:event_cbxChangesActionPerformed
+    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
@@ -759,14 +751,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }//GEN-LAST:event_btnCopyNutzungActionPerformed
+    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -775,14 +767,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }//GEN-LAST:event_btnPasteNutzungActionPerformed
+    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Flippe Buchung");
         }
@@ -805,7 +797,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }//GEN-LAST:event_btnFlipBuchungActionPerformed
+    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
 
     @Override
     public String getWidgetName() {

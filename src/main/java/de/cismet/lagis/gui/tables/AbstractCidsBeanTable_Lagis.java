@@ -135,7 +135,9 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      * @param  evt  DOCUMENT ME!
      */
     protected void btnAddActionPerformed(final ActionEvent evt) {
-        getSortButton().setSelected(true);
+        if (tbtnSort != null) {
+            tbtnSort.setSelected(true);
+        }
         this.setSortable(false);
         addNewItem();
         if (SwingUtilities.isEventDispatchThread()) {
