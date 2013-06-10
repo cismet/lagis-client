@@ -643,21 +643,21 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
+    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveReBeActionPerformed
         final int currentRow = tReBe.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
-    } //GEN-LAST:event_btnRemoveReBeActionPerformed
+    }//GEN-LAST:event_btnRemoveReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
+    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddReBeActionPerformed
         try {
             final RebeCustomBean tmpReBe = RebeCustomBean.createNew();
             if (isInAbteilungIXModus) {
@@ -669,7 +669,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         } catch (Exception ex) {
             log.error("error creating rebe bean", ex);
         }
-    } //GEN-LAST:event_btnAddReBeActionPerformed
+    }//GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {
@@ -780,8 +780,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         if (features.isEmpty()) {
             return;
         }
-
-        tReBe.clearSelection();
+        tReBe.getSelectionModel().removeListSelectionListener(this);
         Feature wrappedFeature;
         for (final Feature feature : features) {
             if (feature instanceof StyledFeatureGroupWrapper) {
@@ -806,6 +805,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 }
             }
         }
+        tReBe.getSelectionModel().addListSelectionListener(this);
     }
 
     // TODO WHAT IS IT GOOD FOR
