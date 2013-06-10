@@ -1028,52 +1028,37 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("FeatureSelection Changed");
+        tNutzung.getSelectionModel().removeListSelectionListener(this);
+        if (features.size() == 0) {
+            return;
+        }
+        tNutzung.clearSelection();
+        Feature wrappedFeature;
+        for (final Feature feature : features) {
+            if (feature instanceof StyledFeatureGroupWrapper) {
+                wrappedFeature = ((StyledFeatureGroupWrapper)feature).getFeature();
+            } else {
+                wrappedFeature = feature;
             }
-            // tNutzung.getSelectionModel().removeListSelectionListener(this);
-            if (features.size() == 0) {
-                return;
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Features Selected :" + features.size());
-            }
-            for (final Feature feature : features) {
-                if (feature instanceof VerwaltungsbereichCustomBean) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Feature ist Verwaltungsbereich");
-                    }
-                    // TODO Refactor Name
-                    final int index = tableModel.getIndexOfVerwaltungsbereich((VerwaltungsbereichCustomBean)feature);
-                    final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
-                    if ((index != -1)
-                                && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-                                    feature)) {
-                        if (log.isDebugEnabled()) {
-                            // tNutzung.changeSelection(((JXTable)tNutzung).getFilters().convertRowIndexToView(index),0,false,false);
-                            log.debug("Ist EDT: " + EventQueue.isDispatchThread());
-                        }
-                        if (log.isDebugEnabled()) {
-                            log.debug("displayed index: " + displayedIndex);
-                        }
-                        tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                        final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
-                        if (tmp != null) {
-                            tNutzung.scrollRectToVisible(tmp);
-                        }
-                    } else {
-                        tNutzung.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
+            if (wrappedFeature instanceof VerwaltungsbereichCustomBean) {
+                // TODO Refactor Name
+                final int index = tableModel.getIndexOfVerwaltungsbereich((VerwaltungsbereichCustomBean)wrappedFeature);
+                final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
+                if ((index != -1)
+                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
+                                feature)) {
+                    tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
+                    final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
+                    if (tmp != null) {
+                        tNutzung.scrollRectToVisible(tmp);
                     }
                 } else {
-                    tNutzung.clearSelection();
+                    tNutzung.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
                 }
             }
-        } catch (Exception ex) {
-            log.error("Fehler beim featurechanged: ", ex);
         }
-        // tNutzung.getSelectionModel().addListSelectionListener(this);
-        tNutzung.repaint();
+        tNutzung.getSelectionModel().addListSelectionListener(this);
+        // tNutzung.repaint();
     }
 
     // TODO WHAT IS IT GOOD FOR
