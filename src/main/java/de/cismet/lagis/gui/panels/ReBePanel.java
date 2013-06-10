@@ -780,7 +780,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        for (final Feature feature : features) {
+        for (Feature feature : features) {
+            if (feature instanceof StyledFeatureGroupWrapper) {
+                feature = ((StyledFeatureGroupWrapper)feature).getFeature();
+            }
             if (feature instanceof RebeCustomBean) {
                 // TODO Refactor Name
                 final int index = tableModel.getIndexOfReBe((RebeCustomBean)feature);
