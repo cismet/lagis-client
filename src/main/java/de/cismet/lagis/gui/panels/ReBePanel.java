@@ -776,22 +776,26 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
+        // Hint: features does contain selected and deselected features
         if (features.isEmpty()) {
             return;
         }
 
-        for (Feature feature : features) {
+        tReBe.clearSelection();
+        Feature wrappedFeature;
+        for (final Feature feature : features) {
             if (feature instanceof StyledFeatureGroupWrapper) {
-                feature = ((StyledFeatureGroupWrapper)feature).getFeature();
+                wrappedFeature = ((StyledFeatureGroupWrapper)feature).getFeature();
+            } else {
+                wrappedFeature = feature;
             }
-            if (feature instanceof RebeCustomBean) {
+            if (wrappedFeature instanceof RebeCustomBean) {
                 // TODO Refactor Name
-                final int index = tableModel.getIndexOfReBe((RebeCustomBean)feature);
+                final int index = tableModel.getIndexOfReBe((RebeCustomBean)wrappedFeature);
                 final int displayedIndex = ((JXTable)tReBe).getFilters().convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
                                 feature)) {
-                    // tReBe.changeSelection(((JXTable)tReBe).getFilters().convertRowIndexToView(index),0,false,false);
                     tReBe.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
                     final Rectangle tmp = tReBe.getCellRect(displayedIndex, 0, true);
                     if (tmp != null) {
@@ -800,8 +804,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 } else {
                     tReBe.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
                 }
-            } else {
-                tReBe.clearSelection();
             }
         }
     }
