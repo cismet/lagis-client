@@ -1030,11 +1030,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        tNutzung.getSelectionModel().removeListSelectionListener(this);
-        if (features.size() == 0) {
+        if (features.isEmpty()) {
             return;
         }
-        tNutzung.clearSelection();
+        tNutzung.getSelectionModel().removeListSelectionListener(this);
         Feature wrappedFeature;
         for (final Feature feature : features) {
             if (feature instanceof StyledFeatureGroupWrapper) {
@@ -1060,7 +1059,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             }
         }
         tNutzung.getSelectionModel().addListSelectionListener(this);
-        // tNutzung.repaint();
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -1071,10 +1069,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
-        if (log.isDebugEnabled()) {
-            log.debug("SelectionChanged", new CurrentStackTrace());
-            log.debug("EventSource: " + e.getSource());
+        if (e.getValueIsAdjusting() == true) {
+            return;
         }
+        this.setFeatureSelectionChangedEnabled(false);
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tNutzung.getSelectedRow() != -1) {
             if (isInEditMode) {
@@ -1082,20 +1080,25 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             } else {
                 btnRemoveVerwaltung.setEnabled(false);
             }
-            final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
-            if ((index != -1) && (tNutzung.getSelectedRowCount() <= 1)) {
-                final VerwaltungsbereichCustomBean selectedVerwaltungsbereich = tableModel.getVerwaltungsbereichAtRow(
-                        index);
-                if ((selectedVerwaltungsbereich != null) && (selectedVerwaltungsbereich.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedVerwaltungsbereich)) {
-                    mappingComp.getFeatureCollection().select(selectedVerwaltungsbereich);
+            boolean firstIteration = true;
+            for (final int row : tNutzung.getSelectedRows()) {
+                final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(row);
+                if ((index != -1)) {
+                    final VerwaltungsbereichCustomBean selectedReBe = tableModel.getVerwaltungsbereichAtRow(index);
+                    if ((selectedReBe.getGeometry() != null)) {
+                        if (firstIteration) {
+                            mappingComp.getFeatureCollection().select(selectedReBe);
+                            firstIteration = false;
+                        } else {
+                            mappingComp.getFeatureCollection().addToSelection(selectedReBe);
+                        }
+                    }
                 }
             }
         } else {
             btnRemoveVerwaltung.setEnabled(false);
-            return;
         }
-        tNutzung.repaint();
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     @Override
