@@ -786,21 +786,13 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
-        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tReBe.getSelectedRow() != -1) {
             if (isInEditMode) {
                 btnRemoveReBe.setEnabled(true);
             } else {
                 btnRemoveReBe.setEnabled(false);
             }
-            final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(tReBe.getSelectedRow());
-            if ((index != -1) && (tReBe.getSelectedRowCount() <= 1)) {
-                final RebeCustomBean selectedReBe = tableModel.getCidsBeanAtRow(index);
-                if ((selectedReBe.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedReBe)) {
-                    mappingComp.getFeatureCollection().select(selectedReBe);
-                }
-            }
+            ((ReBeTable)tReBe).valueChanged_updateFeatures(this, e);
         } else {
             btnRemoveReBe.setEnabled(false);
             return;

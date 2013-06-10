@@ -35,9 +35,12 @@ import javax.swing.table.TableModel;
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.features.Feature;
+import de.cismet.cismap.commons.features.StyledFeature;
+import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.LagisBroker;
+import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
 
@@ -287,6 +290,35 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
                 btnUndo.setEnabled(true);
             }
         }
+    }
+    
+        public void valueChanged_updateFeatures(FeatureSelectionChangedListener panel, final ListSelectionEvent e) {
+        if (e.getValueIsAdjusting() == true) {
+            return;
+        }
+
+        panel.setFeatureSelectionChangedEnabled(false);
+        final int[] selectedRows = this.getSelectedRows();
+        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
+        boolean firstIteration = true;
+        for (final int row : this.getSelectedRows()) {
+            final int index = this.getFilters().convertRowIndexToModel(row);
+            if ((index != -1)) {
+                final StyledFeature selectedBaum = ((CidsBeanTableModel_Lagis)getModel()).getCidsBeanAtRow(index);
+                if ((selectedBaum.getGeometry() != null)) {
+                    if (firstIteration) {
+                        mappingComp.getFeatureCollection().select(selectedBaum);
+                        firstIteration = false;
+                    } else {
+                        mappingComp.getFeatureCollection().addToSelection(selectedBaum);
+                    }
+                } else if (selectedRows.length == 1) { // if the only selected element has no feature
+                    mappingComp.getFeatureCollection().unselectAll();
+                }
+            }
+        }
+
+        panel.setFeatureSelectionChangedEnabled(true);
     }
 
     /**

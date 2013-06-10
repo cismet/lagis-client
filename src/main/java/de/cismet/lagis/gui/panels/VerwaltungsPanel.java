@@ -1074,22 +1074,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             LOG.debug("SelectionChanged", new CurrentStackTrace());
             LOG.debug("EventSource: " + e.getSource());
         }
-        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tNutzung.getSelectedRow() != -1) {
             if (isInEditMode) {
                 btnRemoveVerwaltung.setEnabled(true);
             } else {
                 btnRemoveVerwaltung.setEnabled(false);
             }
-            final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
-            if ((index != -1) && (tNutzung.getSelectedRowCount() <= 1)) {
-                final VerwaltungsbereichCustomBean selectedVerwaltungsbereich = tableModel.getCidsBeanAtRow(
-                        index);
-                if ((selectedVerwaltungsbereich != null) && (selectedVerwaltungsbereich.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedVerwaltungsbereich)) {
-                    mappingComp.getFeatureCollection().select(selectedVerwaltungsbereich);
-                }
-            }
+            ((VerwaltungsTable)tNutzung).valueChanged_updateFeatures(this, e);
         } else {
             btnRemoveVerwaltung.setEnabled(false);
             return;
@@ -1471,7 +1462,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1501,7 +1492,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    } //GEN-LAST:event_cbSperreActionPerformed
+    }//GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!
