@@ -645,21 +645,21 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveReBeActionPerformed
+    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
         final int currentRow = tReBe.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
             tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
             tableModel.fireTableDataChanged();
         }
-    }//GEN-LAST:event_btnRemoveReBeActionPerformed
+    } //GEN-LAST:event_btnRemoveReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddReBeActionPerformed
+    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
         try {
             final RebeCustomBean tmpReBe = RebeCustomBean.createNew();
             if (isInAbteilungIXModus) {
@@ -671,7 +671,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         } catch (Exception ex) {
             log.error("error creating rebe bean", ex);
         }
-    }//GEN-LAST:event_btnAddReBeActionPerformed
+    } //GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {
@@ -818,6 +818,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
+        if (e.getValueIsAdjusting() == true) {
+            return;
+        }
+        this.setFeatureSelectionChangedEnabled(false);
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tReBe.getSelectedRow() != -1) {
             if (isInEditMode) {
@@ -825,18 +829,25 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             } else {
                 btnRemoveReBe.setEnabled(false);
             }
-            final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(tReBe.getSelectedRow());
-            if ((index != -1) && (tReBe.getSelectedRowCount() <= 1)) {
-                final RebeCustomBean selectedReBe = tableModel.getReBeAtRow(index);
-                if ((selectedReBe.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedReBe)) {
-                    mappingComp.getFeatureCollection().select(selectedReBe);
+            boolean firstIteration = true;
+            for (final int row : tReBe.getSelectedRows()) {
+                final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(row);
+                if ((index != -1)) {
+                    final RebeCustomBean selectedReBe = tableModel.getReBeAtRow(index);
+                    if ((selectedReBe.getGeometry() != null)) {
+                        if (firstIteration) {
+                            mappingComp.getFeatureCollection().select(selectedReBe);
+                            firstIteration = false;
+                        } else {
+                            mappingComp.getFeatureCollection().addToSelection(selectedReBe);
+                        }
+                    }
                 }
             }
         } else {
             btnRemoveReBe.setEnabled(false);
-            return;
         }
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     // TODO USE
