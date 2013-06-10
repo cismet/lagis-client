@@ -164,6 +164,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private Vector<Validator> validators = new Vector<Validator>();
     private final Icon copyDisplayIcon;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnRemoveVerwaltung;
@@ -1538,5 +1540,14 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof VerwaltungsbereichCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }

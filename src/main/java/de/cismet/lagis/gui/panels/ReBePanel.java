@@ -111,6 +111,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private boolean isInAbteilungIXModus = false;
     private final Icon copyDisplayIcon;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
@@ -891,5 +893,14 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof RebeCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }
