@@ -1073,6 +1073,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             return;
         }
         this.setFeatureSelectionChangedEnabled(false);
+        final int[] selectedRows = tNutzung.getSelectedRows();
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tNutzung.getSelectedRow() != -1) {
             if (isInEditMode) {
@@ -1081,17 +1082,20 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 btnRemoveVerwaltung.setEnabled(false);
             }
             boolean firstIteration = true;
-            for (final int row : tNutzung.getSelectedRows()) {
+            for (final int row : selectedRows) {
                 final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(row);
                 if ((index != -1)) {
-                    final VerwaltungsbereichCustomBean selectedReBe = tableModel.getVerwaltungsbereichAtRow(index);
-                    if ((selectedReBe.getGeometry() != null)) {
+                    final VerwaltungsbereichCustomBean selectedVerwaltung = tableModel.getVerwaltungsbereichAtRow(
+                            index);
+                    if ((selectedVerwaltung.getGeometry() != null)) {
                         if (firstIteration) {
-                            mappingComp.getFeatureCollection().select(selectedReBe);
+                            mappingComp.getFeatureCollection().select(selectedVerwaltung);
                             firstIteration = false;
                         } else {
-                            mappingComp.getFeatureCollection().addToSelection(selectedReBe);
+                            mappingComp.getFeatureCollection().addToSelection(selectedVerwaltung);
                         }
+                    } else if (selectedRows.length == 1) { // if the only selected element has no feature
+                        mappingComp.getFeatureCollection().unselectAll();
                     }
                 }
             }

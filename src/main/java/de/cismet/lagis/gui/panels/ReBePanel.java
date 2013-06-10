@@ -823,14 +823,15 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
         this.setFeatureSelectionChangedEnabled(false);
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
-        if (tReBe.getSelectedRow() != -1) {
+        final int[] selectedRows = tReBe.getSelectedRows();
+        if (selectedRows.length > 0) {
             if (isInEditMode) {
                 btnRemoveReBe.setEnabled(true);
             } else {
                 btnRemoveReBe.setEnabled(false);
             }
             boolean firstIteration = true;
-            for (final int row : tReBe.getSelectedRows()) {
+            for (final int row : selectedRows) {
                 final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(row);
                 if ((index != -1)) {
                     final RebeCustomBean selectedReBe = tableModel.getReBeAtRow(index);
@@ -841,6 +842,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                         } else {
                             mappingComp.getFeatureCollection().addToSelection(selectedReBe);
                         }
+                    } else if (selectedRows.length == 1) { // if the only selected element has no feature
+                        mappingComp.getFeatureCollection().unselectAll();
                     }
                 }
             }
