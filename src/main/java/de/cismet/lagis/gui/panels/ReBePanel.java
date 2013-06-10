@@ -112,6 +112,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private final Icon copyDisplayIcon;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
@@ -775,7 +777,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        ((ReBeTable)tReBe).featureSelectionChanged(features);
+        ((ReBeTable)tReBe).featureSelectionChanged(this, features);
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -853,5 +855,14 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof RebeCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }

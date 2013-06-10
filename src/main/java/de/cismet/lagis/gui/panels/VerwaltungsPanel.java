@@ -167,6 +167,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private Vector<Validator> validators = new Vector<Validator>();
     private final Icon copyDisplayIcon;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnRemoveVerwaltung;
@@ -1059,7 +1061,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        ((VerwaltungsTable)tNutzung).featureSelectionChanged(features);
+        ((VerwaltungsTable)tNutzung).featureSelectionChanged(this, features);
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -1462,7 +1464,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1492,7 +1494,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    }//GEN-LAST:event_cbSperreActionPerformed
+    } //GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1540,5 +1542,14 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof VerwaltungsbereichCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }

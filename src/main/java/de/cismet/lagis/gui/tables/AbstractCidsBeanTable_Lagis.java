@@ -40,9 +40,12 @@ import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.LagisBroker;
+
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
+
+import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 
@@ -291,8 +294,14 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
             }
         }
     }
-    
-        public void valueChanged_updateFeatures(FeatureSelectionChangedListener panel, final ListSelectionEvent e) {
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  panel  DOCUMENT ME!
+     * @param  e      DOCUMENT ME!
+     */
+    public void valueChanged_updateFeatures(final FeatureSelectionChangedListener panel, final ListSelectionEvent e) {
         if (e.getValueIsAdjusting() == true) {
             return;
         }
@@ -325,14 +334,16 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      * DOCUMENT ME!
      *
      * @param  <C>       DOCUMENT ME!
+     * @param  panel     DOCUMENT ME!
      * @param  features  DOCUMENT ME!
      */
-    public <C extends BasicEntity> void featureSelectionChanged(final Collection<Feature> features) {
+    public <C extends BasicEntity> void featureSelectionChanged(final ListSelectionListener panel,
+            final Collection<Feature> features) {
         // Hint: features contain selected and deselected features
         if (features.isEmpty()) {
             return;
         }
-        this.getSelectionModel().removeListSelectionListener(this);
+        this.getSelectionModel().removeListSelectionListener(panel);
         Feature wrappedFeature;
         for (final Feature feature : features) {
             if (feature instanceof StyledFeatureGroupWrapper) {
@@ -357,6 +368,6 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
                 }
             }
         }
-        this.getSelectionModel().addListSelectionListener(this);
+        this.getSelectionModel().addListSelectionListener(panel);
     }
 }
