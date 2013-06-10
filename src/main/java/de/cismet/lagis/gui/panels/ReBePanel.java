@@ -775,31 +775,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        if (features.isEmpty()) {
-            return;
-        }
-
-        for (final Feature feature : features) {
-            if (feature instanceof RebeCustomBean) {
-                // TODO Refactor Name
-                final int index = tableModel.getIndexOfCidsBean((RebeCustomBean)feature);
-                final int displayedIndex = ((JXTable)tReBe).getFilters().convertRowIndexToView(index);
-                if ((index != -1)
-                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-                                feature)) {
-                    // tReBe.changeSelection(((JXTable)tReBe).getFilters().convertRowIndexToView(index),0,false,false);
-                    tReBe.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                    final Rectangle tmp = tReBe.getCellRect(displayedIndex, 0, true);
-                    if (tmp != null) {
-                        tReBe.scrollRectToVisible(tmp);
-                    }
-                } else {
-                    tReBe.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
-                }
-            } else {
-                tReBe.clearSelection();
-            }
-        }
+        ((ReBeTable)tReBe).featureSelectionChanged(features);
     }
 
     // TODO WHAT IS IT GOOD FOR

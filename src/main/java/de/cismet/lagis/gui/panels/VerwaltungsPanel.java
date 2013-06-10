@@ -1059,52 +1059,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("FeatureSelection Changed");
-            }
-            // tNutzung.getSelectionModel().removeListSelectionListener(this);
-            if (features.isEmpty()) {
-                return;
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Features Selected :" + features.size());
-            }
-            for (final Feature feature : features) {
-                if (feature instanceof VerwaltungsbereichCustomBean) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Feature ist Verwaltungsbereich");
-                    }
-                    // TODO Refactor Name
-                    final int index = tableModel.getIndexOfCidsBean((VerwaltungsbereichCustomBean)feature);
-                    final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
-                    if ((index != -1)
-                                && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-                                    feature)) {
-                        if (LOG.isDebugEnabled()) {
-                            // tNutzung.changeSelection(((JXTable)tNutzung).getFilters().convertRowIndexToView(index),0,false,false);
-                            LOG.debug("Ist EDT: " + EventQueue.isDispatchThread());
-                        }
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("displayed index: " + displayedIndex);
-                        }
-                        tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                        final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
-                        if (tmp != null) {
-                            tNutzung.scrollRectToVisible(tmp);
-                        }
-                    } else {
-                        tNutzung.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
-                    }
-                } else {
-                    tNutzung.clearSelection();
-                }
-            }
-        } catch (Exception ex) {
-            LOG.error("Fehler beim featurechanged: ", ex);
-        }
-        // tNutzung.getSelectionModel().addListSelectionListener(this);
-        tNutzung.repaint();
+        ((VerwaltungsTable)tNutzung).featureSelectionChanged(features);
     }
 
     // TODO WHAT IS IT GOOD FOR

@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.SortOrder;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -33,7 +34,14 @@ import javax.swing.table.TableModel;
 
 import de.cismet.cids.dynamics.CidsBean;
 
+import de.cismet.cismap.commons.features.Feature;
+import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
+
+import de.cismet.lagis.broker.LagisBroker;
+
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
+
+import de.cismet.lagisEE.entity.basic.BasicEntity;
 
 /**
  * Parent class of several Tables. It provides a NewItem action, a RemoveItem action and a SortItem Listener. These
@@ -279,5 +287,44 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
                 btnUndo.setEnabled(true);
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  <C>       DOCUMENT ME!
+     * @param  features  DOCUMENT ME!
+     */
+    public <C extends BasicEntity> void featureSelectionChanged(final Collection<Feature> features) {
+        // Hint: features contain selected and deselected features
+        if (features.isEmpty()) {
+            return;
+        }
+        this.getSelectionModel().removeListSelectionListener(this);
+        Feature wrappedFeature;
+        for (final Feature feature : features) {
+            if (feature instanceof StyledFeatureGroupWrapper) {
+                wrappedFeature = ((StyledFeatureGroupWrapper)feature).getFeature();
+            } else {
+                wrappedFeature = feature;
+            }
+            if (wrappedFeature instanceof BasicEntity) {
+                // TODO Refactor Name
+                final int index = ((CidsBeanTableModel_Lagis)getModel()).getIndexOfCidsBean((C)wrappedFeature);
+                final int displayedIndex = this.getFilters().convertRowIndexToView(index);
+                if ((index != -1)
+                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
+                                feature)) {
+                    this.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
+                    final Rectangle tmp = this.getCellRect(displayedIndex, 0, true);
+                    if (tmp != null) {
+                        this.scrollRectToVisible(tmp);
+                    }
+                } else {
+                    this.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
+                }
+            }
+        }
+        this.getSelectionModel().addListSelectionListener(this);
     }
 }
