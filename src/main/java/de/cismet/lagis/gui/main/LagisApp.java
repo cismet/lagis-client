@@ -313,6 +313,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private FlurstueckInfoClipboard fsInfoClipboard;
     private JDialog alkisRendererDialog;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAcceptChanges;
     private javax.swing.JButton btnAktenzeichenSuche;
@@ -3707,6 +3709,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     private MappingComponent getMapComponent() {
         return mapComponent;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 
     //~ Inner Classes ----------------------------------------------------------

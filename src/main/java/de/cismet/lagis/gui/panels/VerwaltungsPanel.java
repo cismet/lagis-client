@@ -164,6 +164,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private Vector<Validator> validators = new Vector<Validator>();
     private final Icon copyDisplayIcon;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnRemoveVerwaltung;
@@ -1028,52 +1030,35 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("FeatureSelection Changed");
+        if (features.isEmpty()) {
+            return;
+        }
+        tNutzung.getSelectionModel().removeListSelectionListener(this);
+        Feature wrappedFeature;
+        for (final Feature feature : features) {
+            if (feature instanceof StyledFeatureGroupWrapper) {
+                wrappedFeature = ((StyledFeatureGroupWrapper)feature).getFeature();
+            } else {
+                wrappedFeature = feature;
             }
-            // tNutzung.getSelectionModel().removeListSelectionListener(this);
-            if (features.size() == 0) {
-                return;
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("Features Selected :" + features.size());
-            }
-            for (final Feature feature : features) {
-                if (feature instanceof VerwaltungsbereichCustomBean) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Feature ist Verwaltungsbereich");
-                    }
-                    // TODO Refactor Name
-                    final int index = tableModel.getIndexOfVerwaltungsbereich((VerwaltungsbereichCustomBean)feature);
-                    final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
-                    if ((index != -1)
-                                && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-                                    feature)) {
-                        if (log.isDebugEnabled()) {
-                            // tNutzung.changeSelection(((JXTable)tNutzung).getFilters().convertRowIndexToView(index),0,false,false);
-                            log.debug("Ist EDT: " + EventQueue.isDispatchThread());
-                        }
-                        if (log.isDebugEnabled()) {
-                            log.debug("displayed index: " + displayedIndex);
-                        }
-                        tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                        final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
-                        if (tmp != null) {
-                            tNutzung.scrollRectToVisible(tmp);
-                        }
-                    } else {
-                        tNutzung.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
+            if (wrappedFeature instanceof VerwaltungsbereichCustomBean) {
+                // TODO Refactor Name
+                final int index = tableModel.getIndexOfVerwaltungsbereich((VerwaltungsbereichCustomBean)wrappedFeature);
+                final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
+                if ((index != -1)
+                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
+                                feature)) {
+                    tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
+                    final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
+                    if (tmp != null) {
+                        tNutzung.scrollRectToVisible(tmp);
                     }
                 } else {
-                    tNutzung.clearSelection();
+                    tNutzung.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
                 }
             }
-        } catch (Exception ex) {
-            log.error("Fehler beim featurechanged: ", ex);
         }
-        // tNutzung.getSelectionModel().addListSelectionListener(this);
-        tNutzung.repaint();
+        tNutzung.getSelectionModel().addListSelectionListener(this);
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -1084,10 +1069,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
-        if (log.isDebugEnabled()) {
-            log.debug("SelectionChanged", new CurrentStackTrace());
-            log.debug("EventSource: " + e.getSource());
+        if (e.getValueIsAdjusting() == true) {
+            return;
         }
+        this.setFeatureSelectionChangedEnabled(false);
+        final int[] selectedRows = tNutzung.getSelectedRows();
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tNutzung.getSelectedRow() != -1) {
             if (isInEditMode) {
@@ -1095,20 +1081,28 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             } else {
                 btnRemoveVerwaltung.setEnabled(false);
             }
-            final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
-            if ((index != -1) && (tNutzung.getSelectedRowCount() <= 1)) {
-                final VerwaltungsbereichCustomBean selectedVerwaltungsbereich = tableModel.getVerwaltungsbereichAtRow(
-                        index);
-                if ((selectedVerwaltungsbereich != null) && (selectedVerwaltungsbereich.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedVerwaltungsbereich)) {
-                    mappingComp.getFeatureCollection().select(selectedVerwaltungsbereich);
+            boolean firstIteration = true;
+            for (final int row : selectedRows) {
+                final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(row);
+                if ((index != -1)) {
+                    final VerwaltungsbereichCustomBean selectedVerwaltung = tableModel.getVerwaltungsbereichAtRow(
+                            index);
+                    if ((selectedVerwaltung.getGeometry() != null)) {
+                        if (firstIteration) {
+                            mappingComp.getFeatureCollection().select(selectedVerwaltung);
+                            firstIteration = false;
+                        } else {
+                            mappingComp.getFeatureCollection().addToSelection(selectedVerwaltung);
+                        }
+                    } else if (selectedRows.length == 1) { // if the only selected element has no feature
+                        mappingComp.getFeatureCollection().unselectAll();
+                    }
                 }
             }
         } else {
             btnRemoveVerwaltung.setEnabled(false);
-            return;
         }
-        tNutzung.repaint();
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     @Override
@@ -1553,5 +1547,14 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof VerwaltungsbereichCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }
