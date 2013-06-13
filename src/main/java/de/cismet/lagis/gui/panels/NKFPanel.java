@@ -127,6 +127,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private javax.swing.JButton btnCopyNutzung;
     private javax.swing.JButton btnFlipBuchung;
     private javax.swing.JButton btnPasteNutzung;
+    private javax.swing.JButton btnRemoveHistoricalNutzung;
     private javax.swing.JButton btnRemoveNutzung;
     private javax.swing.JCheckBox cbxChanges;
     private javax.swing.JLabel jLabel1;
@@ -159,6 +160,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         slrHistory.setEnabled(false);
         cbxChanges.setEnabled(false);
         btnRemoveNutzung.setEnabled(false);
+        btnRemoveHistoricalNutzung.setEnabled(false);
         btnAddNutzung.setEnabled(false);
         btnFlipBuchung.setEnabled(false);
         configureTable();
@@ -397,6 +399,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         // TODO NKF Testen
                         if (selectedBuchung.getGueltigbis() == null) {
                             btnRemoveNutzung.setEnabled(true);
+                        } else {
+                            btnRemoveHistoricalNutzung.setEnabled(true);
                         }
                     }
                 }
@@ -442,6 +446,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        btnRemoveHistoricalNutzung = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tNutzung = new JXTable();
         jLabel1 = new javax.swing.JLabel();
@@ -458,6 +463,21 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         btnCopyNutzung = new javax.swing.JButton();
         btnFlipBuchung = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
+
+        btnRemoveHistoricalNutzung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveHistoricalNutzung.setBorder(null);
+        btnRemoveHistoricalNutzung.setBorderPainted(false);
+        btnRemoveHistoricalNutzung.setMaximumSize(new java.awt.Dimension(56, 32));
+        btnRemoveHistoricalNutzung.setMinimumSize(new java.awt.Dimension(56, 32));
+        btnRemoveHistoricalNutzung.setPreferredSize(new java.awt.Dimension(56, 32));
+        btnRemoveHistoricalNutzung.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemoveHistoricalNutzungActionPerformed(evt);
+                }
+            });
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
@@ -605,12 +625,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         org.jdesktop.layout.GroupLayout.LEADING,
                         jScrollPane1,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        574,
+                        603,
                         Short.MAX_VALUE).add(
                         layout.createSequentialGroup().add(jLabel1).addPreferredGap(
                             org.jdesktop.layout.LayoutStyle.RELATED,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             Short.MAX_VALUE).add(
+                            btnRemoveHistoricalNutzung,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            28,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
+                            org.jdesktop.layout.LayoutStyle.RELATED).add(
                             tbtnSort,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                             32,
@@ -643,7 +668,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         org.jdesktop.layout.GroupLayout.LEADING,
                         slrHistory,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        574,
+                        603,
                         Short.MAX_VALUE).add(
                         layout.createSequentialGroup().add(
                             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
@@ -663,36 +688,43 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(
-                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
-                            btnAddNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            28,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                            btnRemoveNutzung,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            23,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false).add(
+                            org.jdesktop.layout.GroupLayout.TRAILING,
+                            btnPasteNutzung,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            org.jdesktop.layout.GroupLayout.TRAILING,
+                            btnCopyNutzung,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            org.jdesktop.layout.GroupLayout.TRAILING,
+                            btnFlipBuchung,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            org.jdesktop.layout.GroupLayout.TRAILING,
+                            tbtnSort,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).add(
+                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
+                                btnAddNutzung,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                                28,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
+                                btnRemoveNutzung,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                                23,
+                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
                         org.jdesktop.layout.GroupLayout.TRAILING,
-                        btnPasteNutzung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        btnCopyNutzung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        btnFlipBuchung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        tbtnSort,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
+                        btnRemoveHistoricalNutzung,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                        30,
+                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
+                    org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                     403,
@@ -858,6 +890,34 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
     }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnRemoveHistoricalNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveHistoricalNutzungActionPerformed
+        if (log.isDebugEnabled()) {
+            log.debug("Remove Nutzung");
+        }
+        final int currentRow = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
+        if (currentRow != -1) {
+            if (log.isDebugEnabled()) {
+                log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: "
+                            + tNutzung.getSelectedRow());
+            }
+            try {
+                tableModel.removeNutzung(currentRow);
+            } catch (TerminateNutzungNotPossibleException ex) {
+                log.error("Eine Nutzung konnte nicht entfernt werden", ex);
+                final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+                        "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
+                                + "sich an den Systemadministrator",
+                        "Fehler beim löschen einer Buchung",
+                        JOptionPane.OK_OPTION);
+            }
+        }
+    }                                                                                              //GEN-LAST:event_btnRemoveHistoricalNutzungActionPerformed
 
     @Override
     public String getWidgetName() {
@@ -1055,6 +1115,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                 btnAddNutzung.setEnabled(false);
                                 // wasRemovedEnabled = btnRemoveNutzung.isEnabled();
                                 btnRemoveNutzung.setEnabled(false);
+                                btnRemoveHistoricalNutzung.setEnabled(false);
                             }
                         } else {
                             lblHistoricIcon.setIcon(icoHistoricIconDummy);
@@ -1064,6 +1125,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                 // TODO WHY DOES THIS NOT WORK
                                 // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
                                 btnRemoveNutzung.setEnabled(false);
+                                btnRemoveHistoricalNutzung.setEnabled(false);
                             }
                         }
                     }
@@ -1112,6 +1174,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             // TODO WHY DOES THIS NOT WORK
                             // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
                             btnRemoveNutzung.setEnabled(false);
+                            btnRemoveHistoricalNutzung.setEnabled(false);
                         }
                         return;
                     }
@@ -1131,12 +1194,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             btnAddNutzung.setEnabled(false);
                             btnRemoveNutzung.setEnabled(false);
+                            btnRemoveHistoricalNutzung.setEnabled(false);
                         } else {
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
                                 btnAddNutzung.setEnabled(false);
                                 // wasRemovedEnabled = btnRemoveNutzung.isEnabled();
                                 btnRemoveNutzung.setEnabled(false);
+                                btnRemoveHistoricalNutzung.setEnabled(false);
                             }
                         }
                     } else {
@@ -1154,6 +1219,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                 // TODO WHY DOES THIS NOT WORK
                                 // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
                                 btnRemoveNutzung.setEnabled(false);
+                                btnRemoveHistoricalNutzung.setEnabled(false);
                             }
                         } else {
                             if (log.isDebugEnabled()) {
@@ -1164,6 +1230,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             if (isInEditMode) {
                                 btnAddNutzung.setEnabled(false);
                                 btnRemoveNutzung.setEnabled(false);
+                                btnRemoveHistoricalNutzung.setEnabled(false);
                             }
                         }
                     }
@@ -1471,20 +1538,25 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     }
                     if (selectedBuchung.getGueltigbis() == null) {
                         btnRemoveNutzung.setEnabled(true);
+                        btnRemoveHistoricalNutzung.setEnabled(false);
                     } else {
                         btnRemoveNutzung.setEnabled(false);
+                        btnRemoveHistoricalNutzung.setEnabled(true);
                     }
                 } else {
                     btnRemoveNutzung.setEnabled(false);
+                    btnRemoveHistoricalNutzung.setEnabled(false);
                     btnFlipBuchung.setEnabled(false);
                 }
             } else {
                 btnCopyNutzung.setEnabled(false);
                 btnRemoveNutzung.setEnabled(false);
+                btnRemoveHistoricalNutzung.setEnabled(false);
                 btnFlipBuchung.setEnabled(false);
             }
         } else {
             btnRemoveNutzung.setEnabled(false);
+            btnRemoveHistoricalNutzung.setEnabled(false);
             btnCopyNutzung.setEnabled(false);
             btnFlipBuchung.setEnabled(false);
         }
