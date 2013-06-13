@@ -45,7 +45,7 @@ public class ReBeTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void removeItem(final int modelRow) {
-        ((ReBeTableModel)getModel()).removeCidsBean(modelRow);
+    protected void removeItem(final int row) {
+        ((ReBeTableModel)getModel()).removeCidsBean(this.getFilters().convertRowIndexToModel(row));
     }
 }
