@@ -36,13 +36,13 @@ public class NKFTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void removeItem(final int row) {
+    protected void removeItem(final int modelRow) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Selektierte Nutzung gefunden in Zeile: " + row + "selectedRow: "
+            LOG.debug("Selektierte Nutzung gefunden in Zeile: " + modelRow + "selectedRow: "
                         + this.getSelectedRow());
         }
         // removes a Nutzung
-        ((NKFTableModel)getModel()).removeNutzung(row);
+        ((NKFTableModel)getModel()).removeNutzung(modelRow);
 
         SwingUtilities.invokeLater(new Runnable() {
 

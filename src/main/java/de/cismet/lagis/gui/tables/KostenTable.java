@@ -47,8 +47,7 @@ public class KostenTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void removeItem(final int row) {
-        documentContainer.removeKosten(this.getFilters().convertRowIndexToModel(
-                row));
+    protected void removeItem(final int modelRow) {
+        documentContainer.removeKosten(modelRow);
     }
 }

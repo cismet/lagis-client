@@ -1072,9 +1072,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("SelectionChanged", new CurrentStackTrace());
-            LOG.debug("EventSource: " + e.getSource());
+        if (e.getValueIsAdjusting() == true) {
+            return;
         }
         if (tNutzung.getSelectedRow() != -1) {
             if (isInEditMode) {
@@ -1085,9 +1084,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             ((VerwaltungsTable)tNutzung).valueChanged_updateFeatures(this, e);
         } else {
             btnRemoveVerwaltung.setEnabled(false);
-            return;
         }
-        tNutzung.repaint();
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     @Override
@@ -1464,7 +1462,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1494,7 +1492,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    } //GEN-LAST:event_cbSperreActionPerformed
+    }//GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!

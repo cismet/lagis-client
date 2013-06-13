@@ -797,8 +797,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             ((ReBeTable)tReBe).valueChanged_updateFeatures(this, e);
         } else {
             btnRemoveReBe.setEnabled(false);
-            return;
         }
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     // TODO USE

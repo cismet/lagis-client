@@ -575,7 +575,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         while (it.hasNext()) {
             final Widget curWidget = it.next();
             // TODO HARDCORE UGLY
-            if ((curWidget instanceof FeatureSelectionChangedListener) && (event instanceof Collection)) {
+            if ((curWidget instanceof FeatureSelectionChangedListener)
+                        && ((FeatureSelectionChangedListener)curWidget).isFeatureSelectionChangedEnabled()
+                        && (event instanceof Collection)) {
                 ((FeatureSelectionChangedListener)curWidget).featureSelectionChanged((Collection<Feature>)event);
             }
         }
