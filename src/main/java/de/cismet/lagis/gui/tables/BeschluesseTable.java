@@ -47,8 +47,7 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void removeItem(final int row) {
-        documentContainer.removeBeschluss(this.getFilters().convertRowIndexToModel(
-                row));
+    protected void removeItem(final int modelRow) {
+        documentContainer.removeBeschluss(modelRow);
     }
 }

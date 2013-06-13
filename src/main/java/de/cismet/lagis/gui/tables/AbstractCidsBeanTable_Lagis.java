@@ -195,19 +195,21 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      * @param  evt  DOCUMENT ME!
      */
     protected void btnRemoveActionPerformed(final ActionEvent evt) {
-        final int currentRow = this.getSelectedRow();
-        if (currentRow != -1) {
-            removeItem(currentRow);
+        final int selectedRow = this.getSelectedRow();
+        if (selectedRow != -1) {
+            final int modelRow = this.getFilters().convertRowIndexToModel(selectedRow);
+            removeItem(modelRow);
         }
         execAfterItemRemoved();
     }
 
     /**
-     * This method gets called in btnRemoveActionPerformed(). Row is the number of the row, which should be removed.
+     * This method gets called in btnRemoveActionPerformed(). modelRow is the index of the row in the model, which
+     * should be removed.
      *
-     * @param  row  DOCUMENT ME!
+     * @param  modelRow  DOCUMENT ME!
      */
-    protected abstract void removeItem(int row);
+    protected abstract void removeItem(int modelRow);
 
     /**
      * This method gets called at the end of btnRemoveActionPerformed(). It is empty so it does not need to be
