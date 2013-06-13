@@ -43,7 +43,7 @@ public class VerwaltungsTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void removeItem(final int row) {
-        ((VerwaltungsTableModel)getModel()).removeCidsBean(this.convertRowIndexToModel(row));
+    protected void removeItem(final int modelRow) {
+        ((VerwaltungsTableModel)getModel()).removeCidsBean(modelRow);
     }
 }

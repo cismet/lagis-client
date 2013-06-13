@@ -88,8 +88,8 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     }
 
     @Override
-    protected void removeItem(final int row) {
-        ((VertraegeTableModel)getModel()).removeCidsBean(this.getFilters().convertRowIndexToModel(row));
+    protected void removeItem(final int modelRow) {
+        ((VertraegeTableModel)getModel()).removeCidsBean(modelRow);
         removeActionHelper.duringRemoveAction(this);
         ((VertraegeTableModel)getModel()).fireTableDataChanged();
     }
