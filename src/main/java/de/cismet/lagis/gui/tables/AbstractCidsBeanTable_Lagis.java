@@ -335,12 +335,13 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
     /**
      * DOCUMENT ME!
      *
-     * @param  <C>       DOCUMENT ME!
-     * @param  panel     DOCUMENT ME!
-     * @param  features  DOCUMENT ME!
+     * @param  panel          DOCUMENT ME!
+     * @param  features       DOCUMENT ME!
+     * @param  cidsbeanClass  cidsbeanClass <C> DOCUMENT ME!
      */
-    public <C extends BasicEntity> void featureSelectionChanged(final ListSelectionListener panel,
-            final Collection<Feature> features) {
+    public void featureSelectionChanged(final ListSelectionListener panel,
+            final Collection<Feature> features,
+            final Class<? extends CidsBean> cidsbeanClass) {
         // Hint: features contain selected and deselected features
         if (features.isEmpty()) {
             return;
@@ -353,9 +354,9 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
             } else {
                 wrappedFeature = feature;
             }
-            if (wrappedFeature instanceof BasicEntity) {
+            if (cidsbeanClass.isInstance(wrappedFeature)) {
                 // TODO Refactor Name
-                final int index = ((CidsBeanTableModel_Lagis)getModel()).getIndexOfCidsBean((C)wrappedFeature);
+                final int index = ((CidsBeanTableModel_Lagis)getModel()).getIndexOfCidsBean((CidsBean)wrappedFeature);
                 final int displayedIndex = this.getFilters().convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(

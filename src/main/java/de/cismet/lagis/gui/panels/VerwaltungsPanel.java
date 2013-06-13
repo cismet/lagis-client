@@ -1061,7 +1061,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        ((VerwaltungsTable)tNutzung).featureSelectionChanged(this, features);
+        ((VerwaltungsTable)tNutzung).featureSelectionChanged(this, features, VerwaltungsbereichCustomBean.class);
     }
 
     // TODO WHAT IS IT GOOD FOR

@@ -777,7 +777,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        ((ReBeTable)tReBe).featureSelectionChanged(this, features);
+        ((ReBeTable)tReBe).featureSelectionChanged(this, features, RebeCustomBean.class);
     }
 
     // TODO WHAT IS IT GOOD FOR
