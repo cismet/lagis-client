@@ -112,6 +112,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private final Icon copyDisplayIcon;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
@@ -760,19 +762,25 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
+        // Hint: features does contain selected and deselected features
         if (features.isEmpty()) {
             return;
         }
-
+        tReBe.getSelectionModel().removeListSelectionListener(this);
+        Feature wrappedFeature;
         for (final Feature feature : features) {
-            if (feature instanceof RebeCustomBean) {
+            if (feature instanceof StyledFeatureGroupWrapper) {
+                wrappedFeature = ((StyledFeatureGroupWrapper)feature).getFeature();
+            } else {
+                wrappedFeature = feature;
+            }
+            if (wrappedFeature instanceof RebeCustomBean) {
                 // TODO Refactor Name
-                final int index = tableModel.getIndexOfCidsBean((RebeCustomBean)feature);
+                final int index = tableModel.getIndexOfCidsBean((RebeCustomBean)wrappedFeature);
                 final int displayedIndex = ((JXTable)tReBe).getFilters().convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
                                 feature)) {
-                    // tReBe.changeSelection(((JXTable)tReBe).getFilters().convertRowIndexToView(index),0,false,false);
                     tReBe.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
                     final Rectangle tmp = tReBe.getCellRect(displayedIndex, 0, true);
                     if (tmp != null) {
@@ -781,10 +789,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 } else {
                     tReBe.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
                 }
-            } else {
-                tReBe.clearSelection();
             }
         }
+        tReBe.getSelectionModel().addListSelectionListener(this);
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -795,25 +802,39 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
+        if (e.getValueIsAdjusting() == true) {
+            return;
+        }
+        this.setFeatureSelectionChangedEnabled(false);
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
-        if (tReBe.getSelectedRow() != -1) {
+        final int[] selectedRows = tReBe.getSelectedRows();
+        if (selectedRows.length > 0) {
             if (isInEditMode) {
                 btnRemoveReBe.setEnabled(true);
             } else {
                 btnRemoveReBe.setEnabled(false);
             }
-            final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(tReBe.getSelectedRow());
-            if ((index != -1) && (tReBe.getSelectedRowCount() <= 1)) {
-                final RebeCustomBean selectedReBe = tableModel.getCidsBeanAtRow(index);
-                if ((selectedReBe.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedReBe)) {
-                    mappingComp.getFeatureCollection().select(selectedReBe);
+            boolean firstIteration = true;
+            for (final int row : selectedRows) {
+                final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(row);
+                if ((index != -1)) {
+                    final RebeCustomBean selectedReBe = tableModel.getCidsBeanAtRow(index);
+                    if ((selectedReBe.getGeometry() != null)) {
+                        if (firstIteration) {
+                            mappingComp.getFeatureCollection().select(selectedReBe);
+                            firstIteration = false;
+                        } else {
+                            mappingComp.getFeatureCollection().addToSelection(selectedReBe);
+                        }
+                    } else if (selectedRows.length == 1) { // if the only selected element has no feature
+                        mappingComp.getFeatureCollection().unselectAll();
+                    }
                 }
             }
         } else {
             btnRemoveReBe.setEnabled(false);
-            return;
         }
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     // TODO USE
@@ -870,5 +891,14 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof RebeCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }
