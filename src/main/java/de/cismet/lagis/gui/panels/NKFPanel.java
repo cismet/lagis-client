@@ -898,7 +898,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     private void btnRemoveHistoricalNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveHistoricalNutzungActionPerformed
         if (log.isDebugEnabled()) {
-            log.debug("Remove Nutzung");
+            log.debug("Remove Historical Nutzung");
         }
         final int currentRow = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
         if (currentRow != -1) {
@@ -907,7 +907,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             + tNutzung.getSelectedRow());
             }
             try {
-                tableModel.removeNutzung(currentRow);
+                tableModel.removeHistoricalNutzung(currentRow);
             } catch (TerminateNutzungNotPossibleException ex) {
                 log.error("Eine Nutzung konnte nicht entfernt werden", ex);
                 final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),

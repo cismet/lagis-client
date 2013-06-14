@@ -510,6 +510,24 @@ public class NKFTableModel extends AbstractTableModel {
     /**
      * DOCUMENT ME!
      *
+     * @param   currentRow  DOCUMENT ME!
+     *
+     * @throws  TerminateNutzungNotPossibleException  DOCUMENT ME!
+     */
+    public void removeHistoricalNutzung(final int currentRow) throws TerminateNutzungNotPossibleException {
+        final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(currentRow);
+        final NutzungCustomBean nutzungToRemove = currentBuchungen.get(currentRow).getNutzung();
+        if (nutzungToRemove != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("Nutzung die entfernt werden soll ist in Modell vorhanden.");
+            }
+            nutzungToRemove.removeHistoricalBuchung(selectedBuchung);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @return  DOCUMENT ME!
      */
     public ArrayList<NutzungBuchungCustomBean> getAllBuchungen() {
