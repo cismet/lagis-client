@@ -3058,16 +3058,117 @@ public final class CidsBroker {
             LOG.error("Fehler beim anlegen des Flurstückschlüssels: " + newSchluessel, ex);
         }
     }
+    
+    /**
+     * Checks in which way the Nutzungen have changed and reacts according to that.
+     * At the moment only the states NUTZUNG_CHANGED and NUTZUNG_TERMINATED, require further treatment.
+     *
+     * @param   nutzungen      DOCUMENT ME!
+     * @param   flurstueckKey  not used at them moment
+     *
+     * @throws  ErrorInNutzungProcessingException  DOCUMENT ME!
+     * 
+     * @see processNutzungen_old()
+     */
+    private void processNutzungen(final Collection<NutzungCustomBean> nutzungen, final String flurstueckKey)
+            throws ErrorInNutzungProcessingException {
+        try {
+            if ((nutzungen != null) && (nutzungen.size() > 0)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Anzahl Ketten in aktuellem Flurstück: " + nutzungen.size());
+                }
+                final Date bookingDate = new Date();
+                for (final NutzungCustomBean curNutzung : nutzungen) {
+                    final Collection<NutzungCustomBean.NUTZUNG_STATES> nutzungsState = curNutzung.getNutzungsState();
+                    if (nutzungsState.isEmpty()) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Keine Änderung");
+                        }
+                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_CREATED)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Neue Nutzung angelegt.");
+                        }
+                        curNutzung.getBuchwert().setGueltigvon(bookingDate);
+                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_CHANGED)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Nutzungskette wurde modifiziert "
+                                        + Arrays.deepToString(nutzungsState.toArray()));
+                        }
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Setzte Datum für die letzten beiden Buchungen");
+                        }
+                        curNutzung.getOpenBuchung().setGueltigvon(bookingDate);
+                        curNutzung.getPreviousBuchung().setGueltigbis(bookingDate);
+                        if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNGSART_CHANGED)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Nutzungsart wurde geändert.");
+                            }
+                        }
+                        if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_CREATED)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Stille Reserve wurde gebildet.");
+                            }
+                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_INCREASED)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Vorhandene Stille Reserve wurde erhöht.");
+                            }
+                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_DECREASED)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Vorhandene Stille Reserve wurde vermindert.");
+                            }
+                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_DISOLVED)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug(
+                                    "Vorhandene Stille Reserve wurde vollständig aufgebraucht.");
+                            }
+                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.POSITIVE_BUCHUNG)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Positive Buchung ohne Stille Reserve.");
+                            }
+                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NEGATIVE_BUCHUNG)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Negative Buchung ohne Stille Reserve.");
+                            }
+                        }
+                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_TERMINATED)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Nutzungskette wurde terminiert, setze Buchungsdatum");
+                        }
+                        // ToDo Nachricht an Zuständige ?? gab es bisher
+                        // curNutzung.terminateNutzung(bookingDate);
+                        curNutzung.getTerminalBuchung().setGueltigbis(bookingDate);
+                        // ToDo letzter Wert zum Buchwert setzen ?
+                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.BUCHUNG_CREATED)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("neue Buchung . Nachricht an Zuständige");
+                        }
+                    } else {
+                        throw new Exception("Kein Fall trifft auf Stati zu: "
+                                    + Arrays.toString(nutzungsState.toArray()));
+                    }
+                }
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück besitzt keine Nutzungen.");
+                }
+            }
+        } catch (Exception ex) {
+            throw new ErrorInNutzungProcessingException("Nutzungen konnten nicht verarbeitet werden", ex);
+        }
+    }
 
     /**
-     * DOCUMENT ME!
+     * This is the old version of processNutzungen(), please use processNutzungen() instead.
+     * This method is kept to have a draft for the emailMessage, which is not used at the moment and though not present in processNutzungen().
      *
      * @param   nutzungen      DOCUMENT ME!
      * @param   flurstueckKey  DOCUMENT ME!
      *
      * @throws  ErrorInNutzungProcessingException  DOCUMENT ME!
+     * 
+     * @see processNutzungen()
      */
-    private void processNutzungen(final Collection<NutzungCustomBean> nutzungen, final String flurstueckKey)
+    private void processNutzungen_old(final Collection<NutzungCustomBean> nutzungen, final String flurstueckKey)
             throws ErrorInNutzungProcessingException {
         try {
             // ToDo NKF Neue Kette Angelegt Mail etc ?? Testen
