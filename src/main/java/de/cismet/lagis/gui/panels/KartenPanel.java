@@ -1272,8 +1272,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         // TODO CHANGE CONFIG FILE ACTION
         // cismapPrefs.getGlobalPrefs().setSnappingEnabled(cmdSnap.isSelected());
         // cismapPrefs.getGlobalPrefs().setSnappingPreviewEnabled(cmdSnap.isSelected());    
-        mappingComponent.setSnappingEnabled(!mappingComponent.isReadOnly() && cmdSnap.isSelected());
-        mappingComponent.setVisualizeSnappingEnabled(!mappingComponent.isReadOnly() && cmdSnap.isSelected());
+        mappingComponent.setSnappingEnabled(cmdSnap.isSelected());
+        mappingComponent.setVisualizeSnappingEnabled(cmdSnap.isSelected());
         mappingComponent.setInGlueIdenticalPointsMode(cmdSnap.isSelected());
     }//GEN-LAST:event_cmdSnapActionPerformed
 
