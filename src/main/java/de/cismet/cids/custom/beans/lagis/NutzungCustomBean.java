@@ -850,6 +850,19 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         return false;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  buchung  DOCUMENT ME!
+     */
+    public void removeHistoricalBuchung(final NutzungBuchungCustomBean buchung) {
+        if (buchung.getGueltig_bis() != null) {
+            LOG.warn("Entfernen von historischer Buchung nicht möglich. Buchung ist nicht historisch.");
+        }
+        getNutzungsBuchungen().remove(buchung);
+        n_buchungen.remove(buchung);
+    }
+
     @Override
     public void setNutzungsBuchungen(final List<NutzungBuchungCustomBean> val) {
     }
