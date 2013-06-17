@@ -464,7 +464,7 @@ public class NKFTableModel extends AbstractTableModel {
 
     /**
      * This method removes the last NutzungBuchung from a Nutzung. A few cases have to be distinguished: if the Nutzung
-     * does only has one Buchung, and this Buchung should be removed, the entire Nutzung will be removed. If the
+     * only has one Buchung, and this Buchung should be removed, the entire Nutzung will be removed. If the
      * NutzungBuchung was already saved in the database, then the NutzungsBuchung will only become historical. Except
      * when the boolean <code>completeRemoval</code> is set, then the NutzungsBuchung will be deleted.
      *

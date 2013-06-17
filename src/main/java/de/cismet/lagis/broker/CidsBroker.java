@@ -3061,7 +3061,7 @@ public final class CidsBroker {
 
     /**
      * Checks in which way the Nutzungen have changed and reacts according to that. At the moment only the states
-     * NUTZUNG_CHANGED and NUTZUNG_TERMINATED, require further treatment.
+     * NUTZUNG_CHANGED and NUTZUNG_TERMINATED require further treatment.
      *
      * @param   nutzungen      DOCUMENT ME!
      * @param   flurstueckKey  not used at them moment

@@ -721,20 +721,21 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
+    }//GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveNutzungActionPerformed
+    private void btnRemoveNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveNutzungActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Remove Nutzung");
         }
         final int currentRow = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
+        final NutzungCustomBean nutzung = tableModel.getBuchungAtRow(currentRow).getNutzung();
         if (currentRow != -1) {
             if (log.isDebugEnabled()) {
                 log.debug("Selektierte Nutzung gefunden in Zeile: " + currentRow + "selectedRow: "
@@ -743,11 +744,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             try {
                 boolean completeRemoval = false;
                 boolean usualRemove = true;
-                final boolean admin = LagisBroker.getInstance().isNkfAdminPermission();
-                if (admin) {
+                if (LagisBroker.getInstance().isNkfAdminPermission()) {
                     completeRemoval = showRemoveHistoricalNutzungDialog();
+                    
                     if (!completeRemoval) {
-                        usualRemove = showRemoveNutzungAsUsualDialog();
+                        // usualRemoval is only possible if the selected Nutzung is not terminated
+                        if (!nutzung.isTerminated()) {
+                            usualRemove = showRemoveNutzungAsUsualDialog();
+                        } else {
+                            usualRemove = false;
+                        }
                     }
                 }
                 if (usualRemove) {
@@ -762,26 +768,26 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         JOptionPane.OK_OPTION);
             }
         }
-    }                                                                                    //GEN-LAST:event_btnRemoveNutzungActionPerformed
+    }//GEN-LAST:event_btnRemoveNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
+    private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNutzungActionPerformed
         tbtnSort.setSelected(true);                                                   // this disables the sort of the
         // table
         tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
-    } //GEN-LAST:event_btnAddNutzungActionPerformed
+    }//GEN-LAST:event_btnAddNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
@@ -807,14 +813,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
+    }//GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -823,14 +829,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
+    }//GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Flippe Buchung");
         }
@@ -853,13 +859,13 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         } else {
             log.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
+    }//GEN-LAST:event_btnFlipBuchungActionPerformed
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) { //GEN-FIRST:event_tbtnSortItemStateChanged
+    private void tbtnSortItemStateChanged(final java.awt.event.ItemEvent evt) {//GEN-FIRST:event_tbtnSortItemStateChanged
         if (tbtnSort.isSelected()) {                                            // disable sort
             previously_sorted_column_index = ((JXTable)tNutzung).getSortedColumn().getModelIndex();
             previously_used_sort_order = ((JXTable)tNutzung).getSortOrder(previously_sorted_column_index);
@@ -868,7 +874,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             ((JXTable)tNutzung).setSortable(true);
             ((JXTable)tNutzung).setSortOrder(previously_sorted_column_index, previously_used_sort_order);
         }
-    }                                                                           //GEN-LAST:event_tbtnSortItemStateChanged
+    }//GEN-LAST:event_tbtnSortItemStateChanged
 
     @Override
     public String getWidgetName() {
@@ -1016,14 +1022,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             log.debug("tableChanged");
         }
         final Refreshable refresh = LagisBroker.getInstance().getRefreshableByClass(NKFOverviewPanel.class);
-        if (refresh != null) {
+        if (refresh
+                    != null) {
             refresh.refresh(new NutzungsContainer(tableModel.getAllNutzungen(), tableModel.getCurrentDate()));
         }
 //        if (tableModel.getRowCount() != 0) {
 //            log.debug("Rowcount ist: "+tableModel.getRowCount());
 //            ((JXTable) tNutzung).packAll();
 //        }
-        if (tNutzung.getSelectedRow() != -1) {
+
+        if (tNutzung.getSelectedRow()
+                    != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             if (index != -1) {
                 final NutzungBuchungCustomBean selectedBuchung = tableModel.getBuchungAtRow(index);
@@ -1035,10 +1044,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
         }
     }
-
-    // ToDo refactorn viel zu kompliziert??
-    // ToDo SliderStateChanged
-    // private boolean wasRemovedEnabled = false;
+// ToDo refactorn viel zu kompliziert??
+// ToDo SliderStateChanged
+// private boolean wasRemovedEnabled = false;
     @Override
     public void stateChanged(final ChangeEvent e) {
         if (cbxChanges.isSelected()) {
