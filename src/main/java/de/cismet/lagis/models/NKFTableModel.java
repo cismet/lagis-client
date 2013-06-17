@@ -506,30 +506,43 @@ public class NKFTableModel extends AbstractTableModel {
         }
         refreshTableModel();
     }
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  rowIndex  DOCUMENT ME!
-     */
-    public void removeNutzungWithoutHistorie(final int rowIndex) {
-    }
 
     /**
      * DOCUMENT ME!
      *
-     * @param   currentRow  DOCUMENT ME!
+     * @param   rowIndex  DOCUMENT ME!
      *
      * @throws  TerminateNutzungNotPossibleException  DOCUMENT ME!
      */
-    public void removeHistoricalNutzung(final int currentRow) throws TerminateNutzungNotPossibleException {
-        final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(currentRow);
-        final NutzungCustomBean nutzungToRemove = currentBuchungen.get(currentRow).getNutzung();
+    public void removeNutzungWithoutCreatingAHistory(final int rowIndex) throws TerminateNutzungNotPossibleException {
+        final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
+        final NutzungCustomBean nutzungToRemove = selectedBuchung.getNutzung();
         if (nutzungToRemove != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Nutzung die entfernt werden soll ist in Modell vorhanden.");
+            if ((nutzungToRemove.getId() == null) || (nutzungToRemove.getId() == -1)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Nutzung die Entfernt wurde war noch nicht in Datenbank");
+                }
+                allNutzungen.remove(nutzungToRemove);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Nutzung ist in Datenbank vorhanden");
+                }
+                if ((selectedBuchung != null)
+                            && ((selectedBuchung.getId() == null) || (selectedBuchung.getId() == -1))) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Die Betroffene Buchung ist neu und kann gelöscht werden");
+                    }
+                    nutzungToRemove.removeOpenNutzung();
+                } else {
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                            "Die Betroffene Buchung ist in der Datenbank gespeichert. Buchung komplett löschen");
+                    }
+                    nutzungToRemove.removeBuchungWithoutCreatingAHistory(selectedBuchung);
+                }
             }
-            nutzungToRemove.removeHistoricalBuchung(selectedBuchung);
         }
+        refreshTableModel();
     }
 
     /**
@@ -607,6 +620,7 @@ public class NKFTableModel extends AbstractTableModel {
         }
         return selectedBuchungen;
     }
+
     /**
      * public Set<Nutzung> getCurrentNutzungen() { final Set<Nutzung> currentNutzungen = new HashSet<Nutzung>(); for
      * (NutzungBuchungCustomBean curBuchung : currentBuchungen) { NutzungCustomBean curNutzung =
