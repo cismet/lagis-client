@@ -768,10 +768,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     private void btnAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddNutzungActionPerformed
         tbtnSort.setSelected(true);                                                   // this disables the sort of the
-                                                                                      // table
+        // table
         tableModel.addNutzung(NutzungCustomBean.createNew());
         log.info("New Nutzung added to Model");
-    }                                                                                 //GEN-LAST:event_btnAddNutzungActionPerformed
+    } //GEN-LAST:event_btnAddNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1477,10 +1477,21 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     } else {
                         btnFlipBuchung.setEnabled(false);
                     }
-                    if (selectedBuchung.getGueltigbis() == null) {
-                        btnRemoveNutzung.setEnabled(true);
+                    if (LagisBroker.getInstance().isNkfAdminPermission()) {
+                        // enable the the Remove Button, if the chronologically last Buchung is selected. This Buchung
+                        // can be the current Buchung or a historical Buchung.
+                        if (selectedBuchung == selectedBuchung.getNutzung().getLastBuchung()) {
+                            btnRemoveNutzung.setEnabled(true);
+                        } else {
+                            btnRemoveNutzung.setEnabled(false);
+                        }
                     } else {
-                        btnRemoveNutzung.setEnabled(false);
+                        // enable the the Remove Button, if the current Buchung is selected
+                        if (selectedBuchung.getGueltigbis() == null) {
+                            btnRemoveNutzung.setEnabled(true);
+                        } else {
+                            btnRemoveNutzung.setEnabled(false);
+                        }
                     }
                 } else {
                     btnRemoveNutzung.setEnabled(false);
