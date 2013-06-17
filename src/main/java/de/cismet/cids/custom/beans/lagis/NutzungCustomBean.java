@@ -871,11 +871,13 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
      * @param  buchung  DOCUMENT ME!
      */
     public void removeBuchungWithoutCreatingAHistory(final NutzungBuchungCustomBean buchung) {
-        if (buchung.getGueltig_bis() != null) {
-            LOG.warn("Entfernen von Buchung nicht möglich. Buchung ist historisch.");
+        if (buchung != getLastBuchung()) {
+            LOG.warn("Entfernen von Buchung nicht möglich. Buchung ist nicht die chronologisch letzte Buchung.");
             return;
         }
-        getPreviousBuchung().setGueltigbis(null);
+        if (!isTerminated()) {
+            getPreviousBuchung().setGueltigbis(null);
+        }
         getNutzungsBuchungen().remove(buchung);
         n_buchungen.remove(buchung);
     }
