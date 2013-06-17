@@ -3058,17 +3058,17 @@ public final class CidsBroker {
             LOG.error("Fehler beim anlegen des Flurstückschlüssels: " + newSchluessel, ex);
         }
     }
-    
+
     /**
-     * Checks in which way the Nutzungen have changed and reacts according to that.
-     * At the moment only the states NUTZUNG_CHANGED and NUTZUNG_TERMINATED, require further treatment.
+     * Checks in which way the Nutzungen have changed and reacts according to that. At the moment only the states
+     * NUTZUNG_CHANGED and NUTZUNG_TERMINATED, require further treatment.
      *
      * @param   nutzungen      DOCUMENT ME!
      * @param   flurstueckKey  not used at them moment
      *
      * @throws  ErrorInNutzungProcessingException  DOCUMENT ME!
-     * 
-     * @see processNutzungen_old()
+     *
+     * @see     processNutzungen_old()
      */
     private void processNutzungen(final Collection<NutzungCustomBean> nutzungen, final String flurstueckKey)
             throws ErrorInNutzungProcessingException {
@@ -3158,15 +3158,15 @@ public final class CidsBroker {
     }
 
     /**
-     * This is the old version of processNutzungen(), please use processNutzungen() instead.
-     * This method is kept to have a draft for the emailMessage, which is not used at the moment and though not present in processNutzungen().
+     * This is the old version of processNutzungen(), please use processNutzungen() instead. This method is kept to have
+     * a draft for the emailMessage, which is not used at the moment and though not present in processNutzungen().
      *
      * @param   nutzungen      DOCUMENT ME!
      * @param   flurstueckKey  DOCUMENT ME!
      *
      * @throws  ErrorInNutzungProcessingException  DOCUMENT ME!
-     * 
-     * @see processNutzungen()
+     *
+     * @see     processNutzungen()
      */
     private void processNutzungen_old(final Collection<NutzungCustomBean> nutzungen, final String flurstueckKey)
             throws ErrorInNutzungProcessingException {

@@ -506,6 +506,13 @@ public class NKFTableModel extends AbstractTableModel {
         }
         refreshTableModel();
     }
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rowIndex  DOCUMENT ME!
+     */
+    public void removeNutzungWithoutHistorie(final int rowIndex) {
+    }
 
     /**
      * DOCUMENT ME!
