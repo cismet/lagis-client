@@ -538,7 +538,11 @@ public class NKFTableModel extends AbstractTableModel {
                         log.debug(
                             "Die Betroffene Buchung ist in der Datenbank gespeichert. Buchung komplett löschen");
                     }
-                    nutzungToRemove.removeBuchungWithoutCreatingAHistory(selectedBuchung);
+                    if (nutzungToRemove.getBuchungsCount() > 1) {
+                        nutzungToRemove.removeBuchungWithoutCreatingAHistory(selectedBuchung);
+                    } else { // Nutzung only contains one Buchung, delete Nutzung
+                        allNutzungen.remove(nutzungToRemove);
+                    }
                 }
             }
         }
