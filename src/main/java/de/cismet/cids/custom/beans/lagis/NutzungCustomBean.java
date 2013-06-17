@@ -747,6 +747,21 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         return null;
     }
 
+    /**
+     * returns the chronologically last Buchung.
+     *
+     * @return  DOCUMENT ME!
+     */
+    public NutzungBuchungCustomBean getLastBuchung() {
+        if (getBuchungsCount() > 0) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("nutzungen available");
+            }
+            return getNutzungsBuchungen().get(getNutzungsBuchungen().size() - 1);
+        }
+        return null;
+    }
+
     @Override
     public NutzungBuchungCustomBean getPredecessorBuchung(final NutzungBuchungCustomBean val) {
         if ((val != null) && (getBuchungsCount() > 1)) {
