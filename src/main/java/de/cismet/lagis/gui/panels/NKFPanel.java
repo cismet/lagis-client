@@ -741,14 +741,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             + tNutzung.getSelectedRow());
             }
             try {
-                if (LagisBroker.getInstance().isNkfAdminPermission()) {
-                    if (showRemoveHistoricalNutzungDialog()) {
-                        tableModel.removeNutzungWithoutCreatingAHistory(currentRow);
-                    } else if (showRemoveNutzungAsUsualDialog()) {
-                        tableModel.removeNutzung(currentRow);
+                boolean completeRemoval = false;
+                boolean usualRemove = true;
+                final boolean admin = LagisBroker.getInstance().isNkfAdminPermission();
+                if (admin) {
+                    completeRemoval = showRemoveHistoricalNutzungDialog();
+                    if (!completeRemoval) {
+                        usualRemove = showRemoveNutzungAsUsualDialog();
                     }
-                } else {
-                    tableModel.removeNutzung(currentRow);
+                }
+                if (usualRemove) {
+                    tableModel.removeNutzungBuchung(currentRow, completeRemoval);
                 }
             } catch (TerminateNutzungNotPossibleException ex) {
                 log.error("Eine Nutzung konnte nicht entfernt werden", ex);
@@ -1658,7 +1661,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private boolean showRemoveHistoricalNutzungDialog() {
         final int n = JOptionPane.showConfirmDialog(
                 LagisBroker.getInstance().getParentComponent(),
-                "Wollen Sie die Buchung löschen, ohne dass eine Historie für diese erstellt wird?",
+                "Wollen Sie die Buchung löschen, ohne dass diese in der Historie aufgenommen wird?",
                 "Lösche Buchung, ohne Erstellung einer Historie?",
                 JOptionPane.YES_NO_OPTION);
         if (n == JOptionPane.YES_OPTION) {
@@ -1676,7 +1679,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private boolean showRemoveNutzungAsUsualDialog() {
         final int n = JOptionPane.showConfirmDialog(
                 LagisBroker.getInstance().getParentComponent(),
-                "Wollen Sie die Buchung löschen, wobei wie im normalen Modus vorgegangen wird?\n(Evt. Anlegen einer Historie etc...)",
+                "Wollen Sie die Buchung löschen, mit Aufnahme in die Historie?",
                 "übliches Löschen der Buchung?",
                 JOptionPane.YES_NO_OPTION);
         if (n == JOptionPane.YES_OPTION) {
