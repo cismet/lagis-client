@@ -72,6 +72,8 @@ import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
 
+import de.cismet.tools.gui.StaticSwingTools;
+
 /**
  * DOCUMENT ME!
  *
@@ -945,14 +947,17 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             LOG.debug("tableChanged");
         }
         final Refreshable refresh = LagisBroker.getInstance().getRefreshableByClass(NKFOverviewPanel.class);
-        if (refresh != null) {
+        if (refresh
+                    != null) {
             refresh.refresh(new NutzungsContainer(tableModel.getAllNutzungen(), tableModel.getCurrentDate()));
         }
 //        if (tableModel.getRowCount() != 0) {
 //            log.debug("Rowcount ist: "+tableModel.getRowCount());
 //            ((JXTable) tNutzung).packAll();
 //        }
-        if (tNutzung.getSelectedRow() != -1) {
+
+        if (tNutzung.getSelectedRow()
+                    != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             if (index != -1) {
                 final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
@@ -964,10 +969,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
         }
     }
-
-    // ToDo refactorn viel zu kompliziert??
-    // ToDo SliderStateChanged
-    // private boolean wasRemovedEnabled = false;
+// ToDo refactorn viel zu kompliziert??
+// ToDo SliderStateChanged
+// private boolean wasRemovedEnabled = false;
     @Override
     public void stateChanged(final ChangeEvent e) {
         if (cbxChanges.isSelected()) {
@@ -1409,10 +1413,21 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     } else {
                         btnFlipBuchung.setEnabled(false);
                     }
-                    if (selectedBuchung.getGueltigbis() == null) {
-                        btnRemoveNutzung.setEnabled(true);
+                    if (LagisBroker.getInstance().isNkfAdminPermission()) {
+                        // enable the the Remove Button, if the chronologically last Buchung is selected. This Buchung
+                        // can be the current Buchung or a historical Buchung.
+                        if (selectedBuchung == selectedBuchung.getNutzung().getLastBuchung()) {
+                            btnRemoveNutzung.setEnabled(true);
+                        } else {
+                            btnRemoveNutzung.setEnabled(false);
+                        }
                     } else {
-                        btnRemoveNutzung.setEnabled(false);
+                        // enable the the Remove Button, if the current Buchung is selected
+                        if (selectedBuchung.getGueltigbis() == null) {
+                            btnRemoveNutzung.setEnabled(true);
+                        } else {
+                            btnRemoveNutzung.setEnabled(false);
+                        }
                     }
                 } else {
                     btnRemoveNutzung.setEnabled(false);
@@ -1569,6 +1584,68 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void masterConfigure(final Element parent) {
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   isNutzungTerminated  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private int showRemoveHistoricalNutzungDialog(final boolean isNutzungTerminated) {
+        final NKFRemoveNutzungDialog d = new NKFRemoveNutzungDialog(isNutzungTerminated);
+        StaticSwingTools.showDialog(this, d, true);
+        return d.getSelectedValue();
+//        if (isNutzungTerminated) {
+//            final Object[] options = {
+//                    "ohne Historie",
+//                    "Abbrechen"
+//                };
+//            StaticSwingTools.showDialog(null);
+//            return JOptionPane.showOptionDialog(
+//                    LagisBroker.getInstance().getParentComponent(),
+//                    "Wollen Sie die Buchung löschen?",
+//                    "Lösche Buchung",
+//                    JOptionPane.OK_CANCEL_OPTION,
+//                    JOptionPane.QUESTION_MESSAGE,
+//                    null,
+//                    options,
+//                    options[0]);
+//        } else {
+//            final Object[] options = {
+//                    "ohne Historie",
+//                    "Historie anlegen",
+//                    "Abbrechen"
+//                };
+//            return JOptionPane.showOptionDialog(
+//                    LagisBroker.getInstance().getParentComponent(),
+//                    "Wollen Sie die Buchung löschen?",
+//                    "Lösche Buchung",
+//                    JOptionPane.YES_NO_CANCEL_OPTION,
+//                    JOptionPane.QUESTION_MESSAGE,
+//                    null,
+//                    options,
+//                    options[0]);
+//        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private boolean showRemoveNutzungAsUsualDialog() {
+        final int n = JOptionPane.showConfirmDialog(
+                LagisBroker.getInstance().getParentComponent(),
+                "Wollen Sie die Buchung löschen, mit Aufnahme in die Historie?",
+                "übliches Löschen der Buchung?",
+                JOptionPane.YES_NO_OPTION);
+        if (n == JOptionPane.YES_OPTION) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //~ Inner Classes ----------------------------------------------------------
