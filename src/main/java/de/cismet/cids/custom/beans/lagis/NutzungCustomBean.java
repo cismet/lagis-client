@@ -747,6 +747,21 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         return null;
     }
 
+    /**
+     * returns the chronologically last Buchung.
+     *
+     * @return  DOCUMENT ME!
+     */
+    public NutzungBuchungCustomBean getLastBuchung() {
+        if (getBuchungsCount() > 0) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("nutzungen available");
+            }
+            return getNutzungsBuchungen().get(getNutzungsBuchungen().size() - 1);
+        }
+        return null;
+    }
+
     @Override
     public NutzungBuchungCustomBean getPredecessorBuchung(final NutzungBuchungCustomBean val) {
         if ((val != null) && (getBuchungsCount() > 1)) {
@@ -848,6 +863,23 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             return true;
         }
         return false;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  buchung  DOCUMENT ME!
+     */
+    public void removeBuchungWithoutCreatingAHistory(final NutzungBuchungCustomBean buchung) {
+        if (buchung != getLastBuchung()) {
+            LOG.warn("Entfernen von Buchung nicht möglich. Buchung ist nicht die chronologisch letzte Buchung.");
+            return;
+        }
+        if (!isTerminated()) {
+            getPreviousBuchung().setGueltigbis(null);
+        }
+        getNutzungsBuchungen().remove(buchung);
+        n_buchungen.remove(buchung);
     }
 
     @Override
