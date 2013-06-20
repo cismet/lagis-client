@@ -71,6 +71,8 @@ public class NKFRemoveNutzungDialog extends javax.swing.JDialog {
         btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Buchung löschen?"); // NOI18N
+        setMaximumSize(new java.awt.Dimension(400, 120));
         setMinimumSize(new java.awt.Dimension(400, 120));
         setModal(true);
         setResizable(false);
