@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.lagis.gui.panels;
+package de.cismet.lagis.gui.tables;
 
 import javax.swing.UIManager;
 
@@ -71,11 +71,8 @@ public class NKFRemoveNutzungDialog extends javax.swing.JDialog {
         btnCancel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(org.openide.util.NbBundle.getMessage(NKFRemoveNutzungDialog.class, "NKFRemoveNutzungDialog.title")); // NOI18N
-        setMaximumSize(new java.awt.Dimension(400, 120));
         setMinimumSize(new java.awt.Dimension(400, 120));
         setModal(true);
-        setPreferredSize(new java.awt.Dimension(400, 120));
         setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -92,9 +89,6 @@ public class NKFRemoveNutzungDialog extends javax.swing.JDialog {
         jPanel1.add(lblMessage, gridBagConstraints);
 
         lblImage.setIcon(UIManager.getIcon("OptionPane.questionIcon"));
-        org.openide.awt.Mnemonics.setLocalizedText(
-            lblImage,
-            org.openide.util.NbBundle.getMessage(NKFRemoveNutzungDialog.class, "NKFRemoveNutzungDialog.lblImage.text")); // NOI18N
         lblImage.setMaximumSize(new java.awt.Dimension(40, 40));
         lblImage.setMinimumSize(new java.awt.Dimension(40, 40));
         lblImage.setPreferredSize(new java.awt.Dimension(40, 40));

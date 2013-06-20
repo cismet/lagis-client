@@ -39,6 +39,7 @@ import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.NKFPanel;
+import de.cismet.lagis.gui.tables.NKFRemoveNutzungDialog;
 
 import de.cismet.lagis.util.TableSelectionUtils;
 
@@ -393,13 +394,18 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     }
 
     /**
-     * DOCUMENT ME!
+     * This method removes the last NutzungBuchung from a Nutzung. A few cases have to be distinguished: if the Nutzung
+     * only has one Buchung, and this Buchung should be removed, the entire Nutzung will be removed. If the
+     * NutzungBuchung was already saved in the database, then the NutzungsBuchung will only become historical. Except
+     * when the boolean <code>completeRemoval</code> is set, then the NutzungsBuchung will be deleted.
      *
-     * @param  rowIndex  DOCUMENT ME!
+     * @param  rowIndex         row index of the NutzungsBuchung
+     * @param  completeRemoval  true, the NutzungsBuchung is removed, otherwise the NutzungsBuchung will become
+     *                          historical
      */
-    public void removeNutzung(final int rowIndex) {
+    public void removeNutzungBuchung(final int rowIndex, final boolean completeRemoval) {
         try {
-            removeNutzung_helper(rowIndex);
+            removeNutzungBuchung_helper(rowIndex, completeRemoval);
         } catch (TerminateNutzungNotPossibleException ex) {
             LOG.error("Eine Nutzung konnte nicht entfernt werden", ex);
             final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
@@ -411,21 +417,18 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     }
 
     /**
-     * This method removes the last NutzungBuchung from a Nutzung. A few cases have to be distinguished: if the Nutzung
-     * only has one Buchung, and this Buchung should be removed, the entire Nutzung will be removed. If the
-     * NutzungBuchung was already saved in the database, then the NutzungsBuchung will only become historical. Except
-     * when the boolean <code>completeRemoval</code> is set, then the NutzungsBuchung will be deleted.
+     * DOCUMENT ME!
      *
-     * @param   rowIndex         row index of the NutzungsBuchung
-     * @param   completeRemoval  true, the NutzungsBuchung is removed, otherwise the NutzungsBuchung will become
-     *                           historical
+     * @param   rowIndex         DOCUMENT ME!
+     * @param   completeRemoval  DOCUMENT ME!
      *
      * @throws  TerminateNutzungNotPossibleException  DOCUMENT ME!
      */
-    public void removeNutzungBuchung(final int rowIndex, final boolean completeRemoval)
+    private void removeNutzungBuchung_helper(final int rowIndex, final boolean completeRemoval)
             throws TerminateNutzungNotPossibleException {
-        final NutzungBuchungCustomBean selectedBuchung = currentBuchungen.get(rowIndex);
-        final NutzungCustomBean nutzungToRemove = currentBuchungen.get(rowIndex).getNutzung();
+        final NutzungBuchungCustomBean selectedBuchung = (NutzungBuchungCustomBean)getCidsBeans()
+                    .get(rowIndex);
+        final NutzungCustomBean nutzungToRemove = selectedBuchung.getNutzung();
         // the first cases check if the NutzungsBuchung has already been saved in the database
         // and remove the NutzungsBuchung accordingly to the case
         if (nutzungToRemove != null) {
@@ -451,8 +454,8 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                     // the NutzungsBuchung is already in the database
                     // should it be completely removed or become historcal
                     if (completeRemoval) {
-                        if (log.isDebugEnabled()) {
-                            log.debug(
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(
                                 "Die Betroffene Buchung ist in der Datenbank gespeichert. Buchung komplett löschen");
                         }
                         if (nutzungToRemove.getBuchungsCount() > 1) {
@@ -461,13 +464,13 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                             allNutzungen.remove(nutzungToRemove);
                         }
                     } else {     // do not remove Buchung, make it only historical
-                        if (log.isDebugEnabled()) {
-                            log.debug(
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(
                                 "Die Betroffene Buchung ist in der Datenbank gespeichert. Komplette Nutzung wird historisch gesetzt");
                         }
                         final Date terminationDate = new Date();
-                        if (log.isDebugEnabled()) {
-                            log.debug("Termination date: " + terminationDate);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Termination date: " + terminationDate);
                         }
                         nutzungToRemove.terminateNutzung(terminationDate);
                     }
