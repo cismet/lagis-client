@@ -298,7 +298,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
     }
 
     /**
-     * DOCUMENT ME!
+     * When a CidsBean is selected in the table, the bound Feature in the map will also be selected.
      *
      * @param  panel  DOCUMENT ME!
      * @param  e      DOCUMENT ME!
@@ -315,13 +315,13 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
         for (final int row : this.getSelectedRows()) {
             final int index = this.getFilters().convertRowIndexToModel(row);
             if ((index != -1)) {
-                final StyledFeature selectedBaum = ((CidsBeanTableModel_Lagis)getModel()).getCidsBeanAtRow(index);
-                if ((selectedBaum.getGeometry() != null)) {
+                final StyledFeature selectedCidsBean = ((CidsBeanTableModel_Lagis)getModel()).getCidsBeanAtRow(index);
+                if ((selectedCidsBean.getGeometry() != null)) {
                     if (firstIteration) {
-                        mappingComp.getFeatureCollection().select(selectedBaum);
+                        mappingComp.getFeatureCollection().select(selectedCidsBean);
                         firstIteration = false;
                     } else {
-                        mappingComp.getFeatureCollection().addToSelection(selectedBaum);
+                        mappingComp.getFeatureCollection().addToSelection(selectedCidsBean);
                     }
                 } else if (selectedRows.length == 1) { // if the only selected element has no feature
                     mappingComp.getFeatureCollection().unselectAll();
