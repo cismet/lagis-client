@@ -358,6 +358,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
     public void restoreSelectedCidsBean() {
         final CidsBean cidsBean = getCidsBeanAtRow(table.convertRowIndexToModel(table.getSelectedRow()));
         restoreBean(cidsBean);
+        fireTableDataChanged();
     }
 
     /**
