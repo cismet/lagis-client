@@ -717,16 +717,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
+    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxChangesActionPerformed
         updateSlider();
-    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
+    }//GEN-LAST:event_cbxChangesActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCopyNutzungActionPerformed
+    private void btnCopyNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyNutzungActionPerformed
         copyPasteList.clear();
         if (tNutzung.getSelectedRow() != -1) {
             final int[] selectedRows = tNutzung.getSelectedRows();
@@ -752,14 +752,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (isInEditMode) {
             btnPasteNutzung.setEnabled(true);
         }
-    }                                                                                  //GEN-LAST:event_btnCopyNutzungActionPerformed
+    }//GEN-LAST:event_btnCopyNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnPasteNutzungActionPerformed
+    private void btnPasteNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPasteNutzungActionPerformed
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
@@ -768,14 +768,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
         }
-    }                                                                                   //GEN-LAST:event_btnPasteNutzungActionPerformed
+    }//GEN-LAST:event_btnPasteNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFlipBuchungActionPerformed
+    private void btnFlipBuchungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFlipBuchungActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Flippe Buchung");
         }
@@ -798,7 +798,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.warn("Keine Buchung selektiert, sollte nicht möglich sein");
         }
-    }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
+    }//GEN-LAST:event_btnFlipBuchungActionPerformed
 
     @Override
     public String getWidgetName() {
