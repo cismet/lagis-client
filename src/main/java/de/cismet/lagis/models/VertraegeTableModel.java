@@ -19,16 +19,17 @@ import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Vector;
-
-import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.tables.VertraegeTable;
 
 /**
  * DOCUMENT ME!
@@ -36,21 +37,28 @@ import de.cismet.lagis.broker.LagisBroker;
  * @author   Puhl
  * @version  $Revision$, $Date$
  */
-public class VertraegeTableModel extends AbstractTableModel {
+public class VertraegeTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String[] COLUMN_HEADER = {
+    private static final String[] COLUMN_NAMES = {
             "Vertragsart",
             "Aktenzeichen",
             "Quadratmeterpreis",
             "Kaufpreis (i. NK)"
         };
 
+    private static final Class[] COLUMN_CLASSES = {
+            VertragsartCustomBean.class,
+            String.class,
+            Double.class,
+            Double.class,
+        };
+
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VertraegeTableModel.class);
+
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Vector<VertragCustomBean> vertraege;
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     // Models
 
@@ -60,7 +68,8 @@ public class VertraegeTableModel extends AbstractTableModel {
      * Creates a new instance of VertraegeTableModel.
      */
     public VertraegeTableModel() {
-        vertraege = new Vector<VertragCustomBean>();
+        super(COLUMN_NAMES, COLUMN_CLASSES, VertragCustomBean.class);
+        setCidsBeans(new ArrayList<VertragCustomBean>());
     }
 
     /**
@@ -69,14 +78,7 @@ public class VertraegeTableModel extends AbstractTableModel {
      * @param  vertraege  DOCUMENT ME!
      */
     public VertraegeTableModel(final Collection<VertragCustomBean> vertraege) {
-        try {
-            this.vertraege = new Vector<VertragCustomBean>(vertraege);
-            // log.fatal("Voreigentuemer: "+this.vertraege.get(0).getVoreigentuemer());
-        } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
-            this.vertraege = new Vector<VertragCustomBean>();
-            final HashSet test = new HashSet();
-        }
+        super(COLUMN_NAMES, COLUMN_CLASSES, vertraege);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -84,7 +86,7 @@ public class VertraegeTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
-            final VertragCustomBean vertrag = vertraege.get(rowIndex);
+            final VertragCustomBean vertrag = (VertragCustomBean)getCidsBeanAtRow(rowIndex);
             switch (columnIndex) {
                 case 0: {
                     final VertragsartCustomBean art = vertrag.getVertragsart();
@@ -110,24 +112,9 @@ public class VertraegeTableModel extends AbstractTableModel {
                 }
             }
         } catch (Exception ex) {
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
-    }
-
-    @Override
-    public int getRowCount() {
-        return vertraege.size();
-    }
-
-    @Override
-    public int getColumnCount() {
-        return COLUMN_HEADER.length;
-    }
-
-    @Override
-    public String getColumnName(final int column) {
-        return COLUMN_HEADER[column];
     }
 
     @Override
@@ -135,68 +122,9 @@ public class VertraegeTableModel extends AbstractTableModel {
         return false;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   rowIndex  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public VertragCustomBean getVertragAtRow(final int rowIndex) {
-        return vertraege.get(rowIndex);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  vertrag  DOCUMENT ME!
-     */
-    public void addVertrag(final VertragCustomBean vertrag) {
-        vertraege.add(vertrag);
-        fireTableDataChanged();
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  rowIndex  DOCUMENT ME!
-     */
-    public void removeVertrag(final int rowIndex) {
-        vertraege.remove(rowIndex);
-        fireTableDataChanged();
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Vector<VertragCustomBean> getVertraege() {
-        return vertraege;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  vertraege  DOCUMENT ME!
-     */
-    public void refreshTableModel(final Collection<VertragCustomBean> vertraege) {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Refresh des VertraegeTableModell");
-            }
-            if (vertraege != null) {
-                this.vertraege = new Vector<VertragCustomBean>(vertraege);
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Vertraege == null --> Erstelle neuer Vektor.");
-                }
-                this.vertraege = new Vector<VertragCustomBean>();
-            }
-        } catch (Exception ex) {
-            log.error("Fehler beim refreshen des Models", ex);
-            this.vertraege = new Vector<VertragCustomBean>();
-        }
-        fireTableDataChanged();
+    @Override
+    public void restoreBean(final CidsBean cidsBean) {
+        super.restoreBean(cidsBean);
+        ((VertraegeTable)getTable()).emulateMouseClicked();
     }
 }

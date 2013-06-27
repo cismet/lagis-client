@@ -36,11 +36,15 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.editor.EuroEditor;
 
+import de.cismet.lagis.gui.tables.BeschluesseTable;
+import de.cismet.lagis.gui.tables.KostenTable;
+import de.cismet.lagis.gui.tables.RemoveActionHelper;
+import de.cismet.lagis.gui.tables.VertraegeTable;
+
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 
 import de.cismet.lagis.models.DefaultUniqueListModel;
-import de.cismet.lagis.models.KostenTableModel;
 import de.cismet.lagis.models.VertraegeTableModel;
 import de.cismet.lagis.models.documents.VertragDocumentModelContainer;
 
@@ -51,6 +55,7 @@ import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.util.LagISUtils;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.Validator;
@@ -68,19 +73,21 @@ import de.cismet.tools.gui.StaticSwingTools;
 public class VertraegePanel extends AbstractWidget implements FlurstueckChangeListener,
     FlurstueckSaver,
     ListSelectionListener,
-    MouseListener {
+    MouseListener,
+    RemoveActionHelper {
 
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "Verträge Panel";
 
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VertraegePanel.class);
+
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private FlurstueckCustomBean currentFlurstueck = null;
     private VertraegeTableModel vTableModel = new VertraegeTableModel();
     // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
-    private KostenTableModel kTableModel = new KostenTableModel();
+    // private KostenTableModel kTableModel = new KostenTableModel();
     private VertragCustomBean currentSelectedVertrag;
     private VertragDocumentModelContainer documentContainer;
     private Validator valTxtVoreigentuemer;
@@ -106,6 +113,9 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JButton btnRemoveBeschluss;
     private javax.swing.JButton btnRemoveKosten;
     private javax.swing.JButton btnRemoveVertrag;
+    private javax.swing.JButton btnUndoBeschluss;
+    private javax.swing.JButton btnUndoKosten;
+    private javax.swing.JButton btnUndoVertrag;
     private javax.swing.JComboBox cboVertragsart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -137,6 +147,9 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JTable tblBeschluesse;
     private javax.swing.JTable tblKosten;
     private javax.swing.JTable tblVertraege;
+    private javax.swing.JToggleButton tbtnSortBeschluss;
+    private javax.swing.JToggleButton tbtnSortKosten;
+    private javax.swing.JToggleButton tbtnSortVertrag;
     private javax.swing.JTextField txtAktenzeichen;
     private javax.swing.JTextField txtAuflassung;
     private javax.swing.JTextArea txtBemerkung;
@@ -155,11 +168,13 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         setIsCoreWidget(true);
         initComponents();
         // tblBeschluesse.setModel(bTableModel);
-        tblKosten.setModel(kTableModel);
-        tblVertraege.setModel(vTableModel);
+        // tblKosten.setModel(kTableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(vTableModel, (VertraegeTable)tblVertraege);
         // tblVertraege.addMouseListener(this);
         documentContainer = new VertragDocumentModelContainer(vTableModel);
+        ((VertraegeTable)tblVertraege).setDocumentContainer(documentContainer);
         tblVertraege.addMouseListener(documentContainer);
+        ((VertraegeTable)tblVertraege).setRemoveActionHelper(this);
         // log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
 
         txtKaufpreis.setDocument(documentContainer.getKaufpreisDocumentModel());
@@ -193,8 +208,12 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         cboVertragsart.setModel(documentContainer.getVertragsartComboBoxModel());
         cboVertragsart.addActionListener(documentContainer);
 
-        tblKosten.setModel(documentContainer.getKostenTableModel());
-        tblBeschluesse.setModel(documentContainer.getBeschluesseTableModel());
+        ((KostenTable)tblKosten).setDocumentContainer(documentContainer);
+        TableSelectionUtils.crossReferenceModelAndTable(documentContainer.getKostenTableModel(),
+            (KostenTable)tblKosten);
+        ((BeschluesseTable)tblBeschluesse).setDocumentContainer(documentContainer);
+        TableSelectionUtils.crossReferenceModelAndTable(documentContainer.getBeschluesseTableModel(),
+            (BeschluesseTable)tblBeschluesse);
         // Set vertragsarten = null;
 // if(vertragsarten != null){
 // vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));
@@ -277,13 +296,13 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
                                         FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist städtisch und kann editiert werden");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flurstück ist städtisch und kann editiert werden");
                             }
                             isFlurstueckEditable = true;
                         } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
                             }
                             isFlurstueckEditable = false;
                         }
@@ -311,7 +330,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         }
                         LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
                     } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
+                        LOG.error("Fehler im refresh thread: ", ex);
                         LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
                     }
                 }
@@ -327,11 +346,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
-            log.info("FlurstueckChanged");
+            LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
-            log.error("Fehler beim Flurstückswechsel: ", ex);
+            LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
         }
     }
@@ -339,8 +358,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     @Override
     public void setComponentEditable(final boolean isEditable) {
         if (isFlurstueckEditable) {
-            if (log.isDebugEnabled()) {
-                log.debug("Vertrag --> setComponentEditable");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Vertrag --> setComponentEditable");
             }
             isInEditMode = isEditable;
             lstCrossRefs.setEnabled(!isEditable);
@@ -367,11 +386,14 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             }
             btnAddExitingContract.setEnabled(isEditable);
             btnAddVertrag.setEnabled(isEditable);
-            documentContainer.getBeschluesseTableModel().setIsInEditMode(isEditable);
-            documentContainer.getKostenTableModel().setIsInEditMode(isEditable);
+            tbtnSortBeschluss.setEnabled(isEditable);
+            tbtnSortKosten.setEnabled(isEditable);
+            tbtnSortVertrag.setEnabled(isEditable);
+            documentContainer.getBeschluesseTableModel().setInEditMode(isEditable);
+            documentContainer.getKostenTableModel().setInEditMode(isEditable);
             tblKosten.setEnabled(isEditable);
             tblBeschluesse.setEnabled(isEditable);
-            if (log.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
 //        HighlighterPipeline pipeline1 = ((JXTable)tblVertraege).getHighlighters();
 //        HighlighterPipeline pipeline2 = ((JXTable)tblKosten).getHighlighters();
 //        HighlighterPipeline pipeline3 = ((JXTable)tblBeschluesse).getHighlighters();
@@ -390,11 +412,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 //            pipeline3.removeHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_EDIT);
 //            pipeline3.addHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_DEFAULT,false);
 //        }
-                log.debug("Vertrag --> setComponentEditable finished");
+                LOG.debug("Vertrag --> setComponentEditable finished");
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Flurstück ist nicht städtisch Verwaltungen können nicht editiert werden");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Flurstück ist nicht städtisch Verwaltungen können nicht editiert werden");
             }
         }
     }
@@ -435,7 +457,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 return Validatable.ERROR;
             }
         }
-        final Vector<VertragCustomBean> alleVertraege = vTableModel.getVertraege();
+        final ArrayList<VertragCustomBean> alleVertraege = (ArrayList<VertragCustomBean>)vTableModel.getCidsBeans();
         if (alleVertraege != null) {
             for (final VertragCustomBean currentVertrag : alleVertraege) {
                 if ((currentVertrag != null) && (currentVertrag.getVertragsart() == null)) {
@@ -484,15 +506,19 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         pnlDetail = new javax.swing.JPanel();
         panVertraege = new javax.swing.JPanel();
         pnlKostenControls1 = new javax.swing.JPanel();
         btnAddVertrag = new javax.swing.JButton();
         btnRemoveVertrag = new javax.swing.JButton();
+        tbtnSortVertrag = new javax.swing.JToggleButton();
         btnAddExitingContract = new javax.swing.JButton();
+        btnUndoVertrag = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tblVertraege = new JXTable();
+        tblVertraege = new de.cismet.lagis.gui.tables.VertraegeTable();
         panBemerkung = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         txtBemerkung = new javax.swing.JTextArea();
@@ -521,44 +547,78 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         pnlKostenControls = new javax.swing.JPanel();
         btnAddKosten = new javax.swing.JButton();
         btnRemoveKosten = new javax.swing.JButton();
+        tbtnSortKosten = new javax.swing.JToggleButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        tblKosten = new JXTable();
+        tblKosten = new KostenTable();
         panBeschluss = new javax.swing.JPanel();
         jScrollPane6 = new javax.swing.JScrollPane();
-        tblBeschluesse = new JXTable();
+        tblBeschluesse = new BeschluesseTable();
         pnlBeschluesseControls = new javax.swing.JPanel();
         btnAddBeschluss = new javax.swing.JButton();
         btnRemoveBeschluss = new javax.swing.JButton();
+        tbtnSortBeschluss = new javax.swing.JToggleButton();
 
         setLayout(new java.awt.BorderLayout());
 
         panVertraege.setMinimumSize(new java.awt.Dimension(300, 0));
 
+        pnlKostenControls1.setLayout(new java.awt.GridBagLayout());
+
+        btnAddVertrag.setAction(((VertraegeTable)tblVertraege).getAddAction());
         btnAddVertrag.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddVertrag.setBorder(null);
-        btnAddVertrag.addActionListener(new java.awt.event.ActionListener() {
+        btnAddVertrag.setBorderPainted(false);
+        btnAddVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        pnlKostenControls1.add(btnAddVertrag, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddVertragActionPerformed(evt);
-                }
-            });
-
+        btnRemoveVertrag.setAction(((VertraegeTable)tblVertraege).getRemoveAction());
         btnRemoveVertrag.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveVertrag.setBorder(null);
-        btnRemoveVertrag.addActionListener(new java.awt.event.ActionListener() {
+        btnRemoveVertrag.setBorderPainted(false);
+        btnRemoveVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        pnlKostenControls1.add(btnRemoveVertrag, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveVertragActionPerformed(evt);
-                }
-            });
+        tbtnSortVertrag.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSortVertrag.setToolTipText("Sortierung An / Aus");
+        tbtnSortVertrag.setBorder(null);
+        tbtnSortVertrag.setBorderPainted(false);
+        tbtnSortVertrag.setContentAreaFilled(false);
+        tbtnSortVertrag.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSortVertrag.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSortVertrag.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSortVertrag.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        pnlKostenControls1.add(tbtnSortVertrag, gridBagConstraints);
+        tbtnSortVertrag.addItemListener(((de.cismet.lagis.gui.tables.VertraegeTable)tblVertraege)
+                    .getSortItemListener());
 
         btnAddExitingContract.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
         btnAddExitingContract.setBorder(null);
+        btnAddExitingContract.setBorderPainted(false);
+        btnAddExitingContract.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddExitingContract.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddExitingContract.setPreferredSize(new java.awt.Dimension(25, 25));
         btnAddExitingContract.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
@@ -566,42 +626,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     btnAddExitingContractActionPerformed(evt);
                 }
             });
-
-        final org.jdesktop.layout.GroupLayout pnlKostenControls1Layout = new org.jdesktop.layout.GroupLayout(
-                pnlKostenControls1);
-        pnlKostenControls1.setLayout(pnlKostenControls1Layout);
-        pnlKostenControls1Layout.setHorizontalGroup(
-            pnlKostenControls1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                pnlKostenControls1Layout.createSequentialGroup().add(
-                    btnAddExitingContract,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    btnAddVertrag,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    btnRemoveVertrag,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
-        pnlKostenControls1Layout.setVerticalGroup(
-            pnlKostenControls1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                btnRemoveVertrag,
-                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                0,
-                Short.MAX_VALUE).add(
-                btnAddVertrag,
-                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                0,
-                Short.MAX_VALUE).add(
-                btnAddExitingContract,
-                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                0,
-                Short.MAX_VALUE));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        pnlKostenControls1.add(btnAddExitingContract, gridBagConstraints);
 
         jLabel1.setText("Verträge:");
 
@@ -633,6 +662,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
             });
         tblVertraege.setPreferredSize(new java.awt.Dimension(100, 16));
+        ((VertraegeTable)tblVertraege).setSortButton(tbtnSortVertrag);
         jScrollPane1.setViewportView(tblVertraege);
 
         final org.jdesktop.layout.GroupLayout panVertraegeLayout = new org.jdesktop.layout.GroupLayout(panVertraege);
@@ -643,7 +673,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                         panVertraegeLayout.createSequentialGroup().add(jLabel1).addPreferredGap(
                             org.jdesktop.layout.LayoutStyle.RELATED,
-                            550,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             Short.MAX_VALUE).add(
                             pnlKostenControls1,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -653,7 +683,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         panVertraegeLayout.createSequentialGroup().add(
                             jScrollPane1,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            695,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             Short.MAX_VALUE).add(10, 10, 10)))));
         panVertraegeLayout.setVerticalGroup(
             panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
@@ -665,11 +695,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         Short.MAX_VALUE).add(
                         jLabel1,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        24,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                         Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    168,
+                    218,
                     Short.MAX_VALUE).addContainerGap()));
 
         jScrollPane4.setPreferredSize(new java.awt.Dimension(0, 0));
@@ -691,7 +721,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         lblBemerkung).add(
                         jScrollPane4,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        695,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                         Short.MAX_VALUE)).addContainerGap()));
         panBemerkungLayout.setVerticalGroup(
             panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
@@ -892,6 +922,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         21,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
 
+        tabKB.setToolTipText("Sortierung An / Aus");
+
         jScrollPane2.setViewportView(lstCrossRefs);
 
         final org.jdesktop.layout.GroupLayout panQuerverweiseLayout = new org.jdesktop.layout.GroupLayout(
@@ -902,7 +934,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
                     jScrollPane2,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    367,
+                    370,
                     Short.MAX_VALUE).addContainerGap()));
         panQuerverweiseLayout.setVerticalGroup(
             panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
@@ -910,61 +942,58 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
                     jScrollPane2,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    185,
+                    162,
                     Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("Querverweise", panQuerverweise);
 
+        pnlKostenControls.setLayout(new java.awt.GridBagLayout());
+
+        btnAddKosten.setAction(((KostenTable)tblKosten).getAddAction());
         btnAddKosten.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddKosten.setBorder(null);
-        btnAddKosten.addActionListener(new java.awt.event.ActionListener() {
+        btnAddKosten.setBorderPainted(false);
+        btnAddKosten.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddKosten.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddKosten.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        pnlKostenControls.add(btnAddKosten, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddKostenActionPerformed(evt);
-                }
-            });
-
+        btnRemoveKosten.setAction(((KostenTable)tblKosten).getRemoveAction());
         btnRemoveKosten.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveKosten.setBorder(null);
-        btnRemoveKosten.addActionListener(new java.awt.event.ActionListener() {
+        btnRemoveKosten.setBorderPainted(false);
+        btnRemoveKosten.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveKosten.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveKosten.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        pnlKostenControls.add(btnRemoveKosten, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveKostenActionPerformed(evt);
-                }
-            });
-
-        final org.jdesktop.layout.GroupLayout pnlKostenControlsLayout = new org.jdesktop.layout.GroupLayout(
-                pnlKostenControls);
-        pnlKostenControls.setLayout(pnlKostenControlsLayout);
-        pnlKostenControlsLayout.setHorizontalGroup(
-            pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                pnlKostenControlsLayout.createSequentialGroup().add(
-                    btnAddKosten,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).add(
-                    btnRemoveKosten,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
-        pnlKostenControlsLayout.setVerticalGroup(
-            pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                pnlKostenControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE, false).add(
-                    btnRemoveKosten,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    27,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                    btnAddKosten,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    27,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+        tbtnSortKosten.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSortKosten.setToolTipText("Sortierung An / Aus");
+        tbtnSortKosten.setBorder(null);
+        tbtnSortKosten.setBorderPainted(false);
+        tbtnSortKosten.setContentAreaFilled(false);
+        tbtnSortKosten.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSortKosten.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSortKosten.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSortKosten.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        pnlKostenControls.add(tbtnSortKosten, gridBagConstraints);
+        tbtnSortKosten.addItemListener(((KostenTable)tblKosten).getSortItemListener());
 
         jScrollPane5.setPreferredSize(new java.awt.Dimension(0, 0));
 
@@ -983,6 +1012,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     return types[columnIndex];
                 }
             });
+        ((KostenTable)tblKosten).setSortButton(tbtnSortKosten);
         jScrollPane5.setViewportView(tblKosten);
 
         final org.jdesktop.layout.GroupLayout panKostenLayout = new org.jdesktop.layout.GroupLayout(panKosten);
@@ -994,12 +1024,13 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
                         jScrollPane5,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        367,
+                        370,
                         Short.MAX_VALUE).add(
-                        pnlKostenControls,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
+                        panKostenLayout.createSequentialGroup().add(0, 0, Short.MAX_VALUE).add(
+                            pnlKostenControls,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).addContainerGap()));
         panKostenLayout.setVerticalGroup(
             panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 panKostenLayout.createSequentialGroup().addContainerGap().add(
@@ -1010,7 +1041,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane5,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    152,
+                    131,
                     Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("Beschlüsse", panKosten);
@@ -1031,57 +1062,53 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     return types[columnIndex];
                 }
             });
+        ((BeschluesseTable)tblBeschluesse).setSortButton(tbtnSortBeschluss);
         jScrollPane6.setViewportView(tblBeschluesse);
 
+        pnlBeschluesseControls.setLayout(new java.awt.GridBagLayout());
+
+        btnAddBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getAddAction());
         btnAddBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBeschluss.setBorder(null);
-        btnAddBeschluss.addActionListener(new java.awt.event.ActionListener() {
+        btnAddBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        pnlBeschluesseControls.add(btnAddBeschluss, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddBeschlussActionPerformed(evt);
-                }
-            });
-
+        btnRemoveBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getRemoveAction());
         btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBeschluss.setBorder(null);
-        btnRemoveBeschluss.addActionListener(new java.awt.event.ActionListener() {
+        btnRemoveBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        pnlBeschluesseControls.add(btnRemoveBeschluss, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveBeschlussActionPerformed(evt);
-                }
-            });
-
-        final org.jdesktop.layout.GroupLayout pnlBeschluesseControlsLayout = new org.jdesktop.layout.GroupLayout(
-                pnlBeschluesseControls);
-        pnlBeschluesseControls.setLayout(pnlBeschluesseControlsLayout);
-        pnlBeschluesseControlsLayout.setHorizontalGroup(
-            pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                pnlBeschluesseControlsLayout.createSequentialGroup().addContainerGap().add(
-                    btnAddBeschluss,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    btnRemoveBeschluss,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    29,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
-        pnlBeschluesseControlsLayout.setVerticalGroup(
-            pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                pnlBeschluesseControlsLayout.createSequentialGroup().add(
-                    pnlBeschluesseControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        btnRemoveBeschluss,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        27,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        btnAddBeschluss,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        27,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
+        tbtnSortBeschluss.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSortBeschluss.setBorder(null);
+        tbtnSortBeschluss.setBorderPainted(false);
+        tbtnSortBeschluss.setContentAreaFilled(false);
+        tbtnSortBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSortBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSortBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSortBeschluss.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        pnlBeschluesseControls.add(tbtnSortBeschluss, gridBagConstraints);
+        tbtnSortBeschluss.addItemListener(((BeschluesseTable)tblBeschluesse).getSortItemListener());
 
         final org.jdesktop.layout.GroupLayout panBeschlussLayout = new org.jdesktop.layout.GroupLayout(panBeschluss);
         panBeschluss.setLayout(panBeschlussLayout);
@@ -1093,7 +1120,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         org.jdesktop.layout.GroupLayout.LEADING,
                         jScrollPane6,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        367,
+                        370,
                         Short.MAX_VALUE).add(
                         pnlBeschluesseControls,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -1109,7 +1136,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane6,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    153,
+                    130,
                     Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("Kosten", panBeschluss);
@@ -1119,11 +1146,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         panTabLayout.setHorizontalGroup(
             panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                panTabLayout.createSequentialGroup().addContainerGap().add(
-                    tabKB,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    399,
-                    Short.MAX_VALUE).addContainerGap()));
+                panTabLayout.createSequentialGroup().addContainerGap().add(tabKB).addContainerGap()));
         panTabLayout.setVerticalGroup(
             panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 panTabLayout.createSequentialGroup().addContainerGap().add(
@@ -1235,106 +1258,17 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
     /**
      * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveBeschlussActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveBeschlussActionPerformed
-        final int currentRow = tblBeschluesse.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            documentContainer.removeBeschluss(((JXTable)tblBeschluesse).getFilters().convertRowIndexToModel(
-                    currentRow));
-        }
-    } //GEN-LAST:event_btnRemoveBeschlussActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddBeschlussActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddBeschlussActionPerformed
-        // ((JXTable)tblBeschluesse).setSortable(false);
-        documentContainer.addNewBeschluss();
-        // ((JXTable)tblBeschluesse).setSortable(true);
-    } //GEN-LAST:event_btnAddBeschlussActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveKostenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveKostenActionPerformed
-        final int currentRow = tblKosten.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            // documentContainer.getKostenTableModel().removeKosten(currentRow);
-            // documentContainer.removeKosten(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
-            documentContainer.removeKosten(((JXTable)tblKosten).getFilters().convertRowIndexToModel(currentRow));
-        }
-    } //GEN-LAST:event_btnRemoveKostenActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddKostenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddKostenActionPerformed
-        // ((JXTable)tblKosten).setSortable(false);
-        // KostenCustomBean newKosten = new KostenCustomBean();
-// documentContainer.getCurrentSelectedVertrag().get
-// documentContainer.getKostenTableModel().addKosten(newKosten));
-        documentContainer.addNewKosten();
-        // ((JXTable)tblKosten).setSortable(true);
-    } //GEN-LAST:event_btnAddKostenActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVertragActionPerformed
-        final int currentRow = tblVertraege.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            vTableModel.removeVertrag(((JXTable)tblVertraege).getFilters().convertRowIndexToModel(currentRow));
-            updateCrossRefs();
-            // vTableModel.fireTableDataChanged();
-        }
-        documentContainer.clearComponents();
-        enableSlaveFlieds(false);
-    } //GEN-LAST:event_btnRemoveVertragActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddVertragActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVertragActionPerformed
-        try {
-            // ((JXTable)tblVertraege).setSortable(false);
-            final VertragCustomBean newVertrag = VertragCustomBean.createNew();
-            newVertrag.setVertragsart((VertragsartCustomBean)cboVertragsart.getItemAt(0));
-            vTableModel.addVertrag(newVertrag);
-            // vTableModel.fireTableDataChanged();
-            // vTableModel.fireTableDataChanged();
-        } catch (Exception ex) {
-            log.error("error creating vertrag bean", ex);
-        }
-    } //GEN-LAST:event_btnAddVertragActionPerformed
-
-    /**
-     * DOCUMENT ME!
      */
     private void updateCrossRefs() {
-        if (log.isDebugEnabled()) {
-            log.debug("Update der Querverweise");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Update der Querverweise");
         }
         final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
-                    .getCrossreferencesForVertraege(new HashSet(vTableModel.getVertraege()));
+                    .getCrossreferencesForVertraege(new HashSet(vTableModel.getCidsBeans()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Es sind Querverweise auf Verträg vorhanden");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Es sind Querverweise auf Verträg vorhanden");
             }
             if (crossRefs.size() > 0) {
                 tabKB.setForegroundAt(0, Color.RED);
@@ -1345,8 +1279,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
             currentFlurstueck.setVertraegeQuerverweise(crossRefs);
             final Iterator<FlurstueckSchluesselCustomBean> it = crossRefs.iterator();
             while (it.hasNext()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Ein Querverweis hinzugefügt");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Ein Querverweis hinzugefügt");
                 }
                 newModel.addElement(it.next());
             }
@@ -1354,63 +1288,35 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         }
         lstCrossRefs.setModel(newModel);
     }
-    // End of variables declaration
+
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
     }
 
-//    public void mouseReleased(MouseEvent e) {
-//    }
-//
-//    public void mousePressed(MouseEvent e) {
-//    }
-//
-//    public void mouseExited(MouseEvent e) {
-//    }
-//
-//    public void mouseEntered(MouseEvent e) {
-//    }
-//
-//    public void mouseClicked(MouseEvent e) {
-//        Object source = e.getSource();
-//        if(source instanceof JXTable){
-//
-//            JXTable currentTable = (JXTable) source;
-//            if(currentTable.getModel().equals(vTableModel)){
-//
-//            } else if(currentTable.getModel().equals(documentContainer.getBeschluesseTableModel())){
-//                log.debug("Mit maus auf Beschlusstabelle geklickt");
-//
-//            } else if(currentTable.getModel().equals(documentContainer.getKostenTableModel())) {
-//                log.debug("Mit maus auf Kostentabelle geklickt");
-//
-//            }
-//        }
-//    }
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<VertragCustomBean> vertraege = flurstueck.getVertraege();
         if (vertraege != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(vertraege, vTableModel.getVertraege());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vertraege, vTableModel.getCidsBeans());
         } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
             final HashSet newSet = new HashSet();
-            newSet.addAll(vTableModel.getVertraege());
+            newSet.addAll(vTableModel.getCidsBeans());
             flurstueck.setVertraege(newSet);
         }
     }
 
     @Override
     public void valueChanged(final ListSelectionEvent e) {
-        if (log.isDebugEnabled()) {
-            log.debug("geht generell: " + e.getSource());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("geht generell: " + e.getSource());
         }
         final DefaultListSelectionModel source = (DefaultListSelectionModel)e.getSource();
 
         if (source.equals(tblVertraege.getSelectionModel())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Verträge Tabelle");
-                log.debug("Mit maus auf Verträgetabelle geklickt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Verträge Tabelle");
+                LOG.debug("Mit maus auf Verträgetabelle geklickt");
             }
             final int selecetdRow = tblVertraege.getSelectedRow();
             if ((selecetdRow != -1) && isInEditMode) {
@@ -1419,8 +1325,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 btnRemoveVertrag.setEnabled(false);
             }
         } else if (source.equals(tblKosten.getSelectionModel())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Kosten Tabelle");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Kosten Tabelle");
             }
             final int selecetdRow = tblKosten.getSelectedRow();
             if ((selecetdRow != -1) && isInEditMode) {
@@ -1429,8 +1335,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 btnRemoveKosten.setEnabled(false);
             }
         } else if (source.equals(tblBeschluesse.getSelectionModel())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Beschlüsse Tabelle");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Beschlüsse Tabelle");
             }
             final int selecetdRow = tblBeschluesse.getSelectedRow();
             if ((selecetdRow != -1) && isInEditMode) {
@@ -1460,14 +1366,14 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     @Override
     public void mouseClicked(final MouseEvent e) {
         final Object source = e.getSource();
-        if (log.isDebugEnabled()) {
-            log.debug("source: " + source);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("source: " + source);
         }
         if (source instanceof JXTable) {
             final JXTable table = (JXTable)source;
             final int currentRow = table.getSelectedRow();
-            if (log.isDebugEnabled()) {
-                log.debug("Row: " + currentRow);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Row: " + currentRow);
             }
             if ((currentRow != -1) && isInEditMode) {
                 enableSlaveFlieds(true);
@@ -1502,11 +1408,23 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         cboVertragsart.setEnabled(isEnabled);
         btnAddKosten.setEnabled(isEnabled);
         btnAddBeschluss.setEnabled(isEnabled);
+        btnUndoVertrag.setEnabled(isEnabled);
     }
 
     // TODO USE
     @Override
     public Icon getWidgetIcon() {
         return null;
+    }
+
+    @Override
+    public void duringRemoveAction(final Object source) {
+        updateCrossRefs();
+    }
+
+    @Override
+    public void afterRemoveAction(final Object source) {
+        documentContainer.clearComponents();
+        enableSlaveFlieds(false);
     }
 }

@@ -1216,12 +1216,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     private void initDefaultPanels() {
         LOG.info("Initialisieren der einzelnen Komponenten");
-        pFlurstueck = new VerwaltungsPanel();
+        pFlurstueck = VerwaltungsPanel.getInstance();
         pVertraege = new VertraegePanel();
-        pNKFOverview = new NKFOverviewPanel();
+        pNKFOverview = NKFOverviewPanel.getInstance();
         pDMS = new DMSPanel();
         pKarte = new KartenPanel();
-        pNKF = new NKFPanel();
+        pNKF = NKFPanel.getInstance();
         pRechteDetail = new ReBePanel();
         pHistory = new HistoryPanel();
         configManager.addConfigurable(pHistory);

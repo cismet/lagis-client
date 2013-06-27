@@ -5,7 +5,7 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.lagis.gui.panels;
+package de.cismet.lagis.gui.tables;
 
 import javax.swing.UIManager;
 
@@ -75,7 +75,6 @@ public class NKFRemoveNutzungDialog extends javax.swing.JDialog {
         setMaximumSize(new java.awt.Dimension(400, 120));
         setMinimumSize(new java.awt.Dimension(400, 120));
         setModal(true);
-        setPreferredSize(new java.awt.Dimension(400, 120));
         setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 

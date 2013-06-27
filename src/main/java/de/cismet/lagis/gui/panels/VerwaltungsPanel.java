@@ -61,6 +61,7 @@ import de.cismet.lagis.editor.FlaecheEditor;
 
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.tables.VerwaltungsTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -77,6 +78,7 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 import de.cismet.lagis.util.LagISUtils;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
@@ -122,11 +124,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private static final String WIDGET_NAME = "Verwaltungspanel";
 
     private static final String COPY_DISPLAY_ICON = "/de/cismet/lagis/ressource/icons/verwaltungsbereich16.png";
+    private static final VerwaltungsPanel instance = new VerwaltungsPanel();
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VerwaltungsPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
     protected boolean historyEnabled = true;
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private final Icon icoWFSSizeGood = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"));
     private final Icon icoWFSSizeBad = new javax.swing.ImageIcon(getClass().getResource(
@@ -169,10 +172,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnRemoveVerwaltung;
+    private javax.swing.JButton btnUndo;
     private javax.swing.JCheckBox cbSperre;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
@@ -182,6 +188,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private javax.swing.JLabel lblRechte;
     private javax.swing.JLabel lblWFSInfo;
     private javax.swing.JTable tNutzung;
+    private javax.swing.JToggleButton tbtnSort;
     private javax.swing.JTextArea txtBemerkung;
     // End of variables declaration//GEN-END:variables
 
@@ -190,7 +197,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     /**
      * Creates new form VerwaltungsPanel.
      */
-    public VerwaltungsPanel() {
+    private VerwaltungsPanel() {
         this.copyDisplayIcon = new ImageIcon(this.getClass().getResource(COPY_DISPLAY_ICON));
         setIsCoreWidget(true);
         initComponents();
@@ -208,6 +215,24 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static VerwaltungsPanel getInstance() {
+        return instance;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JTable getNutzungTable() {
+        return tNutzung;
+    }
 
     /**
      * DOCUMENT ME!
@@ -247,8 +272,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
                                         FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist städtisch und kann editiert werden");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flurstück ist städtisch und kann editiert werden");
                             }
                             isFlurstueckEditable = true;
 //                        cbKind.setIcon(icoStaedtisch);
@@ -256,16 +281,16 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         } else if ((flurstueckArt != null)
                                     && flurstueckArt.getBezeichnung().equals(
                                         FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug(
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug(
                                     "Flurstück ist nicht städtisch und kann nicht editiert werden (Abteilung IX)");
                             }
                             isFlurstueckEditable = false;
 //                        cbKind.setIcon(icoAbteilungIX);
 //                        cbKind.setVisible(true);
                         } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
                             }
                             isFlurstueckEditable = false;
                             // cbKind.setVisible(false);
@@ -298,8 +323,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                 public void propertyChange(final PropertyChangeEvent evt) {
                                     if ((evt.getSource() instanceof WFSRetrieverFactory.WFSWorkerThread)
                                                 && evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("Gemarkungsretriever done --> setzte geometrie");
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug("Gemarkungsretriever done --> setzte geometrie");
                                         }
                                         try {
                                             final SwingWorker worker = new SwingWorker<Geometry, Void>() {
@@ -323,13 +348,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                                                 tableModel.setCurrentWFSSize(currentGeometry.getArea());
                                                             }
                                                         } catch (Exception e) {
-                                                            log.error("Exception in Background Thread", e);
+                                                            LOG.error("Exception in Background Thread", e);
                                                         }
                                                     }
                                                 };
                                             CismetThreadPool.execute(worker);
                                         } catch (Exception ex) {
-                                            log.error("Fehler beim abrufen der Geometrie", ex);
+                                            LOG.error("Fehler beim abrufen der Geometrie", ex);
                                             currentGeometry = null;
                                             lblWFSInfo.setIcon(icoWFSWarn);
                                             lblWFSInfo.setToolTipText("Fehler beim vergleichen der Flächen");
@@ -363,8 +388,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             cleanup();
                             return;
                         }
-                        if (log.isDebugEnabled()) {
-                            log.debug("Anzahl verwaltungsbereiche: "
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Anzahl verwaltungsbereiche: "
                                         + getCurrentObject().getVerwaltungsbereiche().size());
                         }
                         tableModel.refreshTableModel(getCurrentObject().getVerwaltungsbereiche());
@@ -378,7 +403,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
                                     @Override
                                     public void run() {
-                                        final Vector<Feature> features = tableModel.getAllVerwaltungsFeatures();
+                                        final ArrayList<Feature> features = tableModel.getAllVerwaltungsFeatures();
                                         if (features != null) {
                                             for (final Feature currentFeature : features) {
                                                 if (currentFeature != null) {
@@ -404,7 +429,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         }
                         LagisBroker.getInstance().flurstueckChangeFinished(VerwaltungsPanel.this);
                     } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
+                        LOG.error("Fehler im refresh thread: ", ex);
                         LagisBroker.getInstance().flurstueckChangeFinished(VerwaltungsPanel.this);
                     }
                 }
@@ -424,7 +449,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final Vector<VerwaltungsbereichCustomBean> allVBs = this.tableModel.getVerwaltungsbereiche();
+        final ArrayList<VerwaltungsbereichCustomBean> allVBs = (ArrayList<VerwaltungsbereichCustomBean>)this.tableModel
+                    .getCidsBeans();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allVBs.size());
 
         for (final VerwaltungsbereichCustomBean vb : allVBs) {
@@ -445,7 +471,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
                 result.add(tmp);
             } catch (Exception ex) {
-                log.error("error creating bean for verwaltungsbereiche", ex);
+                LOG.error("error creating bean for verwaltungsbereiche", ex);
             }
         }
 
@@ -466,12 +492,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         }
 
         if (item instanceof VerwaltungsbereichCustomBean) {
-            final Vector<VerwaltungsbereichCustomBean> residentVBs = this.tableModel.getVerwaltungsbereiche();
+            final ArrayList<VerwaltungsbereichCustomBean> residentVBs = (ArrayList<VerwaltungsbereichCustomBean>)this
+                        .tableModel.getCidsBeans();
 
             if (residentVBs.contains(item)) {
-                log.warn("Verwaltungsbereich " + item + " does already exist in Flurstück " + this.currentFlurstueck);
+                LOG.warn("Verwaltungsbereich " + item + " does already exist in Flurstück " + this.currentFlurstueck);
             } else {
-                this.tableModel.addVerwaltungsbereich((VerwaltungsbereichCustomBean)item);
+                this.tableModel.addCidsBean((VerwaltungsbereichCustomBean)item);
                 this.tableModel.fireTableDataChanged();
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -500,7 +527,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        final Vector<VerwaltungsbereichCustomBean> residentVBs = this.tableModel.getVerwaltungsbereiche();
+        final ArrayList<VerwaltungsbereichCustomBean> residentVBs = (ArrayList<VerwaltungsbereichCustomBean>)this
+                    .tableModel.getCidsBeans();
         final int rowCountBefore = this.tableModel.getRowCount();
 
         Feature f;
@@ -509,10 +537,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         for (final BasicEntity entity : dataList) {
             if (entity instanceof VerwaltungsbereichCustomBean) {
                 if (residentVBs.contains(entity)) {
-                    log.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
+                    LOG.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
                                 + this.currentFlurstueck);
                 } else {
-                    this.tableModel.addVerwaltungsbereich((VerwaltungsbereichCustomBean)entity);
+                    this.tableModel.addCidsBean((VerwaltungsbereichCustomBean)entity);
                     f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     featCollection.addFeature(f);
                 }
@@ -520,7 +548,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         }
 
         if (rowCountBefore == this.tableModel.getRowCount()) {
-            log.warn("No Verwaltungsbereich items were added from input list " + dataList);
+            LOG.warn("No Verwaltungsbereich items were added from input list " + dataList);
         } else {
             this.tableModel.fireTableDataChanged();
             mc.setGroupLayerVisibility(PROVIDER_NAME, true);
@@ -532,8 +560,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<JComponent> getCustomButtons() {
-        final Vector<JComponent> tmp = new Vector<JComponent>();
+    public ArrayList<JComponent> getCustomButtons() {
+        final ArrayList<JComponent> tmp = new ArrayList<JComponent>();
         tmp.add(lblLastModification);
         tmp.add(hbBack);
         tmp.add(hbFwd);
@@ -575,8 +603,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     @Override
     public void historyChanged() {
         if ((historyModel != null) && (historyModel.getCurrentElement() != null)) {
-            if (log.isDebugEnabled()) {
-                log.debug("historyChanged:" + historyModel.getCurrentElement().toString());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("historyChanged:" + historyModel.getCurrentElement().toString());
             }
             if ((historyModel.getCurrentElement() != null)
                         && (!(historyModel.getCurrentElement().equals(
@@ -596,7 +624,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // TODO NUllSAVe
         // tableModel.setVerwaltendenDienstellenList(allVerwaltendeDienstellen);
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
-        tNutzung.setModel(tableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (VerwaltungsTable)tNutzung);
         cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
                     CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
         tNutzung.setDefaultRenderer(VerwaltungsgebrauchCustomBean.class, vgRenderer);
@@ -627,13 +655,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     try {
                         final int displayedIndex = componentAdapter.row;
                         final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
-                        final VerwaltungsbereichCustomBean g = tableModel.getVerwaltungsbereichAtRow(modelIndex);
+                        final VerwaltungsbereichCustomBean g = tableModel.getCidsBeanAtRow(modelIndex);
                         // TODO warum muss g != null sein muss nicht geodert werden?
                         return (((g == null) || ((g != null) && (g.getGeometry() == null)))
-                                        && ((tableModel.getVerwaltungsbereiche() != null)
-                                            && (tableModel.getVerwaltungsbereiche().size() != 1)));
+                                        && ((tableModel.getCidsBeans() != null)
+                                            && (tableModel.getRowCount() != 1)));
                     } catch (Exception ex) {
-                        log.error("Fehler beim Highlighting test noGeometry", ex);
+                        LOG.error("Fehler beim Highlighting test noGeometry", ex);
                         return false;
                     }
                 }
@@ -648,8 +676,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 @Override
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     try {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Teste Geometriegröße");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Teste Geometriegröße");
                         }
                         final double currentGeometrySize;
                         if (currentGeometry == null) {
@@ -664,8 +692,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             // currentGeometrySize= (int)Math.round(currentGeometry.getArea());
                             currentGeometrySize = currentGeometry.getArea();
                         }
-                        if (log.isDebugEnabled()) {
-                            log.debug("Größe WFS Geometrie: " + currentGeometrySize);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Größe WFS Geometrie: " + currentGeometrySize);
                         }
                         double geomSum = 0;
                         int counter = 0;
@@ -677,8 +705,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             counter++;
                         }
                         if (counter < 1) {
-                            if (log.isDebugEnabled()) {
-                                log.debug(
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug(
                                     "es ist nur ein Verwaltungsbereich vorhanden --> automatische WFS größe --> keine Überprüfung");
                             }
                             // tableModel.setCurrentWFSSize(currentGeometrySize); //auskommentiert weil dadurch eine
@@ -688,23 +716,23 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             lblWFSInfo.setToolTipText("Automatische Zuordnung");
                             return false;
                         }
-                        if (log.isDebugEnabled()) {
-                            log.debug("Summe aller Verwaltungsbereiche: " + geomSum);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Summe aller Verwaltungsbereiche: " + geomSum);
                         }
                         final double diff = ((int)(Math.abs(currentGeometrySize - geomSum) * 100.0)) / 100.0;
-                        if (log.isDebugEnabled()) {
-                            log.debug("Differenz = " + diff);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Differenz = " + diff);
                         }
                         if (diff == 0.0) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flächen sind gleich");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flächen sind gleich");
                             }
                             lblWFSInfo.setIcon(icoWFSSizeGood);
                             lblWFSInfo.setToolTipText("Summe der Angelegten Flächen, sind gleich der WFS Fläche");
                             return false;
                         } else if (diff <= 1.0) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flächen sind fast gleich");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flächen sind fast gleich");
                             }
                             lblWFSInfo.setIcon(icoWFSSizeTolerated);
                             lblWFSInfo.setToolTipText(
@@ -712,8 +740,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                         + diff);
                             return false;
                         } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flächen sind nicht gleich");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Flächen sind nicht gleich");
                             }
                             lblWFSInfo.setIcon(icoWFSSizeBad);
                             lblWFSInfo.setToolTipText("Unterschiedliche Flächen. WFS: "
@@ -722,7 +750,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             return true;
                         }
                     } catch (Exception ex) {
-                        log.error("Fehler beim Highlight test geometrySize", ex);
+                        LOG.error("Fehler beim Highlight test geometrySize", ex);
                         lblWFSInfo.setIcon(icoWFSWarn);
                         lblWFSInfo.setToolTipText("Fehler beim vergleichen der Flächen");
                         return true;
@@ -743,6 +771,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         ((JXTable)tNutzung).setSortOrder(0, SortOrder.ASCENDING);
         tNutzung.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tNutzung).packAll();
+        ((VerwaltungsTable)tNutzung).setSortButton(tbtnSort);
+        ((VerwaltungsTable)tNutzung).setUndoButton(btnUndo);
     }
 
     /**
@@ -753,15 +783,15 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
                 @Override
                 public void assignValue(final String newValue) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Bemerkung assigned");
-                        log.debug("new Value: " + newValue);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Bemerkung assigned");
+                        LOG.debug("new Value: " + newValue);
                     }
                     valueToCheck = newValue;
                     fireValidationStateChanged(this);
                     if (((currentFlurstueck != null) && (getStatus() == Validatable.VALID))
                                 || (getStatus() == Validatable.WARNING)) {
-                        log.info("Entität wirklich geändert");
+                        LOG.info("Entität wirklich geändert");
                         currentFlurstueck.setBemerkung(newValue);
                     }
                 }
@@ -775,11 +805,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
-            log.info("FlurstueckChanged");
+            LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
-            log.error("Fehler beim Flurstückswechsel: ", ex);
+            LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(VerwaltungsPanel.this);
         }
     }
@@ -805,9 +835,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                     && (currentDate.compareTo(curReBe.getDatumLoeschung()) <= 0))) {
                         allRechteExpired = false;
                     }
-                    if (log.isDebugEnabled()) {
-                        log.debug(lblRechte);
-                        log.debug("aktuelle ReBe ist recht");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(lblRechte);
+                        LOG.debug("aktuelle ReBe ist recht");
                     }
                     oneRechtExisiting = true;
                 } else {
@@ -816,12 +846,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                     && (currentDate.compareTo(curReBe.getDatumLoeschung()) <= 0))) {
                         allBelastungenExpired = false;
                     }
-                    if (log.isDebugEnabled()) {
-                        log.debug(lblBelastungen);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(lblBelastungen);
                     }
                     oneBelastungExisiting = true;
-                    if (log.isDebugEnabled()) {
-                        log.debug("aktuelle ReBe ist Belastung");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("aktuelle ReBe ist Belastung");
                     }
                 }
             }
@@ -846,7 +876,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 lblRechte.setVisible(true);
             }
         } catch (Exception ex) {
-            log.warn("Fehler beim setzen der Rebe Icons", ex);
+            LOG.warn("Fehler beim setzen der Rebe Icons", ex);
             clearReBeIcons();
         }
     }
@@ -862,8 +892,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     @Override
     public void setComponentEditable(final boolean isEditable) {
         if (isFlurstueckEditable) {
-            if (log.isDebugEnabled()) {
-                log.debug("Verwaltung --> setComponentEditable");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Verwaltung --> setComponentEditable");
             }
             final TableCellEditor currentEditor = tNutzung.getCellEditor();
             if (currentEditor != null) {
@@ -879,8 +909,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 btnRemoveVerwaltung.setEnabled(false);
             }
             // tNutzung.setEnabled(isEditable);
-            tableModel.setIsInEditMode(isEditable);
-            if (log.isDebugEnabled()) {
+            tableModel.setInEditMode(isEditable);
+            btnUndo.setEnabled(false);
+            if (LOG.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tNutzung).getHighlighters();
 //        if(isEditable){
 //        pipeline.removeHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_DEFAULT);
@@ -889,19 +920,19 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 //        pipeline.removeHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_EDIT);
 //        pipeline.addHighlighter(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER_DEFAULT,false);
 //        }
-                log.debug("Verwaltung --> setComponentEditable finished");
+                LOG.debug("Verwaltung --> setComponentEditable finished");
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Flurstück ist nicht städtisch Verwaltungen können nicht editiert werden");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Flurstück ist nicht städtisch Verwaltungen können nicht editiert werden");
             }
         }
     }
 
     @Override
     public synchronized void clearComponent() {
-        if (log.isDebugEnabled()) {
-            log.debug("Clear Verwaltungspanel");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Clear Verwaltungspanel");
         }
         clearReBeIcons();
         lblLastModification.setToolTipText(null);
@@ -911,12 +942,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             // txtBemerkung.setText("");
             bemerkungDocumentModel.clear(0, bemerkungDocumentModel.getLength());
         } catch (BadLocationException ex) {
-            log.warn("Fehler beim cleanen der Komponente", ex);
+            LOG.warn("Fehler beim cleanen der Komponente", ex);
         }
         lblBemSperre.setText("");
         tableModel.refreshTableModel(new HashSet<VerwaltungsbereichCustomBean>());
-        if (log.isDebugEnabled()) {
-            log.debug("Clear Verwaltungspanel beendet");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Clear Verwaltungspanel beendet");
         }
     }
 
@@ -940,8 +971,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     public void mouseClicked(final MouseEvent e) {
         final Object source = e.getSource();
         if (source instanceof JXTable) {
-            if (log.isDebugEnabled()) {
-                log.debug("Mit maus auf Verwaltungstabelle geklickt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Mit maus auf Verwaltungstabelle geklickt");
             }
             final int selecetdRow = tNutzung.getSelectedRow();
             if ((selecetdRow != -1) && isInEditMode) {
@@ -966,7 +997,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 return result;
             }
             for (int i = 0; i < rowCount; i++) {
-                final VerwaltungsbereichCustomBean currentBereich = tableModel.getVerwaltungsbereichAtRow(i);
+                final VerwaltungsbereichCustomBean currentBereich = tableModel.getCidsBeanAtRow(i);
 
                 if ((currentBereich != null) && (currentBereich.getGeometry() == null)) {
                     final Object idValue1 = tableModel.getValueAt(i, 0);
@@ -999,8 +1030,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void refresh(final Object refreshObject) {
-        if (log.isDebugEnabled()) {
-            log.debug("Verwaltungsbereich refreshed");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Verwaltungsbereich refreshed");
         }
         final VerwaltungsTableModel model = ((VerwaltungsTableModel)tNutzung.getModel());
         // model.updateAreaInformation(null);
@@ -1015,9 +1046,9 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // tableModel.updateAreaInformation(null);
         final Collection<VerwaltungsbereichCustomBean> vBereiche = flurstueck.getVerwaltungsbereiche();
         if (vBereiche != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(vBereiche, tableModel.getVerwaltungsbereiche());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vBereiche, tableModel.getCidsBeans());
         } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
-            flurstueck.setVerwaltungsbereiche(new HashSet(tableModel.getVerwaltungsbereiche()));
+            flurstueck.setVerwaltungsbereiche(new HashSet(tableModel.getCidsBeans()));
         }
     }
 
@@ -1030,35 +1061,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     // TODO refactor code --> poor style
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        if (features.isEmpty()) {
-            return;
-        }
-        tNutzung.getSelectionModel().removeListSelectionListener(this);
-        Feature wrappedFeature;
-        for (final Feature feature : features) {
-            if (feature instanceof StyledFeatureGroupWrapper) {
-                wrappedFeature = ((StyledFeatureGroupWrapper)feature).getFeature();
-            } else {
-                wrappedFeature = feature;
-            }
-            if (wrappedFeature instanceof VerwaltungsbereichCustomBean) {
-                // TODO Refactor Name
-                final int index = tableModel.getIndexOfVerwaltungsbereich((VerwaltungsbereichCustomBean)wrappedFeature);
-                final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
-                if ((index != -1)
-                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-                                feature)) {
-                    tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                    final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
-                    if (tmp != null) {
-                        tNutzung.scrollRectToVisible(tmp);
-                    }
-                } else {
-                    tNutzung.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
-                }
-            }
-        }
-        tNutzung.getSelectionModel().addListSelectionListener(this);
+        ((VerwaltungsTable)tNutzung).featureSelectionChanged(this, features, VerwaltungsbereichCustomBean.class);
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -1072,33 +1075,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         if (e.getValueIsAdjusting() == true) {
             return;
         }
-        this.setFeatureSelectionChangedEnabled(false);
-        final int[] selectedRows = tNutzung.getSelectedRows();
-        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tNutzung.getSelectedRow() != -1) {
             if (isInEditMode) {
                 btnRemoveVerwaltung.setEnabled(true);
             } else {
                 btnRemoveVerwaltung.setEnabled(false);
             }
-            boolean firstIteration = true;
-            for (final int row : selectedRows) {
-                final int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(row);
-                if ((index != -1)) {
-                    final VerwaltungsbereichCustomBean selectedVerwaltung = tableModel.getVerwaltungsbereichAtRow(
-                            index);
-                    if ((selectedVerwaltung.getGeometry() != null)) {
-                        if (firstIteration) {
-                            mappingComp.getFeatureCollection().select(selectedVerwaltung);
-                            firstIteration = false;
-                        } else {
-                            mappingComp.getFeatureCollection().addToSelection(selectedVerwaltung);
-                        }
-                    } else if (selectedRows.length == 1) { // if the only selected element has no feature
-                        mappingComp.getFeatureCollection().unselectAll();
-                    }
-                }
-            }
+            ((VerwaltungsTable)tNutzung).valueChanged_updateFeatures(this, e);
         } else {
             btnRemoveVerwaltung.setEnabled(false);
         }
@@ -1125,7 +1108,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 }
             }
         } catch (Exception ex) {
-            log.warn("Fehler beim lesen der htmlTooltips", ex);
+            LOG.warn("Fehler beim lesen der htmlTooltips", ex);
         }
     }
 
@@ -1154,7 +1137,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     return Validatable.ERROR;
                 }
             }
-            final Vector<VerwaltungsbereichCustomBean> allVerwaltung = tableModel.getVerwaltungsbereiche();
+            final ArrayList<VerwaltungsbereichCustomBean> allVerwaltung = (ArrayList<VerwaltungsbereichCustomBean>)
+                tableModel.getCidsBeans();
             final Iterator<VerwaltungsbereichCustomBean> itVerwaltung = allVerwaltung.iterator();
             while (itVerwaltung.hasNext()) {
                 final VerwaltungsbereichCustomBean current = itVerwaltung.next();
@@ -1177,7 +1161,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             }
             return Validatable.VALID;
         } catch (Exception ex) {
-            log.error("Fehler beim validieren des Verwaltungsbereichs");
+            LOG.error("Fehler beim validieren des Verwaltungsbereichs");
             validationMessage = "Es ist ein Fehler beim validieren der Verwaltungsbereiche aufgetreten.";
             return Validatable.ERROR;
         }
@@ -1197,16 +1181,16 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void featuresRemoved(final FeatureCollectionEvent fce) {
-        if (log.isDebugEnabled()) {
-            log.debug("Features Removed");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Features Removed");
         }
         tNutzung.repaint();
     }
 
     @Override
     public void featuresChanged(final FeatureCollectionEvent fce) {
-        if (log.isDebugEnabled()) {
-            log.debug("FeaturesChanges Verwaltung");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("FeaturesChanges Verwaltung");
         }
         tNutzung.repaint();
     }
@@ -1235,8 +1219,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
      * content of this method is always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         cbSperre = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
@@ -1248,14 +1234,17 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         lblBelastungen = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tNutzung = new JXTable();
+        tNutzung = new VerwaltungsTable();
         lblBemSperre = new javax.swing.JLabel();
+        lblWFSInfo = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         btnAddVerwaltung = new javax.swing.JButton();
         btnRemoveVerwaltung = new javax.swing.JButton();
-        lblWFSInfo = new javax.swing.JLabel();
+        btnUndo = new javax.swing.JButton();
+        tbtnSort = new javax.swing.JToggleButton();
 
         cbSperre.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        cbSperre.setMargin(new java.awt.Insets(0, 0, 0, 0));
         cbSperre.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
@@ -1269,6 +1258,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jLabel4.setText("Sperre:");
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
         txtBemerkung.setColumns(20);
         txtBemerkung.setLineWrap(true);
         txtBemerkung.setRows(1);
@@ -1278,17 +1268,18 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         jSeparator1.setPreferredSize(new java.awt.Dimension(50, 1));
 
         lblRechte.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png")));
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"))); // NOI18N
         lblRechte.setToolTipText("Es sind Rechte vorhanden");
 
         lblBelastungen.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png")));
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"))); // NOI18N
         lblBelastungen.setToolTipText("Es sind Belastungen vorhanden");
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jScrollPane1.setPreferredSize(new java.awt.Dimension(100, 100));
+
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][] {},
@@ -1297,68 +1288,116 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         tNutzung.setMinimumSize(new java.awt.Dimension(225, 48));
         jScrollPane1.setViewportView(tNutzung);
 
-        btnAddVerwaltung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png")));
-        btnAddVerwaltung.setBorder(null);
-        btnAddVerwaltung.setOpaque(false);
-        btnAddVerwaltung.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddVerwaltungActionPerformed(evt);
-                }
-            });
-
-        btnRemoveVerwaltung.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png")));
-        btnRemoveVerwaltung.setBorder(null);
-        btnRemoveVerwaltung.setOpaque(false);
-        btnRemoveVerwaltung.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveVerwaltungActionPerformed(evt);
-                }
-            });
-
         lblWFSInfo.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png")));
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"))); // NOI18N
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        jPanel3.setMaximumSize(new java.awt.Dimension(10, 10));
+
+        final org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 0, Short.MAX_VALUE));
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(0, 0, Short.MAX_VALUE));
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel2.add(jPanel3, gridBagConstraints);
+
+        btnAddVerwaltung.setAction(((VerwaltungsTable)tNutzung).getAddAction());
+        btnAddVerwaltung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddVerwaltung.setBorder(null);
+        btnAddVerwaltung.setBorderPainted(false);
+        btnAddVerwaltung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel2.add(btnAddVerwaltung, gridBagConstraints);
+
+        btnRemoveVerwaltung.setAction(((VerwaltungsTable)tNutzung).getRemoveAction());
+        btnRemoveVerwaltung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveVerwaltung.setBorder(null);
+        btnRemoveVerwaltung.setBorderPainted(false);
+        btnRemoveVerwaltung.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        jPanel2.add(btnRemoveVerwaltung, gridBagConstraints);
+
+        btnUndo.setAction(((VerwaltungsTable)tNutzung).getUndoAction());
+        btnUndo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
+        btnUndo.setToolTipText("Rückgängig machen");
+        btnUndo.setBorderPainted(false);
+        btnUndo.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel2.add(btnUndo, gridBagConstraints);
+
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setToolTipText("Sortierung An / Aus");
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
+        tbtnSort.setDisabledSelectedIcon(null);
+        tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        jPanel2.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((VerwaltungsTable)tNutzung).getSortItemListener());
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
                 layout.createSequentialGroup().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
                         layout.createSequentialGroup().addContainerGap().add(
                             jSeparator1,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            211,
-                            Short.MAX_VALUE)).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        layout.createSequentialGroup().add(16, 16, 16).add(
-                            jScrollPane2,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            205,
-                            Short.MAX_VALUE)).add(
+                            Short.MAX_VALUE)).add(layout.createSequentialGroup().add(16, 16, 16).add(jScrollPane2)).add(
+                        org.jdesktop.layout.GroupLayout.TRAILING,
                         layout.createSequentialGroup().addContainerGap().add(
                             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                                 jScrollPane1,
                                 org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                211,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.TRAILING,
-                                jSeparator2,
                                 org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                211,
-                                Short.MAX_VALUE).add(
+                                Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator2).add(
                                 layout.createSequentialGroup().add(jLabel4).addPreferredGap(
                                     org.jdesktop.layout.LayoutStyle.RELATED).add(cbSperre).addPreferredGap(
                                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                                     lblBemSperre,
                                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                    86,
+                                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                                     Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                                     lblBelastungen).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                                     lblRechte).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
@@ -1367,17 +1406,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                 org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                                 org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                                 org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
                         layout.createSequentialGroup().addContainerGap().add(jLabel1)).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
                         layout.createSequentialGroup().addContainerGap().add(
-                            btnAddVerwaltung,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            103,
-                            Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnRemoveVerwaltung,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            102,
+                            jPanel2,
+                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                            0,
                             Short.MAX_VALUE))).addContainerGap()));
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
@@ -1385,13 +1418,12 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 layout.createSequentialGroup().addContainerGap().add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    108,
+                    110,
                     Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        btnAddVerwaltung,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        28,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(btnRemoveVerwaltung)).add(7, 7, 7).add(
+                    jPanel2,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(7, 7, 7).add(
                     jSeparator1,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
@@ -1405,7 +1437,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
                         jScrollPane2,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        96,
+                        97,
                         Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jSeparator2,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -1424,45 +1456,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                 org.jdesktop.layout.GroupLayout.TRAILING,
                                 lblRechte).add(org.jdesktop.layout.GroupLayout.TRAILING, lblBelastungen))))
                             .addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddVerwaltung, btnRemoveVerwaltung },
-            org.jdesktop.layout.GroupLayout.VERTICAL);
     } // </editor-fold>//GEN-END:initComponents
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveVerwaltungActionPerformed
-        final int currentRow = tNutzung.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            tableModel.removeVerwaltungsbereich(((JXTable)tNutzung).convertRowIndexToModel(currentRow));
-            tableModel.fireTableDataChanged();
-        }
-    } //GEN-LAST:event_btnRemoveVerwaltungActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddVerwaltungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddVerwaltungActionPerformed
-        try {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
-            if (log.isDebugEnabled()) {
-                log.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
-            }
-
-            this.tableModel.addVerwaltungsbereich(tmp);
-            this.tableModel.fireTableDataChanged();
-        } catch (Exception ex) {
-            log.error("error creating bean for verwaltungsbereiche", ex);
-        }
-    } //GEN-LAST:event_btnAddVerwaltungActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1479,8 +1473,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 while ((answer == null) || (answer.trim().length() == 0)) {
                     answer = JOptionPane.showInputDialog(this, "Bitte eine Bemerkung zur Sperre angeben.");
                     if (answer == null) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Sperre setzen abgebrochen");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Sperre setzen abgebrochen");
                         }
                         cbSperre.setSelected(false);
                         return;
@@ -1497,7 +1491,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             }
             currentFlurstueck.getFlurstueckSchluessel().setIstGesperrt(isGesperrt);
         } else {
-            log.error("Kann Sperre nicht setzen Flurstueck ist null");
+            LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
     } //GEN-LAST:event_cbSperreActionPerformed
 
@@ -1505,8 +1499,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void cboVGActionPerformed() {
-        if (log.isDebugEnabled()) {
-            log.debug("cboVerwaltungActionPerformed");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("cboVerwaltungActionPerformed");
         }
 //        int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
 //        if(index != -1){
