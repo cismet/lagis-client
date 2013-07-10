@@ -113,9 +113,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JButton btnRemoveBeschluss;
     private javax.swing.JButton btnRemoveKosten;
     private javax.swing.JButton btnRemoveVertrag;
-    private javax.swing.JButton btnUndoBeschluss;
-    private javax.swing.JButton btnUndoKosten;
-    private javax.swing.JButton btnUndoVertrag;
     private javax.swing.JComboBox cboVertragsart;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -515,7 +512,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnRemoveVertrag = new javax.swing.JButton();
         tbtnSortVertrag = new javax.swing.JToggleButton();
         btnAddExitingContract = new javax.swing.JButton();
-        btnUndoVertrag = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblVertraege = new de.cismet.lagis.gui.tables.VertraegeTable();
@@ -699,7 +695,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    218,
+                    203,
                     Short.MAX_VALUE).addContainerGap()));
 
         jScrollPane4.setPreferredSize(new java.awt.Dimension(0, 0));
@@ -934,7 +930,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
                     jScrollPane2,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    370,
+                    367,
                     Short.MAX_VALUE).addContainerGap()));
         panQuerverweiseLayout.setVerticalGroup(
             panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
@@ -942,7 +938,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
                     jScrollPane2,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    162,
+                    167,
                     Short.MAX_VALUE).addContainerGap()));
 
         tabKB.addTab("Querverweise", panQuerverweise);
@@ -1026,7 +1022,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                         370,
                         Short.MAX_VALUE).add(
-                        panKostenLayout.createSequentialGroup().add(0, 0, Short.MAX_VALUE).add(
+                        panKostenLayout.createSequentialGroup().add(0, 280, Short.MAX_VALUE).add(
                             pnlKostenControls,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                             org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
@@ -1041,10 +1037,10 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane5,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    131,
+                    136,
                     Short.MAX_VALUE).addContainerGap()));
 
-        tabKB.addTab("Beschlüsse", panKosten);
+        tabKB.addTab("Kosten", panKosten);
 
         jScrollPane6.setPreferredSize(new java.awt.Dimension(0, 0));
 
@@ -1120,7 +1116,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                         org.jdesktop.layout.GroupLayout.LEADING,
                         jScrollPane6,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        370,
+                        367,
                         Short.MAX_VALUE).add(
                         pnlBeschluesseControls,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -1136,17 +1132,21 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane6,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    130,
+                    135,
                     Short.MAX_VALUE).addContainerGap()));
 
-        tabKB.addTab("Kosten", panBeschluss);
+        tabKB.addTab("Beschlüsse", panBeschluss);
 
         final org.jdesktop.layout.GroupLayout panTabLayout = new org.jdesktop.layout.GroupLayout(panTab);
         panTab.setLayout(panTabLayout);
         panTabLayout.setHorizontalGroup(
             panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                panTabLayout.createSequentialGroup().addContainerGap().add(tabKB).addContainerGap()));
+                panTabLayout.createSequentialGroup().addContainerGap().add(
+                    tabKB,
+                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
+                    399,
+                    Short.MAX_VALUE).addContainerGap()));
         panTabLayout.setVerticalGroup(
             panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 panTabLayout.createSequentialGroup().addContainerGap().add(
@@ -1408,7 +1408,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         cboVertragsart.setEnabled(isEnabled);
         btnAddKosten.setEnabled(isEnabled);
         btnAddBeschluss.setEnabled(isEnabled);
-        btnUndoVertrag.setEnabled(isEnabled);
     }
 
     // TODO USE
