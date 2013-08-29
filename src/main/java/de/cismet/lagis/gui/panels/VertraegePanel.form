@@ -94,7 +94,7 @@
                           <Component id="jLabel1" alignment="1" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="218" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="203" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -504,7 +504,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="tabKB" max="32767" attributes="0"/>
+                      <Component id="tabKB" pref="399" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -544,7 +544,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane2" pref="370" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" pref="367" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -553,7 +553,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane2" pref="162" max="32767" attributes="0"/>
+                              <Component id="jScrollPane2" pref="167" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -581,8 +581,8 @@
                 <Container class="javax.swing.JPanel" name="panKosten">
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                      <JTabbedPaneConstraints tabName="Beschl&#xfc;sse">
-                        <Property name="tabTitle" type="java.lang.String" value="Beschl&#xfc;sse"/>
+                      <JTabbedPaneConstraints tabName="Kosten">
+                        <Property name="tabTitle" type="java.lang.String" value="Kosten"/>
                       </JTabbedPaneConstraints>
                     </Constraint>
                   </Constraints>
@@ -595,7 +595,7 @@
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="jScrollPane5" alignment="1" pref="370" max="32767" attributes="0"/>
                                   <Group type="102" alignment="1" attributes="0">
-                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                                      <EmptySpace min="0" pref="280" max="32767" attributes="0"/>
                                       <Component id="pnlKostenControls" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
@@ -609,7 +609,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="pnlKostenControls" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane5" pref="131" max="32767" attributes="0"/>
+                              <Component id="jScrollPane5" pref="136" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -758,8 +758,8 @@
                 <Container class="javax.swing.JPanel" name="panBeschluss">
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                      <JTabbedPaneConstraints tabName="Kosten">
-                        <Property name="tabTitle" type="java.lang.String" value="Kosten"/>
+                      <JTabbedPaneConstraints tabName="Beschl&#xfc;sse">
+                        <Property name="tabTitle" type="java.lang.String" value="Beschl&#xfc;sse"/>
                       </JTabbedPaneConstraints>
                     </Constraint>
                   </Constraints>
@@ -770,7 +770,7 @@
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jScrollPane6" alignment="0" pref="370" max="32767" attributes="0"/>
+                                  <Component id="jScrollPane6" alignment="0" pref="367" max="32767" attributes="0"/>
                                   <Component id="pnlBeschluesseControls" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -783,7 +783,7 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="pnlBeschluesseControls" min="-2" pref="26" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jScrollPane6" pref="130" max="32767" attributes="0"/>
+                              <Component id="jScrollPane6" pref="135" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                       </Group>
