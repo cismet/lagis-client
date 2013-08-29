@@ -2986,7 +2986,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     initLog4J();
                     try {
                         SPLASH = StaticStartupTools.showGhostFrame(FILEPATH_SCREEN, "lagis [Startup]");
-                        SPLASH.setLocationRelativeTo(null);
                     } catch (Exception e) {
                         LOG.warn("Problem beim Darstellen des Pre-Loading-Frame", e);
                     }
