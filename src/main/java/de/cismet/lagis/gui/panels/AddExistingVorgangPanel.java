@@ -117,7 +117,8 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
             if (vertraege != null) {
                 // Check if the Contract ist already  added
                 // if(currentFlurstueck != null && currentFlurstueck.getVertraege() != null){
-                final Iterator<VertragCustomBean> it = currentVertraegeTabelModel.getVertraege().iterator();
+                final Iterator<VertragCustomBean> it = (Iterator<VertragCustomBean>)
+                    currentVertraegeTabelModel.getCidsBeans().iterator();
                 while (it.hasNext()) {
                     final VertragCustomBean curVertrag = it.next();
                     if (vertraege.contains(curVertrag)) {
@@ -265,9 +266,9 @@ public class AddExistingVorgangPanel extends javax.swing.JPanel implements Valid
     private void btnOKActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnOKActionPerformed
         final int[] selectedRows = tblVorgang.getSelectedRows();
         for (int i = 0; i < selectedRows.length; i++) {
-            final VertragCustomBean curVertrag = tblModel.getVertragAtRow(((JXTable)tblVorgang).convertRowIndexToModel(
+            final VertragCustomBean curVertrag = tblModel.getCidsBeanAtRow(((JXTable)tblVorgang).convertRowIndexToModel(
                         selectedRows[i]));
-            currentVertraegeTabelModel.addVertrag(curVertrag);
+            currentVertraegeTabelModel.addCidsBean(curVertrag);
             final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
                         .getCrossReferencesForVertrag(curVertrag);
             if (crossRefs != null) {

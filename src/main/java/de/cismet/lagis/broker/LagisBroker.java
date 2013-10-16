@@ -575,7 +575,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         while (it.hasNext()) {
             final Widget curWidget = it.next();
             // TODO HARDCORE UGLY
-            if ((curWidget instanceof FeatureSelectionChangedListener) && (event instanceof Collection)) {
+            if ((curWidget instanceof FeatureSelectionChangedListener)
+                        && ((FeatureSelectionChangedListener)curWidget).isFeatureSelectionChangedEnabled()
+                        && (event instanceof Collection)) {
                 ((FeatureSelectionChangedListener)curWidget).featureSelectionChanged((Collection<Feature>)event);
             }
         }
@@ -1722,14 +1724,16 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             // TODO wenigstens den Nutzer benachrichtigen sonst ist es zu hard oder nur lesen modus --> besser!!!
             // System.exit(1);
         }
-        try {
-            final Element prefsCids = parent.getChild("cidsAppBackend");
-            LagisBroker.getInstance().setDomain(prefsCids.getChildText("domain"));
-            LagisBroker.getInstance().setCallserverUrl(prefsCids.getChildText("callserverurl"));
-            LagisBroker.getInstance().setConnectionClass(prefsCids.getChildText("connectionclass"));
-        } catch (Exception ex) {
-            log.fatal("Fehler beim lesen der cidsAppBackendcSettings", ex);
-            System.exit(1);
+        final Element prefsCids = parent.getChild("cidsAppBackend");
+        if (prefsCids != null) {
+            try {
+                LagisBroker.getInstance().setDomain(prefsCids.getChildText("domain"));
+                LagisBroker.getInstance().setCallserverUrl(prefsCids.getChildText("callserverurl"));
+                LagisBroker.getInstance().setConnectionClass(prefsCids.getChildText("connectionclass"));
+            } catch (Exception ex) {
+                log.fatal("Fehler beim lesen der cidsAppBackendcSettings", ex);
+                System.exit(1);
+            }
         }
     }
 

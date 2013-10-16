@@ -103,7 +103,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setGesamtpreis(betrag);
-                        vertraegeTableModel.fireTableDataChanged();
+                        vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                     }
                 }
             };
@@ -117,7 +117,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setQuadratmeterpreis(betrag);
-                        vertraegeTableModel.fireTableDataChanged();
+                        vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                     }
                 }
             };
@@ -176,7 +176,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     fireValidationStateChanged(this);
                     if ((currentSelectedVertrag != null) && (getStatus() == VALID)) {
                         currentSelectedVertrag.setAktenzeichen(newValue);
-                        vertraegeTableModel.fireTableDataChanged();
+                        vertraegeTableModel.fireTableDataChangedAndKeepSelection();
                     }
                 }
             };
@@ -211,7 +211,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     public void actionPerformed(final ActionEvent e) {
         if (currentSelectedVertrag != null) {
             currentSelectedVertrag.setVertragsart((VertragsartCustomBean)vertragsartComboBoxModel.getSelectedItem());
-            vertraegeTableModel.fireTableDataChanged();
+            vertraegeTableModel.fireTableDataChangedAndKeepSelection();
         }
     }
 
@@ -246,7 +246,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
             }
             if (currentRow != -1) {
                 currentRow = table.getFilters().convertRowIndexToModel(currentRow);
-                currentSelectedVertrag = vertraegeTableModel.getVertragAtRow(currentRow);
+                currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(currentRow);
                 try {
                     kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
                     if (currentSelectedVertrag.getGesamtpreis() != null) {
@@ -300,7 +300,6 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                     vertragsartComboBoxModel.setSelectedItem(currentSelectedVertrag.getVertragsart());
 
                     kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
-                    // beschluesseTableModel = new BeschluesseTableModel(currentSelectedVertrag.getBeschluesse());
                     beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
                     table.changeSelection(table.getFilters().convertRowIndexToView(currentRow),
                         currentColumn,
@@ -444,7 +443,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
         if (currentSelectedVertrag != null) {
             try {
                 final BeschlussCustomBean beschlussBean = BeschlussCustomBean.createNew();
-                beschluesseTableModel.addBeschluss(beschlussBean);
+                beschluesseTableModel.addCidsBean(beschlussBean);
                 currentSelectedVertrag.getBeschluesse().add(beschlussBean);
                 beschluesseTableModel.fireTableDataChanged();
                 if (log.isDebugEnabled()) {
@@ -466,7 +465,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     public void addNewKosten() {
         if (currentSelectedVertrag != null) {
             final KostenCustomBean kostenBean = KostenCustomBean.createNew();
-            kostenTableModel.addKosten(kostenBean);
+            kostenTableModel.addCidsBean(kostenBean);
             currentSelectedVertrag.getKosten().add(kostenBean);
             kostenTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {
@@ -481,13 +480,23 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
     /**
      * DOCUMENT ME!
+     */
+    public void addNewVertrag() {
+        final VertragCustomBean newVertrag = VertragCustomBean.createNew();
+        // set a Vertragsart as default
+        newVertrag.setVertragsart((VertragsartCustomBean)vertragsartComboBoxModel.getElementAt(0));
+        vertraegeTableModel.addCidsBean(newVertrag);
+    }
+
+    /**
+     * DOCUMENT ME!
      *
      * @param  kostenIndex  DOCUMENT ME!
      */
     public void removeKosten(final int kostenIndex) {
         if ((currentSelectedVertrag != null) || (kostenIndex == -1)) {
-            final KostenCustomBean kostenBean = kostenTableModel.getKostenAtRow(kostenIndex);
-            kostenTableModel.removeKosten(kostenIndex);
+            final KostenCustomBean kostenBean = kostenTableModel.getCidsBeanAtRow(kostenIndex);
+            kostenTableModel.removeCidsBean(kostenIndex);
             currentSelectedVertrag.getKosten().remove(kostenBean);
             kostenTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {
@@ -507,8 +516,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void removeBeschluss(final int beschlussIndex) {
         if ((currentSelectedVertrag != null) || (beschlussIndex == -1)) {
-            final BeschlussCustomBean beschlussBean = beschluesseTableModel.getBeschlussAtRow(beschlussIndex);
-            beschluesseTableModel.removeBeschluss(beschlussIndex);
+            final BeschlussCustomBean beschlussBean = beschluesseTableModel.getCidsBeanAtRow(beschlussIndex);
+            beschluesseTableModel.removeCidsBean(beschlussIndex);
             currentSelectedVertrag.getBeschluesse().remove(beschlussBean);
             beschluesseTableModel.fireTableDataChanged();
             if (log.isDebugEnabled()) {

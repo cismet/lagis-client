@@ -52,6 +52,7 @@ import de.cismet.lagis.editor.DateEditor;
 
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.tables.ReBeTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -65,6 +66,7 @@ import de.cismet.lagis.renderer.DateRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.util.LagISUtils;
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
 
@@ -108,15 +110,19 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private boolean isInAbteilungIXModus = false;
     private final Icon copyDisplayIcon;
+
+    private boolean listenerEnabled = true;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
+    private javax.swing.JButton btnUndo;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tReBe;
+    private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -161,13 +167,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                             if (log.isDebugEnabled()) {
                                 log.debug("Flurstück ist nicht Abteilung IX");
                             }
-                            isInAbteilungIXModus = false;
                             tableModel.setIsReBeKindSwitchAllowed(true);
                         } else {
                             if (log.isDebugEnabled()) {
                                 log.debug("Flurstück ist Abteilung IX");
                             }
-                            isInAbteilungIXModus = true;
                             tableModel.setIsReBeKindSwitchAllowed(false);
                         }
 
@@ -181,7 +185,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                                 @Override
                                 public void run() {
                                     // LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeatures(tableModel.getAllReBeFeatures());
-                                    final Vector<Feature> features = tableModel.getAllReBeFeatures();
+                                    final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
                                     if (features != null) {
                                         for (final Feature currentFeature : features) {
                                             if (currentFeature != null) {
@@ -227,7 +231,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void configureTable() {
-        tReBe.setModel(tableModel);
+        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (ReBeTable)tReBe);
         final Collection<RebeArtCustomBean> reBeArten = CidsBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {
@@ -272,7 +276,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     final int displayedIndex = componentAdapter.row;
                     final int modelIndex = ((JXTable)tReBe).getFilters().convertRowIndexToModel(displayedIndex);
-                    final RebeCustomBean r = tableModel.getReBeAtRow(modelIndex);
+                    final RebeCustomBean r = tableModel.getCidsBeanAtRow(modelIndex);
                     return (r != null) && (r.getGeometry() == null);
                 }
             };
@@ -283,6 +287,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         tReBe.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tReBe).packAll();
+        ((ReBeTable)tReBe).setSortButton(tbtnSort);
+        ((ReBeTable)tReBe).setUndoButton(btnUndo);
     }
 
     /**
@@ -339,7 +345,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final List<RebeCustomBean> allReBe = this.tableModel.getResBes();
+        final List<RebeCustomBean> allReBe = (List<RebeCustomBean>)this.tableModel.getCidsBeans();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allReBe.size());
 
         for (final RebeCustomBean rebe : allReBe) {
@@ -388,11 +394,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
 
         if (entity instanceof RebeCustomBean) {
-            final List<RebeCustomBean> residentReBe = this.tableModel.getResBes();
+            final List<RebeCustomBean> residentReBe = (List<RebeCustomBean>)this.tableModel.getCidsBeans();
             if (residentReBe.contains(entity)) {
                 log.warn("ReBe " + entity + " does already exist -> ignored");
             } else {
-                this.tableModel.addReBe((RebeCustomBean)entity);
+                this.tableModel.addCidsBean((RebeCustomBean)entity);
 
                 final StyledFeatureGroupWrapper wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity,
                         PROVIDER_NAME,
@@ -425,7 +431,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             return;
         }
 
-        final List<RebeCustomBean> residentReBe = this.tableModel.getResBes();
+        final List<RebeCustomBean> residentReBe = (List<RebeCustomBean>)this.tableModel.getCidsBeans();
         final int rowCountBefore = this.tableModel.getRowCount();
 
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -437,7 +443,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 if (residentReBe.contains(entity)) {
                     log.warn("ReBe " + entity + " does already exist -> ignored");
                 } else {
-                    this.tableModel.addReBe((RebeCustomBean)entity);
+                    this.tableModel.addCidsBean((RebeCustomBean)entity);
                     wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     fc.addFeature(wrapper);
                 }
@@ -483,7 +489,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         }
 
         btnAddReBe.setEnabled(isEditable);
-        tableModel.setIsInEditMode(isEditable);
+        tableModel.setInEditMode(isEditable);
+        btnUndo.setEnabled(false);
         if (log.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tReBe).getHighlighters();
 //        if(isEditable){
@@ -514,11 +521,16 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         jScrollPane1 = new javax.swing.JScrollPane();
-        tReBe = new JXTable();
-        btnAddReBe = new javax.swing.JButton();
-        btnRemoveReBe = new javax.swing.JButton();
+        tReBe = new ReBeTable();
         jLabel1 = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnRemoveReBe = new javax.swing.JButton();
+        btnAddReBe = new javax.swing.JButton();
+        tbtnSort = new javax.swing.JToggleButton();
+        btnUndo = new javax.swing.JButton();
 
         tReBe.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tReBe.setModel(new javax.swing.table.DefaultTableModel(
@@ -564,31 +576,67 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             });
         jScrollPane1.setViewportView(tReBe);
 
-        btnAddReBe.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
-        btnAddReBe.setBorder(null);
-        btnAddReBe.setOpaque(false);
-        btnAddReBe.addActionListener(new java.awt.event.ActionListener() {
+        jLabel1.setText("Rechte und Belastungen:");
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddReBeActionPerformed(evt);
-                }
-            });
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        btnRemoveReBe.setAction(((ReBeTable)tReBe).getRemoveAction());
         btnRemoveReBe.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveReBe.setBorder(null);
-        btnRemoveReBe.setOpaque(false);
-        btnRemoveReBe.addActionListener(new java.awt.event.ActionListener() {
+        btnRemoveReBe.setBorderPainted(false);
+        btnRemoveReBe.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveReBe.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveReBe.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(btnRemoveReBe, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveReBeActionPerformed(evt);
-                }
-            });
+        btnAddReBe.setAction(((ReBeTable)tReBe).getAddAction());
+        btnAddReBe.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddReBe.setBorder(null);
+        btnAddReBe.setBorderPainted(false);
+        btnAddReBe.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddReBe.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddReBe.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(btnAddReBe, gridBagConstraints);
 
-        jLabel1.setText("Rechte und Belastungen:");
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setToolTipText("Sortierung An / Aus");
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
+        tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((ReBeTable)tReBe).getSortItemListener());
+
+        btnUndo.setAction(((ReBeTable)tReBe).getUndoAction());
+        btnUndo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
+        btnUndo.setBorderPainted(false);
+        btnUndo.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
+        jPanel1.add(btnUndo, gridBagConstraints);
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -598,78 +646,31 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                         layout.createSequentialGroup().add(jLabel1).addPreferredGap(
                             org.jdesktop.layout.LayoutStyle.RELATED,
-                            372,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             Short.MAX_VALUE).add(
-                            btnAddReBe,
+                            jPanel1,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            25,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            btnRemoveReBe,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            15,
+                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                             org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
                         jScrollPane1,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        549,
+                        631,
                         Short.MAX_VALUE)).addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddReBe, btnRemoveReBe },
-            org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(
-                        btnRemoveReBe).add(
-                        btnAddReBe,
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
+                        jPanel1,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        28,
+                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
                     org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    248,
+                    243,
                     Short.MAX_VALUE).addContainerGap()));
-
-        layout.linkSize(
-            new java.awt.Component[] { btnAddReBe, btnRemoveReBe },
-            org.jdesktop.layout.GroupLayout.VERTICAL);
     } // </editor-fold>//GEN-END:initComponents
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveReBeActionPerformed
-        final int currentRow = tReBe.getSelectedRow();
-        if (currentRow != -1) {
-            // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            tableModel.removeReBe(((JXTable)tReBe).getFilters().convertRowIndexToModel(currentRow));
-            tableModel.fireTableDataChanged();
-        }
-    } //GEN-LAST:event_btnRemoveReBeActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddReBeActionPerformed
-        try {
-            final RebeCustomBean tmpReBe = RebeCustomBean.createNew();
-            if (isInAbteilungIXModus) {
-                tmpReBe.setIstRecht(true);
-            }
-
-            this.tableModel.addReBe(tmpReBe);
-            this.tableModel.fireTableDataChanged();
-        } catch (Exception ex) {
-            log.error("error creating rebe bean", ex);
-        }
-    } //GEN-LAST:event_btnAddReBeActionPerformed
     // End of variables declaration
     @Override
     public String getWidgetName() {
@@ -721,7 +722,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         } else {
             final int rowCount = tableModel.getRowCount();
             for (int i = 0; i < rowCount; i++) {
-                final RebeCustomBean currentReBe = tableModel.getReBeAtRow(i);
+                final RebeCustomBean currentReBe = tableModel.getCidsBeanAtRow(i);
                 // Geom geom;
                 if (currentReBe.getGeometry() == null) {
                     final Object idValue1 = tableModel.getValueAt(i, 0);
@@ -766,7 +767,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<RebeCustomBean> resBes = flurstueck.getRechteUndBelastungen();
         if (resBes != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getResBes());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getCidsBeans());
         } else {
             // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
         }
@@ -776,31 +777,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // HINT If there are problems try to remove/add Listselectionlistener at start/end of Method
     @Override
     public synchronized void featureSelectionChanged(final Collection<Feature> features) {
-        if (features.isEmpty()) {
-            return;
-        }
-
-        for (final Feature feature : features) {
-            if (feature instanceof RebeCustomBean) {
-                // TODO Refactor Name
-                final int index = tableModel.getIndexOfReBe((RebeCustomBean)feature);
-                final int displayedIndex = ((JXTable)tReBe).getFilters().convertRowIndexToView(index);
-                if ((index != -1)
-                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-                                feature)) {
-                    // tReBe.changeSelection(((JXTable)tReBe).getFilters().convertRowIndexToView(index),0,false,false);
-                    tReBe.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                    final Rectangle tmp = tReBe.getCellRect(displayedIndex, 0, true);
-                    if (tmp != null) {
-                        tReBe.scrollRectToVisible(tmp);
-                    }
-                } else {
-                    tReBe.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
-                }
-            } else {
-                tReBe.clearSelection();
-            }
-        }
+        ((ReBeTable)tReBe).featureSelectionChanged(this, features, RebeCustomBean.class);
     }
 
     // TODO WHAT IS IT GOOD FOR
@@ -811,25 +788,17 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     // ToDo multiple Selection
     @Override
     public synchronized void valueChanged(final ListSelectionEvent e) {
-        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         if (tReBe.getSelectedRow() != -1) {
             if (isInEditMode) {
                 btnRemoveReBe.setEnabled(true);
             } else {
                 btnRemoveReBe.setEnabled(false);
             }
-            final int index = ((JXTable)tReBe).getFilters().convertRowIndexToModel(tReBe.getSelectedRow());
-            if ((index != -1) && (tReBe.getSelectedRowCount() <= 1)) {
-                final RebeCustomBean selectedReBe = tableModel.getReBeAtRow(index);
-                if ((selectedReBe.getGeometry() != null)
-                            && !mappingComp.getFeatureCollection().isSelected(selectedReBe)) {
-                    mappingComp.getFeatureCollection().select(selectedReBe);
-                }
-            }
+            ((ReBeTable)tReBe).valueChanged_updateFeatures(this, e);
         } else {
             btnRemoveReBe.setEnabled(false);
-            return;
         }
+        this.setFeatureSelectionChangedEnabled(true);
     }
 
     // TODO USE
@@ -886,5 +855,14 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public boolean knowsDisplayName(final BasicEntity entity) {
         return entity instanceof RebeCustomBean;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 }

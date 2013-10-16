@@ -236,7 +236,6 @@
                   <Image iconType="3" name="/de/cismet/lagis/ressource/icons/menue/tooloptions.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Optionen"/>
-                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mniOptionsActionPerformed"/>

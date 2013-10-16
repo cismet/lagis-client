@@ -134,6 +134,7 @@ import de.cismet.tools.configuration.ConfigurationManager;
 import de.cismet.tools.gui.Static2DTools;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
+import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 import de.cismet.tools.gui.startup.StaticStartupTools;
 
 /**
@@ -311,6 +312,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private String validationMessage = "Die Komponente ist valide";
     private FlurstueckInfoClipboard fsInfoClipboard;
     private JDialog alkisRendererDialog;
+
+    private boolean listenerEnabled = true;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAcceptChanges;
@@ -677,7 +680,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
             setWindowSize();
             mapComponent.setInternalLayerWidgetAvailable(true);
-            validateTree();
             for (final Scale s : mapComponent.getScales()) {
                 if (s.getDenominator() > 0) {
                     menExtras.add(getScaleMenuItem(s.getText(), s.getDenominator()));
@@ -734,6 +736,24 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                         .getProgressObserver()
                         .setProgress(850, "Initialisieren und Starten des Hintergrundthreads...");
             }
+
+            final KeyStroke configLoggerKeyStroke = KeyStroke.getKeyStroke('L', InputEvent.CTRL_MASK);
+            final Action configAction = new AbstractAction() {
+
+                    @Override
+                    public void actionPerformed(final ActionEvent e) {
+                        java.awt.EventQueue.invokeLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    Log4JQuickConfig.getSingletonInstance().setVisible(true);
+                                }
+                            });
+                    }
+                };
+            getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(configLoggerKeyStroke, "CONFIGLOGGING");
+            getRootPane().getActionMap().put("CONFIGLOGGING", configAction);
+
             updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
 
                     @Override
@@ -870,7 +890,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 SPLASH.dispose();
             }
             SPLASH = null;
-            setVisible(true);
 //            CidsBroker.setMainframe(this);
             // check if there ist at least one editable Widget
             if (LagisBroker.getInstance().isCoreReadOnlyMode()
@@ -889,7 +908,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     }
                 }
             }
-            mapComponent.unlock();
 
             // ----
 
@@ -1069,18 +1087,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         configManager.addConfigurable((ActiveLayerModel)mappingModel);
         configManager.addConfigurable(mapComponent);
 
-        try {
-            validateTree();
-        } catch (final Throwable t) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        LOG.warn("Fehler in validateTree()", t);
-                        validateTree();
-                    }
-                });
-        }
         // First local configuration than serverconfiguration
         configManager.configure(mappingModel);
         mapComponent.preparationSetMappingModel(mappingModel);
@@ -1210,12 +1216,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     private void initDefaultPanels() {
         LOG.info("Initialisieren der einzelnen Komponenten");
-        pFlurstueck = new VerwaltungsPanel();
+        pFlurstueck = VerwaltungsPanel.getInstance();
         pVertraege = new VertraegePanel();
-        pNKFOverview = new NKFOverviewPanel();
+        pNKFOverview = NKFOverviewPanel.getInstance();
         pDMS = new DMSPanel();
         pKarte = new KartenPanel();
-        pNKF = new NKFPanel();
+        pNKF = NKFPanel.getInstance();
         pRechteDetail = new ReBePanel();
         pHistory = new HistoryPanel();
         configManager.addConfigurable(pHistory);
@@ -1882,7 +1888,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mniOptions.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/menue/tooloptions.png"))); // NOI18N
         mniOptions.setText("Optionen");
-        mniOptions.setEnabled(false);
         mniOptions.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
@@ -2150,107 +2155,107 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnOpenWizardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenWizardActionPerformed
+    private void btnOpenWizardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnOpenWizardActionPerformed
         WizardDisplayer.showWizard(new ContinuationWizard().createWizard(),
             new Rectangle(20, 20, 600, 400));
-    }//GEN-LAST:event_btnOpenWizardActionPerformed
+    }                                                                                 //GEN-LAST:event_btnOpenWizardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniNewsActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniNewsActionPerformed
+    private void mniNewsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniNewsActionPerformed
         openUrlInExternalBrowser(newsURL);
-    }//GEN-LAST:event_mniNewsActionPerformed
+    }                                                                           //GEN-LAST:event_mniNewsActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniOnlineHelpActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniOnlineHelpActionPerformed
+    private void mniOnlineHelpActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniOnlineHelpActionPerformed
         openUrlInExternalBrowser(onlineHelpURL);
-    }//GEN-LAST:event_mniOnlineHelpActionPerformed
+    }                                                                                 //GEN-LAST:event_mniOnlineHelpActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniHistoryActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniHistoryActionPerformed
+    private void mniHistoryActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniHistoryActionPerformed
         showOrHideView(vHistory);
-    }//GEN-LAST:event_mniHistoryActionPerformed
+    }                                                                              //GEN-LAST:event_mniHistoryActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniDMSActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniDMSActionPerformed
+    private void mniDMSActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniDMSActionPerformed
         showOrHideView(vDMS);
-    }//GEN-LAST:event_mniDMSActionPerformed
+    }                                                                          //GEN-LAST:event_mniDMSActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniReBeActionPerformed
+    private void mniReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniReBeActionPerformed
         showOrHideView(vReBe);
-    }//GEN-LAST:event_mniReBeActionPerformed
+    }                                                                           //GEN-LAST:event_mniReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniNutzungActionPerformed
+    private void mniNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniNutzungActionPerformed
         showOrHideView(vNKF);
-    }//GEN-LAST:event_mniNutzungActionPerformed
+    }                                                                              //GEN-LAST:event_mniNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniNKFOverviewActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniNKFOverviewActionPerformed
+    private void mniNKFOverviewActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniNKFOverviewActionPerformed
         showOrHideView(vNKFOverview);
-    }//GEN-LAST:event_mniNKFOverviewActionPerformed
+    }                                                                                  //GEN-LAST:event_mniNKFOverviewActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniVorgaengeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniVorgaengeActionPerformed
+    private void mniVorgaengeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniVorgaengeActionPerformed
         showOrHideView(vVertraege);
-    }//GEN-LAST:event_mniVorgaengeActionPerformed
+    }                                                                                //GEN-LAST:event_mniVorgaengeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniVerwaltungsbereichActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniVerwaltungsbereichActionPerformed
+    private void mniVerwaltungsbereichActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniVerwaltungsbereichActionPerformed
         showOrHideView(vFlurstueck);
-    }//GEN-LAST:event_mniVerwaltungsbereichActionPerformed
+    }                                                                                         //GEN-LAST:event_mniVerwaltungsbereichActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniMapActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniMapActionPerformed
+    private void mniMapActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniMapActionPerformed
         showOrHideView(vKarte);
-    }//GEN-LAST:event_mniMapActionPerformed
+    }                                                                          //GEN-LAST:event_mniMapActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniGotoPointActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniGotoPointActionPerformed
+    private void mniGotoPointActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniGotoPointActionPerformed
         final BoundingBox c = mapComponent.getCurrentBoundingBox();
         final double x = (c.getX1() + c.getX2()) / 2;
         final double y = (c.getY1() + c.getY2()) / 2;
@@ -2268,14 +2273,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             mapComponent.gotoBoundingBox(bb, true, false, mapComponent.getAnimationDuration());
         } catch (Exception skip) {
         }
-    }//GEN-LAST:event_mniGotoPointActionPerformed
+    }                                                                                //GEN-LAST:event_mniGotoPointActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniScaleActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniScaleActionPerformed
+    private void mniScaleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniScaleActionPerformed
         final String s = JOptionPane.showInputDialog(
                 this,
                 "Maßstab_manuell_auswählen",
@@ -2286,56 +2291,56 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             mapComponent.gotoBoundingBoxWithHistory(mapComponent.getBoundingBoxFromScale(i));
         } catch (Exception skip) {
         }
-    }//GEN-LAST:event_mniScaleActionPerformed
+    }                                                                            //GEN-LAST:event_mniScaleActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniHomeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniHomeActionPerformed
+    private void mniHomeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniHomeActionPerformed
         if (mapComponent != null) {
             mapComponent.gotoInitialBoundingBox();
         }
-    }//GEN-LAST:event_mniHomeActionPerformed
+    }                                                                           //GEN-LAST:event_mniHomeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniForwardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniForwardActionPerformed
+    private void mniForwardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniForwardActionPerformed
         if ((mapComponent != null) && mapComponent.isForwardPossible()) {
             mapComponent.forward(true);
         }
-    }//GEN-LAST:event_mniForwardActionPerformed
+    }                                                                              //GEN-LAST:event_mniForwardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniBackActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniBackActionPerformed
+    private void mniBackActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniBackActionPerformed
         if ((mapComponent != null) && mapComponent.isBackPossible()) {
             mapComponent.back(true);
         }
-    }//GEN-LAST:event_mniBackActionPerformed
+    }                                                                           //GEN-LAST:event_mniBackActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniRefreshActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniRefreshActionPerformed
+    private void mniRefreshActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniRefreshActionPerformed
         LagisBroker.getInstance().reloadFlurstueck();
-    }//GEN-LAST:event_mniRefreshActionPerformed
+    }                                                                              //GEN-LAST:event_mniRefreshActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniClippboardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniClippboardActionPerformed
+    private void mniClippboardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniClippboardActionPerformed
         final Thread t = new Thread(new Runnable() {
 
                     @Override
@@ -2361,23 +2366,23 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     }
                 });
         t.start();
-    }//GEN-LAST:event_mniClippboardActionPerformed
+    } //GEN-LAST:event_mniClippboardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniResetWindowLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniResetWindowLayoutActionPerformed
+    private void mniResetWindowLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniResetWindowLayoutActionPerformed
         doLayoutInfoNode();
-    }//GEN-LAST:event_mniResetWindowLayoutActionPerformed
+    }                                                                                        //GEN-LAST:event_mniResetWindowLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniSaveLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniSaveLayoutActionPerformed
+    private void mniSaveLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniSaveLayoutActionPerformed
         final JFileChooser fc = new JFileChooser(DIRECTORYPATH_LAGIS);
         fc.setFileFilter(new FileFilter() {
 
@@ -2409,7 +2414,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 saveLayout(name + ".layout");
             }
         }
-    }//GEN-LAST:event_mniSaveLayoutActionPerformed
+    } //GEN-LAST:event_mniSaveLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2504,17 +2509,17 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniCloseActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniCloseActionPerformed
+    private void mniCloseActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniCloseActionPerformed
         this.cleanUp();
         this.dispose();
-    }//GEN-LAST:event_mniCloseActionPerformed
+    }                                                                            //GEN-LAST:event_mniCloseActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniLoadLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniLoadLayoutActionPerformed
+    private void mniLoadLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniLoadLayoutActionPerformed
         final JFileChooser fc = new JFileChooser(DIRECTORYPATH_LAGIS);
         fc.setFileFilter(new FileFilter() {
 
@@ -2545,7 +2550,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     JOptionPane.INFORMATION_MESSAGE);
             }
         }
-    }//GEN-LAST:event_mniLoadLayoutActionPerformed
+    } //GEN-LAST:event_mniLoadLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2593,16 +2598,16 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnReloadFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadFlurstueckActionPerformed
+    private void btnReloadFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnReloadFlurstueckActionPerformed
         LagisBroker.getInstance().reloadFlurstueck();
-    }//GEN-LAST:event_btnReloadFlurstueckActionPerformed
+    }                                                                                       //GEN-LAST:event_btnReloadFlurstueckActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnDiscardChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiscardChangesActionPerformed
+    private void btnDiscardChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnDiscardChangesActionPerformed
         if (LagisBroker.getInstance().isInEditMode()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Versuche aus Editiermodus heraus zu wechseln: ");
@@ -2643,7 +2648,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
             }
         }
-    }//GEN-LAST:event_btnDiscardChangesActionPerformed
+    } //GEN-LAST:event_btnDiscardChangesActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2657,7 +2662,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAcceptChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptChangesActionPerformed
+    private void btnAcceptChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAcceptChangesActionPerformed
         try {
             if (LagisBroker.getInstance().isInEditMode()) {
                 if (LOG.isDebugEnabled()) {
@@ -2734,14 +2739,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 btnOpenWizard.setEnabled(true);
             }
         }
-    }//GEN-LAST:event_btnAcceptChangesActionPerformed
+    } //GEN-LAST:event_btnAcceptChangesActionPerformed
 
     /**
      * boolean isInEditMode = false;
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnSwitchInEditmodeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchInEditmodeActionPerformed
+    private void btnSwitchInEditmodeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnSwitchInEditmodeActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Versuche in Editiermodus zu wechseln: ");
         }
@@ -2765,34 +2770,34 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         if (LOG.isDebugEnabled()) {
             LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
         }
-    }//GEN-LAST:event_btnSwitchInEditmodeActionPerformed
+    } //GEN-LAST:event_btnSwitchInEditmodeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniLockLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniLockLayoutActionPerformed
+    private void mniLockLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniLockLayoutActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_mniLockLayoutActionPerformed
+    } //GEN-LAST:event_mniLockLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniOptionsActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniOptionsActionPerformed
+    private void mniOptionsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniOptionsActionPerformed
         final OptionsDialog od = new OptionsDialog(this, true);
         od.setLocationRelativeTo(this);
         od.setVisible(true);
-    }//GEN-LAST:event_mniOptionsActionPerformed
+    }                                                                              //GEN-LAST:event_mniOptionsActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
+    private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
         if (aktenzeichenDialog == null) {
             aktenzeichenDialog = new JDialog(LagisBroker.getInstance().getParentComponent(),
                     "Suche nach Aktenzeichen",
@@ -2808,46 +2813,46 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 StaticSwingTools.showDialog(aktenzeichenDialog);
             }
         }
-    }//GEN-LAST:event_btnAktenzeichenSucheActionPerformed
+    }                                                                                        //GEN-LAST:event_btnAktenzeichenSucheActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniInformationActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniInformationActionPerformed
+    private void mniInformationActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniInformationActionPerformed
         showOrHideView(vInformation);
-    }//GEN-LAST:event_mniInformationActionPerformed
+    }                                                                                  //GEN-LAST:event_mniInformationActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdPrintActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdPrintActionPerformed
+    private void cmdPrintActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdPrintActionPerformed
         final String oldMode = mapComponent.getInteractionMode();
         if (LOG.isDebugEnabled()) {
             LOG.debug("oldInteractionMode:" + oldMode);
         }
 
         mapComponent.showPrintingSettingsDialog(oldMode);
-    }//GEN-LAST:event_cmdPrintActionPerformed
+    } //GEN-LAST:event_cmdPrintActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniPrintActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniPrintActionPerformed
+    private void mniPrintActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniPrintActionPerformed
         cmdPrintActionPerformed(evt);
-    }//GEN-LAST:event_mniPrintActionPerformed
+    }                                                                            //GEN-LAST:event_mniPrintActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
         final FlurstueckCustomBean flurstueckBean = LagisBroker.getInstance().getCurrentFlurstueck();
         if (flurstueckBean == null) {
             LOG.warn("es wurde versucht den alkisrenderer aufzurufen, obwohl kein flurstueck selektiert ist");
@@ -2900,7 +2905,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             showErrorMessage(
                 "<html>Die Metaclasse 'alkis_landparcel' konnte nicht geladen werden<br/>Überprüfen Sie die Benutzerrechte.");
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    } //GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2981,7 +2986,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     initLog4J();
                     try {
                         SPLASH = StaticStartupTools.showGhostFrame(FILEPATH_SCREEN, "lagis [Startup]");
-                        SPLASH.setLocationRelativeTo(null);
                     } catch (Exception e) {
                         LOG.warn("Problem beim Darstellen des Pre-Loading-Frame", e);
                     }
@@ -3184,50 +3188,35 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
-            CidsBroker.getInstance();
             try {
                 final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
-                final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
+                final LagisBroker broker = LagisBroker.getInstance();
+                try {
+                    final String crossoverServerPort = crossoverPrefs.getChildText("ServerPort");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
+                    }
+                    initCrossoverServer(Integer.parseInt(crossoverServerPort));
+                } catch (Exception ex) {
+                    LOG.warn("Crossover: Error while starting Server", ex);
                 }
-                initCrossoverServer(Integer.parseInt(crossoverServerPort));
-            } catch (Exception ex) {
-                LOG.warn("Crossover: Error while starting Server", ex);
-            }
-            try {
-                final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
-                final String verdisHost = crossoverPrefs.getChild("VerdisConfiguration").getChildText("Host");
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Crossover: verdisHost: " + verdisHost);
+                try {
+                    broker.setVerdisCrossoverPort(Integer.parseInt(crossoverPrefs.getChildText("VerdisCrossoverPort")));
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Crossover: verdisCrossoverPort: " + broker.getVerdisCrossoverPort());
+                    }
+                } catch (Exception ex) {
+                    LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
                 }
-//                final String verdisORBPort = crossoverPrefs.getChild("VerdisConfiguration").getChildText("ORBPort");
-//                if (LOG.isDebugEnabled()) {
-//                    LOG.debug("Crossover: verdisORBPort: " + verdisORBPort);
-//                }
-                LagisBroker.getInstance()
-                        .setVerdisCrossoverPort(Integer.parseInt(
-                                crossoverPrefs.getChild("VerdisConfiguration").getChildText("VerdisCrossoverPort")));
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Crossover: verdisCrossoverPort: " + LagisBroker.getInstance().getVerdisCrossoverPort());
+                try {
+                    final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText(
+                                "KassenzeichenBuffer"));
+                    broker.setKassenzeichenBuffer(kassenzeichenBuffer);
+                } catch (Exception ex) {
+                    LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
                 }
-                // TODO Jean : verdisServer mit cids nachbilden
-// final KassenzeichenFacadeRemote verdisServer = EJBAccessor.createEJBAccessor(
-// verdisHost,
-// verdisORBPort,
-// KassenzeichenFacadeRemote.class)
-// .getEjbInterface();
-// LagisBroker.getInstance().setVerdisServer(verdisServer);
             } catch (Exception ex) {
-                LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
-            }
-            try {
-                final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
-                final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText(
-                            "KassenzeichenBuffer"));
-                LagisBroker.getInstance().setKassenzeichenBuffer(kassenzeichenBuffer);
-            } catch (Exception ex) {
-                LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
+                LOG.error("Crossover: Fehler beim Konfigurieren.", ex);
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);
@@ -3539,7 +3528,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Login erfolgreich");
             }
-            new LagisApp();
+            final LagisApp app = new LagisApp();
+            app.setVisible(true);
+            app.getMapComponent().unlock();
         } else {
             // Should never gets executed
             LOG.warn("Login fehlgeschlagen");
@@ -3708,6 +3699,24 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     @Override
     public void stateChanged(final ChangeEvent e) {
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private MappingComponent getMapComponent() {
+        return mapComponent;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 
     //~ Inner Classes ----------------------------------------------------------

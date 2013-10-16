@@ -634,7 +634,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/snap.png")));          // NOI18N
         cmdSnap.setToolTipText("Snapping an/aus");
         cmdSnap.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 3, 1, 3));
-        cmdSnap.setSelected(true);
         cmdSnap.setSelectedIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/snap_selected.png"))); // NOI18N
         cmdSnap.addActionListener(new java.awt.event.ActionListener() {
@@ -935,9 +934,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                     cmdAdd,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap(
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE)));
+                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap(75, Short.MAX_VALUE)));
 
         add(jPanel1, java.awt.BorderLayout.SOUTH);
     } // </editor-fold>//GEN-END:initComponents
@@ -1062,6 +1059,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         final boolean snapEnab = true;
         final boolean snapVizEnab = true;
         mappingComponent.setSnappingEnabled(snapEnab);
+        cmdSnap.setSelected(snapEnab);
         mappingComponent.setVisualizeSnappingEnabled(snapVizEnab);
         cmdNewPoint.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.NEW_POLYGON);
@@ -1082,6 +1080,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         final boolean snapEnab = true;
         final boolean snapVizEnab = true;
         mappingComponent.setSnappingEnabled(snapEnab);
+        cmdSnap.setSelected(snapEnab);
         mappingComponent.setVisualizeSnappingEnabled(snapVizEnab);
         cmdNewPolygon.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.NEW_POLYGON);
@@ -1137,12 +1136,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdSplitPoly.setSelected(false);
         cmdJoinPoly.setSelected(false);
         cmdRaisePolygon.setSelected(false);
-
-        if (mappingComponent.isReadOnly()) {
-            log.info("Ist Readonly snapping wird diseabled");
-            mappingComponent.setSnappingEnabled(false);
-            mappingComponent.setVisualizeSnappingEnabled(false);
-        }
     }
 
     @Override
@@ -1272,8 +1265,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         // TODO CHANGE CONFIG FILE ACTION
         // cismapPrefs.getGlobalPrefs().setSnappingEnabled(cmdSnap.isSelected());
         // cismapPrefs.getGlobalPrefs().setSnappingPreviewEnabled(cmdSnap.isSelected());
-        mappingComponent.setSnappingEnabled(!mappingComponent.isReadOnly() && cmdSnap.isSelected());
-        mappingComponent.setVisualizeSnappingEnabled(!mappingComponent.isReadOnly() && cmdSnap.isSelected());
+        mappingComponent.setSnappingEnabled(cmdSnap.isSelected());
+        mappingComponent.setVisualizeSnappingEnabled(cmdSnap.isSelected());
         mappingComponent.setInGlueIdenticalPointsMode(cmdSnap.isSelected());
     } //GEN-LAST:event_cmdSnapActionPerformed
 
@@ -1910,6 +1903,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         if (LagisBroker.getInstance().isInEditMode() && (features != null) && (features.size() > 0)) {
             final Iterator<Feature> it = features.iterator();
+            cmdCopyFlaeche.setEnabled(false);
             while (it.hasNext()) {
                 final Feature curFeature = it.next();
                 if (curFeature.canBeSelected()
@@ -1919,10 +1913,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                         log.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
                     }
                     cmdCopyFlaeche.setEnabled(true);
-                    return;
+                    break;
                 }
             }
-            cmdCopyFlaeche.setEnabled(false);
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("disable copy nicht alle vorraussetzungen erfüllt");
