@@ -37,4 +37,18 @@ public interface FeatureSelectionChangedListener extends ChangeListener {
      * @param  features  DOCUMENT ME!
      */
     void featureSelectionChanged(Collection<Feature> features);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    boolean isFeatureSelectionChangedEnabled();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  featureSelectionChangedEnabled  listenerEnabled DOCUMENT ME!
+     */
+    void setFeatureSelectionChangedEnabled(boolean featureSelectionChangedEnabled);
 }

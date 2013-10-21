@@ -313,6 +313,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private FlurstueckInfoClipboard fsInfoClipboard;
     private JDialog alkisRendererDialog;
 
+    private boolean listenerEnabled = true;
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAcceptChanges;
     private javax.swing.JButton btnAktenzeichenSuche;
@@ -1214,12 +1216,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     private void initDefaultPanels() {
         LOG.info("Initialisieren der einzelnen Komponenten");
-        pFlurstueck = new VerwaltungsPanel();
+        pFlurstueck = VerwaltungsPanel.getInstance();
         pVertraege = new VertraegePanel();
-        pNKFOverview = new NKFOverviewPanel();
+        pNKFOverview = NKFOverviewPanel.getInstance();
         pDMS = new DMSPanel();
         pKarte = new KartenPanel();
-        pNKF = new NKFPanel();
+        pNKF = NKFPanel.getInstance();
         pRechteDetail = new ReBePanel();
         pHistory = new HistoryPanel();
         configManager.addConfigurable(pHistory);
@@ -2984,7 +2986,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     initLog4J();
                     try {
                         SPLASH = StaticStartupTools.showGhostFrame(FILEPATH_SCREEN, "lagis [Startup]");
-                        SPLASH.setLocationRelativeTo(null);
                     } catch (Exception e) {
                         LOG.warn("Problem beim Darstellen des Pre-Loading-Frame", e);
                     }
@@ -3707,6 +3708,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     private MappingComponent getMapComponent() {
         return mapComponent;
+    }
+    @Override
+    public boolean isFeatureSelectionChangedEnabled() {
+        return listenerEnabled;
+    }
+
+    @Override
+    public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
+        this.listenerEnabled = listenerEnabled;
     }
 
     //~ Inner Classes ----------------------------------------------------------

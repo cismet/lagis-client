@@ -20,3 +20,8 @@ The city of Wuppertal. Ressort 102 - Geodesy, Cadastres and Geodata. (Contact: M
 
 
 Don't hesitate to contact us if you have any questions.
+
+License
+=======
+
+lagis-client is distributed under [GPLv3](https://github.com/cismet/lagis-client/blob/dev/LICENSE)

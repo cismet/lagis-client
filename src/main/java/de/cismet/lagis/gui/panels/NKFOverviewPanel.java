@@ -26,6 +26,7 @@ import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
@@ -35,6 +36,9 @@ import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.tables.NKFOverviewTable;
+import de.cismet.lagis.gui.tables.NKFTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
@@ -57,11 +61,12 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String WIDGET_NAME = "NKF Übersicht";
+    private static final NKFOverviewPanel instance = new NKFOverviewPanel();
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NKFOverviewPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
     private FlurstueckCustomBean currentFlurstueck;
-    private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private NKFOverviewTableModel tableModel = new NKFOverviewTableModel();
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
@@ -70,11 +75,14 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"));
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuchen;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblHistoricIcon;
     private javax.swing.JLabel lblStilleReserven;
     private javax.swing.JLabel lblStilleReservenBetrag;
     private javax.swing.JTable tSummeNutzungen;
+    private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -82,7 +90,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     /**
      * Creates new form NKFPanel.
      */
-    public NKFOverviewPanel() {
+    private NKFOverviewPanel() {
         setIsCoreWidget(true);
         initComponents();
         tSummeNutzungen.setModel(tableModel);
@@ -92,11 +100,30 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         ((JXTable)tSummeNutzungen).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
         ((JXTable)tSummeNutzungen).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable)tSummeNutzungen).packAll();
+        ((NKFOverviewTable)tSummeNutzungen).setSortButton(tbtnSort);
         configBackgroundThread();
         btnBuchen.setEnabled(false);
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JTable getSummeNutzungenTable() {
+        return tSummeNutzungen;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static NKFOverviewPanel getInstance() {
+        return instance;
+    }
 
     /**
      * DOCUMENT ME!
@@ -125,7 +152,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                         }
                         LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
                     } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
+                        LOG.error("Fehler im refresh thread: ", ex);
                         LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
                     }
                 }
@@ -142,11 +169,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
     @Override
     public synchronized void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
-            log.info("FlurstueckChanged");
+            LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
-            log.error("Fehler beim Flurstückswechsel: ", ex);
+            LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
         }
     }
@@ -180,8 +207,8 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 btnBuchen.setEnabled(isEditable);
             }
         }
-        if (log.isDebugEnabled()) {
-            log.debug("NKFOverview --> setComponentEditable finished");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("NKFOverview --> setComponentEditable finished");
         }
     }
 
@@ -195,8 +222,8 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
     @Override
     public synchronized void refresh(final Object refreshObject) {
-        if (log.isDebugEnabled()) {
-            log.debug("Refresh NKFPanel");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Refresh NKFPanel");
         }
         if ((refreshObject != null) && (refreshObject instanceof NutzungsContainer)) {
             final NutzungsContainer container = (NutzungsContainer)refreshObject;
@@ -212,12 +239,21 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tSummeNutzungen = new JXTable();
+        tSummeNutzungen = new NKFOverviewTable();
+        jPanel1 = new javax.swing.JPanel();
         lblStilleReserven = new javax.swing.JLabel();
         lblStilleReservenBetrag = new javax.swing.JLabel();
         btnBuchen = new javax.swing.JButton();
         lblHistoricIcon = new javax.swing.JLabel();
+        tbtnSort = new javax.swing.JToggleButton();
+
+        setLayout(new java.awt.GridBagLayout());
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
@@ -233,9 +269,32 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 new String[] { "Title 1", "Title 2" }));
         jScrollPane1.setViewportView(tSummeNutzungen);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipady = 50;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jScrollPane1, gridBagConstraints);
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
         lblStilleReserven.setText("Stille Reserven:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel1.add(lblStilleReserven, gridBagConstraints);
 
         lblStilleReservenBetrag.setText("0,0 €");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
+        jPanel1.add(lblStilleReservenBetrag, gridBagConstraints);
 
         btnBuchen.setText("Buchen");
         btnBuchen.addActionListener(new java.awt.event.ActionListener() {
@@ -245,45 +304,58 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     btnBuchenActionPerformed(evt);
                 }
             });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        jPanel1.add(btnBuchen, gridBagConstraints);
 
         lblHistoricIcon.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 12, 0, 0);
+        jPanel1.add(lblHistoricIcon, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        jScrollPane1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        235,
-                        Short.MAX_VALUE).add(
-                        layout.createSequentialGroup().add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                btnBuchen,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                lblStilleReserven,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                lblHistoricIcon).add(lblStilleReservenBetrag)))).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    121,
-                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(lblStilleReservenBetrag)
-                                .add(lblStilleReserven)).add(5, 5, 5).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(btnBuchen).add(
-                        lblHistoricIcon)).addContainerGap()));
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
+        tbtnSort.setToolTipText("Sortierung An / Aus");
+        tbtnSort.setBorderPainted(false);
+        tbtnSort.setContentAreaFilled(false);
+        tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 0);
+        jPanel1.add(tbtnSort, gridBagConstraints);
+        tbtnSort.addItemListener(((NKFOverviewTable)tSummeNutzungen).getSortItemListener());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTHWEST;
+        gridBagConstraints.weightx = 0.5;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(jPanel1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        add(jPanel2, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
     /**
      * DOCUMENT ME!
@@ -300,7 +372,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
             try {
                 LagisBroker.getInstance().acceptChanges();
                 if (LagisBroker.getInstance().isInEditMode()) {
-                    log.warn("Stille Reserven konnten nicht gebucht werden, immernoch im Editmodus");
+                    LOG.warn("Stille Reserven konnten nicht gebucht werden, immernoch im Editmodus");
                     JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
                         "Es war nicht möglich aus dem Editiermodus herauszuwechseln.",
                         "Stille Reserven",
@@ -319,11 +391,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                 if (ex instanceof ActionNotSuccessfulException) {
                     final ActionNotSuccessfulException reason = (ActionNotSuccessfulException)ex;
                     if (reason.hasNestedExceptions()) {
-                        log.error("Nested Rename Exceptions: ", reason.getNestedExceptions());
+                        LOG.error("Nested Rename Exceptions: ", reason.getNestedExceptions());
                     }
                     resultString.append(reason.getMessage());
                 } else {
-                    log.error("Unbekannter Fehler: ", ex);
+                    LOG.error("Unbekannter Fehler: ", ex);
                     resultString.append("Unbekannter Fehler bitte wenden Sie sich an Ihren Systemadministrator");
                 }
                 JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),

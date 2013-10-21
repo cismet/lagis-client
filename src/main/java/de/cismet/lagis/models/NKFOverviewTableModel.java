@@ -21,6 +21,8 @@ import java.text.DecimalFormat;
 
 import java.util.*;
 
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
@@ -30,6 +32,10 @@ import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.panels.NKFOverviewPanel;
+
+import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
 
@@ -44,13 +50,13 @@ public class NKFOverviewTableModel extends AbstractTableModel {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final String[] COLUMN_HEADER = { "Anlageklasse", "Summe" };
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(NKFOverviewTableModel.class);
 
     //~ Instance fields --------------------------------------------------------
 
     private ArrayList<NutzungCustomBean> nutzungen = new ArrayList<NutzungCustomBean>();
     private ArrayList<AnlagenklasseSumme> data = new ArrayList<AnlagenklasseSumme>();
     private DecimalFormat df = LagisBroker.getCurrencyFormatter();
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Date currentDate = null;
     private double stilleReserve = 0.0;
 
@@ -70,13 +76,13 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      */
     public NKFOverviewTableModel(final ArrayList<NutzungCustomBean> nutzungen) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Konstruktor Nutzungen");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Konstruktor Nutzungen");
             }
             this.nutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
+            LOG.error("Fehler beim anlegen des Models", ex);
             this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
     }
@@ -103,17 +109,19 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      */
     public synchronized void refreshModel(final ArrayList<NutzungCustomBean> nutzungen) {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Refresh Nutzungen");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Refresh Nutzungen");
             }
             this.nutzungen = new ArrayList<NutzungCustomBean>(nutzungen);
             calculateSum();
         } catch (Exception ex) {
-            log.error("Fehler beim anlegen des Models", ex);
+            LOG.error("Fehler beim anlegen des Models", ex);
             this.nutzungen = new ArrayList<NutzungCustomBean>();
         }
 
-        fireTableDataChanged();
+        TableSelectionUtils.fireTableDataChangedAndKeepSelection(
+            this,
+            NKFOverviewPanel.getInstance().getSummeNutzungenTable());
     }
 
     @Override
@@ -136,7 +144,7 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                 }
             }
         } catch (Exception ex) {
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
     }
@@ -160,24 +168,24 @@ public class NKFOverviewTableModel extends AbstractTableModel {
      * DOCUMENT ME!
      */
     private synchronized void calculateSum() {
-        if (log.isDebugEnabled()) {
-            log.debug("Calculate Sum");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Calculate Sum");
         }
         stilleReserve = 0.0;
         data = new ArrayList<AnlagenklasseSumme>();
         for (final NutzungCustomBean currentNutzung : nutzungen) {
-            if (log.isDebugEnabled()) {
-                log.debug("curNutzung:" + currentNutzung);
-                log.debug("tableModelDate:" + currentDate);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("curNutzung:" + currentNutzung);
+                LOG.debug("tableModelDate:" + currentDate);
             }
             final NutzungBuchungCustomBean currentBuchung = currentNutzung.getBuchungForDate(currentDate);
             if (currentBuchung != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("currentBuchung: " + currentBuchung);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("currentBuchung: " + currentBuchung);
                 }
                 if ((currentBuchung.getAnlageklasse() != null) && (currentBuchung.getGesamtpreis() != null)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Anlageklasse & Gesamtpreis != null");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Anlageklasse & Gesamtpreis != null");
                     }
                     final int index = 0;
                     final Iterator<AnlagenklasseSumme> itAS = data.iterator();
@@ -186,20 +194,20 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                     boolean isAlreadyInVector = false;
                     // Das hier ist Käse Code dupliziert;
                     while (itAS.hasNext()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("vektor nicht leer");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("vektor nicht leer");
                         }
                         final AnlagenklasseSumme curSumme = itAS.next();
                         if (curSumme.equals(Double.NaN)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug(
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug(
                                     "Bei der Berechnung der Summen ist ein Fehler aufgetreten: Keine weitere Berechnung");
                             }
                             continue;
                         }
                         if (curSumme.equals(currentBuchung.getAnlageklasse())) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Element der anlagensumme vorhanden");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Element der anlagensumme vorhanden");
                             }
 
                             // ToDo NKF muss behandelt werden und dem Benutzer mitgeteilt werden
@@ -212,11 +220,11 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                                                 + (currentBuchung.getGesamtpreis() - curStilleReseve));
                                 }
                             } catch (BuchungNotInNutzungException ex) {
-                                log.error("Stille Reserve konnte nicht berechnet werden: Fehlerhalfte Buchung");
+                                LOG.error("Stille Reserve konnte nicht berechnet werden: Fehlerhalfte Buchung");
                                 stilleReserve = Double.NaN;
                                 curSumme.setSumme(Double.NaN);
                             } catch (IllegalNutzungStateException ex) {
-                                log.error("Stille Reserve konnte nicht berechnet werden: Kein Buchwert");
+                                LOG.error("Stille Reserve konnte nicht berechnet werden: Kein Buchwert");
                                 stilleReserve = Double.NaN;
                                 curSumme.setSumme(Double.NaN);
                             }
@@ -224,12 +232,12 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                             isAlreadyInVector = true;
                         }
                     }
-                    if (log.isDebugEnabled()) {
-                        log.debug("nach while");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("nach while");
                     }
                     if (!isAlreadyInVector) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Element der anlagensumme hinzugefügt");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Element der anlagensumme hinzugefügt");
                         }
                         final AnlagenklasseSumme tmp = new AnlagenklasseSumme(currentBuchung.getAnlageklasse());
                         try {
@@ -240,10 +248,10 @@ public class NKFOverviewTableModel extends AbstractTableModel {
                                 tmp.setSumme((currentBuchung.getGesamtpreis()) - curStilleReseve);
                             }
                         } catch (BuchungNotInNutzungException ex) {
-                            log.error("Stille Reserve konnte nicht berechnet werden: Fehlerhalfte Buchung");
+                            LOG.error("Stille Reserve konnte nicht berechnet werden: Fehlerhalfte Buchung");
                             tmp.setSumme(Double.NaN);
                         } catch (IllegalNutzungStateException ex) {
-                            log.error("Stille Reserve konnte nicht berechnet werden: Kein Buchwert");
+                            LOG.error("Stille Reserve konnte nicht berechnet werden: Kein Buchwert");
                             tmp.setSumme(Double.NaN);
                         }
 
