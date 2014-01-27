@@ -11,6 +11,7 @@ import Sirius.navigator.connection.SessionManager;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
 import Sirius.navigator.exception.ConnectionException;
 
+import Sirius.server.middleware.interfaces.domainserver.MetaService;
 import Sirius.server.middleware.types.AbstractAttributeRepresentationFormater;
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
@@ -21,6 +22,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import de.cismet.cids.custom.beans.lagis.*;
+import de.cismet.cids.custom.objectrenderer.utils.CidsBeanSupport;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -1289,6 +1291,10 @@ public final class CidsBroker {
         }
     }
 
+    private void bla() {
+        
+    }
+    
     /**
      * DOCUMENT ME!
      *
@@ -1312,8 +1318,8 @@ public final class CidsBroker {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Rename Flurstück");
             }
-            final FlurstueckCustomBean oldFlurstueck = retrieveFlurstueck(oldFlurstueckSchluessel);
-            final FlurstueckCustomBean newFlurstueck;
+            FlurstueckCustomBean oldFlurstueck = retrieveFlurstueck(oldFlurstueckSchluessel);
+            FlurstueckCustomBean newFlurstueck;
 
             if (oldFlurstueck != null) {
                 if (LOG.isDebugEnabled()) {
@@ -1385,6 +1391,78 @@ public final class CidsBroker {
 //                        createFlurstueckHistoryEntry(historyEntry);
                             LOG.debug("Alle Aktionen für das umbenennen erfolgreich abgeschlossen.");
                         }
+
+                        final User user = SessionManager.getSession().getUser();
+                        final MetaClass mcDmsUrl = ClassCacheMultiple.getMetaClass(
+                                CidsBroker.LAGIS_DOMAIN,
+                                DmsUrlCustomBean.TABLE);
+                        final MetaClass mcNutzung = ClassCacheMultiple.getMetaClass(
+                                CidsBroker.LAGIS_DOMAIN,
+                                NutzungCustomBean.TABLE);
+                        final MetaClass mcRebe = ClassCacheMultiple.getMetaClass(
+                                CidsBroker.LAGIS_DOMAIN,
+                                RebeCustomBean.TABLE);
+                        final MetaClass mcVerwaltungsbereich = ClassCacheMultiple.getMetaClass(
+                                CidsBroker.LAGIS_DOMAIN,
+                                VerwaltungsbereichCustomBean.TABLE);
+
+                        final String queryDmsUrl = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
+                                    + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+                        final String queryNutzung = "SELECT " + mcNutzung.getID() + ", " + mcNutzung.getPrimaryKey()
+                                    + " FROM " + mcNutzung.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+                        final String queryRebe = "SELECT " + mcRebe.getID() + ", " + mcRebe.getPrimaryKey() + " FROM "
+                                    + mcRebe.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+                        final String queryVerwaltungsbereich = "SELECT " + mcVerwaltungsbereich.getID() + ", "
+                                    + mcVerwaltungsbereich.getPrimaryKey() + " FROM "
+                                    + mcVerwaltungsbereich.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+
+                        for (final BaumCustomBean baum : oldFlurstueck.getAr_baeume()) {
+                            newFlurstueck.getAr_baeume().add(baum);
+                        }
+                        oldFlurstueck.getAr_baeume().clear();
+
+                        for (final MipaCustomBean mipa : oldFlurstueck.getAr_mipas()) {
+                            newFlurstueck.getAr_mipas().add(mipa);
+                        }
+                        oldFlurstueck.getAr_mipas().clear();
+
+                        for (final VertragCustomBean vertrag : oldFlurstueck.getAr_vertraege()) {
+                            newFlurstueck.getAr_vertraege().add(vertrag);
+                        }
+                        oldFlurstueck.getAr_vertraege().clear();
+
+                        for (final MetaObject moDmsUrl
+                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryDmsUrl)) {
+                            moDmsUrl.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moDmsUrl.getBean().persist();
+                        }
+
+                        for (final MetaObject moNutzung
+                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) {
+                            moNutzung.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moNutzung.getBean().persist();
+                        }
+
+                        for (final MetaObject moRebe : SessionManager.getProxy().getMetaObjectByQuery(user, queryRebe)) {
+                            moRebe.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moRebe.getBean().persist();
+                        }
+
+                        for (final MetaObject moVerwaltungsbereich
+                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryVerwaltungsbereich)) {
+                            moVerwaltungsbereich.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moVerwaltungsbereich.getBean().persist();
+                        }
+
+                        newFlurstueck.setFk_spielplatz(oldFlurstueck.getFk_spielplatz());
+                        newFlurstueck.setBemerkung(oldFlurstueck.getBemerkung());
+                        newFlurstueck.setIn_stadtbesitz(oldFlurstueck.getIn_stadtbesitz());
+                        newFlurstueck = (FlurstueckCustomBean)newFlurstueck.persist();
+                        oldFlurstueck = (FlurstueckCustomBean)oldFlurstueck.persist();
                     } else {
                         if (LOG.isDebugEnabled()) {
                             // TODO IF THIS CASE IS POSSIBLE ROLLBACK TRANSACTION
@@ -2372,9 +2450,6 @@ public final class CidsBroker {
                                 LOG.debug("Flurstück ist Abteilung IX  --> alle Rechte werden entfernt");
                             }
                             final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
-                            if (flurstueck.getRechteUndBelastungen() != null) {
-                                flurstueck.getRechteUndBelastungen().clear();
-                            }
 
                             flurstueck.getFlurstueckSchluessel().setFlurstueckArt(abteilungIX);
                             if (flurstueck.getFlurstueckSchluessel().getDatumLetzterStadtbesitz() != null) {
