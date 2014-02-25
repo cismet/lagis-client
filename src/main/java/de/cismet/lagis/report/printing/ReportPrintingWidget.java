@@ -12,13 +12,7 @@
  */
 package de.cismet.lagis.report.printing;
 
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
-
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
+import net.sf.jasperreports.engine.JRDataSource;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -28,12 +22,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import java.io.InputStream;
 
 import java.util.HashMap;
-import java.util.logging.Level;
-
-import de.cismet.cismap.commons.gui.printing.JasperDownload;
+import java.util.Map;
+import de.cismet.cismap.commons.gui.printing.JasperReportDownload;
 
 import de.cismet.lagis.gui.checkbox.IconCheckBox;
 
@@ -48,7 +40,6 @@ import de.cismet.lagis.report.datasource.VorgaengeDataSource;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
 
-import de.cismet.tools.CismetThreadPool;
 
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.downloadmanager.DownloadManager;
@@ -659,93 +650,59 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
-    }                                                                          //GEN-LAST:event_formComponentShown
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+    }//GEN-LAST:event_formComponentShown
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed
         close();
-    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
+    }//GEN-LAST:event_cmdCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
-        final Runnable r = new Runnable() {
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdOkActionPerformed
+        final JasperReportDownload.JasperReportDataSourceGenerator dataSourceGenerator =
+            new JasperReportDownload.JasperReportDataSourceGenerator() {
 
                 @Override
-                public void run() {
-                    try {
-                        if (DownloadManagerDialog.showAskingForUserTitle((Frame)parentComponent)) {
-                            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        StaticSwingTools.showDialog(pdfWait);
-                                    }
-                                });
-
-                            if (notizenCheckBox.isSelected()) {
-                                paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
-                            }
-
-                            final InputStream in = getClass().getResourceAsStream(REPORT_MASTER);
-                            final JasperReport jasperReport = (JasperReport)JRLoader.loadObject(in);
-                            final JasperPrint jasperPrint = JasperFillManager.fillReport(
-                                    jasperReport,
-                                    paramMap,
-                                    new EmptyDataSource(1));
-
-                            final String jobname = DownloadManagerDialog.getJobname();
-                            DownloadManager.instance()
-                                    .add(new JasperDownload(
-                                            jasperPrint,
-                                            jobname,
-                                            "Lagis-Druck",
-                                            "lagis_flurstueck_details"));
-
-                            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        pdfWait.dispose();
-                                    }
-                                });
-                        }
-                    } catch (final Exception tt) {
-                        log.error("Error during Jaspern", tt); // NOI18N
-
-                        final ErrorInfo ei = new ErrorInfo(
-
-                                java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
-                                    "ReportPrintingWidget.cmdOKActionPerformed(ActionEvent).ErrorInfo.title"),
-
-                                java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
-                                    "ReportPrintingWidget.cmdOKActionPerformed(ActionEvent).ErrorInfo.message"),
-                                null,
-                                null,
-                                tt,
-                                Level.ALL,
-                                null);
-                        JXErrorPane.showDialog(ReportPrintingWidget.this.parentComponent, ei);
-
-                        if (pdfWait.isVisible()) {
-                            pdfWait.dispose();
-                        }
-                    }
+                public JRDataSource generateDataSource() {
+                    return new EmptyDataSource(1);
                 }
             };
 
-        CismetThreadPool.execute(r);
+        final JasperReportDownload.JasperReportParametersGenerator parametersGenerator =
+            new JasperReportDownload.JasperReportParametersGenerator() {
+
+                @Override
+                public Map generateParamters() {
+                    if (notizenCheckBox.isSelected()) {
+                        paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
+                    }
+                    return paramMap;
+                }
+            };
+
+        if (DownloadManagerDialog.showAskingForUserTitle((Frame)parentComponent)) {
+            final String jobname = DownloadManagerDialog.getJobname();
+            DownloadManager.instance()
+                    .add(new JasperReportDownload(
+                            REPORT_MASTER,
+                            parametersGenerator,
+                            dataSourceGenerator,
+                            jobname,
+                            "Lagis-Druck",
+                            "lagis_flurstueck_details"));
+        }
 
         setVisible(false);
-    } //GEN-LAST:event_cmdOkActionPerformed
+    }//GEN-LAST:event_cmdOkActionPerformed
 
     /**
      * DOCUMENT ME!
