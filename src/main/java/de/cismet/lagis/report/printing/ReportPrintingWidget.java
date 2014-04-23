@@ -22,9 +22,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-
 import java.util.HashMap;
 import java.util.Map;
+
 import de.cismet.cismap.commons.gui.printing.JasperReportDownload;
 
 import de.cismet.lagis.gui.checkbox.IconCheckBox;
@@ -39,7 +39,6 @@ import de.cismet.lagis.report.datasource.VorgaengeDataSource;
 
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
-
 
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.downloadmanager.DownloadManager;
@@ -650,24 +649,24 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void formComponentShown(final java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
-    }//GEN-LAST:event_formComponentShown
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
+    }                                                                          //GEN-LAST:event_formComponentShown
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
         close();
-    }//GEN-LAST:event_cmdCancelActionPerformed
+    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdOkActionPerformed
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
         final JasperReportDownload.JasperReportDataSourceGenerator dataSourceGenerator =
             new JasperReportDownload.JasperReportDataSourceGenerator() {
 
@@ -702,7 +701,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         }
 
         setVisible(false);
-    }//GEN-LAST:event_cmdOkActionPerformed
+    } //GEN-LAST:event_cmdOkActionPerformed
 
     /**
      * DOCUMENT ME!

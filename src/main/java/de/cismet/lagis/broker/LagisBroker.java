@@ -181,7 +181,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // TODO Jean
     // private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
-    private double kassenzeichenBuffer = -0.5;
+    private double kassenzeichenBuffer = -0.2;
+    private double kassenzeichenBuffer100 = -0.5;
 
     private boolean nkfAdminPermission = false;
 
@@ -1904,6 +1905,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public double getKassenzeichenBuffer() {
         return kassenzeichenBuffer;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  kassenzeichenBuffer100  DOCUMENT ME!
+     */
+    public void setKassenzeichenBuffer100(final double kassenzeichenBuffer100) {
+        this.kassenzeichenBuffer100 = kassenzeichenBuffer100;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public double getKassenzeichenBuffer100() {
+        return kassenzeichenBuffer100;
     }
 
     /**

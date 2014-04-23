@@ -3215,6 +3215,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 } catch (Exception ex) {
                     LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
                 }
+                try {
+                    final double kassenzeichenBuffer100 = Double.parseDouble(crossoverPrefs.getChildText(
+                                "KassenzeichenBuffer100"));
+                    broker.setKassenzeichenBuffer100(kassenzeichenBuffer100);
+                } catch (Exception ex) {
+                    LOG.error(
+                        "Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage bei flurstücken größer 100m",
+                        ex);
+                }
             } catch (Exception ex) {
                 LOG.error("Crossover: Fehler beim Konfigurieren.", ex);
             }

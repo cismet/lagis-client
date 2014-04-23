@@ -711,13 +711,17 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
 //                    final KassenzeichenFacadeRemote verdisServer = LagisBroker.getInstance().getVerdisServer();
 
+                    final double buffer = (flurstueckGeom.getArea() > 100)
+                        ? LagisBroker.getInstance().getKassenzeichenBuffer100()
+                        : LagisBroker.getInstance().getKassenzeichenBuffer();
+
                     final String query = "SELECT 11, k.id\n"
                                 + "FROM  kassenzeichen k, geom\n"
                                 + "WHERE k.geometrie = geom.id\n"
                                 + "AND not isEmpty(geom.geo_field)\n"
                                 + "AND intersects(geom.geo_field,st_buffer(st_buffer(geometryfromtext('"
                                 + flurstueckGeom.toText() + "',31466), "
-                                + LagisBroker.getInstance().getKassenzeichenBuffer() + "), 0))";
+                                + buffer + "), 0))";
 
                     if (log.isDebugEnabled()) {
                         log.debug(query);
