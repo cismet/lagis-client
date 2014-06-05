@@ -12,6 +12,8 @@
  */
 package de.cismet.lagis.gui.panels;
 
+import Sirius.server.middleware.types.MetaObject;
+
 import org.apache.log4j.Logger;
 
 import java.applet.AppletContext;
@@ -21,6 +23,7 @@ import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Vector;
@@ -42,6 +45,8 @@ import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
+
+import de.cismet.lagis.util.LagISUtils;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
@@ -415,72 +420,15 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
             log.debug("Dokumente werden gespeichert");
         }
         final Collection<DmsUrlCustomBean> vDMSUrls = flurstueck.getDokumente();
-        if (vDMSUrls != null) {
-            vDMSUrls.clear();
-            if (log.isDebugEnabled()) {
-                // TODO Duplicated code
-                log.debug("allPanels size: " + allPanels.size());
+        final Collection<DmsUrlCustomBean> panColl = new ArrayList<DmsUrlCustomBean>(allPanels.size());
+        for (final Object next : allPanels) {
+            if (next instanceof DocPanel) {
+                final DocPanel doc = (DocPanel)next;
+                final DmsUrlCustomBean urlBean = doc.getDMSUrlEntity();
+                panColl.add(urlBean);
             }
-            for (final Object next : allPanels) {
-                if (next instanceof DocPanel) {
-                    try {
-                        final DocPanel doc = (DocPanel)next;
-                        vDMSUrls.add(doc.getDMSUrlEntity());
-//                        DmsUrlCustomBean tmpDMS = new DmsUrlCustomBean();
-//                        tmpDMS.setName(doc.getDesc());
-//                        tmpDMS.setTyp(1);
-//                        UrlBase tmpBase = new UrlBase();
-//                        URLSplitter splitter=new URLSplitter(doc.getGotoUrl());
-//                        tmpBase.setPfad(splitter.getPath().replaceAll("\\\\","\\\\\\\\"));
-//                        tmpBase.setProtPrefix(splitter.getProt_prefix().replaceAll("\\\\","\\\\\\\\"));
-//                        tmpBase.setServer(splitter.getServer().replaceAll("\\\\","\\\\\\\\"));
-//                        UrlCustomBean tmpUrl = new UrlCustomBean();
-//                        tmpUrl.setUrlBase(tmpBase);
-//                        tmpUrl.setObjektname(splitter.getObject_name().replaceAll("\\\\","\\\\\\\\"));
-//                        tmpDMS.setUrl(tmpUrl);
-//                        vDMSUrls.add(tmpDMS);
-                    } catch (Exception ex) {
-                        log.warn("Fehler beim speichern eines Dokumentes", ex);
-                    }
-                }
-            }
-//             for(Object next:removedLinks){
-//                if(next instanceof DocPanel){
-//                     try{
-//                        DocPanel doc = (DocPanel)next;
-//                        vDMSUrls.remove(doc.getDMSUrlEntity());
-//                     }catch(Exception ex){
-//                        log.warn("Fehler beim löschen eines Dokumentes",ex);
-//                    }
-//                }
-//                }
-        } else {
-            final HashSet newCollection = new HashSet();
-            for (final Object next : allPanels) {
-                if (next instanceof DocPanel) {
-                    try {
-                        final DocPanel doc = (DocPanel)next;
-                        vDMSUrls.add(doc.getDMSUrlEntity());
-//                        DmsUrlCustomBean tmpDMS = new DmsUrlCustomBean();
-//                        tmpDMS.setName(doc.getDesc());
-//                        tmpDMS.setTyp(1);
-//                        UrlBase tmpBase = new UrlBase();
-//                        URLSplitter splitter=new URLSplitter(doc.getGotoUrl());
-//                        tmpBase.setPfad(splitter.getPath().replaceAll("\\\\","\\\\\\\\"));
-//                        tmpBase.setProtPrefix(splitter.getProt_prefix().replaceAll("\\\\","\\\\\\\\"));
-//                        tmpBase.setServer(splitter.getServer().replaceAll("\\\\","\\\\\\\\"));
-//                        UrlCustomBean tmpUrl = new UrlCustomBean();
-//                        tmpUrl.setUrlBase(tmpBase);
-//                        tmpUrl.setObjektname(splitter.getObject_name().replaceAll("\\\\","\\\\\\\\"));
-//                        tmpDMS.setUrl(tmpUrl);
-//                        newCollection.add(tmpDMS);
-                    } catch (Exception ex) {
-                        log.warn("Fehler beim speichern eines Dokumentes", ex);
-                    }
-                }
-            }
-            flurstueck.setVerwaltungsbereiche(newCollection);
         }
+        LagISUtils.makeCollectionContainSameAsOtherCollection(vDMSUrls, panColl);
         allPanels = new Vector();
     }
 
