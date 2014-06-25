@@ -12,6 +12,7 @@
  */
 package de.cismet.lagis.gui.main;
 
+import Sirius.navigator.DefaultNavigatorExceptionHandler;
 import Sirius.navigator.connection.*;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
 import Sirius.navigator.plugin.context.PluginContext;
@@ -726,6 +727,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             // TODO GEHT SCHIEF WENN ES SCHON DER PARENTFRAME IST
             clipboarder = new ClipboardWaitDialog(StaticSwingTools.getParentFrame(this), true);
             final StatusBar statusBar = new StatusBar(mapComponent);
+            DefaultNavigatorExceptionHandler.getInstance().addListener(statusBar.getExceptionHandlerListener());
             LagisBroker.getInstance().setStatusBar(statusBar);
             mapComponent.getFeatureCollection().addFeatureCollectionListener(statusBar);
             CismapBroker.getInstance().addStatusListener(statusBar);
@@ -2936,13 +2938,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  args  the command line arguments
      */
     public static void main(final String[] args) {
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-
-                @Override
-                public void uncaughtException(final Thread t, final Throwable e) {
-                    LOG.error("Uncaught Exception in " + t, e);
-                }
-            });
+        Thread.setDefaultUncaughtExceptionHandler(DefaultNavigatorExceptionHandler.getInstance());
 
         java.awt.EventQueue.invokeLater(new Runnable() {
 
