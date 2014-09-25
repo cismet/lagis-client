@@ -25,7 +25,6 @@ import org.jdom.Element;
 
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -45,6 +44,7 @@ import javax.swing.text.BadLocationException;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
@@ -61,6 +61,7 @@ import de.cismet.lagis.editor.FlaecheEditor;
 
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.dialogs.VerwaltungsbereicheHistorieDialog;
 import de.cismet.lagis.gui.tables.VerwaltungsTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
@@ -77,7 +78,6 @@ import de.cismet.lagis.renderer.VerwaltungsgebrauchRenderer;
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 
-import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
@@ -91,10 +91,10 @@ import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 
 import de.cismet.tools.CismetThreadPool;
-import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
 
+import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.DefaultHistoryModel;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
 import de.cismet.tools.gui.historybutton.JHistoryButton;
@@ -171,6 +171,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
+    private javax.swing.JButton btnHistorie;
     private javax.swing.JButton btnRemoveVerwaltung;
     private javax.swing.JButton btnUndo;
     private javax.swing.JCheckBox cbSperre;
@@ -392,7 +393,28 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             LOG.debug("Anzahl verwaltungsbereiche: "
                                         + getCurrentObject().getVerwaltungsbereiche().size());
                         }
-                        tableModel.refreshTableModel(getCurrentObject().getVerwaltungsbereiche());
+                        final Collection<VerwaltungsbereichCustomBean> verwaltungsbereiche =
+                            new ArrayList<VerwaltungsbereichCustomBean>();
+                        for (final VerwaltungsbereichCustomBean verwaltungsbereich
+                                    : getCurrentObject().getVerwaltungsbereiche()) {
+                            final GeomCustomBean geomBean;
+                            if (verwaltungsbereich.getFk_geom() == null) {
+                                geomBean = null;
+                            } else {
+                                geomBean = GeomCustomBean.createNew();
+                                geomBean.setGeo_field(verwaltungsbereich.getFk_geom().getGeo_field());
+                            }
+
+                            final VerwaltungsbereichCustomBean newVerwaltungsbereich = VerwaltungsbereichCustomBean
+                                        .createNew();
+                            newVerwaltungsbereich.setFk_verwaltende_dienststelle(
+                                verwaltungsbereich.getFk_verwaltende_dienststelle());
+                            newVerwaltungsbereich.setFk_verwaltungsgebrauch(
+                                verwaltungsbereich.getFk_verwaltungsgebrauch());
+                            newVerwaltungsbereich.setFk_geom(geomBean);
+                            verwaltungsbereiche.add(newVerwaltungsbereich);
+                        }
+                        tableModel.refreshTableModel(verwaltungsbereiche);
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -807,6 +829,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         try {
             LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
+            btnHistorie.setEnabled(!currentFlurstueck.getVerwaltungsbereicheHistorie().isEmpty());
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
@@ -1043,13 +1066,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
-        // tableModel.updateAreaInformation(null);
-        final Collection<VerwaltungsbereichCustomBean> vBereiche = flurstueck.getVerwaltungsbereiche();
-        if (vBereiche != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(vBereiche, tableModel.getCidsBeans());
-        } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
-            flurstueck.setVerwaltungsbereiche(new HashSet(tableModel.getCidsBeans()));
-        }
+        tableModel.fillFlaechen();
+        final Collection<VerwaltungsbereichCustomBean> bereiche = (Collection<VerwaltungsbereichCustomBean>)
+            tableModel.getCidsBeans();
+        flurstueck.setVerwaltungsbereiche(bereiche);
     }
 
     @Override
@@ -1243,6 +1263,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnRemoveVerwaltung = new javax.swing.JButton();
         btnUndo = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
+        btnHistorie = new javax.swing.JButton();
 
         cbSperre.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbSperre.addActionListener(new java.awt.event.ActionListener() {
@@ -1318,7 +1339,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnAddVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
@@ -1333,7 +1354,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnRemoveVerwaltung.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveVerwaltung.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
@@ -1348,7 +1369,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
         btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
@@ -1359,19 +1380,39 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         tbtnSort.setToolTipText("Sortierung An / Aus");
         tbtnSort.setBorderPainted(false);
         tbtnSort.setContentAreaFilled(false);
-        tbtnSort.setDisabledSelectedIcon(null);
         tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
         tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
         jPanel2.add(tbtnSort, gridBagConstraints);
         tbtnSort.addItemListener(((VerwaltungsTable)tNutzung).getSortItemListener());
+
+        btnHistorie.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/history.png"))); // NOI18N
+        btnHistorie.setToolTipText("Historie der Verwaltungsbereiche");
+        btnHistorie.setBorderPainted(false);
+        btnHistorie.setContentAreaFilled(false);
+        btnHistorie.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnHistorie.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnHistorie.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnHistorie.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnHistorieActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
+        jPanel2.add(btnHistorie, gridBagConstraints);
 
         final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -1418,7 +1459,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 layout.createSequentialGroup().addContainerGap().add(
                     jScrollPane1,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    110,
+                    109,
                     Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jPanel2,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -1437,7 +1478,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
                         jScrollPane2,
                         org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        97,
+                        98,
                         Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
                     jSeparator2,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
@@ -1463,7 +1504,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1493,7 +1534,19 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    } //GEN-LAST:event_cbSperreActionPerformed
+    }//GEN-LAST:event_cbSperreActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnHistorieActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorieActionPerformed
+        final VerwaltungsbereicheHistorieDialog verwaltungsHistorieDialog = new VerwaltungsbereicheHistorieDialog(
+                currentFlurstueck);
+        verwaltungsHistorieDialog.pack();
+        StaticSwingTools.showDialog(verwaltungsHistorieDialog);
+    }//GEN-LAST:event_btnHistorieActionPerformed
 
     /**
      * DOCUMENT ME!

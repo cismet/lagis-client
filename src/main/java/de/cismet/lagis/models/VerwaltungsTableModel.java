@@ -15,6 +15,8 @@
  */
 package de.cismet.lagis.models;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
     //~ Instance fields --------------------------------------------------------
 
     private double currentWFSSize = 0;
+    private boolean history = false;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -71,6 +74,24 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  history  DOCUMENT ME!
+     */
+    public void setHistory(final boolean history) {
+        this.history = history;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isHistory() {
+        return history;
+    }
 
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
@@ -93,11 +114,13 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
 
                 case 2: {
                     // if there is only one VerwaltungsbereichCustomBean & the WFS Geometry is used
-                    if (getRowCount() == 1) {
-                        return (int)Math.round(currentWFSSize);
+                    final Integer flaeche;
+                    if (isHistory()) {
+                        flaeche = vBereich.getFlaeche();
                     } else {
-                        return vBereich.getFlaeche();
+                        flaeche = determineFlaeche(vBereich);
                     }
+                    return flaeche;
                 }
                 default: {
                     return "Spalte ist nicht definiert";
@@ -106,6 +129,36 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
         } catch (Exception ex) {
             LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   vBereich  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public int determineFlaeche(final VerwaltungsbereichCustomBean vBereich) {
+        if (getRowCount() == 1) {
+            return (int)Math.round(currentWFSSize);
+        } else {
+            final Geometry tmp = vBereich.getGeometry();
+            if (tmp != null) {
+                return (int)Math.round(tmp.getArea());
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void fillFlaechen() {
+        for (int rowIndex = 0; rowIndex < getRowCount(); rowIndex++) {
+            final VerwaltungsbereichCustomBean vBereich = getCidsBeanAtRow(rowIndex);
+            vBereich.setFlaeche(determineFlaeche(vBereich));
         }
     }
 
