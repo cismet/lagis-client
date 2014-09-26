@@ -480,8 +480,8 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
                 if (lastBereich.getFk_verwaltungsgebrauch() != currentBereich.getFk_verwaltungsgebrauch()) {
                     oneOrMoreChanged = true;
                 }
-                if (lastBereich.getFlaeche() != null) {    // null ignorieren weil vor der umstellung flaeche immer null
-                                                           // ist
+                if (lastBereich.getFlaeche() != null) { // null ignorieren weil vor der umstellung flaeche immer null
+                                                        // ist
                     // und erst gefüllt werden muss
                     if (((lastBereich.getFlaeche() != null)
                                     && !lastBereich.getFlaeche().equals(currentBereich.getFlaeche()))
@@ -489,6 +489,8 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
                                     && !currentBereich.getFlaeche().equals(lastBereich.getFlaeche()))) {
                         oneOrMoreChanged = true;
                     }
+                } else {
+                    lastBereich.setFlaeche(index);
                 }
                 final Geometry lastGeometry = lastBereich.getGeometry();
                 final Geometry currentGeometry = currentBereich.getGeometry();

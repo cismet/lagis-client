@@ -7,11 +7,6 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.broker.CidsBroker;
@@ -42,14 +37,12 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
     private String abkuerzung;
     private String unterabschnitt;
     private KategorieCustomBean fk_kategorie;
-    private Collection<FarbeCustomBean> n_farben;
     private String[] PROPERTY_NAMES = new String[] {
             "id",
             "bezeichnung",
             "abkuerzung",
             "unterabschnitt",
-            "fk_kategorie",
-            "n_farben"
+            "fk_kategorie"
         };
 
     //~ Constructors -----------------------------------------------------------
@@ -184,46 +177,9 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
         this.propertyChangeSupport.firePropertyChange("fk_kategorie", null, this.fk_kategorie);
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<FarbeCustomBean> getN_farben() {
-        return this.n_farben;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setN_farben(final Collection<FarbeCustomBean> val) {
-//        Collections.sort((List<FarbeCustomBean>)val, new Comparator<FarbeCustomBean>() {
-//
-//                @Override
-//                public int compare(final FarbeCustomBean o1, final FarbeCustomBean o2) {
-//                    return (int)(o1.getId() - o2.getId());
-//                }
-//            });
-        this.n_farben = val;
-
-        this.propertyChangeSupport.firePropertyChange("n_farben", null, this.n_farben);
-    }
-
     @Override
     public String[] getPropertyNames() {
         return this.PROPERTY_NAMES;
-    }
-
-    @Override
-    public Collection<FarbeCustomBean> getFarben() {
-        return getN_farben();
-    }
-
-    @Override
-    public void setFarben(final Collection<FarbeCustomBean> val) {
-        setFarben(val);
     }
 
     @Override

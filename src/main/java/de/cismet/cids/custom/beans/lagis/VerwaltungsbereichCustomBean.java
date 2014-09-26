@@ -332,7 +332,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     @Override
     public Paint getFillingPaint() {
         final Collection<FarbeCustomBean> farben;
-        if ((getGebrauch() != null) && ((farben = getGebrauch().getFarben()) != null)) {
+        if ((getDienststelle() != null) && ((farben = getDienststelle().getFarben()) != null)) {
             final Iterator<FarbeCustomBean> it = farben.iterator();
             final FarbeCustomBean farbe;
             if (it.hasNext() && ((farbe = it.next()) != null)) {

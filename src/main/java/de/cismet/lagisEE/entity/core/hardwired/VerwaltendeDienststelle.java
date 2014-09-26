@@ -7,6 +7,9 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.core.hardwired;
 
+import java.util.Collection;
+
+import de.cismet.cids.custom.beans.lagis.FarbeCustomBean;
 import de.cismet.cids.custom.beans.lagis.RessortCustomBean;
 
 /**
@@ -87,4 +90,18 @@ public interface VerwaltendeDienststelle {
      * @param  emailAdresse  DOCUMENT ME!
      */
     void setEmailAdresse(final String emailAdresse);
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    Collection<FarbeCustomBean> getFarben();
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  val  DOCUMENT ME!
+     */
+    void setFarben(final Collection<FarbeCustomBean> val);
 }

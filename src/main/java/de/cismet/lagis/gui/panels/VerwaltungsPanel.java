@@ -73,7 +73,7 @@ import de.cismet.lagis.models.VerwaltungsTableModel;
 import de.cismet.lagis.models.documents.SimpleDocumentModel;
 
 import de.cismet.lagis.renderer.FlaecheRenderer;
-import de.cismet.lagis.renderer.VerwaltungsgebrauchRenderer;
+import de.cismet.lagis.renderer.VerwaltendeDienststelleRenderer;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
@@ -153,8 +153,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private VerwaltungsTableModel tableModel = new VerwaltungsTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private VerwaltungsgebrauchRenderer vgRenderer = new VerwaltungsgebrauchRenderer();
-    private JComboBox cboVD;
+    private VerwaltendeDienststelleRenderer vdRenderer = new VerwaltendeDienststelleRenderer();
     private WFSRetrieverFactory.WFSWorkerThread currentWFSRetriever;
     private Geometry currentGeometry = null;
     // hierüber kann man ausfindig machen was bei AbteilungIX oder Städtisch passiert (falls gerefactored wird)
@@ -647,27 +646,27 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // tableModel.setVerwaltendenDienstellenList(allVerwaltendeDienstellen);
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
         TableSelectionUtils.crossReferenceModelAndTable(tableModel, (VerwaltungsTable)tNutzung);
-        cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
+        final JComboBox cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
                     CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
-        tNutzung.setDefaultRenderer(VerwaltungsgebrauchCustomBean.class, vgRenderer);
-        tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new DefaultCellEditor(cboVD));
-        tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
-        tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         final JComboBox cboVG = new JComboBox(new Vector<VerwaltungsgebrauchCustomBean>(
                     CidsBroker.getInstance().getAllVerwaltenungsgebraeuche()));
-        cboVG.addActionListener(new ActionListener() {
+        tNutzung.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
+        tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboVD));
+        tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
+        tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
+        cboVD.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(final ActionEvent e) {
-                    cboVGActionPerformed();
+                    cboVDActionPerformed();
                 }
             });
         // JComboBox cboVG = new JComboBox(new Vector<Verwaltungsgebrauch>(allVerwaltungsgebraeuche));
-        cboVG.setEditable(true);
-        final ComboBoxCellEditor cellEditor = new ComboBoxCellEditor(cboVG);
+        cboVD.setEditable(true);
+//        final ComboBoxCellEditor cellEditor = new ComboBoxCellEditor(cboVG);
         // AutoCompleteDecorator.decorate(cboVG);
-        // tNutzung.setDefaultEditor(VerwaltungsgebrauchCustomBean.class,new ComboBoxCellEditor(cboVG));
-        tNutzung.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cboVG));
+        tNutzung.setDefaultEditor(VerwaltungsgebrauchCustomBean.class, new ComboBoxCellEditor(cboVG));
+        // tNutzung.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cboVG));
         tNutzung.addMouseListener(this);
         // (LagisBroker.grey, null, 0, -1)
         final HighlightPredicate noGeometryPredicate = new HighlightPredicate() {
@@ -1121,10 +1120,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             final Iterator<Element> it = tooltips.iterator();
             while (it.hasNext()) {
                 final Element tmpTooltip = it.next();
-                if (tmpTooltip.getChild("id").getText().equals("Verwaltungsgebrauch")) {
+                if (tmpTooltip.getChild("id").getText().equals("Verwaltendedienststelle")) {
                     final Element copy = (Element)tmpTooltip.clone();
                     copy.detach();
-                    vgRenderer.setHTMLTooltip(copy);
+                    vdRenderer.setHTMLTooltip(copy);
                 }
             }
         } catch (Exception ex) {
@@ -1504,7 +1503,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1534,24 +1533,24 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    }//GEN-LAST:event_cbSperreActionPerformed
+    } //GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnHistorieActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorieActionPerformed
+    private void btnHistorieActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnHistorieActionPerformed
         final VerwaltungsbereicheHistorieDialog verwaltungsHistorieDialog = new VerwaltungsbereicheHistorieDialog(
                 currentFlurstueck);
         verwaltungsHistorieDialog.pack();
         StaticSwingTools.showDialog(verwaltungsHistorieDialog);
-    }//GEN-LAST:event_btnHistorieActionPerformed
+    }                                                                               //GEN-LAST:event_btnHistorieActionPerformed
 
     /**
      * DOCUMENT ME!
      */
-    private void cboVGActionPerformed() {
+    private void cboVDActionPerformed() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("cboVerwaltungActionPerformed");
         }

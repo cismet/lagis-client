@@ -15,12 +15,13 @@ import java.text.SimpleDateFormat;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereicheEintragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.lagis.models.VerwaltungsTableModel;
 
-import de.cismet.lagis.renderer.VerwaltungsgebrauchRenderer;
+import de.cismet.lagis.renderer.VerwaltendeDienststelleRenderer;
 
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
@@ -34,7 +35,7 @@ public class VerwaltungsbereicheHistorieEintragPanel extends javax.swing.JPanel 
 
     //~ Instance fields --------------------------------------------------------
 
-    private final VerwaltungsgebrauchRenderer vgRenderer = new VerwaltungsgebrauchRenderer();
+    private final VerwaltendeDienststelleRenderer vdRenderer = new VerwaltendeDienststelleRenderer();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
@@ -57,7 +58,7 @@ public class VerwaltungsbereicheHistorieEintragPanel extends javax.swing.JPanel 
 
         verwaltungsTable1.setSelectionModel(new NullSelectionModel());
         verwaltungsTable1.setModel(model);
-        verwaltungsTable1.setDefaultRenderer(VerwaltungsgebrauchCustomBean.class, vgRenderer);
+        verwaltungsTable1.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
 
         final DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
         final String geaendert_am = (eintrag.getGeaendert_am() == null) ? null
