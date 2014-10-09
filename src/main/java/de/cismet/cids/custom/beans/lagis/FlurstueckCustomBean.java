@@ -464,11 +464,13 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
 
     @Override
     public void setVerwaltungsbereiche(final Collection<VerwaltungsbereichCustomBean> bereiche) {
-        final VerwaltungsbereichCustomBean[] lastBereiche = getVerwaltungsbereiche().toArray(
+        final Collection<VerwaltungsbereichCustomBean> b = getVerwaltungsbereiche();
+        final VerwaltungsbereichCustomBean[] lastBereiche = (b == null)
+            ? new VerwaltungsbereichCustomBean[0] : b.toArray(
                 new VerwaltungsbereichCustomBean[0]);
         final VerwaltungsbereichCustomBean[] currentBereiche = bereiche.toArray(new VerwaltungsbereichCustomBean[0]);
-
-        boolean oneOrMoreChanged = bereiche.size() != getVerwaltungsbereiche().size();
+        final int verwaltungsBereicheSize = (b == null) ? 0 : b.size();
+        boolean oneOrMoreChanged = bereiche.size() != verwaltungsBereicheSize;
         if (!oneOrMoreChanged) {
             for (int index = 0; index < lastBereiche.length; index++) {
                 final VerwaltungsbereichCustomBean lastBereich = lastBereiche[index];
