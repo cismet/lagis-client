@@ -91,9 +91,12 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
      */
     public static FlurstueckSchluesselCustomBean createNew() {
         try {
-            return (FlurstueckSchluesselCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+            final FlurstueckSchluesselCustomBean newBean = (FlurstueckSchluesselCustomBean)CidsBean
+                        .createNewCidsBeanFromTableName(
+                            CidsBroker.LAGIS_DOMAIN,
+                            TABLE);
+            newBean.setIstGesperrt(false);
+            return newBean;
         } catch (Exception ex) {
             LOG.error("error creating " + TABLE + " bean", ex);
             return null;
