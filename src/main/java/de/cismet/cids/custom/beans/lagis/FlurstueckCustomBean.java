@@ -293,7 +293,11 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
                 public int compare(final VerwaltungsbereicheEintragCustomBean o1,
                         final VerwaltungsbereicheEintragCustomBean o2) {
                     if (o1.getGeaendert_am() != null) {
-                        return o1.getGeaendert_am().compareTo(o2.getGeaendert_am());
+                        if (o2.getGeaendert_am() == null) {
+                            return 1;
+                        } else {
+                            return o1.getGeaendert_am().compareTo(o2.getGeaendert_am());
+                        }
                     } else {
                         return o1.getId().compareTo(o2.getId());
                     }
