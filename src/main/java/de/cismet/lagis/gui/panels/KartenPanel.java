@@ -1684,12 +1684,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 if (log.isDebugEnabled()) {
                     log.debug("Split");
                 }
-                final Feature f_split = pf.split();
-                if (f_split != null) {
-                    f_split.setEditable(true);
-                    mappingComponent.getFeatureCollection().addFeature(f_split);
-                    cmdAttachPolyToAlphadataActionPerformed(null);
-                }
+                ((StyledFeature)pf.getFeature()).setGeometry(null);
+                final Feature[] f_arr = pf.split();
+                mappingComponent.getFeatureCollection().removeFeature(pf.getFeature());
+                f_arr[0].setEditable(true);
+                f_arr[1].setEditable(true);
+                mappingComponent.getFeatureCollection().addFeature(f_arr[0]);
+                mappingComponent.getFeatureCollection().addFeature(f_arr[1]);
+                cmdAttachPolyToAlphadataActionPerformed(null);
             }
         }
     }
