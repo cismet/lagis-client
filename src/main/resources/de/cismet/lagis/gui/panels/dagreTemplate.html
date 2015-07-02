@@ -1,0 +1,128 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<title>Dagre Interactive Demo</title>
+
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://cpettitt.github.io/project/graphlib-dot/v0.5.2/graphlib-dot.js"></script>
+<script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
+
+<style>
+svg {
+  border: 1px solid #999;
+  overflow: hidden;
+}
+
+.node {
+  white-space: nowrap;
+}
+
+.node rect,
+.node circle,
+.node ellipse {
+  stroke: #333;
+  fill: #fff;
+  stroke-width: 1.5px;
+}
+
+.cluster rect {
+  stroke: #333;
+  fill: #000;
+  fill-opacity: 0.1;
+  stroke-width: 1.5px;
+}
+
+.edgePath path.path {
+  stroke: #333;
+  stroke-width: 1.5px;
+  fill: none;
+}
+</style>
+
+<style>
+h1, h2 {
+  color: #333;
+}
+
+textarea {
+  width: 800px;
+}
+
+label {
+  margin-top: 1em;
+  display: block;
+}
+
+.error {
+  color: red;
+}
+</style>
+
+
+
+<body onLoad="go();">
+
+<h2>Standalone Graph Visualization</h2>
+
+<svg width=1200 height=800>
+  <g/>
+</svg>
+
+<script>
+
+var inputGraph = 'digraph {"XXX 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }';
+
+var oldInputGraphValue;
+
+
+// Set up zoom support
+var svg = d3.select("svg"),
+    inner = d3.select("svg g"),
+    zoom = d3.behavior.zoom().on("zoom", function() {
+      inner.attr("transform", "translate(" + d3.event.translate + ")" +
+                                  "scale(" + d3.event.scale + ")");
+    });
+svg.call(zoom);
+
+// Create and configure the renderer
+var render = dagreD3.render();
+
+function go() {
+    draw('digraph {"Barmen 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }');
+}
+
+
+function draw(graph){
+    inputGraph=graph;
+    tryDraw();
+}
+
+
+function tryDraw() {
+  var g;
+  if (oldInputGraphValue !== inputGraph) {
+    oldInputGraphValue = inputGraph;
+    try {
+      g = graphlibDot.read(inputGraph);
+    } catch (e) {
+        console.log("AMOK");
+        throw e;
+    }
+
+
+    // Set margins, if not present
+    if (!g.graph().hasOwnProperty("marginx") &&
+        !g.graph().hasOwnProperty("marginy")) {
+      g.graph().marginx = 20;
+      g.graph().marginy = 20;
+    }
+
+    g.graph().transition = function(selection) {
+      return selection.transition().duration(500);
+    };
+
+    // Render the graph into svg g
+    d3.select("svg g").call(render, g);
+  }
+}
+</script>
