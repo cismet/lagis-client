@@ -1,128 +1,218 @@
 <!doctype html>
 
 <meta charset="utf-8">
-<title>Dagre Interactive Demo</title>
+<title>DAGRE-D3-Graph</title>
 
 <script src="http://d3js.org/d3.v3.js"></script>
 <script src="http://cpettitt.github.io/project/graphlib-dot/v0.5.2/graphlib-dot.js"></script>
 <script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
 
 <style>
-svg {
-  border: 1px solid #999;
-  overflow: hidden;
-}
 
-.node {
-  white-space: nowrap;
-}
 
-.node rect,
-.node circle,
-.node ellipse {
-  stroke: #333;
-  fill: #fff;
-  stroke-width: 1.5px;
-}
+    .node {
+        white-space: nowrap;
+    }
 
-.cluster rect {
-  stroke: #333;
-  fill: #000;
-  fill-opacity: 0.1;
-  stroke-width: 1.5px;
-}
+    .node rect,
+    .node circle,
+    .node ellipse {
+        stroke: #333;
+        fill: #fff;
+        stroke-width: 1.5px;
+    }
 
-.edgePath path.path {
-  stroke: #333;
-  stroke-width: 1.5px;
-  fill: none;
-}
-</style>
+    .cluster rect {
+        stroke: #333;
+        fill: #000;
+        fill-opacity: 0.1;
+        stroke-width: 1.5px;
+    }
 
-<style>
-h1, h2 {
-  color: #333;
-}
+    .edgePath path.path {
+        stroke: #333;
+        stroke-width: 1.5px;
+        fill: none;
+    }
 
-textarea {
-  width: 800px;
-}
+    h1, h2 {
+        color: #333;
+    }
 
-label {
-  margin-top: 1em;
-  display: block;
-}
+    textarea {
+        width: 800px;
+    }
 
-.error {
-  color: red;
-}
+    label {
+        margin-top: 1em;
+        display: block;
+    }
+
+    .error {
+        color: red;
+    }
+
+    svg {
+        display:block; border:0px solid #ccc; position:absolute;
+        top:50px; left:0%; width:100%; height:95%; background:#fff;
+    }
+
+    .buttons {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+    }
 </style>
 
 
 
 <body onLoad="go();">
 
-<h2>Standalone Graph Visualization</h2>
+    <div class="buttons">
+        <button onclick="reset()">Reset</button>
+        <button onclick="zi()" >Zoom In</button>
+        <button onclick="zo()" >Zoom Out</button>
+    </div>
+    <svg>
+    <g/>
+    </svg>
 
-<svg width=1200 height=800>
-  <g/>
-</svg>
+    <script>
 
-<script>
+        var inputGraph = 'digraph {"XXX 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }';
 
-var inputGraph = 'digraph {"XXX 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }';
+        var oldInputGraphValue;
+        var graphWidth;
+        var graphHeight;
+//        
+        var zoomlevel = 1.0;
+        var margin = {top: 20, right: 20, bottom: 20, left: 20};
+        var width = window.innerWidth - margin.left - margin.right;
+        var height = window.innerHeight - 50 - margin.top - margin.bottom;
 
-var oldInputGraphValue;
+
+        var x = d3.scale.linear()
+                .domain([-width / 2, width / 2])
+                .range([0, width]);
+
+        var y = d3.scale.linear()
+                .domain([-height / 2, height / 2])
+                .range([height, 0]);
 
 
-// Set up zoom support
-var svg = d3.select("svg"),
-    inner = d3.select("svg g"),
-    zoom = d3.behavior.zoom().on("zoom", function() {
-      inner.attr("transform", "translate(" + d3.event.translate + ")" +
-                                  "scale(" + d3.event.scale + ")");
-    });
-svg.call(zoom);
+        // Set up zoom support
+        var svg = d3.select("svg");
+        var inner = d3.select("svg g");
+
+        var zoom = d3.behavior.zoom()
+                .x(x)
+                .y(y)
+                .center([width / 2, height / 2])
+                .size([width, height])
+                .on("zoom", function () {
+                    inner.attr("transform", "translate(" + d3.event.translate + ")" +
+                            "scale(" + d3.event.scale + ")");
+                });
+
+
+        svg.call(zoom);
+
+//svg.on("mousedown.zoom", null);
+//svg.on("mousemove.zoom", null);
+//svg.on("dblclick.zoom", null);
+//svg.on("touchstart.zoom", null);
+//svg.on("wheel.zoom", null);
+//svg.on("mousewheel.zoom", null);
+//svg.on("MozMousePixelScroll.zoom", null);
 
 // Create and configure the renderer
-var render = dagreD3.render();
+        var render = dagreD3.render();
 
-function go() {
-    draw('digraph {"Barmen 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }');
-}
+        function go() {
+            draw('digraph {"Barmen 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }');
+        }
 
-
-function draw(graph){
-    inputGraph=graph;
-    tryDraw();
-}
+        function zoomed() {
+            console.log("zoomed")
 
 
-function tryDraw() {
-  var g;
-  if (oldInputGraphValue !== inputGraph) {
-    oldInputGraphValue = inputGraph;
-    try {
-      g = graphlibDot.read(inputGraph);
-    } catch (e) {
-        console.log("AMOK");
-        throw e;
-    }
+        }
+        function draw(graph) {
+            inputGraph = graph;
+            tryDraw();
+        }
 
 
-    // Set margins, if not present
-    if (!g.graph().hasOwnProperty("marginx") &&
-        !g.graph().hasOwnProperty("marginy")) {
-      g.graph().marginx = 20;
-      g.graph().marginy = 20;
-    }
+        function tryDraw() {
+            var g;
+            if (oldInputGraphValue !== inputGraph) {
+                oldInputGraphValue = inputGraph;
+                try {
+                    g = graphlibDot.read(inputGraph);
+                } catch (e) {
+                    console.log("AMOK");
+                    throw e;
+                }
 
-    g.graph().transition = function(selection) {
-      return selection.transition().duration(500);
-    };
 
-    // Render the graph into svg g
-    d3.select("svg g").call(render, g);
-  }
-}
-</script>
+                // Set margins, if not present
+                if (!g.graph().hasOwnProperty("marginx") &&
+                        !g.graph().hasOwnProperty("marginy")) {
+                    g.graph().marginx = 20;
+                    g.graph().marginy = 20;
+                }
+
+                g.graph().transition = function (selection) {
+                    return selection.transition().duration(500);
+                };
+
+
+
+                // Render the graph into svg g
+                d3.select("svg g").call(render, g);
+                graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
+                graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
+                console.log(graphWidth);
+                console.log(graphHeight);
+
+                zoom.translate([(width / 2) - graphWidth / 2, (height / 2) - graphHeight / 2]).scale(1).event(svg)
+            }
+        }
+
+        function reset() {
+            zoomlevel = 1.0;
+            zoom.translate([(width / 2) - graphWidth / 2, (height / 2) - graphHeight / 2]).scale(zoomlevel).event(svg)
+        }
+        function zi() {
+            zoomlevel = zoomlevel * Math.pow(2,0.4);
+            var center0 = zoom.center();
+            var translate0 = zoom.translate();
+            var coordinates0 = coordinates(center0);
+            zoom.scale(zoomlevel);
+            var center1 = point(coordinates0);
+            console.log("[translate0[0]=" + translate0[0] + "+ center0[0]=" + center0[0] + "- center1[0]=" + center1[0]);
+            zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]).event(svg);
+        }
+        function zo() {
+            zoomlevel = zoomlevel * Math.pow(2,-0.4);
+            var center0 = zoom.center();
+            var translate0 = zoom.translate();
+            var coordinates0 = coordinates(center0);
+            zoom.scale(zoomlevel);
+            var center1 = point(coordinates0);
+            console.log("[translate0[0]=" + translate0[0] + "+ center0[0]=" + center0[0] + "- center1[0]=" + center1[0]);
+            zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]).event(svg);
+        }
+
+        function coordinates(point) {
+            var scale = zoom.scale(), translate = zoom.translate();
+            return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
+        }
+
+        function point(coordinates) {
+            var scale = zoom.scale(), translate = zoom.translate();
+            return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
+        }
+
+
+    </script>
