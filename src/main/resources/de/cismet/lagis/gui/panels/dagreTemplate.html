@@ -54,9 +54,11 @@
 
     svg {
         display:block; border:0px solid #ccc; position:absolute;
-        top:50px; left:0%; width:100%; height:95%; background:#fff;
+        top:50px; left:0%; width:100%; height:90%; background:#eee;
     }
-
+    g {
+        border:0px solid #ccc; background:#fff;
+    }
     .buttons {
         position: absolute;
         right: 20px;
@@ -78,19 +80,35 @@
     </svg>
 
     <script>
+        window.onresize = function (event) {
+            var oldWidth = width;
+            var oldHeight = height;
+            width = window.innerWidth - margin.left - margin.right;
+            height = window.innerHeight - margin.top - margin.bottom;
+            x = d3.scale.linear()
+                    .domain([-width / 2, width / 2])
+                    .range([0, width]);
 
+            y = d3.scale.linear()
+                    .domain([-height / 2, height / 2])
+                    .range([height, 0]);
+
+            graphPosX = graphPosX + (width - oldWidth) / 2;
+            graphPosY = graphPosY + (height - oldHeight) / 2;
+            translator(graphPosX, graphPosY, true)
+        };
         var inputGraph = 'digraph {"XXX 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }';
-
         var oldInputGraphValue;
         var graphWidth;
         var graphHeight;
 //        
         var zoomlevel = 1.0;
-        var margin = {top: 20, right: 20, bottom: 20, left: 20};
+//        var margin = {top: 20, right: 20, bottom: 20, left: 20};
+        var margin = {top: 50, right: 50, bottom: 50, left: 50};
         var width = window.innerWidth - margin.left - margin.right;
-        var height = window.innerHeight - 50 - margin.top - margin.bottom;
+        var height = window.innerHeight - margin.top - margin.bottom;
 
-
+        var graphPosX, graphPosY;
         var x = d3.scale.linear()
                 .domain([-width / 2, width / 2])
                 .range([0, width]);
@@ -112,6 +130,7 @@
                 .on("zoom", function () {
                     inner.attr("transform", "translate(" + d3.event.translate + ")" +
                             "scale(" + d3.event.scale + ")");
+                    zoomlevel = d3.event.scale;
                 });
 
 
@@ -121,20 +140,20 @@
 //svg.on("mousemove.zoom", null);
 //svg.on("dblclick.zoom", null);
 //svg.on("touchstart.zoom", null);
-//svg.on("wheel.zoom", null);
-//svg.on("mousewheel.zoom", null);
+svg.on("wheel.zoom", null);
+svg.on("mousewheel.zoom", null);
 //svg.on("MozMousePixelScroll.zoom", null);
 
 // Create and configure the renderer
         var render = dagreD3.render();
 
         function go() {
-            draw('digraph {"Barmen 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }');
+            //draw('digraph {"Barmen 205 316/0" ;      "Barmen 205 706/0" ;   "Barmen 205 316/0" -> "Barmen 205 706/0" ; }');
+            draw('digraph G {"Barmen 201 250/0" ;	"Barmen 200 316/0";	"Barmen 201 252/0" ;	"Barmen 205 688/0" ;	"pseudo Schluessel18746" [label=""];	"Barmen 206 132/0" ;	"Barmen 201 251/0" ;	"Barmen 205 688/0" -> "pseudo Schluessel18746" ;	"pseudo Schluessel18746" -> "Barmen 201 251/0" ;	"pseudo Schluessel18746" -> "Barmen 206 132/0";	"pseudo Schluessel18746" -> "Barmen 201 250/0" ;	"pseudo Schluessel18746" -> "Barmen 201 252/0" ;	"pseudo Schluessel18746" -> "Barmen 200 316/0" ;}');
         }
 
         function zoomed() {
             console.log("zoomed")
-
 
         }
         function draw(graph) {
@@ -175,33 +194,49 @@
                 console.log(graphWidth);
                 console.log(graphHeight);
 
-                zoom.translate([(width / 2) - graphWidth / 2, (height / 2) - graphHeight / 2]).scale(1).event(svg)
+                reset();
             }
         }
 
         function reset() {
-            zoomlevel = 1.0;
-            zoom.translate([(width / 2) - graphWidth / 2, (height / 2) - graphHeight / 2]).scale(zoomlevel).event(svg)
+            scaler(1, false);
+            translator((width - graphWidth) / 2, (height - graphHeight) / 2, true)
         }
         function zi() {
-            zoomlevel = zoomlevel * Math.pow(2,0.4);
-            var center0 = zoom.center();
-            var translate0 = zoom.translate();
-            var coordinates0 = coordinates(center0);
-            zoom.scale(zoomlevel);
-            var center1 = point(coordinates0);
-            console.log("[translate0[0]=" + translate0[0] + "+ center0[0]=" + center0[0] + "- center1[0]=" + center1[0]);
-            zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]).event(svg);
+            zoomlevel = zoomlevel * Math.pow(2, 0.4);
+            adjust();
         }
+
         function zo() {
-            zoomlevel = zoomlevel * Math.pow(2,-0.4);
+            zoomlevel = zoomlevel * Math.pow(2, -0.4);
+            adjust();
+        }
+
+        function adjust() {
             var center0 = zoom.center();
             var translate0 = zoom.translate();
             var coordinates0 = coordinates(center0);
-            zoom.scale(zoomlevel);
+            scaler(zoomlevel, false);
             var center1 = point(coordinates0);
-            console.log("[translate0[0]=" + translate0[0] + "+ center0[0]=" + center0[0] + "- center1[0]=" + center1[0]);
-            zoom.translate([translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1]]).event(svg);
+            translator(translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1], true);
+        }
+
+        function translator(x, y, withEvent) {
+            graphPosX = x;
+            graphPosY = y;
+            if (withEvent) {
+                zoom.translate([graphPosX, graphPosY]).event(svg);
+            } else {
+                zoom.translate([graphPosX, graphPosY]);
+            }
+        }
+        function scaler(z, withEvent) {
+            zoomlevel = z;
+            if (withEvent) {
+                zoom.scale(zoomlevel).event(svg);
+            } else {
+                zoom.scale(zoomlevel);
+            }
         }
 
         function coordinates(point) {
