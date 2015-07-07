@@ -941,27 +941,38 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      * @param  evt  DOCUMENT ME!
      */
     private void ckxScaleToFitActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_ckxScaleToFitActionPerformed
-        try {
-            if (ckxScaleToFit.isSelected()) {
-                graph.setSynchronizePaint(true);
-                if (log.isDebugEnabled()) {
-                    log.debug("Scale Checkbox wurde selektiert");
+//        try {
+//            if (ckxScaleToFit.isSelected()) {
+//                graph.setSynchronizePaint(true);
+//                if (log.isDebugEnabled()) {
+//                    log.debug("Scale Checkbox wurde selektiert");
+//                }
+//                gp.setScaleToFit(true);
+//                gp.refresh(graph);
+//            } else {
+//                if (log.isDebugEnabled()) {
+//                    log.debug("Scale Checkbox wurde deselektiert");
+//                }
+//                // gp.setVisible(false);
+//                gp.setScaleToFit(false);
+//                gp.resetZoom();
+//                gp.paintImmediately(gp.getBounds());
+//            }
+//        } catch (Throwable t) {
+//            log.fatal("OUCH!!! " + t);
+//        } finally {
+//        }
+        Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        webView.getWebEngine().executeScript("setFitToScreen(" + ckxScaleToFit.isSelected() + ");");
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
                 }
-                gp.setScaleToFit(true);
-                gp.refresh(graph);
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Scale Checkbox wurde deselektiert");
-                }
-                // gp.setVisible(false);
-                gp.setScaleToFit(false);
-                gp.resetZoom();
-                gp.paintImmediately(gp.getBounds());
-            }
-        } catch (Throwable t) {
-            log.fatal("OUCH!!! " + t);
-        } finally {
-        }
+            });
     } //GEN-LAST:event_ckxScaleToFitActionPerformed
 
     /**

@@ -168,6 +168,7 @@
         var graphWidth;
         var graphHeight;
 //        
+        var fitToScreen = true;
         var inAnimation = false;
 
         var zoomlevel = 1.0;
@@ -227,6 +228,10 @@
 
         }
 
+        function setFitToScreen(fit) {
+            fitToScreen = fit;
+        }
+
         function loading() {
             document.getElementById("progress").style.display = 'block';
         }
@@ -270,13 +275,13 @@
 
         }
         function testD() {
-            graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
-            graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
-            translator((width - graphWidth) / 2, (height - graphHeight) / 2, true)
+            console.log("Test-D");
+            setFitToScreen(true);
         }
         function testE() {
-            //console.log("Test-E");
-            console.log(d3.select("svg g").node().getBoundingClientRect().width / zoom.scale())
+            console.log("Test-E");
+            setFitToScreen(false);
+
         }
 
 
@@ -324,8 +329,8 @@
 
                 // Render the graph into svg g
                 inner.call(render, g);//.each("end", done);
-                setTimeout(done,50)
-                
+                setTimeout(done, 50)
+
             }
         }
 
@@ -337,14 +342,20 @@
         function reset() {
             graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
             graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
-            var scaleX = width / (graphWidth/zoom.scale()) * 0.9;
-            var scaleY = height / (graphHeight/zoom.scale()) * 0.9;
+            var scaleX = width / (graphWidth / zoom.scale()) * 0.9;
+            var scaleY = height / (graphHeight / zoom.scale()) * 0.9;
 
-            if (scaleX < scaleY) {
-                scaler(scaleX, false);
+            if (fitToScreen) {
+                if (scaleX < scaleY) {
+                    scaler(scaleX, false);
+                }
+                else {
+                    scaler(scaleY, false);
+                }
             }
             else {
-                scaler(scaleY, false);
+                scaler(1, false);
+
             }
             adjust();
             graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
