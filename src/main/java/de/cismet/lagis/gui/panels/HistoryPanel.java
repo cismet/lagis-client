@@ -17,21 +17,14 @@ import att.grappa.MultiClickListener.MultiClickListener;
 
 import javafx.application.Platform;
 
-import javafx.embed.swing.JFXPanel;
-
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
+import netscape.javascript.JSObject;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import org.openide.util.Exceptions;
-
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 
 import java.io.PrintWriter;
 import java.io.StringReader;
@@ -43,6 +36,7 @@ import java.net.URLConnection;
 import java.util.*;
 
 import javax.swing.Icon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -144,9 +138,9 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
         if (StaticDebuggingTools.checkHomeForFile("FXHistory.on")) {
             currentSP = new JScrollPane(gp);
+            tbp.add("new", webViewPanel);
             tbp.add("old", currentSP);
             try {
-                tbp.add("new", webViewPanel);
                 add(tbp, BorderLayout.CENTER);
 
                 new Thread() {
@@ -161,6 +155,20 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             System.out.println("init FXWexxxbViewPanel");
                             webView = new FXWebViewPanel();
                             System.out.println("FXWebViewPanel inited");
+
+                            Platform.runLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            final JSObject jsobj = (JSObject)webView.getWebEngine()
+                                                        .executeScript("window");
+                                            jsobj.setMember("java", HistoryPanel.this);
+                                        } catch (Throwable t) {
+                                            t.printStackTrace();
+                                        }
+                                    }
+                                });
 
                             EventQueue.invokeLater(new Runnable() {
 
@@ -185,7 +193,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             currentSP = new JScrollPane(gp);
             add(currentSP, BorderLayout.CENTER);
         }
-//        currentSP = new JScrollPane(gp);
+//        currentSP = new JScrollPane(gp); lineInterpolate="basis"]
 //        add(currentSP, BorderLayout.CENTER);
 
         updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
@@ -193,6 +201,25 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                 @Override
                 protected void update() {
                     try {
+                        try {
+                            final String script = "loading();";
+                            System.out.println(script);
+                            Platform.runLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        System.out.println("XXX");
+                                        try {
+                                            webView.getWebEngine().executeScript(script);
+                                        } catch (Throwable t) {
+                                            t.printStackTrace();
+                                        }
+                                        System.out.println("yyy");
+                                    }
+                                });
+                        } catch (Throwable t) {
+                            t.printStackTrace();
+                        }
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -249,7 +276,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                 log.debug("Vorgänger/Nachfolger");
                             }
                         }
-
                         final Collection<FlurstueckHistorieCustomBean> allEdges = CidsBroker.getInstance()
                                     .getHistoryEntries(getCurrentObject().getFlurstueckSchluessel(),
                                         level,
@@ -269,6 +295,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                 final FlurstueckHistorieCustomBean currentEdge = it.next();
                                 final String currentVorgaenger = currentEdge.getVorgaenger().toString();
                                 final String currentNachfolger = currentEdge.getNachfolger().toString();
+
                                 if (currentVorgaenger.startsWith("pseudo")) {
                                     pseudoKeys.put(currentVorgaenger, "    ");
                                 }
@@ -276,12 +303,26 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                     pseudoKeys.put(currentNachfolger, "    ");
                                 }
                                 dotGraphRepresentation.append("\"" + currentVorgaenger + "\"" + "->" + "\""
-                                            + currentNachfolger + "\"" + ";\n");
+                                            + currentNachfolger + "\"" + " [lineInterpolate=\"linear\"];\n"); // additional options: e.g.: basis,
+//                                    linear – Normal line (jagged).
+//                                    step-before – a stepping graph alternating between vertical and horizontal segments.
+//                                    step-after - a stepping graph alternating between horizontal and vertical segments.
+//                                    basis - a B-spline, with control point duplication on the ends (that's the one above).
+//                                    basis-open - an open B-spline; may not intersect the start or end.
+//                                    basis-closed - a closed B-spline, with the start and the end closed in a loop.
+//                                    bundle - equivalent to basis, except a separate tension parameter is used to straighten the spline. This could be really cool with varying tension.
+//                                    cardinal - a Cardinal spline, with control point duplication on the ends. It looks slightly more 'jagged' than basis.
+//                                    cardinal-open - an open Cardinal spline; may not intersect the start or end, but will intersect other control points. So kind of shorter than 'cardinal'.
+//                                    cardinal-closed - a closed Cardinal spline, looped back on itself.
+//                                    monotone - cubic interpolation that makes the graph only slightly smoother.
                                 nodeToKeyMap.put("\"" + currentEdge.getVorgaenger().toString() + "\"",
                                     currentEdge.getVorgaenger().getFlurstueckSchluessel());
                                 nodeToKeyMap.put("\"" + currentEdge.getNachfolger().toString() + "\"",
                                     currentEdge.getNachfolger().getFlurstueckSchluessel());
                             }
+                            dotGraphRepresentation.append("\"" + getCurrentObject()
+                                        + "\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
+
                             if (isUpdateAvailable()) {
                                 cleanup();
                                 return;
@@ -290,7 +331,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             if (log.isDebugEnabled()) {
                                 log.debug("Historie Graph ist < 1 --> keine Historie");
                             }
-                            dotGraphRepresentation.append("\"" + getCurrentObject() + "\"" + ";\n");
+                            dotGraphRepresentation.append("\"" + getCurrentObject()
+                                        + "\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
                             nodeToKeyMap.put("\"" + getCurrentObject() + "\"",
                                 getCurrentObject().getFlurstueckSchluessel());
                             if (isUpdateAvailable()) {
@@ -343,7 +385,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             log.debug("Erzeugte Dot Graph Darstellung: \n" + encodedDotGraphRepresentation);
                         }
                         log.info("Graph wurde erfogreich Konstruiert");
-                        layoutGraph();
+                        // layoutGraph();
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -469,34 +511,31 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     //~ Methods ----------------------------------------------------------------
 
     /**
-     * Creates new form HistoryPanel.
-     *
-     * @param  fxPanel  DOCUMENT ME!
-     */
-    private static void initFX(final JFXPanel fxPanel) {
-        // This method is invoked on the JavaFX thread
-        final Scene scene = createScene();
-        fxPanel.setScene(scene);
-    }
-
-    /**
      * DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @param  info  DOCUMENT ME!
      */
-    private static Scene createScene() {
-        final Group root = new Group();
-        final Scene scene = new Scene(root, Color.ALICEBLUE);
-        final Text text = new Text();
-
-        text.setX(40);
-        text.setY(100);
-        text.setFont(new Font(25));
-        text.setText("Welcome JavaFX!");
-
-        root.getChildren().add(text);
-
-        return (scene);
+    public void fstckClicked(final String info) {
+        Toolkit.getDefaultToolkit().beep();
+        final FlurstueckSchluesselCustomBean hit = nodeToKeyMap.get("\"" + info + "\"");
+        if ((hit != null) && !currentFlurstueck.getFlurstueckSchluessel().equals(hit)
+                    && (hit.toString() != null) && hit.isEchterSchluessel()) {
+            if (log.isDebugEnabled()) {
+                log.debug("Neuer Schlüssel ist != null");
+            }
+            LagisBroker.getInstance().loadFlurstueck(hit);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("Neuer Schlüssel == null oder gleich oder toString == null");
+            }
+        }
+//        EventQueue.invokeLater(new Runnable() {
+//
+//                @Override
+//                public void run() {
+//                    JOptionPane.showMessageDialog(HistoryPanel.this, info);
+//                }
+//            });
     }
 
     /**
