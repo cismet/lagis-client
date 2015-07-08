@@ -44,7 +44,7 @@ public class FlurstueckDetailsReport {
      *
      * @param  params  currentFS cidsBean DOCUMENT ME!
      */
-    public static void showReport(final Map<String, String> params) {
+    public static void showReport(final Map<String, Object> params) {
         final ArrayList<String> reports = new ArrayList<String>();
         reports.add(REPORT_MASTER);
 //        reports.add(REPORT_VB);
