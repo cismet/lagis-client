@@ -123,8 +123,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
         add(webViewPanel, BorderLayout.CENTER);
         try {
-            add(tbp, BorderLayout.CENTER);
-
             new Thread() {
 
                     @Override
@@ -786,7 +784,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void ckxScaleToFitActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_ckxScaleToFitActionPerformed
+    private void ckxScaleToFitActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckxScaleToFitActionPerformed
 
         Platform.runLater(new Runnable() {
 
@@ -799,14 +797,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                     }
                 }
             });
-    } //GEN-LAST:event_ckxScaleToFitActionPerformed
+    }//GEN-LAST:event_ckxScaleToFitActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxHistoryOptionsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryOptionsActionPerformed
+    private void cbxHistoryOptionsActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxHistoryOptionsActionPerformed
         if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
             if (log.isDebugEnabled()) {
                 log.debug("Begrentzte Tiefe ausgewählt");
@@ -819,36 +817,36 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             levelTimer.cancel();
             refresh();
         }
-    }                                                                                     //GEN-LAST:event_cbxHistoryOptionsActionPerformed
+    }//GEN-LAST:event_cbxHistoryOptionsActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxHistoryTypeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryTypeActionPerformed
+    private void cbxHistoryTypeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxHistoryTypeActionPerformed
         refresh();
-    }                                                                                  //GEN-LAST:event_cbxHistoryTypeActionPerformed
+    }//GEN-LAST:event_cbxHistoryTypeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void sprLevelsStateChanged(final javax.swing.event.ChangeEvent evt) { //GEN-FIRST:event_sprLevelsStateChanged
+    private void sprLevelsStateChanged(final javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sprLevelsStateChanged
         levelTimer.cancel();
         levelTimer = new Timer();
         levelTimer.schedule(new delayedRefresh(), 1500);
-    }                                                                             //GEN-LAST:event_sprLevelsStateChanged
+    }//GEN-LAST:event_sprLevelsStateChanged
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void ckxHoldFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_ckxHoldFlurstueckActionPerformed
+    private void ckxHoldFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckxHoldFlurstueckActionPerformed
 // TODO add your handling code here:
-    } //GEN-LAST:event_ckxHoldFlurstueckActionPerformed
+    }//GEN-LAST:event_ckxHoldFlurstueckActionPerformed
 
     @Override
     public void configure(final org.jdom.Element parent) {
