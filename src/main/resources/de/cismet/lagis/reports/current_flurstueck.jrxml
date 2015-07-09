@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Aktuelles Flurstück" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Aktuelles Flurstück" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet" uuid="3ad525bb-0484-4432-8810-2ad2cc64906e">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<import value="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
@@ -19,69 +22,69 @@
 	<detail>
 		<band height="57">
 			<frame>
-				<reportElement mode="Opaque" x="0" y="0" width="555" height="57" backcolor="#EBEBEB"/>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="57" backcolor="#EBEBEB" uuid="9f87bbec-f6c7-4063-8d1a-ecd9e2993127"/>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement stretchType="RelativeToTallestObject" x="79" y="35" width="118" height="12"/>
+					<reportElement stretchType="RelativeToTallestObject" x="79" y="35" width="118" height="12" uuid="96aaf157-d153-4c6e-a774-78bcaf67fc73"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="10" isBold="true"/>
 					</textElement>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{gemarkung}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{gemarkung}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement stretchType="RelativeToTallestObject" x="79" y="23" width="67" height="12"/>
+					<reportElement stretchType="RelativeToTallestObject" x="79" y="23" width="67" height="12" uuid="e323dd3e-1115-44a8-a30d-0d9f36b69c64"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="10" isBold="true"/>
 					</textElement>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{flur}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{flur}]]></textFieldExpression>
 				</textField>
 				<textField>
-					<reportElement x="79" y="11" width="100" height="12"/>
+					<reportElement x="79" y="11" width="100" height="12" uuid="0acc4dad-0a7d-4724-81b2-6f23dba6ebbe"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="10" isBold="true"/>
 					</textElement>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{flurstueck}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{flurstueck}]]></textFieldExpression>
 				</textField>
 				<staticText>
-					<reportElement x="8" y="36" width="63" height="12"/>
+					<reportElement x="8" y="36" width="63" height="12" uuid="861a185b-632e-4be8-bc4e-65ca46592bd5"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="10" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="10"/>
 					</textElement>
 					<text><![CDATA[Gemarkung:]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="8" y="23" width="30" height="12"/>
+					<reportElement x="8" y="23" width="30" height="12" uuid="3968dd65-a2bd-4e1b-992e-8acedc49b773"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="10" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="10"/>
 					</textElement>
 					<text><![CDATA[Flur:]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="8" y="10" width="63" height="12"/>
+					<reportElement x="8" y="10" width="63" height="12" uuid="22a7d490-59d6-4d25-80a6-2516b41c2592"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="10" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="10"/>
 					</textElement>
 					<text><![CDATA[Flurstück:]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="439" y="12" width="45" height="12"/>
+					<reportElement x="439" y="12" width="45" height="12" uuid="49db0a9f-f309-4e63-bc96-16766693f789"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial"/>
 					</textElement>
 					<text><![CDATA[Erstellt:]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="439" y="24" width="45" height="12"/>
+					<reportElement x="439" y="24" width="45" height="12" uuid="e7e66385-bc00-4f77-b45f-ec2988a1dab1"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial"/>
 					</textElement>
 					<text><![CDATA[Zeichen:]]></text>
 				</staticText>
 				<textField pattern="dd.MM.yyyy">
-					<reportElement mode="Transparent" x="487" y="12" width="59" height="12"/>
+					<reportElement mode="Transparent" x="487" y="12" width="59" height="12" uuid="01ff4be5-b42b-4481-977e-24a913ebb40d"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" pdfEncoding="Cp1252" isPdfEmbedded="true"/>
+						<font fontName="Arial"/>
 					</textElement>
-					<textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 				</textField>
 			</frame>
 		</band>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Historie" pageWidth="555" pageHeight="250" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Historie" pageWidth="555" pageHeight="250" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet" uuid="d88125e6-d5f1-441b-b1a9-011250d3e078">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<import value="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
@@ -10,18 +13,18 @@
 	<detail>
 		<band height="250" splitType="Stretch">
 			<staticText>
-				<reportElement x="6" y="0" width="545" height="20"/>
+				<reportElement x="6" y="0" width="545" height="20" uuid="cfd35551-648a-4291-91e5-05838dacca5c"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial" size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Historie]]></text>
 			</staticText>
 			<image vAlign="Middle">
-				<reportElement x="6" y="39" width="545" height="211" isRemoveLineWhenBlank="true"/>
-				<imageExpression class="java.awt.Image"><![CDATA[new de.cismet.lagis.report.scriptlet.HistoryDiagramScriptlet().loadHistoryImage()]]></imageExpression>
+				<reportElement x="6" y="39" width="545" height="211" isRemoveLineWhenBlank="true" uuid="bd506f8d-e1a9-461c-a1d0-40a01ae94385"/>
+				<imageExpression><![CDATA[new de.cismet.lagis.report.scriptlet.HistoryDiagramScriptlet().loadHistoryImage()]]></imageExpression>
 			</image>
 			<line>
-				<reportElement x="0" y="0" width="556" height="1"/>
+				<reportElement x="0" y="0" width="556" height="1" uuid="8fd4cdce-eca2-4925-a461-1ac6b2c3fbc5"/>
 			</line>
 		</band>
 	</detail>

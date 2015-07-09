@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Flurstück Report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Error">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Flurstück Report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenResourceMissingType="Error" uuid="8f9ed9ab-edd6-4af8-b166-6e3a76e1efb0">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
 	</parameter>
@@ -13,61 +16,61 @@
 	<background>
 		<band height="802">
 			<line>
-				<reportElement x="0" y="-1" width="1" height="802"/>
+				<reportElement x="0" y="-1" width="1" height="802" uuid="44cedecd-964e-4f78-b972-0f66c2dab95b"/>
 			</line>
 			<line>
-				<reportElement x="556" y="-1" width="1" height="802"/>
+				<reportElement x="556" y="-1" width="1" height="802" uuid="5524182d-e5a2-42d1-9921-3eec1f0cd855"/>
 			</line>
 			<line>
-				<reportElement x="0" y="-1" width="556" height="1"/>
+				<reportElement x="0" y="-1" width="556" height="1" uuid="5ccc1c99-eaa7-4558-825c-b7bb0caf63a4"/>
 			</line>
 			<line>
-				<reportElement x="0" y="800" width="556" height="1"/>
+				<reportElement x="0" y="800" width="556" height="1" uuid="527766b3-0e9f-424f-b8a6-654aedd7ee29"/>
 			</line>
 		</band>
 	</background>
 	<title>
 		<band height="92" splitType="Stretch">
 			<frame>
-				<reportElement mode="Opaque" x="1" y="2" width="554" height="90" backcolor="#EBEBEB"/>
+				<reportElement mode="Opaque" x="1" y="2" width="554" height="90" backcolor="#EBEBEB" uuid="896a798f-407f-4685-bbf4-8ddad3728be9"/>
 				<staticText>
-					<reportElement x="110" y="24" width="158" height="21"/>
+					<reportElement x="110" y="24" width="158" height="21" uuid="8f06095a-dc57-4db8-92b5-252568d9fb55"/>
 					<textElement>
-						<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="12" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Katasteramt]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="307" y="3" width="240" height="42"/>
+					<reportElement x="307" y="3" width="240" height="42" uuid="1a99aad6-f242-4345-8be8-20a6736dc3dc"/>
 					<textElement>
-						<font fontName="arial" size="16" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="16" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Auszug aus dem Liegenschaftskataster]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="110" y="3" width="158" height="21"/>
+					<reportElement x="110" y="3" width="158" height="21" uuid="04fc8265-ce18-443c-9537-120302da58f9"/>
 					<textElement>
-						<font fontName="arial" size="16" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="16" isBold="true"/>
 					</textElement>
 					<text><![CDATA[Stadt Wuppertal]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="110" y="45" width="158" height="20"/>
+					<reportElement x="110" y="45" width="158" height="20" uuid="c470cf27-c06e-4bff-940c-68f46f859022"/>
 					<textElement>
-						<font fontName="arial" size="12" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="12"/>
 					</textElement>
 					<text><![CDATA[Johannes-Rau-Platz 1]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="110" y="65" width="158" height="20"/>
+					<reportElement x="110" y="65" width="158" height="20" uuid="e7dc75b3-3cd3-41bb-bc2c-416034646641"/>
 					<textElement>
-						<font fontName="arial" size="12" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="12"/>
 					</textElement>
 					<text><![CDATA[42275 Wuppertal]]></text>
 				</staticText>
 				<image>
-					<reportElement x="11" y="3" width="92" height="82"/>
-					<imageExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "logo_stadt_wuppertal.png"]]></imageExpression>
+					<reportElement x="11" y="3" width="92" height="82" uuid="40a69537-239f-439a-8888-64b66819ed59"/>
+					<imageExpression><![CDATA[$P{SUBREPORT_DIR} + "logo_stadt_wuppertal.png"]]></imageExpression>
 				</image>
 			</frame>
 		</band>
@@ -78,134 +81,134 @@
 	<columnHeader>
 		<band height="52" splitType="Stretch">
 			<subreport>
-				<reportElement mode="Opaque" x="1" y="0" width="552" height="52" backcolor="#EBEBEB"/>
+				<reportElement mode="Opaque" x="1" y="0" width="552" height="52" backcolor="#EBEBEB" uuid="3169254f-f2ef-498f-8ac5-7878de2512bd"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.FlurstueckSchluesselDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA["de/cismet/lagis/reports/current_flurstueck.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA["de/cismet/lagis/reports/current_flurstueck.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="80" splitType="Stretch">
 			<subreport>
-				<reportElement x="6" y="5" width="545" height="70"/>
+				<reportElement x="6" y="5" width="545" height="70" uuid="88f93062-d731-443b-80b9-a3df52f2d97e"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.JREmptyDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "map_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "map_report.jasper"]]></subreportExpression>
 			</subreport>
 			<line>
-				<reportElement x="0" y="0" width="556" height="1"/>
+				<reportElement x="0" y="0" width="556" height="1" uuid="f165b4eb-6f82-4656-be13-50400eb705e4"/>
 			</line>
 		</band>
 		<band height="80">
 			<subreport>
-				<reportElement x="6" y="6" width="230" height="70"/>
+				<reportElement x="6" y="6" width="230" height="70" uuid="2df08482-4e03-4031-bcde-898bcb188227"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.VerwaltungsBereichDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "verwaltungsbereiche_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "verwaltungsbereiche_report.jasper"]]></subreportExpression>
 			</subreport>
 			<subreport>
-				<reportElement x="311" y="6" width="239" height="70"/>
+				<reportElement x="311" y="6" width="239" height="70" uuid="eb08cf15-13c5-40e5-bf54-03cedb11ad1c"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.NKFUebersichtDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "nkf_uebersicht_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "nkf_uebersicht_report.jasper"]]></subreportExpression>
 			</subreport>
 			<line>
-				<reportElement x="0" y="0" width="556" height="1"/>
+				<reportElement x="0" y="0" width="556" height="1" uuid="13538eb2-8683-424c-921c-a5a37500d9fa"/>
 			</line>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_nutzungen} != null)]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true"/>
+				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true" uuid="05b00818-0a0f-45b1-a780-dbbfaa5eb37c"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.NutzungenDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "nutzung_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "nutzung_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_rebe} != null)]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true"/>
+				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true" uuid="f9d8d409-591a-46ff-88e3-be769c3eab15"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.ReBeDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "rebe_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "rebe_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_vorgaenge} != null)]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true"/>
+				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true" uuid="62b7f8f2-3b1c-4261-8154-8ca3ac07eeec"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.VorgaengeDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "vorgaenge_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "vorgaenge_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_history} != null)]]></printWhenExpression>
 			<subreport isUsingCache="true" runToBottom="false">
-				<reportElement x="0" y="0" width="555" height="80"/>
+				<reportElement x="0" y="0" width="555" height="80" uuid="4336ab9b-a3fe-4c5c-933e-e5b5f99a1e2c"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.JREmptyDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "history_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "history_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_mipa} != null)]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true"/>
+				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true" uuid="4ea416ac-66c3-4a00-9519-8c8b903223cc"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.MiPaDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "mipa_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "mipa_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_baumdatei} != null)]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true"/>
+				<reportElement x="0" y="6" width="555" height="70" isRemoveLineWhenBlank="true" uuid="a8042c78-0abc-4592-86ca-c7edd68c8669"/>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new de.cismet.lagis.report.datasource.BaumDateiDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "baumdatei_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "baumdatei_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 		<band height="80">
 			<printWhenExpression><![CDATA[Boolean.valueOf($P{param_notizen} != null)]]></printWhenExpression>
 			<subreport>
-				<reportElement x="0" y="6" width="555" height="70"/>
+				<reportElement x="0" y="6" width="555" height="70" uuid="52b54ae4-03ec-470d-a352-31bae1410633"/>
 				<parametersMapExpression><![CDATA[$P{REPORT_PARAMETERS_MAP}]]></parametersMapExpression>
 				<subreportParameter name="SUBREPORT_DIR"/>
 				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.JREmptyDataSource()]]></dataSourceExpression>
-				<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "notizen_report.jasper"]]></subreportExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "notizen_report.jasper"]]></subreportExpression>
 			</subreport>
 		</band>
 	</detail>
 	<columnFooter>
 		<band height="40" splitType="Stretch">
 			<line>
-				<reportElement x="0" y="0" width="556" height="1"/>
+				<reportElement x="0" y="0" width="556" height="1" uuid="c4c74b5d-9521-4b93-9bc0-6a384de9d503"/>
 			</line>
 			<frame>
-				<reportElement mode="Opaque" x="1" y="1" width="554" height="37" backcolor="#EBEBEB"/>
+				<reportElement mode="Opaque" x="1" y="1" width="554" height="37" backcolor="#EBEBEB" uuid="b171af9a-1223-4fe5-ac00-985d2529e9d8"/>
 				<staticText>
-					<reportElement x="7" y="6" width="538" height="30" backcolor="#EBEBEB"/>
+					<reportElement x="7" y="6" width="538" height="30" backcolor="#EBEBEB" uuid="b0073b2f-1dfa-4b6c-8889-709a80c31975"/>
 					<textElement verticalAlignment="Middle">
-						<font fontName="arial" size="8" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial" size="8"/>
 					</textElement>
 					<text><![CDATA[Dieser Ausdruck ist gesetzlich geschützt. Vervielfältigungen, Umarbeiten, Veröffentlichungen oder die Weitergabe an Dritte nur mit Zustimmung des Herausgebers, ausgenommen Vervielfältigungen und Umarbeitungen zur ínnerbetrieblichen Verwendung bei Behörden.]]></text>
 				</staticText>
 			</frame>
 			<line>
-				<reportElement x="0" y="38" width="556" height="1"/>
+				<reportElement x="0" y="38" width="556" height="1" uuid="e3eae0c3-bc1b-460e-a235-772c616f0682"/>
 			</line>
 		</band>
 	</columnFooter>
 	<pageFooter>
 		<band height="15">
 			<textField>
-				<reportElement x="342" y="1" width="209" height="13"/>
+				<reportElement x="342" y="1" width="209" height="13" uuid="cbe6c53f-1db7-451b-9aef-3c1e4ee6d734"/>
 				<textElement textAlignment="Right">
-					<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["Seite "+$V{PAGE_NUMBER}+" von " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["Seite "+$V{PAGE_NUMBER}+" von " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageFooter>

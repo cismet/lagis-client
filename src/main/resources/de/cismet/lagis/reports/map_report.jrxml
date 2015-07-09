@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Karte" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Karte" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet" uuid="0085a3b6-b918-4ffb-9326-a66a738ad7f3">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<import value="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
@@ -10,9 +13,9 @@
 	<title>
 		<band height="24">
 			<staticText>
-				<reportElement x="0" y="0" width="555" height="20"/>
+				<reportElement x="0" y="0" width="555" height="20" uuid="a10cfd66-ed4e-4b3e-940e-97c4a5e9e076"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial" size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Auszug aus dem Liegenschaftskataster]]></text>
 			</staticText>
@@ -28,8 +31,8 @@
 		<band height="300">
 			<elementGroup/>
 			<image vAlign="Middle" isUsingCache="false">
-				<reportElement x="0" y="4" width="542" height="296"/>
-				<imageExpression class="java.awt.Image"><![CDATA[new de.cismet.lagis.report.scriptlet.LoadWMSLayer().generateMap()]]></imageExpression>
+				<reportElement x="0" y="4" width="542" height="296" uuid="079dcbe4-268f-4073-a15a-00b0d229031b"/>
+				<imageExpression><![CDATA[new de.cismet.lagis.report.scriptlet.LoadWMSLayer().generateMap()]]></imageExpression>
 			</image>
 		</band>
 	</detail>
