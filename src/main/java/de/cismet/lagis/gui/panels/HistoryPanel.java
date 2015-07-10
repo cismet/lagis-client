@@ -31,6 +31,7 @@ import java.net.URL;
 import java.util.*;
 
 import javax.swing.Icon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -71,20 +72,18 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private StringBuffer dotGraphRepresentation = new StringBuffer();
-    private String encodedDotGraphRepresentation;
     private Timer levelTimer = new Timer();
-    private URL historyServerUrl = null;
     private HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMap =
         new HashMap<String, FlurstueckSchluesselCustomBean>();
     private HashMap<String, String> pseudoKeys = new HashMap<String, String>();
+    private String dotGraphRepresentation = "";
     private FlurstueckCustomBean currentFlurstueck;
     // private Thread panelRefresherThread;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
+    private final BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     // TODO THREAD
     // TODO NOT DIRECTLY OUTPUT THE ERRORS ON ERR
     // private double cellxcoordinate =
-
+    private boolean callBackInited = false;
     private JPanel webViewPanel = new JPanel(new BorderLayout());
     private FXWebViewPanel webView;
 
@@ -115,8 +114,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     public HistoryPanel() {
         setIsCoreWidget(true);
         initComponents();
-        final JScrollPane currentSP;
-        final JTabbedPane tbp = new JTabbedPane();
+
         final SpinnerNumberModel model = new SpinnerNumberModel(1, 1, 100, 1);
         sprLevels.setModel(model);
         sprLevels.setEnabled(false);
@@ -135,19 +133,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                         System.out.println("init FXWexxxbViewPanel");
                         webView = new FXWebViewPanel();
                         System.out.println("FXWebViewPanel inited");
-
-                        Platform.runLater(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    try {
-                                        final JSObject jsobj = (JSObject)webView.getWebEngine().executeScript("window");
-                                        jsobj.setMember("java", HistoryPanel.this);
-                                    } catch (Throwable t) {
-                                        t.printStackTrace();
-                                    }
-                                }
-                            });
 
                         EventQueue.invokeLater(new Runnable() {
 
@@ -177,6 +162,26 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                         try {
                             final String script = "loading();";
                             System.out.println(script);
+                            if (!callBackInited) {
+                                Thread.sleep(1000);
+
+                                Platform.runLater(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                final JSObject jsobj = (JSObject)webView.getWebEngine()
+                                                            .executeScript("window");
+                                                jsobj.setMember("java", HistoryPanel.this);
+                                                System.out.println("Callback steht zur Verfügung");
+                                                callBackInited = true;
+                                            } catch (Throwable t) {
+                                                t.printStackTrace();
+                                                System.out.println("Callback steht nicht zur Verfügung");
+                                            }
+                                        }
+                                    });
+                            }
                             Platform.runLater(new Runnable() {
 
                                     @Override
@@ -203,8 +208,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             return;
                         }
                         log.info("Konstruiere Flurstückhistoriengraph");
-                        nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
-                        pseudoKeys = new HashMap<String, String>();
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -249,88 +252,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                 log.debug("Vorgänger/Nachfolger");
                             }
                         }
-                        final Collection<FlurstueckHistorieCustomBean> allEdges = CidsBroker.getInstance()
-                                    .getHistoryEntries(getCurrentObject().getFlurstueckSchluessel(),
+                        nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
+
+                        final String dotGraphRepresentation = CidsBroker.getInstance()
+                                    .getHistoryGraph(getCurrentObject(),
                                         level,
                                         type,
-                                        levelCount);
+                                        levelCount, nodeToKeyMap);
 
-                        if ((allEdges != null) && (allEdges.size() > 0)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Historie Graph hat: " + allEdges.size() + " Kanten");
-                            }
-                            final Iterator<FlurstueckHistorieCustomBean> it = allEdges.iterator();
-                            while (it.hasNext()) {
-                                if (isUpdateAvailable()) {
-                                    cleanup();
-                                    return;
-                                }
-                                final FlurstueckHistorieCustomBean currentEdge = it.next();
-                                final String currentVorgaenger = currentEdge.getVorgaenger().toString();
-                                final String currentNachfolger = currentEdge.getNachfolger().toString();
-
-                                if (currentVorgaenger.startsWith("pseudo")) {
-                                    pseudoKeys.put(currentVorgaenger, "    ");
-                                }
-                                if (currentNachfolger.startsWith("pseudo")) {
-                                    pseudoKeys.put(currentNachfolger, "    ");
-                                }
-                                dotGraphRepresentation.append("\"" + currentVorgaenger + "\"" + "->" + "\""
-                                            + currentNachfolger + "\"" + " [lineInterpolate=\"linear\"];\n"); // additional options: e.g.: basis,
-//                                    linear – Normal line (jagged).
-//                                    step-before – a stepping graph alternating between vertical and horizontal segments.
-//                                    step-after - a stepping graph alternating between horizontal and vertical segments.
-//                                    basis - a B-spline, with control point duplication on the ends (that's the one above).
-//                                    basis-open - an open B-spline; may not intersect the start or end.
-//                                    basis-closed - a closed B-spline, with the start and the end closed in a loop.
-//                                    bundle - equivalent to basis, except a separate tension parameter is used to straighten the spline. This could be really cool with varying tension.
-//                                    cardinal - a Cardinal spline, with control point duplication on the ends. It looks slightly more 'jagged' than basis.
-//                                    cardinal-open - an open Cardinal spline; may not intersect the start or end, but will intersect other control points. So kind of shorter than 'cardinal'.
-//                                    cardinal-closed - a closed Cardinal spline, looped back on itself.
-//                                    monotone - cubic interpolation that makes the graph only slightly smoother.
-                                nodeToKeyMap.put("\"" + currentEdge.getVorgaenger().toString() + "\"",
-                                    currentEdge.getVorgaenger().getFlurstueckSchluessel());
-                                nodeToKeyMap.put("\"" + currentEdge.getNachfolger().toString() + "\"",
-                                    currentEdge.getNachfolger().getFlurstueckSchluessel());
-                            }
-                            dotGraphRepresentation.append("\"" + getCurrentObject()
-                                        + "\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
-
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-                        } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Historie Graph ist < 1 --> keine Historie");
-                            }
-                            dotGraphRepresentation.append("\"" + getCurrentObject()
-                                        + "\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
-                            nodeToKeyMap.put("\"" + getCurrentObject() + "\"",
-                                getCurrentObject().getFlurstueckSchluessel());
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-                        }
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        if (pseudoKeys.size() > 0) {
-                            for (final String key : pseudoKeys.keySet()) {
-                                dotGraphRepresentation.append("\"" + key + "\" [label=\"    \"]");
-                            }
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-                        }
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        dotGraphRepresentation.append("}");
                         try {
                             final String rawscript = "var graphInput='" + dotGraphRepresentation
                                         + "'; draw(graphInput);";
@@ -351,17 +280,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                 });
                         } catch (Throwable t) {
                             t.printStackTrace();
-                        }
-
-                        encodedDotGraphRepresentation = GrappaSupport.encodeString(dotGraphRepresentation.toString());
-                        if (log.isDebugEnabled()) {
-                            log.debug("Erzeugte Dot Graph Darstellung: \n" + encodedDotGraphRepresentation);
-                        }
-                        log.info("Graph wurde erfogreich Konstruiert");
-                        // layoutGraph();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
                         }
                     } catch (Exception ex) {
                         log.error("Fehler im refresh thread: ", ex);
@@ -387,6 +305,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      */
     public void fstckClicked(final String info) {
         Toolkit.getDefaultToolkit().beep();
+
         final FlurstueckSchluesselCustomBean hit = nodeToKeyMap.get("\"" + info + "\"");
         if ((hit != null) && !currentFlurstueck.getFlurstueckSchluessel().equals(hit)
                     && (hit.toString() != null) && hit.isEchterSchluessel()) {
@@ -399,13 +318,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                 log.debug("Neuer Schlüssel == null oder gleich oder toString == null");
             }
         }
-//        EventQueue.invokeLater(new Runnable() {
-//
-//                @Override
-//                public void run() {
-//                    JOptionPane.showMessageDialog(HistoryPanel.this, info);
-//                }
-//            });
     }
 
     /**
@@ -485,8 +397,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      * DOCUMENT ME!
      */
     private void resetDotGraph() {
-        dotGraphRepresentation = new StringBuffer();
-        dotGraphRepresentation.append(DEFAULT_DOT_HEADER);
+        dotGraphRepresentation = DEFAULT_DOT_HEADER;
     }
 
     @Override
@@ -784,7 +695,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void ckxScaleToFitActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckxScaleToFitActionPerformed
+    private void ckxScaleToFitActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_ckxScaleToFitActionPerformed
 
         Platform.runLater(new Runnable() {
 
@@ -797,14 +708,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                     }
                 }
             });
-    }//GEN-LAST:event_ckxScaleToFitActionPerformed
+    } //GEN-LAST:event_ckxScaleToFitActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxHistoryOptionsActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxHistoryOptionsActionPerformed
+    private void cbxHistoryOptionsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryOptionsActionPerformed
         if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
             if (log.isDebugEnabled()) {
                 log.debug("Begrentzte Tiefe ausgewählt");
@@ -817,36 +728,36 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             levelTimer.cancel();
             refresh();
         }
-    }//GEN-LAST:event_cbxHistoryOptionsActionPerformed
+    }                                                                                     //GEN-LAST:event_cbxHistoryOptionsActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbxHistoryTypeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxHistoryTypeActionPerformed
+    private void cbxHistoryTypeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryTypeActionPerformed
         refresh();
-    }//GEN-LAST:event_cbxHistoryTypeActionPerformed
+    }                                                                                  //GEN-LAST:event_cbxHistoryTypeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void sprLevelsStateChanged(final javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_sprLevelsStateChanged
+    private void sprLevelsStateChanged(final javax.swing.event.ChangeEvent evt) { //GEN-FIRST:event_sprLevelsStateChanged
         levelTimer.cancel();
         levelTimer = new Timer();
         levelTimer.schedule(new delayedRefresh(), 1500);
-    }//GEN-LAST:event_sprLevelsStateChanged
+    }                                                                             //GEN-LAST:event_sprLevelsStateChanged
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void ckxHoldFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ckxHoldFlurstueckActionPerformed
+    private void ckxHoldFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_ckxHoldFlurstueckActionPerformed
 // TODO add your handling code here:
-    }//GEN-LAST:event_ckxHoldFlurstueckActionPerformed
+    } //GEN-LAST:event_ckxHoldFlurstueckActionPerformed
 
     @Override
     public void configure(final org.jdom.Element parent) {
@@ -859,19 +770,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
     @Override
     public void masterConfigure(final org.jdom.Element parent) {
-        final org.jdom.Element prefs = parent.getChild("HistoryServer");
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("HistoryServerUrl: " + prefs.getChildText("url"));
-            }
-            historyServerUrl = new URL(prefs.getChildText("url"));
-        } catch (Exception ex) {
-            log.warn("Fehler beim lesen der HistoryServerURL. Benutze default URL", ex);
-            try {
-                historyServerUrl = new URL("http://s10221:8099/verdis/cgi-bin/format-graph");
-            } catch (MalformedURLException ex1) {
-            }
-        }
     }
 
     //~ Inner Classes ----------------------------------------------------------
