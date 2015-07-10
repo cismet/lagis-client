@@ -129,11 +129,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             Thread.sleep(200);
                         } catch (InterruptedException ex) {
                         }
-
-                        System.out.println("init FXWexxxbViewPanel");
                         webView = new FXWebViewPanel();
-                        System.out.println("FXWebViewPanel inited");
-
                         EventQueue.invokeLater(new Runnable() {
 
                                 @Override
@@ -150,8 +146,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             });
                     }
                 }.start();
-        } catch (Throwable t) {
-            log.fatal(t, t);
+        } catch (Exception e) {
+            log.error("Error during initialization of HistoryPanel", e);
         }
 
         updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
@@ -161,7 +157,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                     try {
                         try {
                             final String script = "loading();";
-                            System.out.println(script);
                             if (!callBackInited) {
                                 Thread.sleep(1000);
 
@@ -173,11 +168,10 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                                 final JSObject jsobj = (JSObject)webView.getWebEngine()
                                                             .executeScript("window");
                                                 jsobj.setMember("java", HistoryPanel.this);
-                                                System.out.println("Callback steht zur Verfügung");
+                                                log.info("Callback steht zur Verfügung");
                                                 callBackInited = true;
-                                            } catch (Throwable t) {
-                                                t.printStackTrace();
-                                                System.out.println("Callback steht nicht zur Verfügung");
+                                            } catch (Exception e) {
+                                                log.error("Callback steht nicht zur Verfügung", e);
                                             }
                                         }
                                     });
@@ -186,17 +180,15 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
                                     @Override
                                     public void run() {
-                                        System.out.println("XXX");
                                         try {
                                             webView.getWebEngine().executeScript(script);
-                                        } catch (Throwable t) {
-                                            t.printStackTrace();
+                                        } catch (Exception e) {
+                                            log.error("Error when executing script " + script, e);
                                         }
-                                        System.out.println("yyy");
                                     }
                                 });
-                        } catch (Throwable t) {
-                            t.printStackTrace();
+                        } catch (Exception e) {
+                            log.error("Error in Backgroundthread", e);
                         }
                         if (isUpdateAvailable()) {
                             cleanup();
@@ -264,22 +256,20 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             final String rawscript = "var graphInput='" + dotGraphRepresentation
                                         + "'; draw(graphInput);";
                             final String script = rawscript.replaceAll("\n", "");
-                            System.out.println(script);
+                            log.info("script to run:" + script);
                             Platform.runLater(new Runnable() {
 
                                     @Override
                                     public void run() {
-                                        System.out.println("XXX");
                                         try {
                                             webView.getWebEngine().executeScript(script);
-                                        } catch (Throwable t) {
-                                            t.printStackTrace();
+                                        } catch (Exception e) {
+                                            log.error("Error when executing script " + script, e);
                                         }
-                                        System.out.println("yyy");
                                     }
                                 });
-                        } catch (Throwable t) {
-                            t.printStackTrace();
+                        } catch (Exception e) {
+                            log.error("Error in Backgroundthread", e);
                         }
                     } catch (Exception ex) {
                         log.error("Fehler im refresh thread: ", ex);
@@ -703,8 +693,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                 public void run() {
                     try {
                         webView.getWebEngine().executeScript("setFitToScreen(" + ckxScaleToFit.isSelected() + ");");
-                    } catch (Throwable t) {
-                        t.printStackTrace();
+                    } catch (Exception e) {
+                        log.error("Error during executing setFitToScreen ", e);
                     }
                 }
             });
