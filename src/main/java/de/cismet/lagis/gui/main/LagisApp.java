@@ -127,6 +127,7 @@ import de.cismet.lookupoptions.gui.OptionsDialog;
 
 import de.cismet.remote.RESTRemoteControlStarter;
 
+import de.cismet.tools.StaticDebuggingTools;
 import de.cismet.tools.StaticDecimalTools;
 
 import de.cismet.tools.configuration.Configurable;
@@ -265,7 +266,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/sum.png"));
     private Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
-//                "/de/cismet/lagis/ressource/icons/titlebar/findgreen.png"));
+
+                // "/de/cismet/lagis/ressource/icons/titlebar/findgreen.png"));
                 "/de/cismet/lagis/ressource/icons/rebe.png"));
     private Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/verwaltungsbereich.png"));
@@ -548,7 +550,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //            // added manually as the GuiBuilder conflicts could not be resolved
 //            configureReportButton();
 //            configureCopyPasteFlurstueckInfoComponents();
-
             initCismetCommonsComponents();
 
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
@@ -912,7 +913,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             }
 
             // ----
-
             this.fsInfoClipboard.addCopyListener(pRechteDetail);
             this.fsInfoClipboard.addPasteListener(pRechteDetail);
 
@@ -960,7 +960,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         copyButton.setPreferredSize(new java.awt.Dimension(23, 23));
 
         // ---------------------
-
         final JButton pasteButton = new JButton();
         pasteButton.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/fs_info_paste.png")));
@@ -969,7 +968,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         pasteButton.setPreferredSize(new java.awt.Dimension(23, 23));
 
         // ---------------------
-
         final JSeparator sep = new JSeparator();
         sep.setOrientation(javax.swing.SwingConstants.VERTICAL);
         sep.setMaximumSize(new java.awt.Dimension(2, 32767));
@@ -977,7 +975,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         sep.setPreferredSize(new java.awt.Dimension(2, 23));
 
         // ---------------------
-
         this.toolbar.add(sep);
         this.toolbar.add(copyButton);
         this.toolbar.add(pasteButton);
@@ -1112,13 +1109,28 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * DOCUMENT ME!
      */
     private static void initLog4J() {
+        // CUSTOM LOG4J
         try {
-            PropertyConfigurator.configure(LagisApp.class.getResource(
-                    "/de/cismet/lagis/configuration/log4j.properties"));
-            LOG.info("Log4J System erfolgreich konfiguriert");
-        } catch (Exception ex) {
+            if (StaticDebuggingTools.checkHomeForFile("cismetCustomLog4JConfigurationInDotLagis")) {
+                try {
+                    org.apache.log4j.PropertyConfigurator.configure(DIRECTORYPATH_LAGIS + FILESEPARATOR
+                                + "custom.log4j.properties");
+                    LOG.info("CustomLoggingOn");
+                } catch (Exception ex) {
+                    org.apache.log4j.PropertyConfigurator.configure(ClassLoader.getSystemResource(
+                            "log4j.properties"));
+                }
+            } else {
+                PropertyConfigurator.configure(LagisApp.class.getResource(
+                        "/de/cismet/lagis/configuration/log4j.properties"));
+                LOG.info("Log4J System erfolgreich konfiguriert");
+            }
+        } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Fehler bei Log4J-Config", e);
+            }
             System.err.println("Fehler bei Log4J Initialisierung");
-            ex.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -3261,7 +3273,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         LOG.info("Dispose(): Lagis wird heruntergefahren");
 
 //        this.saveAppData(FILEPATH_DEFAULT_APP_DATA);
-
         configManager.writeConfiguration();
         saveLayout(FILEPATH_DEFAULT_LAYOUT);
 
@@ -3303,7 +3314,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 //    public EJBAccessor<KassenzeichenFacadeRemote> getVerdisCrossoverAccessor() {
 //        return verdisCrossoverAccessor;
 //    }
-
     @Override
     public void refresh(final Object refreshObject) {
     }
@@ -3714,6 +3724,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private MappingComponent getMapComponent() {
         return mapComponent;
     }
+
     @Override
     public boolean isFeatureSelectionChangedEnabled() {
         return listenerEnabled;
