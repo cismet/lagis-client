@@ -122,7 +122,7 @@
 
 
 
-<body onLoad="go();">
+<body onLoad="go();" id='ex1'>
     <div id="progress">
         <div class="spinner">
             <div class="double-bounce1"></div>
@@ -260,29 +260,21 @@
 
         function testC() {
             console.log("Test-C");
-            graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
-            graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
-            var scaleX = width / graphWidth * 0.9;
-            var scaleY = height / graphHeight * 0.9;
+            var tmp = document.getElementById("ex1");
+            var svg = tmp.getElementsByTagName("svg")[0];
 
-            if (scaleX < scaleY) {
-                scaler(scaleX, false);
-            }
-            else {
-                scaler(scaleY, false);
-            }
-            adjust();
-
+            // Extract the data as SVG text string
+            var svg_xml = (new XMLSerializer).serializeToString(svg);
+            console.log(svg_xml)
         }
         function testD() {
             console.log("Test-D");
-            setFitToScreen(true);
         }
         function testE() {
             console.log("Test-E");
-            setFitToScreen(false);
 
         }
+
 
 
 
