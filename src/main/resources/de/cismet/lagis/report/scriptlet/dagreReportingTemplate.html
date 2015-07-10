@@ -1,0 +1,322 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<title>DAGRE-D3-Graph</title>
+
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://cpettitt.github.io/project/graphlib-dot/v0.5.2/graphlib-dot.js"></script>
+<script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
+
+<style>
+
+
+    .node {
+        white-space: nowrap;
+    }
+
+    .node rect,
+    .node circle,
+    .node ellipse {
+        stroke: #333;
+        fill: #fff;
+        stroke-width: 1.5px;
+    }
+
+    .cluster rect {
+        stroke: #333;
+        fill: #000;
+        fill-opacity: 0.1;
+        stroke-width: 1.5px;
+    }
+
+    .edgePath path.path {
+        stroke: #333;
+        stroke-width: 1.5px;
+        fill: none;
+    }
+
+    h1, h2 {
+        color: #333;
+    }
+
+    textarea {
+        width: 800px;
+    }
+
+    label {
+        margin-top: 1em;
+        display: block;
+    }
+
+    .error {
+        color: red;
+    }
+
+    svg {
+        display:block; border:0px solid #ccc; position:absolute;
+        top:0%; left:0%; width:100%; height:100%; background:#eee;
+        /*        opacity: 0.5;*/
+    }
+
+    
+</style>
+
+
+
+<body onLoad="go();">
+   
+   
+    <svg>
+    <g/>
+    </svg>
+
+    <script>
+        window.onresize = function (event) {
+            reset();
+        };
+        var inputGraph = 'digraph G {"Historie ...";} ';
+        var oldInputGraphValue;
+        var graphWidth;
+        var graphHeight;
+//        
+        var fitToScreen = true;
+        var inAnimation = false;
+
+        var zoomlevel = 1.0;
+//        var margin = {top: 20, right: 20, bottom: 20, left: 20};
+        var margin = {top: 50, right: 0, bottom: 50, left: 0};
+        var width = window.innerWidth - margin.left - margin.right;
+        var height = window.innerHeight - margin.top - margin.bottom;
+
+        var graphPosX, graphPosY;
+        var x = d3.scale.linear()
+                .domain([-width / 2, width / 2])
+                .range([0, width]);
+
+        var y = d3.scale.linear()
+                .domain([-height / 2, height / 2])
+                .range([height, 0]);
+
+
+        // Set up zoom support
+        var svg = d3.select("svg");
+        var inner = d3.select("svg g");
+
+        var zoom = d3.behavior.zoom()
+                .x(x)
+                .y(y)
+                .center([width / 2, height / 2])
+                .size([width, height])
+                .on("zoom", function () {
+                    inner.attr("transform", "translate(" + d3.event.translate + ")" +
+                            "scale(" + d3.event.scale + ")");
+                    zoomlevel = d3.event.scale;
+                });
+//                
+//                .on("end", function () {
+//                    console.log("DONE");
+//                }
+//                );
+
+
+        svg.call(zoom);
+
+//svg.on("mousedown.zoom", null);
+//svg.on("mousemove.zoom", null);
+//svg.on("dblclick.zoom", null);
+//svg.on("touchstart.zoom", null);
+        svg.on("wheel.zoom", null);
+        svg.on("mousewheel.zoom", null);
+
+//svg.on("MozMousePixelScroll.zoom", null);
+
+// Create and configure the renderer
+        var render = dagreD3.render();
+
+        function go() {
+            loading();
+            draw('$$graphString$$');
+
+        }
+
+        function setFitToScreen(fit) {
+            fitToScreen = fit;
+        }
+
+        function loading() {
+        }
+
+        function ready() {
+        }
+
+        function zoomed() {
+            console.log("zoomed")
+
+        }
+
+
+        function testA() {
+            console.log("Test-A");
+            draw('digraph G{"pseudo Schluessel18746"->"Barmen 200 316/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 250/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 251/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 252/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 206 132/0" [lineInterpolate="linear"];"Barmen 205 688/0"->"pseudo Schluessel18746" [lineInterpolate="linear"];"Barmen 205 688/0"  [style="fill: #eee; font-weight: bold"];"pseudo Schluessel18746" [label="    "]}');
+            console.log("FERTCIUH");
+
+        }
+
+        function testB() {
+            console.log("Test-B");
+            draw('digraph G{"Barmen 201 250/0"->"Barmen 201 253/0" [lineInterpolate="linear"];"Barmen 201 250/0"->"Barmen 201 254/0" [lineInterpolate="linear"];"Barmen 206 132/0"->"Barmen 206 133/0" [lineInterpolate="linear"];"Barmen 206 132/0"->"Barmen 206 134/0" [lineInterpolate="linear"];"Barmen 206 132/0"->"Barmen 206 135/0" [lineInterpolate="linear"];"Barmen 206 135/0"->"Barmen 205 709/0" [lineInterpolate="linear"];"Barmen 206 134/0"->"Barmen 201 255/0" [lineInterpolate="linear"];"Barmen 205 688/0"->"pseudo Schluessel18746" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 200 316/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 250/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 251/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 252/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 206 132/0" [lineInterpolate="linear"];"Barmen 205 688/0"  [style="fill: #eee; font-weight: bold"];"pseudo Schluessel18746" [label="    "]}');
+        }
+
+        function testC() {
+            console.log("Test-C");
+            graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
+            graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
+            var scaleX = width / graphWidth * 0.9;
+            var scaleY = height / graphHeight * 0.9;
+
+            if (scaleX < scaleY) {
+                scaler(scaleX, false);
+            }
+            else {
+                scaler(scaleY, false);
+            }
+            adjust();
+
+        }
+        function testD() {
+            console.log("Test-D");
+            setFitToScreen(true);
+        }
+        function testE() {
+            console.log("Test-E");
+            setFitToScreen(false);
+
+        }
+
+
+
+        function draw(graph) {
+            inputGraph = graph;
+
+            var g;
+            if (oldInputGraphValue !== inputGraph) {
+                oldInputGraphValue = inputGraph;
+                try {
+                    g = graphlibDot.read(inputGraph);
+                } catch (e) {
+                    console.log("AMOK");
+                    throw e;
+                }
+
+
+                // Set margins, if not present
+                if (!g.graph().hasOwnProperty("marginx") &&
+                        !g.graph().hasOwnProperty("marginy")) {
+                    g.graph().marginx = 0;
+                    g.graph().marginy = 0;
+                }
+
+                g.graph().transition = function (selection) {
+                    console.log("Start");
+                    return selection.transition().duration(0).each("end", function (v) {
+                        console.log("Stop");
+                    });
+                };
+
+
+                function done() {
+                    console.log("done");
+                    graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
+                    graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
+                    inner.selectAll("g.node").style("cursor", "pointer")
+                    inner.selectAll("g.node").on("click", function (node) {
+                        nodeClicked(node);
+                    });
+                    reset();
+                    ready();
+                }
+
+                // Render the graph into svg g
+                inner.call(render, g);//.each("end", done);
+                setTimeout(done, 50)
+
+            }
+        }
+
+        function nodeClicked(node) {
+            console.log("Click on:" + node);
+            java.fstckClicked(node);
+        }
+
+        function reset() {
+            graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
+            graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
+            var scaleX = width / (graphWidth / zoom.scale()) * 0.9;
+            var scaleY = height / (graphHeight / zoom.scale()) * 0.9;
+
+            if (fitToScreen) {
+                if (scaleX < scaleY) {
+                    scaler(scaleX, false);
+                }
+                else {
+                    scaler(scaleY, false);
+                }
+            }
+            else {
+                scaler(1, false);
+
+            }
+            adjust();
+            graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
+            graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
+            translator((width - graphWidth) / 2, (height - graphHeight) / 2, true)
+        }
+        function zi() {
+            zoomlevel = zoomlevel * Math.pow(2, 0.4);
+            adjust();
+        }
+
+        function zo() {
+            zoomlevel = zoomlevel * Math.pow(2, -0.4);
+            adjust();
+        }
+
+        function adjust() {
+            var center0 = zoom.center();
+            var translate0 = zoom.translate();
+            var coordinates0 = coordinates(center0);
+            scaler(zoomlevel, false);
+            var center1 = point(coordinates0);
+            translator(translate0[0] + center0[0] - center1[0], translate0[1] + center0[1] - center1[1], true);
+        }
+
+        function translator(x, y, withEvent) {
+            graphPosX = x;
+            graphPosY = y;
+            if (withEvent) {
+                zoom.translate([graphPosX, graphPosY]).event(svg);
+            } else {
+                zoom.translate([graphPosX, graphPosY]);
+            }
+        }
+        function scaler(z, withEvent) {
+            zoomlevel = z;
+            if (withEvent) {
+                zoom.scale(zoomlevel).event(svg);
+            } else {
+                zoom.scale(zoomlevel);
+            }
+        }
+
+        function coordinates(point) {
+            var scale = zoom.scale(), translate = zoom.translate();
+            return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
+        }
+
+        function point(coordinates) {
+            var scale = zoom.scale(), translate = zoom.translate();
+            return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
+        }
+
+
+    </script>

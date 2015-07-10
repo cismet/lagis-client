@@ -61,6 +61,8 @@ public final class CidsBroker {
 //    private static Vector<Session> nkfSessions = new Vector<Session>();
     private static DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
 
+    private static final String DEFAULT_DOT_HEADER = "digraph G{\n";
+
     //~ Enums ------------------------------------------------------------------
 
     /**
@@ -95,7 +97,6 @@ public final class CidsBroker {
 
 // @Resource(name = "mail/nkf_mailaddress")
 // private Session nkfMailer;
-
     /**
      * Creates a new instance of CidsBroker.
      */
@@ -1197,6 +1198,7 @@ public final class CidsBroker {
         }
         return beans;
     }
+
     /**
      * DOCUMENT ME!
      *
@@ -1241,12 +1243,10 @@ public final class CidsBroker {
 //                    }
 //                    return null;
 //                }
-
 //                }
 //                else {
 //                    checkedKey = FlurstueckSchluesselCustomBean.createNewById(key.getId());
 //                }
-
                 final FlurstueckCustomBean newFlurstueck = FlurstueckCustomBean.createNew();
                 // datamodell refactoring 22.10.07
                 final Date datumEntstehung = new Date();
@@ -1877,6 +1877,97 @@ public final class CidsBroker {
         }
 
         return allEdges;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   currentFlurstueck  DOCUMENT ME!
+     * @param   level              DOCUMENT ME!
+     * @param   type               DOCUMENT ME!
+     * @param   levelCount         DOCUMENT ME!
+     * @param   nodeToKeyMapIn     DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
+     */
+    public String getHistoryGraph(final FlurstueckCustomBean currentFlurstueck,
+            final HistoryLevel level,
+            final HistoryType type,
+            final int levelCount,
+            final HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMapIn) throws ActionNotSuccessfulException {
+        final StringBuilder dotGraphRepresentation = new StringBuilder(DEFAULT_DOT_HEADER);
+
+        final HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMap;
+        if (nodeToKeyMapIn == null) {
+            nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
+        } else {
+            nodeToKeyMap = nodeToKeyMapIn;
+        }
+        final HashMap<String, String> pseudoKeys = new HashMap<String, String>();
+
+        final FlurstueckSchluesselCustomBean schluessel = currentFlurstueck.getFlurstueckSchluessel();
+
+        final Collection<FlurstueckHistorieCustomBean> allEdges = CidsBroker.getInstance()
+                    .getHistoryEntries(schluessel,
+                        level,
+                        type,
+                        levelCount);
+        if ((allEdges != null) && (allEdges.size() > 0)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Historie Graph hat: " + allEdges.size() + " Kanten");
+            }
+            final Iterator<FlurstueckHistorieCustomBean> it = allEdges.iterator();
+            while (it.hasNext()) {
+                final FlurstueckHistorieCustomBean currentEdge = it.next();
+                final String currentVorgaenger = currentEdge.getVorgaenger().toString();
+                final String currentNachfolger = currentEdge.getNachfolger().toString();
+
+                if (currentVorgaenger.startsWith("pseudo")) {
+                    pseudoKeys.put(currentVorgaenger, "    ");
+                }
+                if (currentNachfolger.startsWith("pseudo")) {
+                    pseudoKeys.put(currentNachfolger, "    ");
+                }
+                dotGraphRepresentation.append("\"" + currentVorgaenger + "\"" + "->" + "\""
+                            + currentNachfolger + "\"" + " [lineInterpolate=\"linear\"];\n"); // additional options:
+                                                                                              // e.g.: basis,
+//                                    linear – Normal line (jagged).
+//                                    step-before – a stepping graph alternating between vertical and horizontal segments.
+//                                    step-after - a stepping graph alternating between horizontal and vertical segments.
+//                                    basis - a B-spline, with control point duplication on the ends (that's the one above).
+//                                    basis-open - an open B-spline; may not intersect the start or end.
+//                                    basis-closed - a closed B-spline, with the start and the end closed in a loop.
+//                                    bundle - equivalent to basis, except a separate tension parameter is used to straighten the spline. This could be really cool with varying tension.
+//                                    cardinal - a Cardinal spline, with control point duplication on the ends. It looks slightly more 'jagged' than basis.
+//                                    cardinal-open - an open Cardinal spline; may not intersect the start or end, but will intersect other control points. So kind of shorter than 'cardinal'.
+//                                    cardinal-closed - a closed Cardinal spline, looped back on itself.
+//                                    monotone - cubic interpolation that makes the graph only slightly smoother.
+                nodeToKeyMap.put("\"" + currentEdge.getVorgaenger().toString() + "\"",
+                    currentEdge.getVorgaenger().getFlurstueckSchluessel());
+                nodeToKeyMap.put("\"" + currentEdge.getNachfolger().toString() + "\"",
+                    currentEdge.getNachfolger().getFlurstueckSchluessel());
+            }
+            dotGraphRepresentation.append("\"" + currentFlurstueck + "\"  [style=\"fill: #eee; font-weight: bold\"]"
+                        + ";\n");
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Historie Graph ist < 1 --> keine Historie");
+            }
+            dotGraphRepresentation.append("\"" + currentFlurstueck
+                        + "\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
+            nodeToKeyMap.put("\"" + currentFlurstueck + "\"",
+                currentFlurstueck.getFlurstueckSchluessel());
+        }
+
+        if (pseudoKeys.size() > 0) {
+            for (final String key : pseudoKeys.keySet()) {
+                dotGraphRepresentation.append("\"" + key + "\" [label=\"    \"]");
+            }
+        }
+        dotGraphRepresentation.append("}");
+        return dotGraphRepresentation.toString();
     }
 
     /**
@@ -2777,7 +2868,6 @@ public final class CidsBroker {
 // }
 // return null;
 // }
-
     /**
      * DOCUMENT ME!
      *
@@ -3497,7 +3587,6 @@ public final class CidsBroker {
 //            LOG.error("Fehler beim senden einer email", ex);
 //        }
 //    }
-
     /**
      * DOCUMENT ME!
      *
