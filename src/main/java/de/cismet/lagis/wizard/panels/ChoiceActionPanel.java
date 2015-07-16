@@ -12,15 +12,6 @@
  */
 package de.cismet.lagis.wizard.panels;
 
-import org.netbeans.spi.wizard.WizardController;
-import org.netbeans.spi.wizard.WizardPanelProvider;
-
-import java.awt.event.ActionListener;
-
-import java.util.Map;
-
-import javax.swing.JComponent;
-
 /**
  * DOCUMENT ME!
  *

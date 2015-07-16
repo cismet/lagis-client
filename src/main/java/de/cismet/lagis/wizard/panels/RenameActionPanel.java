@@ -25,6 +25,7 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
@@ -47,8 +48,8 @@ public class RenameActionPanel extends javax.swing.JPanel implements ValidationS
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private WizardController wizardController;
-    private Map wizardData;
+    private final WizardController wizardController;
+    private final Map wizardData;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -74,6 +75,7 @@ public class RenameActionPanel extends javax.swing.JPanel implements ValidationS
         panRename.addValidationStateChangedListener(this);
         panCreate.addValidationStateChangedListener(this);
         panRename.addComboBoxListener(this);
+        panRename.requestFlurstueck(LagisBroker.getInstance().getCurrentFlurstueckSchluessel());
     }
 
     //~ Methods ----------------------------------------------------------------

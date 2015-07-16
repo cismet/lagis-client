@@ -22,6 +22,7 @@ import java.util.Map;
 import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
@@ -42,8 +43,8 @@ public class HistoricActionPanel extends javax.swing.JPanel implements Validatio
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private WizardController wizardController;
-    private Map wizardData;
+    private final WizardController wizardController;
+    private final Map wizardData;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -71,6 +72,7 @@ public class HistoricActionPanel extends javax.swing.JPanel implements Validatio
         wizardController.setProblem("Bitte wählen Sie das Flurstück aus das historisch gesetzt werden soll");
         panHistoric.addValidationStateChangedListener(this);
         jxdHistorischDatum.setDate(new Date());
+        panHistoric.requestFlurstueck(LagisBroker.getInstance().getCurrentFlurstueckSchluessel());
     }
 
     //~ Methods ----------------------------------------------------------------

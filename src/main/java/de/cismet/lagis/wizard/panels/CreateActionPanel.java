@@ -47,8 +47,8 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private WizardController wizardController;
-    private Map wizardData;
+    private final WizardController wizardController;
+    private final Map wizardData;
     private boolean isStaedtisch = true;
     private final Icon icoStaedtisch = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/current.png"));

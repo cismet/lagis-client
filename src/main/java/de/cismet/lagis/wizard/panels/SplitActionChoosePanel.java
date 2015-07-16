@@ -18,7 +18,6 @@ import org.netbeans.spi.wizard.WizardController;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.EventQueue;
 
 import java.util.Map;
 
@@ -53,10 +52,10 @@ public class SplitActionChoosePanel extends javax.swing.JPanel implements Change
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private WizardController wizardController;
+    private final WizardController wizardController;
     private Map wizardData;
-    private SpinnerNumberModel spinnerModel;
-    private String mode;
+    private final SpinnerNumberModel spinnerModel;
+    private final String mode;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
@@ -94,15 +93,8 @@ public class SplitActionChoosePanel extends javax.swing.JPanel implements Change
             remove(panSplit);
             remove(jLabel1);
         }
-        EventQueue.invokeLater(new Runnable() {
-
-                @Override
-                public void run() {
-                    LagisBroker.getInstance().reloadFlurstueckKeys();
-                }
-            });
-        // txtSplitCount.getDocument().addDocumentListener(this);
         spnSplitCount.addChangeListener(this);
+        panSplit.requestFlurstueck(LagisBroker.getInstance().getCurrentFlurstueckSchluessel());
     }
 
     //~ Methods ----------------------------------------------------------------
