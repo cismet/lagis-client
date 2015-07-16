@@ -42,7 +42,7 @@
 					<textElement>
 						<font fontName="arial" size="16" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 					</textElement>
-					<text><![CDATA[Auszug aus dem Liegenschaftskataster]]></text>
+					<text><![CDATA[Auszug aus dem Lagerbuch]]></text>
 				</staticText>
 				<staticText>
 					<reportElement x="110" y="3" width="158" height="21"/>

@@ -14,7 +14,7 @@
 				<textElement verticalAlignment="Middle">
 					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
 				</textElement>
-				<text><![CDATA[Auszug aus dem Liegenschaftskataster]]></text>
+				<text><![CDATA[Auszug aus dem Lagerbuch]]></text>
 			</staticText>
 		</band>
 	</title>
