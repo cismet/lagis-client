@@ -122,11 +122,6 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                         progress.setBusy("Flurstückart wird geändert");
                         key.setFlurstueckArt(newArt);
                         CidsBroker.getInstance().modifyFlurstueckSchluessel(key);
-                        final FlurstueckCustomBean changedFlurstueck = CidsBroker.getInstance().retrieveFlurstueck(key);
-                        if (changedFlurstueck.getRechteUndBelastungen() != null) {
-                            changedFlurstueck.getRechteUndBelastungen().clear();
-                            CidsBroker.getInstance().modifyFlurstueck(changedFlurstueck);
-                        }
                         CidsBroker.getInstance().releaseLock(sperre);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
