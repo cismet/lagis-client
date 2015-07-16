@@ -1398,9 +1398,9 @@ public final class CidsBroker {
                         final MetaClass mcRebe = ClassCacheMultiple.getMetaClass(
                                 CidsBroker.LAGIS_DOMAIN,
                                 RebeCustomBean.TABLE);
-                        final MetaClass mcVerwaltungsbereich = ClassCacheMultiple.getMetaClass(
+                        final MetaClass mcVerwaltungsbereichEintrag = ClassCacheMultiple.getMetaClass(
                                 CidsBroker.LAGIS_DOMAIN,
-                                VerwaltungsbereichCustomBean.TABLE);
+                                VerwaltungsbereicheEintragCustomBean.TABLE);
 
                         final String queryDmsUrl = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
                                     + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " fk_flurstueck = "
@@ -1411,24 +1411,19 @@ public final class CidsBroker {
                         final String queryRebe = "SELECT " + mcRebe.getID() + ", " + mcRebe.getPrimaryKey() + " FROM "
                                     + mcRebe.getTableName() + " WHERE " + " fk_flurstueck = "
                                     + oldFlurstueck.getId().toString();
-                        final String queryVerwaltungsbereich = "SELECT " + mcVerwaltungsbereich.getID() + ", "
-                                    + mcVerwaltungsbereich.getPrimaryKey() + " FROM "
-                                    + mcVerwaltungsbereich.getTableName() + " WHERE " + " fk_flurstueck = "
+                        final String queryVerwaltungsbereichEintrag = "SELECT " + mcVerwaltungsbereichEintrag.getID()
+                                    + ", "
+                                    + mcVerwaltungsbereichEintrag.getPrimaryKey() + " FROM "
+                                    + mcVerwaltungsbereichEintrag.getTableName() + " WHERE " + " fk_flurstueck = "
                                     + oldFlurstueck.getId().toString();
 
-                        for (final BaumCustomBean baum : oldFlurstueck.getAr_baeume()) {
-                            newFlurstueck.getAr_baeume().add(baum);
-                        }
+                        newFlurstueck.getAr_baeume().addAll(oldFlurstueck.getAr_baeume());
                         oldFlurstueck.getAr_baeume().clear();
 
-                        for (final MipaCustomBean mipa : oldFlurstueck.getAr_mipas()) {
-                            newFlurstueck.getAr_mipas().add(mipa);
-                        }
+                        newFlurstueck.getAr_mipas().addAll(oldFlurstueck.getAr_mipas());
                         oldFlurstueck.getAr_mipas().clear();
 
-                        for (final VertragCustomBean vertrag : oldFlurstueck.getAr_vertraege()) {
-                            newFlurstueck.getAr_vertraege().add(vertrag);
-                        }
+                        newFlurstueck.getAr_vertraege().addAll(oldFlurstueck.getAr_vertraege());
                         oldFlurstueck.getAr_vertraege().clear();
 
                         for (final MetaObject moDmsUrl
@@ -1448,10 +1443,12 @@ public final class CidsBroker {
                             moRebe.getBean().persist();
                         }
 
-                        for (final MetaObject moVerwaltungsbereich
-                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryVerwaltungsbereich)) {
-                            moVerwaltungsbereich.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                            moVerwaltungsbereich.getBean().persist();
+                        for (final MetaObject moVerwaltungsbereichEintrag
+                                    : SessionManager.getProxy().getMetaObjectByQuery(
+                                        user,
+                                        queryVerwaltungsbereichEintrag)) {
+                            moVerwaltungsbereichEintrag.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moVerwaltungsbereichEintrag.getBean().persist();
                         }
 
                         newFlurstueck.setFk_spielplatz(oldFlurstueck.getFk_spielplatz());
