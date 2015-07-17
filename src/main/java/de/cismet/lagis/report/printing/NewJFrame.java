@@ -5,15 +5,23 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.lagis.report.scriptlet;
+package de.cismet.lagis.report.printing;
 
 import javafx.application.Platform;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+import javafx.concurrent.Worker;
 
 import javafx.embed.swing.SwingFXUtils;
 
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 
+import netscape.javascript.JSObject;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.awt.CardLayout;
@@ -24,6 +32,8 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 
 import javax.imageio.ImageIO;
+
+import de.cismet.lagis.gui.panels.HistoryPanel;
 
 import de.cismet.tools.gui.FXWebViewPanel;
 
@@ -42,6 +52,8 @@ public class NewJFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
@@ -73,6 +85,8 @@ public class NewJFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel2 = new javax.swing.JPanel();
         jProgressBar1 = new javax.swing.JProgressBar();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -125,6 +139,28 @@ public class NewJFrame extends javax.swing.JFrame {
 
         panMain.add(jPanel2, "progress");
 
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jButton3,
+            org.openide.util.NbBundle.getMessage(NewJFrame.class, "NewJFrame.jButton3.text")); // NOI18N
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton3ActionPerformed(evt);
+                }
+            });
+
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jButton4,
+            org.openide.util.NbBundle.getMessage(NewJFrame.class, "NewJFrame.jButton4.text")); // NOI18N
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton4ActionPerformed(evt);
+                }
+            });
+
         final javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -139,16 +175,32 @@ public class NewJFrame extends javax.swing.JFrame {
                                     panMain,
                                     javax.swing.GroupLayout.PREFERRED_SIZE,
                                     247,
-                                    javax.swing.GroupLayout.PREFERRED_SIZE)).addGap(111, 111, 111)));
+                                    javax.swing.GroupLayout.PREFERRED_SIZE)).addGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                        layout.createSequentialGroup().addGap(8, 8, 8).addComponent(jButton3).addContainerGap())
+                                .addGroup(
+                                    javax.swing.GroupLayout.Alignment.TRAILING,
+                                    layout.createSequentialGroup().addPreferredGap(
+                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(jButton4)))));
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
                 layout.createSequentialGroup().addContainerGap().addGroup(
                     layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(jButton1)
-                                .addComponent(jButton2)).addGap(25, 25, 25).addComponent(
-                    panMain,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    182,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addContainerGap(38, Short.MAX_VALUE)));
+                                .addComponent(jButton2)).addGroup(
+                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                        layout.createSequentialGroup().addGap(25, 25, 25).addComponent(
+                            panMain,
+                            javax.swing.GroupLayout.PREFERRED_SIZE,
+                            182,
+                            javax.swing.GroupLayout.PREFERRED_SIZE).addContainerGap(38, Short.MAX_VALUE)).addGroup(
+                        javax.swing.GroupLayout.Alignment.TRAILING,
+                        layout.createSequentialGroup().addPreferredGap(
+                            javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+                            javax.swing.GroupLayout.DEFAULT_SIZE,
+                            Short.MAX_VALUE).addComponent(jButton3).addGap(18, 18, 18).addComponent(jButton4).addGap(
+                            64,
+                            64,
+                            64)))));
 
         pack();
     } // </editor-fold>//GEN-END:initComponents
@@ -160,20 +212,27 @@ public class NewJFrame extends javax.swing.JFrame {
      */
     private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-
+        final String graph =
+            "digraph G{\"Barmen 201 250/0\"->\"Barmen 201 253/0\" [lineInterpolate=\"linear\"];\"Barmen 201 250/0\"->\"Barmen 201 254/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 133/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 134/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 135/0\" [lineInterpolate=\"linear\"];\"Barmen 206 135/0\"->\"Barmen 205 709/0\" [lineInterpolate=\"linear\"];\"Barmen 206 134/0\"->\"Barmen 201 255/0\" [lineInterpolate=\"linear\"];\"Barmen 205 688/0\"->\"pseudo Schluessel18746\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 200 316/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 250/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 251/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 252/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 206 132/0\" [lineInterpolate=\"linear\"];\"Barmen 205 688/0\"  [style=\"fill: #eee; font-weight: bold\"];\"pseudo Schluessel18746\" [label=\"    \"]}";
         try {
-            final String s = IOUtils.toString(this.getClass().getResourceAsStream("dagreReportingTemplate.html"));
+            final String template = IOUtils.toString(this.getClass().getResourceAsStream(
+                        "dagreReportingTemplate.html"));
+            final String s = template.replaceAll("__graphString__", graph);
+            // IOUtils.write(s, new FileWriter(new File("/Users/thorsten/tmp/x/diag.html")));
+            FileUtils.writeStringToFile(new File("/Users/thorsten/tmp/x/diag.html"), s);
+            System.out.println(s.substring(s.length() - 100));
             new Thread() {
 
                     @Override
                     public void run() {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException ex) {
-                        }
+//                        try {
+//                            Thread.sleep(1000);
+//                        } catch (InterruptedException ex) {
+//                        }
 
                         System.out.println("init FXWexxxbViewPanel");
                         myWeb = new FXWebViewPanel();
+
                         System.out.println("FXWebViewPanel inited");
 
                         EventQueue.invokeLater(new Runnable() {
@@ -192,12 +251,66 @@ public class NewJFrame extends javax.swing.JFrame {
 //                                    myWeb.setMinimumSize(new Dimension(4010, 4010));
 //                                    myWeb.setMaximumSize(new Dimension(4010, 4010));
 //                                    myWeb.setPreferredSize(new Dimension(4010, 4010));
-                                    myWeb.setSize(new Dimension(4010, 4010));
+                                    myWeb.setSize(new Dimension(1068, 1068));
                                     Platform.runLater(new Runnable() {
 
                                             @Override
                                             public void run() {
                                                 try {
+                                                    myWeb.getWebEngine()
+                                                            .getLoadWorker()
+                                                            .stateProperty()
+                                                            .addListener(
+                                                                new ChangeListener<javafx.concurrent.Worker.State>() {
+
+                                                                    @Override
+                                                                    public void changed(
+                                                                            final ObservableValue<? extends Worker.State> observable,
+                                                                            final Worker.State oldValue,
+                                                                            final Worker.State newValue) {
+                                                                        System.out.println(newValue);
+                                                                        if (newValue == Worker.State.SUCCEEDED) {
+                                                                            System.out.println("done. take a picture");
+                                                                            Platform.runLater(new Runnable() {
+
+                                                                                    @Override
+                                                                                    public void run() {
+                                                                                        try {
+                                                                                            // final WritableImage
+                                                                                            // snapshot =
+                                                                                            // myWeb.getWebView()
+                                                                                            // .snapshot( new
+                                                                                            // SnapshotParameters(),
+                                                                                            // null); final
+                                                                                            // RenderedImage
+                                                                                            // renderedImage =
+                                                                                            // SwingFXUtils
+                                                                                            // .fromFXImage( snapshot,
+                                                                                            // null);
+                                                                                            //
+                                                                                            // final File captureFile =
+                                                                                            // new File(
+                                                                                            // "/Users/thorsten/tmp/x/cap.png");
+                                                                                            // ImageIO.write(
+                                                                                            // renderedImage, "png",
+                                                                                            // captureFile);
+
+                                                                                            final JSObject jsobj =
+                                                                                                (JSObject)
+                                                                                                myWeb.getWebEngine()
+                                                                                                .executeScript(
+                                                                                                        "window");
+                                                                                            jsobj.setMember(
+                                                                                                "java",
+                                                                                                NewJFrame.this);
+                                                                                        } catch (Throwable t) {
+                                                                                            t.printStackTrace();
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                        }
+                                                                    }
+                                                                });
                                                     myWeb.loadContent(s);
 //                                        Thread.sleep(1000);
 //                                        final WritableImage snapshot = myWeb.getWebView()
@@ -247,6 +360,49 @@ public class NewJFrame extends javax.swing.JFrame {
                 }
             });
     } //GEN-LAST:event_jButton2ActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void snap() {
+        Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        final WritableImage snapshot = myWeb.getWebView().snapshot(new SnapshotParameters(), null);
+                        final RenderedImage renderedImage = SwingFXUtils.fromFXImage(
+                                snapshot,
+                                null);
+
+                        final File captureFile = new File("/Users/thorsten/tmp/x/cap.png");
+                        ImageIO.write(renderedImage, "png", captureFile);
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                }
+            });
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void jButton3ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton3ActionPerformed
+        ((CardLayout)panMain.getLayout()).show(panMain, "web");
+        // TODO add your handling code here:
+    }                                                                            //GEN-LAST:event_jButton3ActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void jButton4ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton4ActionPerformed
+        ((CardLayout)panMain.getLayout()).show(panMain, "progress");
+        // TODO add your handling code here:
+    }                                                                            //GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * DOCUMENT ME!

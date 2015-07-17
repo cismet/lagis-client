@@ -31,6 +31,7 @@ import org.jdom.Element;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.image.RenderedImage;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -201,6 +202,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private StringBuffer developerRecipients;
     private StringBuffer maintenanceRecipients;
 
+    private RenderedImage historyImage;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -240,6 +243,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             broker = new LagisBroker();
         }
         return broker;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public RenderedImage getHistoryImage() {
+        return historyImage;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  historyImage  DOCUMENT ME!
+     */
+    public void setHistoryImage(final RenderedImage historyImage) {
+        this.historyImage = historyImage;
     }
 
     /**

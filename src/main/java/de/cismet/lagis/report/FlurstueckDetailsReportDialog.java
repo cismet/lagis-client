@@ -124,7 +124,6 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
         notizenTextArea.setEditable(false);
         notizenTextArea.setRows(5);
         notizenTextArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        notizenTextArea.setDragEnabled(true);
         notizenTextArea.setEnabled(false);
         jScrollPane1.setViewportView(notizenTextArea);
 
@@ -264,13 +263,11 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
                                             javax.swing.GroupLayout.Alignment.LEADING,
                                             javax.swing.GroupLayout.DEFAULT_SIZE,
                                             509,
-                                            Short.MAX_VALUE)).addContainerGap(
-                            javax.swing.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE)))));
+                                            Short.MAX_VALUE)).addContainerGap(10, Short.MAX_VALUE)))));
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
                 javax.swing.GroupLayout.Alignment.TRAILING,
-                jPanel1Layout.createSequentialGroup().addContainerGap(24, Short.MAX_VALUE).addComponent(
+                jPanel1Layout.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE).addComponent(
                     jPanel2,
                     javax.swing.GroupLayout.PREFERRED_SIZE,
                     164,
