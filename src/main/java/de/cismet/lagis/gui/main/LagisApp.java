@@ -65,10 +65,6 @@ import java.awt.event.*;
 
 import java.io.*;
 
-import java.net.InetSocketAddress;
-
-import java.rmi.Remote;
-
 import java.util.*;
 import java.util.prefs.Preferences;
 
@@ -1237,12 +1233,25 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         pKarte = new KartenPanel();
         pNKF = NKFPanel.getInstance();
         pRechteDetail = new ReBePanel();
-        pHistory = new HistoryPanel();
-        configManager.addConfigurable(pHistory);
-        configManager.configure(pHistory);
+        boolean isJavaFxAvailable;
+        try {
+            final Class jfxPanel = LagisApp.class.getClassLoader().loadClass("javafx.embed.swing.JFXPanel");
+            isJavaFxAvailable = true;
+        } catch (ClassNotFoundException e) {
+            isJavaFxAvailable = false;
+        }
+        if (isJavaFxAvailable) {
+            pHistory = new HistoryPanel();
+            configManager.addConfigurable(pHistory);
+            configManager.configure(pHistory);
+        } else {
+            LOG.error("Error. No Histroy Component available");
+        }
         pInfromation = new InformationPanel();
 
-        widgets.add(pHistory);
+        if (pHistory != null) {
+            widgets.add(pHistory);
+        }
         widgets.add(pFlurstueck);
         widgets.add(pVertraege);
         widgets.add(pNKFOverview);
@@ -1285,9 +1294,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         viewMap.addView("Rechte und Belastungen", vReBe);
 
         // TODO ICON
-        vHistory = new View("Historie", icoRessort, pHistory);
+        if (pHistory != null) {
+            vHistory = new View("Historie", icoRessort, pHistory);
+        } else {
+            final JPanel p = new JPanel(new BorderLayout());
+            p.add(new JLabel("... no History for you ..."), BorderLayout.CENTER);
+            vHistory = new View("Historie", icoRessort, p);
+        }
         viewMap.addView("Historie", vHistory);
-
         vInformation = new View("Information", icoInformation, pInfromation);
         viewMap.addView("Information", vInformation);
 

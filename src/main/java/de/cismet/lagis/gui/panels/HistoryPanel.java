@@ -12,8 +12,6 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import att.grappa.*;
-
 import javafx.application.Platform;
 
 import netscape.javascript.JSObject;
@@ -25,20 +23,13 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import java.util.*;
 
 import javax.swing.Icon;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckHistorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
