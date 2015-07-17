@@ -135,7 +135,8 @@
 
         function go() {
             loading();
-            draw('$$graphString$$');
+            draw('__graphString__');
+            //draw('digraph G{"Barmen 201 250/0"->"Barmen 201 253/0" [lineInterpolate="linear"];"Barmen 201 250/0"->"Barmen 201 254/0" [lineInterpolate="linear"];"Barmen 206 132/0"->"Barmen 206 133/0" [lineInterpolate="linear"];"Barmen 206 132/0"->"Barmen 206 134/0" [lineInterpolate="linear"];"Barmen 206 132/0"->"Barmen 206 135/0" [lineInterpolate="linear"];"Barmen 206 135/0"->"Barmen 205 709/0" [lineInterpolate="linear"];"Barmen 206 134/0"->"Barmen 201 255/0" [lineInterpolate="linear"];"Barmen 205 688/0"->"pseudo Schluessel18746" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 200 316/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 250/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 251/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 201 252/0" [lineInterpolate="linear"];"pseudo Schluessel18746"->"Barmen 206 132/0" [lineInterpolate="linear"];"Barmen 205 688/0"  [style="fill: #eee; font-weight: bold"];"pseudo Schluessel18746" [label="    "]}');
 
         }
 
@@ -223,7 +224,6 @@
                     });
                 };
 
-
                 function done() {
                     console.log("done");
                     graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
@@ -238,7 +238,7 @@
 
                 // Render the graph into svg g
                 inner.call(render, g);//.each("end", done);
-                setTimeout(done, 50)
+                setTimeout(done, 150)
 
             }
         }

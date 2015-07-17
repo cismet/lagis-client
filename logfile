@@ -1,0 +1,12 @@
+LOG:  database system was shut down at 2015-07-14 11:12:48 CEST
+LOG:  autovacuum launcher started
+LOG:  database system is ready to accept connections
+LOG:  unexpected EOF on client connection
+LOG:  unexpected EOF on client connection
+LOG:  unexpected EOF on client connection
+LOG:  unexpected EOF on client connection
+LOG:  unexpected EOF on client connection
+LOG:  autovacuum launcher shutting down
+LOG:  received smart shutdown request
+LOG:  shutting down
+LOG:  database system is shut down

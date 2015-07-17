@@ -1,10 +1,12 @@
-/***************************************************
-*
-* cismet GmbH, Saarbruecken, Germany
-*
-*              ... and it just works.
-*
-****************************************************/
+/**
+ * *************************************************
+ *
+ * cismet GmbH, Saarbruecken, Germany
+ * 
+* ... and it just works.
+ * 
+***************************************************
+ */
 /*
  * PrintingWidget.java
  *
@@ -12,20 +14,47 @@
  */
 package de.cismet.lagis.report.printing;
 
+import javafx.application.Platform;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+import javafx.concurrent.Worker;
+
+import javafx.embed.swing.SwingFXUtils;
+
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
+
 import net.sf.jasperreports.engine.JRDataSource;
+
+import netscape.javascript.JSObject;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.RenderedImage;
+
+import java.io.File;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+
 import de.cismet.cismap.commons.gui.printing.JasperReportDownload;
+
+import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.checkbox.IconCheckBox;
 
@@ -40,6 +69,7 @@ import de.cismet.lagis.report.datasource.VorgaengeDataSource;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
 
+import de.cismet.tools.gui.FXWebViewPanel;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.downloadmanager.DownloadManager;
 import de.cismet.tools.gui.downloadmanager.DownloadManagerDialog;
@@ -47,13 +77,12 @@ import de.cismet.tools.gui.downloadmanager.DownloadManagerDialog;
 /**
  * DOCUMENT ME!
  *
- * @author   thorsten.hell@cismet.de
- * @version  $Revision$, $Date$
+ * @author thorsten.hell@cismet.de
+ * @version $Revision$, $Date$
  */
 public final class ReportPrintingWidget extends javax.swing.JDialog {
 
     //~ Static fields/initializers ---------------------------------------------
-
     private static final String PERM_KEY_BAUM = "Baumdatei";              // NOI18N
     private static final String PERM_KEY_MIPA = "Vermietung/Verpachtung"; // NOI18N
 
@@ -69,8 +98,8 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ReportPrintingWidget.class);
 
     //~ Instance fields --------------------------------------------------------
-
     PDFCreatingWaitDialog pdfWait;
+    FXWebViewPanel myWeb = null;
 
     private final Component parentComponent;
 
@@ -86,6 +115,8 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -106,12 +137,11 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
-
     /**
      * Creates new form PrintingWidget.
      *
-     * @param  frame  component mappingComponent DOCUMENT ME!
-     * @param  modal  DOCUMENT ME!
+     * @param frame component mappingComponent DOCUMENT ME!
+     * @param modal DOCUMENT ME!
      */
     public ReportPrintingWidget(final Frame frame, final boolean modal) {
         super(frame, modal);
@@ -129,11 +159,11 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         super.addWindowListener(new WindowAdapter() {
 
-                @Override
-                public void windowClosed(final WindowEvent e) {
-                    close();
-                }
-            });
+            @Override
+            public void windowClosed(final WindowEvent e) {
+                close();
+            }
+        });
 
         this.paramMap = new HashMap<String, String>(7);
 
@@ -141,9 +171,87 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         this.handleParamMap(PARAM_NOTIZEN, true);
 
         this.checkDetailAvailability();
+        initHistory();
     }
 
     //~ Methods ----------------------------------------------------------------
+    /**
+     * DOCUMENT ME!
+     */
+    private void initHistory() {
+//        String graph;
+//        try {
+//            graph = CidsBroker.getInstance().getHistoryGraph(LagisBroker.getInstance().getCurrentFlurstueck(), CidsBroker.HistoryLevel.DIRECT_RELATIONS, CidsBroker.HistoryType.BOTH, 0, null);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            graph = "digraph G{\"Fehler beim Ermitteln der Historie\"}";
+//            log.error("Error when craeting Historygraph");
+//        }
+        final String graph
+                = "digraph G{\"Barmen 201 250/0\"->\"Barmen 201 253/0\" [lineInterpolate=\"linear\"];\"Barmen 201 250/0\"->\"Barmen 201 254/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 133/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 134/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 135/0\" [lineInterpolate=\"linear\"];\"Barmen 206 135/0\"->\"Barmen 205 709/0\" [lineInterpolate=\"linear\"];\"Barmen 206 134/0\"->\"Barmen 201 255/0\" [lineInterpolate=\"linear\"];\"Barmen 205 688/0\"->\"pseudo Schluessel18746\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 200 316/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 250/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 251/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 252/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 206 132/0\" [lineInterpolate=\"linear\"];\"Barmen 205 688/0\"  [style=\"fill: #eee; font-weight: bold\"];\"pseudo Schluessel18746\" [label=\"    \"]}";
+
+        System.out.println("graph" + graph);
+
+        try {
+            final String template = IOUtils.toString(this.getClass().getResourceAsStream(
+                    "dagreReportingTemplate.html"));
+            final String s = template.replaceAll("__graphString__", graph);
+            // IOUtils.write(s, new FileWriter(new File("/Users/thorsten/tmp/x/diag.html")));
+            FileUtils.writeStringToFile(new File("/Users/thorsten/tmp/x/diag.html"), s);
+            System.out.println(s.substring(s.length() - 100));
+            new Thread() {
+
+                @Override
+                public void run() {
+                    System.out.println("init FXWexxxbViewPanel");
+                    myWeb = new FXWebViewPanel();
+
+                    System.out.println("FXWebViewPanel inited");
+                    EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            jScrollPane1.getViewport().add(myWeb);
+                            myWeb.setVisible(true);
+                            myWeb.setSize(new Dimension(1068, 420));
+                            Platform.runLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    try {
+                                        myWeb.getWebEngine()
+                                                .getLoadWorker()
+                                                .stateProperty()
+                                                .addListener(
+                                                        new ChangeListener<javafx.concurrent.Worker.State>() {
+
+                                                            @Override
+                                                            public void changed(
+                                                                    final ObservableValue<? extends Worker.State> observable,
+                                                                    final Worker.State oldValue,
+                                                                    final Worker.State newValue) {
+                                                                        System.out.println(newValue);
+                                                                        if (newValue == Worker.State.SUCCEEDED) {
+                                                                            System.out.println("loaded");
+
+                                                                            cmdOk.setEnabled(true);
+                                                                        }
+                                                                    }
+                                                        });
+                                        myWeb.loadContent(s);
+                                    } catch (Throwable t) {
+                                        t.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }.start();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
 
     /**
      * DOCUMENT ME!
@@ -151,59 +259,59 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private void initCheckBoxes() {
         this.baumdateiCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    baumdateiCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                baumdateiCheckBoxActionPerformed(ae);
+            }
+        });
 
         this.historieCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    historieCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                historieCheckBoxActionPerformed(ae);
+            }
+        });
 
         this.mipaCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    mipaCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                mipaCheckBoxActionPerformed(ae);
+            }
+        });
 
         this.notizenCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    notizenCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                notizenCheckBoxActionPerformed(ae);
+            }
+        });
 
         this.nutzungenCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    nutzungenCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                nutzungenCheckBoxActionPerformed(ae);
+            }
+        });
 
         this.rebeCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    rebeCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                rebeCheckBoxActionPerformed(ae);
+            }
+        });
 
         this.vorgaengeCheckBox.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(final ActionEvent ae) {
-                    vorgaengeCheckBoxActionPerformed(ae);
-                }
-            });
+            @Override
+            public void actionPerformed(final ActionEvent ae) {
+                vorgaengeCheckBoxActionPerformed(ae);
+            }
+        });
     }
 
     /**
@@ -234,8 +342,8 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  checkBox       DOCUMENT ME!
-     * @param  hasPermission  DOCUMENT ME!
+     * @param checkBox DOCUMENT ME!
+     * @param hasPermission DOCUMENT ME!
      */
     private void handlePermission(final IconCheckBox checkBox, final boolean hasPermission) {
         final boolean released = checkBox.isSelected() && hasPermission;
@@ -245,17 +353,17 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         if (!hasPermission) {
             checkBox.setToolTipText(
-                java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
-                    "ReportPrintingWidget.handleDetail(String,JCheckBox,enabled).checkBox.toolTipText.nopermission")); // NOI18N
+                    java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
+                            "ReportPrintingWidget.handleDetail(String,JCheckBox,enabled).checkBox.toolTipText.nopermission")); // NOI18N
         }
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  param     DOCUMENT ME!
-     * @param  checkBox  DOCUMENT ME!
-     * @param  hasData   DOCUMENT ME!
+     * @param param DOCUMENT ME!
+     * @param checkBox DOCUMENT ME!
+     * @param hasData DOCUMENT ME!
      */
     private void handleDetail(final String param, final IconCheckBox checkBox, final boolean hasData) {
         this.handleParamMap(param, hasData);
@@ -264,16 +372,16 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         if (!hasData) {
             checkBox.setToolTipText(
-                java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
-                    "ReportPrintingWidget.handleDetail(String,JCheckBox,enabled).checkBox.toolTipText.nodata")); // NOI18N
+                    java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
+                            "ReportPrintingWidget.handleDetail(String,JCheckBox,enabled).checkBox.toolTipText.nodata")); // NOI18N
         }
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  param       DOCUMENT ME!
-     * @param  isSelected  DOCUMENT ME!
+     * @param param DOCUMENT ME!
+     * @param isSelected DOCUMENT ME!
      */
     private void handleParamMap(final String param, final boolean isSelected) {
         if (isSelected) {
@@ -294,10 +402,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param   modal      DOCUMENT ME!
-     * @param   component  mappingComponent DOCUMENT ME!
+     * @param modal DOCUMENT ME!
+     * @param component mappingComponent DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
+     * @return DOCUMENT ME!
      */
     public ReportPrintingWidget cloneWithNewParent(final boolean modal, final Frame component) {
         final ReportPrintingWidget newWidget = new ReportPrintingWidget(component, modal);
@@ -305,8 +413,9 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     }
 
     /**
-     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
-     * content of this method is always regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -317,7 +426,9 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         lbl2 = new javax.swing.JLabel();
         txt2 = new javax.swing.JTextField();
         panDesc = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
         panLoadAndInscribe = new javax.swing.JPanel();
         scpLoadingStatus = new javax.swing.JScrollPane();
         notizenTextArea = new javax.swing.JTextPane();
@@ -373,24 +484,32 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         panDesc.setBackground(java.awt.SystemColor.inactiveCaptionText);
         panDesc.setMaximumSize(new java.awt.Dimension(32767, 240));
         panDesc.setPreferredSize(new java.awt.Dimension(160, 240));
+        panDesc.setLayout(new java.awt.CardLayout());
+
+        jPanel2.setOpaque(false);
 
         jLabel5.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/cismap/commons/gui/res/frameprint.png"))); // NOI18N
 
-        final org.jdesktop.layout.GroupLayout panDescLayout = new org.jdesktop.layout.GroupLayout(panDesc);
-        panDesc.setLayout(panDescLayout);
-        panDescLayout.setHorizontalGroup(
-            panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panDescLayout.createSequentialGroup().add(23, 23, 23).add(jLabel5).addContainerGap(
+        final org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                jPanel2Layout.createSequentialGroup().add(23, 23, 23).add(jLabel5).addContainerGap(
                     38,
                     Short.MAX_VALUE)));
-        panDescLayout.setVerticalGroup(
-            panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                panDescLayout.createSequentialGroup().addContainerGap(89, Short.MAX_VALUE).add(jLabel5).add(
+                jPanel2Layout.createSequentialGroup().addContainerGap(89, Short.MAX_VALUE).add(jLabel5).add(
                     23,
                     23,
                     23)));
+
+        panDesc.add(jPanel2, "printer");
+
+        jScrollPane1.setName("web"); // NOI18N
+        panDesc.add(jScrollPane1, "web");
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -408,7 +527,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         scpLoadingStatus.setMinimumSize(new java.awt.Dimension(26, 29));
         scpLoadingStatus.setPreferredSize(new java.awt.Dimension(8, 29));
 
-        notizenTextArea.setBackground(java.awt.SystemColor.text);
         notizenTextArea.setMinimumSize(new java.awt.Dimension(0, 50));
         notizenTextArea.setPreferredSize(new java.awt.Dimension(6, 50));
         scpLoadingStatus.setViewportView(notizenTextArea);
@@ -574,6 +692,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         cmdOk.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
                 "ReportPrintingWidget.cmdOk.text")); // NOI18N
+        cmdOk.setEnabled(false);
         cmdOk.setMaximumSize(new java.awt.Dimension(100, 29));
         cmdOk.setMinimumSize(new java.awt.Dimension(100, 29));
         cmdOk.setPreferredSize(new java.awt.Dimension(100, 29));
@@ -593,10 +712,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 9);
         getContentPane().add(jPanel1, gridBagConstraints);
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
-                "ReportPrintingWidget.jLabel6.text")); // NOI18N
+                "ReportPrintingWidget.jLabel6.text"));       // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -647,66 +766,95 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
-    private void formComponentShown(final java.awt.event.ComponentEvent evt) { //GEN-FIRST:event_formComponentShown
-    }                                                                          //GEN-LAST:event_formComponentShown
+    private void formComponentShown(final java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
+    }//GEN-LAST:event_formComponentShown
 
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
-    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdCancelActionPerformed
+    private void cmdCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdCancelActionPerformed
         close();
-    }                                                                             //GEN-LAST:event_cmdCancelActionPerformed
+    }//GEN-LAST:event_cmdCancelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
-    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
-        final JasperReportDownload.JasperReportDataSourceGenerator dataSourceGenerator =
-            new JasperReportDownload.JasperReportDataSourceGenerator() {
+    private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdOkActionPerformed
 
-                @Override
-                public JRDataSource generateDataSource() {
-                    return new EmptyDataSource(1);
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    final WritableImage snapshot = myWeb.getWebView().snapshot(new SnapshotParameters(), null);
+                    final RenderedImage renderedImage = SwingFXUtils.fromFXImage(
+                            snapshot,
+                            null);
+                    LagisBroker.getInstance().setHistoryImage(renderedImage);
+                    final File captureFile = new File("/Users/thorsten/tmp/x/cap.png");
+                    ImageIO.write(renderedImage, "png", captureFile);
+//                        final File captureFile = new File("/Users/thorsten/tmp/x/cap.png");
+//                        ImageIO.write(renderedImage, "png", captureFile);
+                    // RenderedImage in den Broker setzen
+                    // Dann den JAsper kram machen und im Scriptlet den Broker nach dem IMage fragen
+                    EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            final JasperReportDownload.JasperReportDataSourceGenerator dataSourceGenerator
+                                    = new JasperReportDownload.JasperReportDataSourceGenerator() {
+
+                                        @Override
+                                        public JRDataSource generateDataSource() {
+                                            return new EmptyDataSource(1);
+                                        }
+                                    };
+
+                            final JasperReportDownload.JasperReportParametersGenerator parametersGenerator
+                                    = new JasperReportDownload.JasperReportParametersGenerator() {
+
+                                        @Override
+                                        public Map generateParamters() {
+                                            if (notizenCheckBox.isSelected()) {
+                                                paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
+                                            }
+                                            return paramMap;
+                                        }
+                                    };
+
+                            if (DownloadManagerDialog.showAskingForUserTitle((Frame) parentComponent)) {
+                                final String jobname = DownloadManagerDialog.getJobname();
+                                DownloadManager.instance()
+                                        .add(
+                                                new JasperReportDownload(
+                                                        REPORT_MASTER,
+                                                        parametersGenerator,
+                                                        dataSourceGenerator,
+                                                        jobname,
+                                                        "Lagis-Druck",
+                                                        "lagis_flurstueck_details"));
+                            }
+
+                            setVisible(false);
+                        }
+                    });
+                } catch (Throwable t) {
+                    t.printStackTrace();
                 }
-            };
-
-        final JasperReportDownload.JasperReportParametersGenerator parametersGenerator =
-            new JasperReportDownload.JasperReportParametersGenerator() {
-
-                @Override
-                public Map generateParamters() {
-                    if (notizenCheckBox.isSelected()) {
-                        paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
-                    }
-                    return paramMap;
-                }
-            };
-
-        if (DownloadManagerDialog.showAskingForUserTitle((Frame)parentComponent)) {
-            final String jobname = DownloadManagerDialog.getJobname();
-            DownloadManager.instance()
-                    .add(new JasperReportDownload(
-                            REPORT_MASTER,
-                            parametersGenerator,
-                            dataSourceGenerator,
-                            jobname,
-                            "Lagis-Druck",
-                            "lagis_flurstueck_details"));
-        }
-
-        setVisible(false);
-    } //GEN-LAST:event_cmdOkActionPerformed
+            }
+        });
+    }//GEN-LAST:event_cmdOkActionPerformed
 
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void vorgaengeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_VORGAENGE, this.vorgaengeCheckBox.isSelected());
@@ -715,7 +863,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void nutzungenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_NUTZUNGEN, this.nutzungenCheckBox.isSelected());
@@ -724,7 +872,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void rebeCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_REBE, this.rebeCheckBox.isSelected());
@@ -733,7 +881,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void notizenCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         final boolean isSelected = this.notizenCheckBox.isSelected();
@@ -751,7 +899,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void mipaCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_MIPA, this.mipaCheckBox.isSelected());
@@ -760,7 +908,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void baumdateiCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_BAUMDATEI, this.baumdateiCheckBox.isSelected());
@@ -769,7 +917,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param evt DOCUMENT ME!
      */
     private void historieCheckBoxActionPerformed(final java.awt.event.ActionEvent evt) {
         this.handleParamMap(PARAM_HISTORY, this.historieCheckBox.isSelected());
@@ -778,18 +926,18 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     /**
      * DOCUMENT ME!
      *
-     * @param  args  the command line arguments
+     * @param args the command line arguments
      */
     public static void main(final String[] args) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
-                @Override
-                public void run() {
-                    final ReportPrintingWidget rpw = new ReportPrintingWidget(new javax.swing.JFrame(), true);
-                    rpw.pack();
-                    ;
-                    rpw.setVisible(true);
-                }
-            });
+            @Override
+            public void run() {
+                final ReportPrintingWidget rpw = new ReportPrintingWidget(new javax.swing.JFrame(), true);
+                rpw.pack();
+                ;
+                rpw.setVisible(true);
+            }
+        });
     }
 }
