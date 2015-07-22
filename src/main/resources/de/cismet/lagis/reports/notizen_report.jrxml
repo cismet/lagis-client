@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Notizen" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Notizen" pageWidth="555" pageHeight="842" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet" uuid="cfdf12d6-0375-4a6b-99c3-6c1c1f73c2e1">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<import value="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
@@ -12,14 +15,14 @@
 	<columnHeader>
 		<band height="20">
 			<staticText>
-				<reportElement x="6" y="0" width="545" height="20"/>
+				<reportElement x="6" y="0" width="545" height="20" uuid="c30b14f6-4692-406f-83bc-5152eaec3cec"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial" size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Notizen]]></text>
 			</staticText>
 			<line>
-				<reportElement x="0" y="0" width="556" height="1">
+				<reportElement x="0" y="0" width="556" height="1" uuid="57004879-bbb3-4e6a-9d64-29ac5babc7a0">
 					<printWhenExpression><![CDATA[Boolean.valueOf($P{param_notizen} != null)]]></printWhenExpression>
 				</reportElement>
 			</line>
@@ -28,11 +31,11 @@
 	<detail>
 		<band height="66">
 			<textField>
-				<reportElement x="6" y="0" width="545" height="60"/>
+				<reportElement x="6" y="0" width="545" height="60" uuid="c54efaf8-0bf6-406a-92f1-d549f98b4299"/>
 				<textElement>
-					<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$P{param_notizen}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{param_notizen}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Verwaltungsbereich" pageWidth="555" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Details Verwaltungsbereich" pageWidth="555" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="net.sf.jasperreports.engine.JRDefaultScriptlet" uuid="c10adc5f-6ab0-46be-a4cc-da38deb06480">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
 	<import value="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["de/cismet/lagis/reports/"]]></defaultValueExpression>
@@ -12,9 +15,9 @@
 	<title>
 		<band height="21">
 			<staticText>
-				<reportElement x="0" y="0" width="555" height="20"/>
+				<reportElement x="0" y="0" width="555" height="20" uuid="5490e73f-54df-434b-a608-d47692a44a4c"/>
 				<textElement verticalAlignment="Middle">
-					<font fontName="arial" size="12" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial" size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Verwaltungsbereich]]></text>
 			</staticText>
@@ -26,7 +29,7 @@
 	<columnHeader>
 		<band height="16">
 			<staticText>
-				<reportElement mode="Opaque" x="0" y="0" width="95" height="16" forecolor="#000000" backcolor="#C3BEC4"/>
+				<reportElement mode="Opaque" x="0" y="0" width="95" height="16" forecolor="#000000" backcolor="#C3BEC4" uuid="8de53917-5b87-4af7-b200-16ea4337d96e"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<topPen lineWidth="0.25" lineColor="#000000"/>
 					<leftPen lineWidth="0.25" lineColor="#000000"/>
@@ -34,12 +37,12 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial" size="10" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Dienststelle]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="95" y="0" width="95" height="16" forecolor="#000000" backcolor="#C3BEC4"/>
+				<reportElement mode="Opaque" x="95" y="0" width="95" height="16" forecolor="#000000" backcolor="#C3BEC4" uuid="82029efc-a274-47a8-b051-cd8b9dea4182"/>
 				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 					<topPen lineWidth="0.25" lineColor="#000000"/>
 					<leftPen lineWidth="0.25" lineColor="#000000"/>
@@ -47,7 +50,7 @@
 					<rightPen lineWidth="0.25" lineColor="#000000"/>
 				</box>
 				<textElement>
-					<font fontName="arial" size="10" isBold="true" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+					<font fontName="Arial" size="10" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Fläche in m²]]></text>
 			</staticText>
@@ -57,7 +60,7 @@
 		<band height="16">
 			<elementGroup>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="95" height="16"/>
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="95" height="16" uuid="9773f84a-cdfb-413c-899b-3ad59e460738"/>
 					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 						<pen lineWidth="0.25"/>
 						<topPen lineWidth="0.25"/>
@@ -66,12 +69,12 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial"/>
 					</textElement>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{dienststelle}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{dienststelle}]]></textFieldExpression>
 				</textField>
 				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-					<reportElement stretchType="RelativeToTallestObject" x="95" y="0" width="95" height="16"/>
+					<reportElement stretchType="RelativeToTallestObject" x="95" y="0" width="95" height="16" uuid="86c97a38-1a86-403f-bd98-c16f94af2c11"/>
 					<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
 						<pen lineWidth="0.25"/>
 						<topPen lineWidth="0.25"/>
@@ -80,9 +83,9 @@
 						<rightPen lineWidth="0.25"/>
 					</box>
 					<textElement>
-						<font fontName="arial" pdfFontName="de/cismet/lagis/reports/arial.ttf" isPdfEmbedded="true"/>
+						<font fontName="Arial"/>
 					</textElement>
-					<textFieldExpression class="java.lang.String"><![CDATA[$F{flaeche}]]></textFieldExpression>
+					<textFieldExpression><![CDATA[$F{flaeche}]]></textFieldExpression>
 				</textField>
 			</elementGroup>
 		</band>

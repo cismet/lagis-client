@@ -57,7 +57,7 @@ public class ReportSwingWorker extends SwingWorker<Boolean, Object> {
     private final ReportSwingWorkerDialog dialog;
     private final boolean withDialog;
     private String directory;
-    private final Map<String, String> paramMap;
+    private final Map<String, Object> paramMap;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -73,7 +73,7 @@ public class ReportSwingWorker extends SwingWorker<Boolean, Object> {
      */
     public ReportSwingWorker(final List<String> compiledReportList,
             final Map<String, JRDataSource> dataSourcesMap,
-            final Map<String, String> paramMap,
+            final Map<String, Object> paramMap,
             final boolean withDialog,
             final Frame parent,
             final String directory) {
@@ -125,7 +125,7 @@ public class ReportSwingWorker extends SwingWorker<Boolean, Object> {
                 // print aus report und daten erzeugen
                 final JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, this.paramMap, dataSource);
                 // quer- bzw hochformat übernehmen
-                jasperPrint.setOrientation(jasperReport.getOrientation());
+                jasperPrint.setOrientation(jasperReport.getOrientationValue());
 
                 // zum pdfStream exportieren und der streamliste hinzufügen
                 final ByteArrayOutputStream outTmp = new ByteArrayOutputStream();

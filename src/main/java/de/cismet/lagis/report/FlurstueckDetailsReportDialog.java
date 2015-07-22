@@ -38,7 +38,7 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
 
     //~ Instance fields --------------------------------------------------------
 
-    private final HashMap<String, String> paramMap;
+    private final HashMap<String, Object> paramMap;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox baumdateiCheckBox;
@@ -69,7 +69,7 @@ public class FlurstueckDetailsReportDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
 
-        this.paramMap = new HashMap<String, String>(7);
+        this.paramMap = new HashMap<String, Object>(7);
 
         this.nutzungenCheckBox.setSelected(true);
         this.rebeCheckBox.setSelected(true);
