@@ -55,8 +55,6 @@ import org.jdom.Element;
 
 import org.netbeans.api.wizard.WizardDisplayer;
 
-import java.applet.AppletContext;
-
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -282,7 +280,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 "/de/cismet/lagis/ressource/icons/toolbar/unkownFlurstueck.png"));
     private MappingComponent mapComponent;
     private ClipboardWaitDialog clipboarder;
-    private AppletContext appletContext;
     private StringViewMap viewMap = new StringViewMap();
 
     // TODO Jean
@@ -3398,12 +3395,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      */
     private void openUrlInExternalBrowser(final String url) {
         try {
-            if (appletContext == null) {
-                de.cismet.tools.BrowserLauncher.openURL(url);
-            } else {
-                final java.net.URL u = new java.net.URL(url);
-                appletContext.showDocument(u, "cismetBrowser");
-            }
+            de.cismet.tools.BrowserLauncher.openURL(url);
         } catch (Exception e) {
             LOG.warn("Fehler beim \u00D6ffnen von:" + url + "\\nNeuer Versuch", e);
             // Nochmal zur Sicherheit mit dem BrowserLauncher probieren
