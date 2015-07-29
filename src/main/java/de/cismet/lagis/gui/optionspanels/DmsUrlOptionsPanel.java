@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import org.jdom.Element;
 
-import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.awt.Component;
@@ -21,7 +20,6 @@ import java.awt.Point;
 import java.io.File;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.List;

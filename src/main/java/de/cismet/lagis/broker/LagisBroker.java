@@ -183,6 +183,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private Geometry currentWFSGeometry;
     private double kassenzeichenBuffer = -0.2;
     private double kassenzeichenBuffer100 = -0.5;
+    private boolean skipSecurityCheckFlurstueckAssistent = false;
 
     private boolean nkfAdminPermission = false;
 
@@ -1997,52 +1998,41 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         this.domain = domain;
     }
 
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @version  $Revision$, $Date$
-//     */
-//    class MailAuthenticator extends Authenticator {
-//
-//        //~ Instance fields ----------------------------------------------------
-//
-//        /**
-//         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String user;
-//        /**
-//         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String password;
-//
-//        //~ Constructors -------------------------------------------------------
-//
-//        /**
-//         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
-//         * aus den beiden Parametern user und passwort.
-//         *
-//         * @param  user      String, der Username fuer den Mailaccount.
-//         * @param  password  String, das Passwort fuer den Mailaccount.
-//         */
-//        public MailAuthenticator(final String user, final String password) {
-//            this.user = user;
-//            this.password = password;
-//        }
-//
-//        //~ Methods ------------------------------------------------------------
-//
-//        /**
-//         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
-//         *
-//         * @return  DOCUMENT ME!
-//         *
-//         * @see     javax.mail.Authenticator#getPasswordAuthentication()
-//         */
-//        @Override
-//        protected PasswordAuthentication getPasswordAuthentication() {
-//            return new PasswordAuthentication(this.user, this.password);
-//        }
-//    }
+    /**
+     * /** * DOCUMENT ME! * * @version $Revision$, $Date$
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isSkipSecurityCheckFlurstueckAssistent() {
+        return skipSecurityCheckFlurstueckAssistent;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  skipSecurityCheckFlurstueckAssistent  DOCUMENT ME!
+     */
+    public void setSkipSecurityCheckFlurstueckAssistent(final boolean skipSecurityCheckFlurstueckAssistent) {
+        this.skipSecurityCheckFlurstueckAssistent = skipSecurityCheckFlurstueckAssistent;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean checkFlurstueckWizardUserWantsToFinish() {
+        if (!isSkipSecurityCheckFlurstueckAssistent()) {
+            if (
+                JOptionPane.showConfirmDialog(
+                            LagisBroker.getInstance().getParentComponent(),
+                            "<html>Möchten Sie die Aktion wirklich abschließen ?",
+                            "Sicherheitsabfrage",
+                            JOptionPane.WARNING_MESSAGE)
+                        != JOptionPane.YES_OPTION) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

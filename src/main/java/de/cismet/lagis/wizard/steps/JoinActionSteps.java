@@ -168,6 +168,10 @@ public class JoinActionSteps extends WizardPanelProvider {
 
         @Override
         public void start(Map wizardData, final ResultProgressHandle progress) {
+            if (!LagisBroker.getInstance().checkFlurstueckWizardUserWantsToFinish()) {
+                progress.failed("Die Aktion wurde durch den Benutzer abgebrochen.", true);
+                return;
+            }
             wizardData = this.wizardData;
 
             if (log.isDebugEnabled()) {
