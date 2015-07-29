@@ -18,7 +18,6 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lookupoptions.AbstractOptionsPanel;
 import de.cismet.lookupoptions.OptionsPanelController;
 
-import de.cismet.lookupoptions.options.NetworkOptionsCategory;
 import de.cismet.lookupoptions.options.SecurityOptionsCategory;
 
 /**
@@ -71,19 +70,15 @@ public class FlurstueckAssistentOptionsPanel extends AbstractOptionsPanel {
 
         setLayout(new java.awt.GridBagLayout());
 
-        org.openide.awt.Mnemonics.setLocalizedText(
-            jCheckBox1,
-            org.openide.util.NbBundle.getMessage(
-                FlurstueckAssistentOptionsPanel.class,
-                "FlurstueckAssistentOptionsPanel.jCheckBox1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, org.openide.util.NbBundle.getMessage(FlurstueckAssistentOptionsPanel.class, "FlurstueckAssistentOptionsPanel.jCheckBox1.text")); // NOI18N
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    jCheckBox1ActionPerformed(evt);
-                }
-            });
-        add(jCheckBox1, new java.awt.GridBagConstraints());
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        add(jCheckBox1, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
@@ -94,16 +89,16 @@ public class FlurstueckAssistentOptionsPanel extends AbstractOptionsPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weighty = 1.0;
         add(jPanel2, gridBagConstraints);
-    } // </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jCheckBox1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jCheckBox1ActionPerformed
+    private void jCheckBox1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         skipSecurityCheck = jCheckBox1.isSelected();
-    }                                                                              //GEN-LAST:event_jCheckBox1ActionPerformed
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     @Override
     public void update() {
