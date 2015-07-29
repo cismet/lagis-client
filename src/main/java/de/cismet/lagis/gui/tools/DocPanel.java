@@ -15,19 +15,19 @@ package de.cismet.lagis.gui.tools;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
-import de.cismet.cids.custom.beans.lagis.UrlBaseCustomBean;
-import de.cismet.cids.custom.beans.lagis.UrlCustomBean;
 
+import de.cismet.lagis.gui.optionspanels.DmsUrlOptionsPanel;
+import de.cismet.lagis.gui.optionspanels.DmsUrlPathMapper;
 import de.cismet.lagis.gui.panels.DMSPanel;
-
-import de.cismet.tools.URLSplitter;
 
 /**
  * Klasse zum Anzeigen von Links und zugehörigen Icons in einer Anwendung.<br>
@@ -42,25 +42,14 @@ public class DocPanel extends javax.swing.JPanel {
 
     public static final int MAX_DESCRIPTION_LENGTH = 12;
     public static final String DELETE_ACTION_COMMAND = "DELETE_ACTION";
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DocPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
-    Vector actionListeners = new Vector();
-    private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private Icon icon;
-    // private String desc;
-    private String gotoUrl;
-    private java.applet.AppletContext appletContext = null;
+    private final Collection<ActionListener> actionListeners = new ArrayList<ActionListener>();
     private boolean deletable = false;
-    // private int dms_urls_id=-1;
-    // private int dms_url_id=-1;
-    // private int url_id=-1;
-    // private int url_base_id=-1;
-    // private String kassenzeichen="";
     private DmsUrlCustomBean dmsUrlEntity;
-//    public String getToolTipText(MouseEvent e) {
-//
-//    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblDescr;
     private javax.swing.JLabel lblIcon;
@@ -76,11 +65,65 @@ public class DocPanel extends javax.swing.JPanel {
      * @param  dmsUrlEntity  DOCUMENT ME!
      */
     public DocPanel(final DmsUrlCustomBean dmsUrlEntity) {
-        this.dmsUrlEntity = dmsUrlEntity;
         initComponents();
+
+        this.dmsUrlEntity = dmsUrlEntity;
+
+        initDescription(dmsUrlEntity.getName());
+        initIcon(makeIcon(dmsUrlEntity), dmsUrlEntity.getUrlString());
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   dmsUrlEntity  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private static ImageIcon makeIcon(final DmsUrlCustomBean dmsUrlEntity) {
+        final ImageIcon icon;
+        switch (dmsUrlEntity.getTyp()) {
+            case 0: {
+                // Collectionze WMS Icon und h?nge Kassenzeichen an
+                icon = new javax.swing.ImageIcon(DocPanel.class.getResource(
+                            "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
+            }
+            break;
+            case 1: {
+                if (LOG.isDebugEnabled()) {
+                    // Collectionze das Icon nach der Dateiendung
+                    LOG.debug("suche nach Bild für link");
+                }
+                final String url = dmsUrlEntity.getUrlString();
+                final int pPos = url.lastIndexOf(".");
+                final String type = url.substring(pPos + 1, url.length()).toLowerCase();
+                final String filename = "" + type + ".png";
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Filename für Bild: " + filename);
+                }
+                ImageIcon tryIcon;
+                try {
+                    tryIcon = new javax.swing.ImageIcon(DocPanel.class.getResource(
+                                "/de/cismet/lagis/ressource/icons/filetypes/"
+                                        + filename));
+                } catch (Exception e) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Fehler beim Suchen des Icons:" + type);
+                    }
+                    tryIcon = new javax.swing.ImageIcon(DocPanel.class.getResource(
+                                "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
+                }
+                icon = tryIcon;
+            }
+            break;
+            default: {
+                icon = null;
+            }
+        }
+        return icon;
+    }
 
     /**
      * DOCUMENT ME!
@@ -89,15 +132,6 @@ public class DocPanel extends javax.swing.JPanel {
      */
     public void setDMSUrlEntity(final DmsUrlCustomBean dmsUrlEntity) {
         this.dmsUrlEntity = dmsUrlEntity;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  typ  DOCUMENT ME!
-     */
-    public void setTyp(final Integer typ) {
-        dmsUrlEntity.setTyp(typ);
     }
 
     /**
@@ -119,101 +153,28 @@ public class DocPanel extends javax.swing.JPanel {
     }
 
     /**
-     * Setzt den Appletkontext.<br>
-     * Wird dann benötigt falls DocPanel in einem Applett benutzt wird
-     *
-     * @param  appletContext  Appletkontext
-     */
-    public void setAplettContext(final java.applet.AppletContext appletContext) {
-        this.appletContext = appletContext;
-    }
-
-    /**
-     * Liefert das dargestellte Symbol zurück.
-     *
-     * @return  Icon
-     */
-    public Icon getIcon() {
-        return lblIcon.getIcon();
-    }
-
-    /**
      * Setzt das dargestellte Symbol.
      *
-     * @param  icon  Dargestelltes Symbol
+     * @param  icon     Dargestelltes Symbol
+     * @param  tooltip  DOCUMENT ME!
      */
-    public void setIcon(final Icon icon) {
+    private void initIcon(final Icon icon, final String tooltip) {
         lblIcon.setIcon(icon);
+        lblIcon.setToolTipText(tooltip);
     }
 
     /**
-     * Liefert die Beschreibung.
+     * DOCUMENT ME!
      *
-     * @return  Beschreibung
+     * @param  desc  DOCUMENT ME!
      */
-// public String getDesc() {
-// return this.desc;
-// }
-    public String getDesc() {
-        return dmsUrlEntity.getName();
-    }
-
-    /**
-     * Setzt die Beschreibung.
-     *
-     * @param  desc  Beschreibung
-     */
-// public void setDesc(String desc) {
-// this.desc=desc;
-// if (desc.length()>MAX_DESCRIPTION_LENGTH) {
-// this.lblDescr.setText(desc.substring(0,MAX_DESCRIPTION_LENGTH)+"...");
-// this.lblDescr.setToolTipText(desc);
-// }
-// else {
-// this.lblDescr.setText(desc);
-// }
-// }
-    public void setDesc(final String desc) {
-        dmsUrlEntity.setName(desc);
+    private void initDescription(final String desc) {
         if (desc.length() > MAX_DESCRIPTION_LENGTH) {
             this.lblDescr.setText(desc.substring(0, MAX_DESCRIPTION_LENGTH) + "...");
             this.lblDescr.setToolTipText(desc);
         } else {
             this.lblDescr.setText(desc);
         }
-    }
-
-    /**
-     * Liefert die verknüpfte UrlCustomBean.
-     *
-     * @return  UrlCustomBean
-     */
-// public String getGotoUrl() {
-// return gotoUrl;
-//
-// }
-    public String getGotoUrl() {
-        return gotoUrl;
-    }
-
-    /**
-     * setzt die verknüpfte UrlCustomBean.
-     *
-     * @param  gotoUrl  UrlCustomBean
-     */
-    public void setGotoUrl(final String gotoUrl) {
-        final URLSplitter splitter = new URLSplitter(gotoUrl);
-        final UrlCustomBean urlEntity = dmsUrlEntity.getUrl();
-        log.info("UrlEntity: " + urlEntity);
-        final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
-        urlBase.setPfad(splitter.getPath());
-        urlBase.setProtPrefix(splitter.getProt_prefix());
-        urlBase.setServer(splitter.getServer());
-        urlEntity.setUrlBase(urlBase);
-        urlEntity.setObjektname(splitter.getObject_name());
-        dmsUrlEntity.setUrl(urlEntity);
-        this.gotoUrl = gotoUrl;
-        lblIcon.setToolTipText(gotoUrl);
     }
 
     /**
@@ -288,17 +249,17 @@ public class DocPanel extends javax.swing.JPanel {
      * @param  evt  DOCUMENT ME!
      */
     private void lblIconMousePressed(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblIconMousePressed
-        if (log.isDebugEnabled()) {
-            log.debug("mouse pressed");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("mouse pressed");
         }
         if ((evt.getButton() == evt.BUTTON3) && isDeletable()) {
-            if (log.isDebugEnabled()) {
-                log.debug("button3 && isDeletable");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("button3 && isDeletable");
             }
             // TODO WARUM NUR EIN PANEL;
             if (this.getParent() instanceof DMSPanel) {
-                if (log.isDebugEnabled()) {
-                    log.debug("isDMSPANEL");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("isDMSPANEL");
                 }
                 if (((DMSPanel)(getParent())).isInEditMode()) {
                     pmnLink.show(evt.getComponent(), evt.getX(), evt.getY());
@@ -322,32 +283,28 @@ public class DocPanel extends javax.swing.JPanel {
      * @param  evt  DOCUMENT ME!
      */
     private void lblDescrMouseClicked(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseClicked
-        if (gotoUrl == null) {
+        final String urlString = dmsUrlEntity.getUrlString();
+        if (urlString == null) {
             JOptionPane.showMessageDialog(this, "Es wurde keine Url hinterlegt!", "Fehler", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        final String gotoUrl = DmsUrlPathMapper.getInstance().replaceNetworkPath(urlString);
         try {
-            if (appletContext == null) {
-                de.cismet.tools.BrowserLauncher.openURL(gotoUrl);
-            } else {
-                final java.net.URL u = new java.net.URL(gotoUrl);
-                appletContext.showDocument(u, "cismetDocPanelFrame");
-            }
+            de.cismet.tools.BrowserLauncher.openURL(gotoUrl);
         } catch (Exception e) {
-            log.warn("Fehler beim öffnen von:" + gotoUrl + "\nNeuer Versuch", e);
+            LOG.warn("Fehler beim öffnen von:" + gotoUrl + "\nNeuer Versuch", e);
             // Nochmal zur Sicherheit mit dem BrowserLauncher probieren
             try {
                 de.cismet.tools.BrowserLauncher.openURL(gotoUrl);
-            } catch (Exception e2) {
+            } catch (final Exception e2) {
+                final String newGotoUrl = gotoUrl.replaceAll("\\\\", "/").replaceAll(" ", "%20");
                 try {
-                    gotoUrl = gotoUrl.replaceAll("\\\\", "/");
-                    gotoUrl = gotoUrl.replaceAll(" ", "%20");
-                    log.warn("Auch das 2te Mal ging schief.Fehler beim öffnen von:" + gotoUrl + "\nLetzter Versuch",
+                    LOG.warn("Auch das 2te Mal ging schief.Fehler beim öffnen von:" + newGotoUrl + "\nLetzter Versuch",
                         e2);
-                    de.cismet.tools.BrowserLauncher.openURL("file:///" + gotoUrl);
+                    de.cismet.tools.BrowserLauncher.openURL("file:///" + newGotoUrl);
                 } catch (Exception e3) {
-                    log.error("Auch das 3te Mal ging schief.Fehler beim öffnen von:file://" + gotoUrl, e3);
+                    LOG.error("Auch das 3te Mal ging schief.Fehler beim öffnen von:file://" + newGotoUrl, e3);
                 }
             }
         }
@@ -429,153 +386,4 @@ public class DocPanel extends javax.swing.JPanel {
     public void setDeletable(final boolean deletable) {
         this.deletable = deletable;
     }
-//     public void addDeleteStatements(Vector container) {
-//        SimpleDbAction sdba=new SimpleDbAction();
-//        sdba.setDescription("Link in >>DMS_URLS<< löschen");
-//        sdba.setType(sdba.DELETE);
-//        sdba.setStatement("delete from dms_urls where id="+dms_urls_id);
-//        container.add(sdba);
-//        sdba=new SimpleDbAction();
-//        sdba.setDescription("Link in >>DMS_URL<< löschen");
-//        sdba.setType(sdba.DELETE);
-//        sdba.setStatement("delete from dms_url where id="+dms_url_id);
-//        container.add(sdba);
-//        sdba=new SimpleDbAction(){
-//            public void executeAction(Connection conn) throws SQLException{
-//                Statement checker=conn.createStatement();
-//                ResultSet check=checker.executeQuery("SELECT count(*) FROM dms_url where url_id="+url_id);
-//                check.next();
-//                int counter=check.getInt(1);
-//                if (counter==0) {
-//                    super.executeAction(conn);
-//                }
-//            }
-//
-//        };
-//        sdba.setDescription("Link in >>URL_BASE<< löschen");
-//        sdba.setType(sdba.DELETE);
-//        sdba.setStatement("delete from url_base where id="+url_base_id);
-//        container.add(sdba);
-//        sdba=new SimpleDbAction(){
-//            public void executeAction(Connection conn) throws SQLException{
-//                Statement checker=conn.createStatement();
-//                ResultSet check=checker.executeQuery("SELECT count(*) FROM url where url_base_id="+url_base_id);
-//                check.next();
-//                int counter=check.getInt(1);
-//                if (counter==0) {
-//                    super.executeAction(conn);
-//                }
-//            }
-//
-//        };
-//        sdba.setDescription("Link in >>UrlCustomBean<< löschen");
-//        sdba.setType(sdba.DELETE);
-//        sdba.setStatement("delete from url where id="+url_id);
-//        container.add(sdba);
-//    }
-//
-//     public void addNewStatements(Vector container) {
-//        URLSplitter splitter=new URLSplitter(gotoUrl);
-//        SimpleDbAction sdba=new SimpleDbAction();
-//        sdba.setDescription("LINK in DMS_URLS eintragen");
-//        sdba.setType(sdba.INSERT);
-//        sdba.setStatement("INSERT INTO dms_urls " +
-//                "(id,dms_url,kassenzeichen_reference)" +
-//                "VALUES("+
-//                "nextval('DMS_URLS_SEQ')" +
-//                ","+"nextval('DMS_URL_SEQ')" +
-//                ","+kassenzeichen+
-//                ")");
-//        container.add(sdba);
-//
-//        sdba=new SimpleDbAction();
-//        sdba.setDescription("LINK in DMS_URL eintragen");
-//        sdba.setType(sdba.INSERT);
-//        sdba.setStatement("INSERT INTO dms_url " +
-//                "(id,typ,name,url_id)" +
-//                "VALUES("+
-//                "currval('DMS_URL_SEQ')" +
-//                ",1"+
-//                ",'"+this.getDesc()+"'"+
-//                ","+"nextval('URL_SEQ')"+
-//                ")");
-//        container.add(sdba);
-//
-//        sdba=new SimpleDbAction();
-//        sdba.setDescription("LINK in UrlCustomBean eintragen");
-//        sdba.setType(sdba.INSERT);
-//        sdba.setStatement("INSERT INTO url " +
-//                "(id,url_base_id,object_name)" +
-//                "VALUES("+
-//                "currval('URL_SEQ')" +
-//                ",nextval('URL_BASE_SEQ')"+
-//                ",'"+splitter.getObject_name().replaceAll("\\\\","\\\\\\\\")+"'"+
-//                ")");
-//        container.add(sdba);
-//        sdba=new SimpleDbAction();
-//        sdba.setDescription("LINK in UrlCustomBean eintragen");
-//        sdba.setType(sdba.INSERT);
-//        sdba.setStatement("INSERT INTO url_base " +
-//                "(id,prot_prefix,server,path)" +
-//                "VALUES("+
-//                "currval('URL_BASE_SEQ')" +
-//                ",'"+splitter.getProt_prefix().replaceAll("\\\\","\\\\\\\\")+"'"+
-//                ",'"+splitter.getServer().replaceAll("\\\\","\\\\\\\\")+"'"+
-//                ",'"+splitter.getPath().replaceAll("\\\\","\\\\\\\\")+"'"+
-//                ")");
-//        container.add(sdba);
-//
-//
-//     }
-//    private void add2Container(Vector container,SimpleDbAction sdba) {
-//        if (sdba!=null) {
-//            container.add(sdba);
-//        }
-//    }
-//
-//    public int getDms_urls_id() {
-//        //return dms_urls_id;
-//        return dmsUrlEntity.getId();
-//    }
-//
-//    public void setDms_urls_id(int dms_urls_id) {
-//        dmsUrlEntity.setId(dms_urls_id);
-//    }
-//
-//    public int getDms_url_id() {
-//        //return dms_url_id;
-//        return dmsUrlEntity.getId();
-//    }
-//
-//    public void setDms_url_id(int dms_url_id) {
-//        //this.dms_url_id = dms_url_id;
-//        dmsUrlEntity.setId(dms_url_id);
-//    }
-//
-//    public int getUrl_id() {
-//        //return url_id;
-//        return dmsUrlEntity.getUrl().getId();
-//    }
-//
-//    public void setUrl_id(int url_id) {
-//        //this.url_id = url_id;
-//        dmsUrlEntity.getUrl().setId(url_id);
-//    }
-//
-//    public int getUrl_base_id() {
-//        //return url_base_id;
-//        return dmsUrlEntity.getUrl().getUrlBase().getId();
-//    }
-//
-//    public void setUrl_base_id(int url_base_id) {
-//        //this.url_base_id = url_base_id;
-//        dmsUrlEntity.getUrl().getUrlBase().setId(url_base_id);
-//    }
-
-//    public void setKassenzeichen(String kassenzeichen) {
-//        this.kassenzeichen = kassenzeichen;
-//    }
-//    public String getKassenzeichen() {
-//        return kassenzeichen;
-//    }
 }

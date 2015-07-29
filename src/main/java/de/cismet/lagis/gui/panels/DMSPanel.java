@@ -12,11 +12,7 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import Sirius.server.middleware.types.MetaObject;
-
 import org.apache.log4j.Logger;
-
-import java.applet.AppletContext;
 
 import java.awt.FlowLayout;
 import java.awt.dnd.*;
@@ -25,11 +21,8 @@ import java.awt.event.ActionListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Vector;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
@@ -39,6 +32,7 @@ import de.cismet.cids.custom.beans.lagis.UrlCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.optionspanels.DmsUrlPathMapper;
 import de.cismet.lagis.gui.tools.DocPanel;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -49,6 +43,8 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.util.LagISUtils;
 
 import de.cismet.lagis.widget.AbstractWidget;
+
+import de.cismet.tools.URLSplitter;
 
 import de.cismet.tools.gui.StaticSwingTools;
 
@@ -68,13 +64,12 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private FlurstueckCustomBean currentFlurstueck;
-    private java.applet.AppletContext ac = null;
     private Collection<DmsUrlCustomBean> dmsUrls;
     // TODO
     private boolean inEditMode = true;
-    private Vector newLinks = new Vector();
-    private Vector removedLinks = new Vector();
-    private Vector allPanels = new Vector();
+    private final Collection<DocPanel> newLinks = new ArrayList<DocPanel>();
+    private final Collection<DocPanel> removedLinks = new ArrayList<DocPanel>();
+    private final Collection<DocPanel> allPanels = new ArrayList<DocPanel>();
 
     // private Thread panelRefresherThread;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
@@ -117,12 +112,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
                                 return;
                             }
                             try {
-                                final UrlCustomBean urlEntity = elem.getUrl();
-                                final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
-                                final String url = urlBase.getProtPrefix() + urlBase.getServer() + urlBase.getPfad()
-                                            + urlEntity.getObjektname();
-                                final int typ = elem.getTyp();
-                                allPanels.add(addNewDocPanel(ac, elem.getName(), url, typ, elem));
+                                allPanels.add(addNewDocPanel(elem));
                             } catch (Exception e) {
                                 log.error("Fehler beim laden eines Dokumentes", e);
                             }
@@ -193,123 +183,66 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     /**
      * DOCUMENT ME!
      *
-     * @param   ac           DOCUMENT ME!
+     * @param   url          DOCUMENT ME!
      * @param   description  DOCUMENT ME!
-     * @param   u            DOCUMENT ME!
+     * @param   typ          DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    public DocPanel addNewDocPanel(final AppletContext ac, final String description, final String u) {
-        if (log.isDebugEnabled()) {
-            log.debug("addNewDocPanel Method");
-        }
-        final DmsUrlCustomBean dmsUrlEntity = DmsUrlCustomBean.createNew();
-        final UrlCustomBean url = UrlCustomBean.createNew();
-        final UrlBaseCustomBean base = UrlBaseCustomBean.createNew();
-        url.setUrlBase(base);
-        if (log.isDebugEnabled()) {
-            log.debug("UrlEntity(dokPanek): " + url);
-        }
-        dmsUrlEntity.setUrl(url);
-        if (log.isDebugEnabled()) {
-            log.debug("UrlEntity(dokPanek) ?ber Entity: " + dmsUrlEntity.getUrl());
-        }
-        return addNewDocPanel(ac, description, u, 1, dmsUrlEntity);
+    private static DmsUrlCustomBean createNewDmsUrl(final String url, final String description, final int typ) {
+        final URLSplitter splitter = new URLSplitter(url);
+
+        final DmsUrlCustomBean dmsUrlBean = DmsUrlCustomBean.createNew();
+        final UrlBaseCustomBean urlBaseBean = UrlBaseCustomBean.createNew();
+        final UrlCustomBean urlBean = UrlCustomBean.createNew();
+
+        dmsUrlBean.setName(description);
+        dmsUrlBean.setTyp(typ);
+
+        urlBaseBean.setPfad(splitter.getPath());
+        urlBaseBean.setProtPrefix(splitter.getProt_prefix());
+        urlBaseBean.setServer(splitter.getServer());
+
+        urlBean.setObjektname(splitter.getObject_name());
+
+        urlBean.setUrlBase(urlBaseBean);
+        dmsUrlBean.setUrl(urlBean);
+        return dmsUrlBean;
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param   ac           DOCUMENT ME!
-     * @param   description  DOCUMENT ME!
-     * @param   u            DOCUMENT ME!
-     * @param   typ          DOCUMENT ME!
-     * @param   dms_URL      DOCUMENT ME!
+     * @param   dmsUrlEntity  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    public DocPanel addNewDocPanel(final AppletContext ac,
-            final String description,
-            final String u,
-            final int typ,
-            final DmsUrlCustomBean dms_URL) {
-        final String url = u;
-        log.info("AddNewDocPanel: " + url);
-        ImageIcon ic = null;
-        boolean deletable = true;
-        if (typ == 0) {
-            // Collectionze WMS Icon und h?nge Kassenzeichen an
-            ic = new javax.swing.ImageIcon(getClass().getResource(
-                        "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
-            // TODO
-            // url=url+kz;
-            deletable = false;
-        }
-        if (typ == 1) {
-            if (log.isDebugEnabled()) {
-                // Collectionze das Icon nach der Dateiendung
-                log.debug("suche nach Bild für link");
-            }
-            final int pPos = url.lastIndexOf(".");
-            final String type = url.substring(pPos + 1, url.length()).toLowerCase();
-            final String filename = "" + type + ".png";
-            if (log.isDebugEnabled()) {
-                log.debug("Filename für Bild: " + filename);
-            }
-            try {
-                ic = new javax.swing.ImageIcon(getClass().getResource(
-                            "/de/cismet/lagis/ressource/icons/filetypes/"
-                                    + filename));
-            } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Fehler beim Suchen des Icons:" + type);
-                }
-                ic = new javax.swing.ImageIcon(getClass().getResource(
-                            "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
-            }
-        }
-
-        final DocPanel dp = new DocPanel(dms_URL);
-        dp.setAplettContext(ac);
-        dp.setDesc(description);
-        dp.setGotoUrl(url);
-        dp.setIcon(ic);
-        dp.setTyp(typ);
+    public DocPanel addNewDocPanel(final DmsUrlCustomBean dmsUrlEntity) {
+        final DocPanel dp = new DocPanel(dmsUrlEntity);
         if (log.isDebugEnabled()) {
             log.debug("Typ des neuen DocPanels: " + dp.getTyp());
         }
-        // dp.setKassenzeichen(kz);
         dp.setDeletable(true);
-        // dp.setDms_url_id(dms_url_id);
-        // dp.setDms_urls_id(dms_urls_id);
-        // dp.setUrl_id(url_id);
-        // dp.setUrl_base_id(url_base_id);
-        // dp.setDMSUrlEntity(dmsUrlEntity);
         dp.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(final ActionEvent e) {
                     if (e.getSource() instanceof DocPanel) {
+                        final DocPanel docPanel = (DocPanel)e.getSource();
                         if (e.getActionCommand().equals(DocPanel.DELETE_ACTION_COMMAND)) {
-                            DMSPanel.this.remove((DocPanel)e.getSource());
-                            if (!newLinks.contains((DocPanel)e.getSource())) {
-                                removedLinks.add(e.getSource());
+                            DMSPanel.this.remove(docPanel);
+                            if (!newLinks.contains(docPanel)) {
+                                removedLinks.add(docPanel);
                             } else {
-                                newLinks.remove((DocPanel)e.getSource());
+                                newLinks.remove(docPanel);
                             }
-                            allPanels.remove(e.getSource());
+                            allPanels.remove(docPanel);
                             DMSPanel.this.revalidate();
                             repaint();
                         }
                     }
                 }
             });
-        // EventQueue.invokeLater(new Runnable(){
-        // public void run() {
-        // panDocs.add(dp);
-        // revalidate();
-        // }
-        // });
         this.add(dp);
         revalidate();
         return dp;
@@ -336,15 +269,17 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     @Override
     public void drop(final DropTargetDropEvent dtde) {
         dtde.acceptDrop(DnDConstants.ACTION_COPY);
-        final String link = StaticSwingTools.getLinkFromDropEvent(dtde);
-        if (link != null) {
+        final String url = StaticSwingTools.getLinkFromDropEvent(dtde);
+        if (url != null) {
             final String description = JOptionPane.showInputDialog(
                     this,
                     "Welche Beschriftung soll der Link haben?",
-                    link);
+                    url);
             if (description != null) {
-                // TODO
-                final DocPanel dp = addNewDocPanel(ac, description, link);
+                final DocPanel dp = addNewDocPanel(createNewDmsUrl(
+                            DmsUrlPathMapper.getInstance().replaceLocalPath(url),
+                            description,
+                            1));
                 newLinks.add(dp);
                 allPanels.add(dp);
                 this.repaint();
@@ -387,14 +322,6 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  ac  DOCUMENT ME!
-     */
-    public void setAppletContext(final java.applet.AppletContext ac) {
-        this.ac = ac;
-    }
 
     /**
      * DOCUMENT ME!
@@ -429,7 +356,7 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
             }
         }
         LagISUtils.makeCollectionContainSameAsOtherCollection(vDMSUrls, panColl);
-        allPanels = new Vector();
+        allPanels.clear();
     }
 
     // TODO USE

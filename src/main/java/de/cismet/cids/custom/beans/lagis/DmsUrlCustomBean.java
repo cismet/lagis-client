@@ -25,6 +25,15 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DmsUrlCustomBean.class);
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "typ",
+            "name",
+            "beschreibung",
+            "fk_url",
+            "fk_flurstueck"
+        };
+
     public static final String TABLE = "dms_url";
 
     //~ Instance fields --------------------------------------------------------
@@ -35,7 +44,6 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     private String beschreibung;
     private UrlCustomBean fk_url;
     private FlurstueckCustomBean fk_flurstueck;
-    private String[] PROPERTY_NAMES = new String[] { "id", "typ", "name", "beschreibung", "fk_url", "fk_flurstueck" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -191,7 +199,7 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
 
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return PROPERTY_NAMES;
     }
 
     @Override
@@ -202,5 +210,16 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     @Override
     public void setUrl(final UrlCustomBean val) {
         setFk_url(val);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getUrlString() {
+        final UrlCustomBean urlEntity = getUrl();
+        final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
+        return urlBase.getProtPrefix() + urlBase.getServer() + urlBase.getPfad() + urlEntity.getObjektname();
     }
 }
