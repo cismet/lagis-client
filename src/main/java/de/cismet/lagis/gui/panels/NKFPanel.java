@@ -164,7 +164,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         slrHistory.setEnabled(false);
         cbxChanges.setEnabled(false);
         btnRemoveNutzung.setEnabled(false);
-        btnAddNutzung.setEnabled(false);
+        ((NKFTable)tNutzung).getAddAction().setEnabled(false);
         btnFlipBuchung.setEnabled(false);
         configureTable();
         configBackgroundThread();
@@ -402,11 +402,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             tableModel.setInEditMode(isEditable);
             if (isEditable) {
                 if (!slrHistory.isEnabled()) {
-                    btnAddNutzung.setEnabled(true);
+                    ((NKFTable)tNutzung).getAddAction().setEnabled(true);
                 } else if (slrHistory.getValue() == slrHistory.getMaximum()) {
-                    btnAddNutzung.setEnabled(true);
+                    ((NKFTable)tNutzung).getAddAction().setEnabled(true);
                 } else {
-                    btnAddNutzung.setEnabled(false);
+                    ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                 }
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
@@ -430,7 +430,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 btnFlipBuchung.setEnabled(false);
                 btnPasteNutzung.setEnabled(isEditable);
                 btnCopyNutzung.setEnabled(false);
-                btnAddNutzung.setEnabled(false);
+                ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                 final TableCellEditor currentEditor = tNutzung.getCellEditor();
                 if (currentEditor != null) {
                     currentEditor.cancelCellEditing();
@@ -993,7 +993,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                                         .getGueltigbis());
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
-                                btnAddNutzung.setEnabled(false);
+                                ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                                 // wasRemovedEnabled = btnRemoveNutzung.isEnabled();
                                 btnRemoveNutzung.setEnabled(false);
                             }
@@ -1001,7 +1001,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             lblHistoricIcon.setIcon(icoHistoricIconDummy);
                             tableModel.setModelToHistoryDate(null);
                             if (isInEditMode) {
-                                btnAddNutzung.setEnabled(true);
+                                ((NKFTable)tNutzung).getAddAction().setEnabled(true);
                                 // TODO WHY DOES THIS NOT WORK
                                 // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
                                 btnRemoveNutzung.setEnabled(false);
@@ -1049,7 +1049,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         tableModel.setModelToHistoryDate(null);
                         lblHistoricIcon.setIcon(icoHistoricIconDummy);
                         if (isInEditMode) {
-                            btnAddNutzung.setEnabled(true);
+                            ((NKFTable)tNutzung).getAddAction().setEnabled(true);
                             // TODO WHY DOES THIS NOT WORK
                             // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
                             btnRemoveNutzung.setEnabled(false);
@@ -1070,12 +1070,12 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         // TODO THIS CAUSE IS IMPOSSIBLE BECAUSE NO EDIT MODE FOR HISTORIC FLURstück
                         if (isOnlyHistoric) {
                             lblHistoricIcon.setIcon(icoHistoricIcon);
-                            btnAddNutzung.setEnabled(false);
+                            ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                             btnRemoveNutzung.setEnabled(false);
                         } else {
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
-                                btnAddNutzung.setEnabled(false);
+                                ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                                 // wasRemovedEnabled = btnRemoveNutzung.isEnabled();
                                 btnRemoveNutzung.setEnabled(false);
                             }
@@ -1091,7 +1091,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             tableModel.setModelToHistoryDate(last);
                             lblHistoricIcon.setIcon(icoHistoricIconDummy);
                             if (isInEditMode) {
-                                btnAddNutzung.setEnabled(true);
+                                ((NKFTable)tNutzung).getAddAction().setEnabled(true);
                                 // TODO WHY DOES THIS NOT WORK
                                 // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
                                 btnRemoveNutzung.setEnabled(false);
@@ -1103,7 +1103,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             tableModel.setModelToHistoryDate(currentDate);
                             lblHistoricIcon.setIcon(icoHistoricIcon);
                             if (isInEditMode) {
-                                btnAddNutzung.setEnabled(false);
+                                ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                                 btnRemoveNutzung.setEnabled(false);
                             }
                         }

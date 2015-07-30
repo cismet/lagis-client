@@ -70,6 +70,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
     private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     private JToggleButton tbtnSort;
     private JButton btnUndo;
+    private AbstractAction addAction;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -78,6 +79,13 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      */
     public AbstractCidsBeanTable_Lagis() {
         super();
+        addAction = new AbstractAction() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    btnAddActionPerformed(e);
+                }
+            };
         this.getSelectionModel().addListSelectionListener(this);
     }
 
@@ -89,13 +97,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      * @return  DOCUMENT ME!
      */
     public Action getAddAction() {
-        return new AbstractAction() {
-
-                @Override
-                public void actionPerformed(final ActionEvent e) {
-                    btnAddActionPerformed(e);
-                }
-            };
+        return addAction;
     }
 
     /**
