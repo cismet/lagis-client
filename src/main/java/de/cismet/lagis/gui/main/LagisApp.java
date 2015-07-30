@@ -3474,12 +3474,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         // Problem wenn floating --> close -> open  (muss zweimal open)
 
         if (v.isClosable()) {
-//            if (v.isShowing()) {
+            if (v.isShowing()) {
                 v.close();
             } else {
-//                v.restoreFocus();
-//            }
-//        } else {
+                v.restoreFocus();
+            }
+        } else {
             v.restore();
         }
     }
