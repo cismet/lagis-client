@@ -519,6 +519,6 @@ public class BaumCustomBean extends BasicEntity implements Baum {
 
     @Override
     public String toString() {
-        return "de.cismet.lagisEE.entity.extension.baum.Baum[id=" + getId() + "]";
+        return "Baumnummer " + getBaumnummer();
     }
 }

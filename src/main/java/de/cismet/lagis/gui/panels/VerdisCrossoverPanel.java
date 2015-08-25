@@ -81,7 +81,6 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
     // TODO Jean
     private final KassenzeichenTableModel tableModel = new KassenzeichenTableModel();
-    private int verdisCrossoverPort = -1;
     private FadingCardLayout layout = new FadingCardLayout();
     private JPopupMenu switchToKassenzeichenPopup;
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -105,10 +104,8 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
 
     /**
      * Creates new form VerdisCrossoverPanel.
-     *
-     * @param  verdisCrossoverPort  DOCUMENT ME!
      */
-    public VerdisCrossoverPanel(final int verdisCrossoverPort) {
+    public VerdisCrossoverPanel() {
         initComponents();
         configurePopupMenue();
         panAll.setLayout(layout);
@@ -121,7 +118,6 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         tblKassenzeichen.addMouseListener(this);
         tblKassenzeichen.addMouseListener(new PopupListener());
         tblKassenzeichen.getSelectionModel().addListSelectionListener(this);
-        this.verdisCrossoverPort = verdisCrossoverPort;
         pgbProgress.setIndeterminate(true);
 //        this.add(panContentProgress, BorderLayout.CENTER);
         layout.show(panAll, PROGRESS_CARD_NAME);
@@ -427,47 +423,6 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
         }
     }
 
-    /**
-     * ToDo place query generation in VerdisCrossover. Give key get Query.
-     *
-     * @param  bean  e bean DOCUMENT ME!
-     */
-    private void openKassenzeichenInVerdis(final CidsBean bean) {
-        if (bean != null) {
-            if ((verdisCrossoverPort < 0) || (verdisCrossoverPort > 65535)) {
-                log.warn("Crossover: verdisCrossoverPort ist ungültig: " + verdisCrossoverPort);
-            } else {
-                // ToDo Thread
-                final URL verdisQuery = createQuery(verdisCrossoverPort, bean);
-                if (verdisQuery != null) {
-                    final SwingWorker<Void, Void> openKassenzeichen = new SwingWorker<Void, Void>() {
-
-                            @Override
-                            protected Void doInBackground() throws Exception {
-                                verdisQuery.openStream();
-                                return null;
-                            }
-
-                            @Override
-                            protected void done() {
-                                try {
-                                    get();
-                                } catch (Exception ex) {
-                                    log.error("Fehler beim öffnen des Kassenzeichens", ex);
-                                    // ToDo message to user;
-                                }
-                            }
-                        };
-                    LagisBroker.getInstance().execute(openKassenzeichen);
-                } else {
-                    log.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
-                }
-            }
-        } else {
-            log.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
-        }
-    }
-
     @Override
     public void mouseEntered(final MouseEvent e) {
     }
@@ -496,7 +451,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                 if (modelIndex != -1) {
                     final CidsBean selectedKassenzeichen = tableModel.getKassenzeichenAtIndex(modelIndex);
                     if (selectedKassenzeichen != null) {
-                        openKassenzeichenInVerdis(selectedKassenzeichen);
+                        LagisBroker.getInstance().openKassenzeichenInVerdis(selectedKassenzeichen);
                     } else {
                         log.warn("Crossover: Kein Kassenzeichen zu angebenen Index.");
                     }
@@ -716,8 +671,8 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                         : LagisBroker.getInstance().getKassenzeichenBuffer();
 
                     final String query = "SELECT 11, k.id\n"
-                                + "FROM  kassenzeichen k, geom\n"
-                                + "WHERE k.geometrie = geom.id\n"
+                                + "FROM  kassenzeichen k, kassenzeichen_geometrie kg, geom\n"
+                                + "WHERE k.id = kg.kassenzeichen AND kg.geometrie = geom.id\n"
                                 + "AND not isEmpty(geom.geo_field)\n"
                                 + "AND intersects(geom.geo_field,st_buffer(st_buffer(geometryfromtext('"
                                 + flurstueckGeom.toText() + "',31466), "

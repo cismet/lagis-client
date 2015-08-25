@@ -32,6 +32,8 @@ import org.jdom.Element;
 import java.awt.Color;
 import java.awt.EventQueue;
 
+import java.net.URL;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -45,6 +47,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.*;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -69,6 +73,8 @@ import de.cismet.tools.CurrentStackTrace;
 import de.cismet.tools.configuration.Configurable;
 
 import de.cismet.tools.gui.StaticSwingTools;
+
+import static de.cismet.lagis.gui.panels.VerdisCrossoverPanel.createQuery;
 
 /**
  * DOCUMENT ME!
@@ -241,6 +247,47 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             broker = new LagisBroker();
         }
         return broker;
+    }
+
+    /**
+     * ToDo place query generation in VerdisCrossover. Give key get Query.
+     *
+     * @param  bean  e bean DOCUMENT ME!
+     */
+    public void openKassenzeichenInVerdis(final CidsBean bean) {
+        if (bean != null) {
+            if ((verdisCrossoverPort < 0) || (verdisCrossoverPort > 65535)) {
+                log.warn("Crossover: verdisCrossoverPort ist ungültig: " + verdisCrossoverPort);
+            } else {
+                // ToDo Thread
+                final URL verdisQuery = createQuery(verdisCrossoverPort, bean);
+                if (verdisQuery != null) {
+                    final SwingWorker<Void, Void> openKassenzeichen = new SwingWorker<Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                verdisQuery.openStream();
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                try {
+                                    get();
+                                } catch (Exception ex) {
+                                    log.error("Fehler beim öffnen des Kassenzeichens", ex);
+                                    // ToDo message to user;
+                                }
+                            }
+                        };
+                    LagisBroker.getInstance().execute(openKassenzeichen);
+                } else {
+                    log.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
+                }
+            }
+        } else {
+            log.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
+        }
     }
 
     /**

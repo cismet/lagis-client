@@ -449,6 +449,18 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mniInformationActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mniInformation1">
+              <Properties>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/de/cismet/lagis/ressource/icons/titlebar/info.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Kassenzeicheninformation"/>
+                <Property name="toolTipText" type="java.lang.String" value="Informationen zum aktuellen Flurst&#xfc;ck"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mniInformation1ActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator14">
               <Properties>
                 <Property name="enabled" type="boolean" value="false"/>

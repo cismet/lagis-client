@@ -56,7 +56,8 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private Collection<DmsUrlCustomBean> n_dms_urls;
     private Collection<NutzungCustomBean> n_nutzungen;
     private Collection<RebeCustomBean> n_rebes;
-    private String[] PROPERTY_NAMES = new String[] {
+    private Collection<KassenzeichenCustomBean> n_kassenzeichen;
+    private final String[] PROPERTY_NAMES = new String[] {
             "id",
             "bemerkung",
             "fk_spielplatz",
@@ -68,7 +69,8 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
             "n_verwaltungsbereiche_eintraege",
             "n_dms_urls",
             "n_nutzungen",
-            "n_rebes"
+            "n_rebes",
+            "n_kassenzeichen"
         };
 
     //~ Constructors -----------------------------------------------------------
@@ -401,6 +403,26 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
         this.n_rebes = val;
 
         this.propertyChangeSupport.firePropertyChange("n_rebes", null, this.n_rebes);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<KassenzeichenCustomBean> getN_kassenzeichen() {
+        return this.n_kassenzeichen;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  val  DOCUMENT ME!
+     */
+    public void setN_kassenzeichen(final Collection<KassenzeichenCustomBean> val) {
+        this.n_kassenzeichen = val;
+
+        this.propertyChangeSupport.firePropertyChange("n_kassenzeichen", null, this.n_kassenzeichen);
     }
 
     @Override

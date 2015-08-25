@@ -506,4 +506,9 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     @Override
     public void setHighlightingEnabled(final boolean enabled) {
     }
+
+    @Override
+    public String toString() {
+        return "Nummer " + getNummer();
+    }
 }

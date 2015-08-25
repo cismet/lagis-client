@@ -37,6 +37,7 @@ public class VerwaltungsTable extends AbstractCidsBeanTable_Lagis {
             }
 
             ((VerwaltungsTableModel)getModel()).addCidsBean(tmp);
+            fireItemAdded();
         } catch (Exception ex) {
             LOG.error("error creating bean for verwaltungsbereiche", ex);
         }
