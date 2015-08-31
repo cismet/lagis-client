@@ -1063,8 +1063,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
             for (int i = 0; i < bandNutzungen.getNumberOfMembers(); i++) {
                 final NKFBandMember nkfMember = (NKFBandMember)bandNutzungen.getMember(i);
-                // TODO
-                nkfMember.removeListener(null);
+                nkfMember.removeAllListeners();
             }
 
             final List<NutzungBuchungCustomBean> sortedHistoricNutzungen = getSortedHistoricsortedNutzungen(

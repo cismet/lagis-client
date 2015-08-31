@@ -123,6 +123,13 @@ public class NKFBandMember extends JLabel implements Section, BandMember, BandMe
 
     /**
      * DOCUMENT ME!
+     */
+    public void removeAllListeners() {
+        listeners.clear();
+    }
+
+    /**
+     * DOCUMENT ME!
      *
      * @param  listener  DOCUMENT ME!
      */
