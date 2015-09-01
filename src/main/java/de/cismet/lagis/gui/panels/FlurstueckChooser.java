@@ -40,6 +40,7 @@ import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.cismap.commons.features.DefaultStyledFeature;
 import de.cismet.cismap.commons.features.Feature;
+import de.cismet.cismap.commons.features.FeatureNameProvider;
 import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
@@ -2077,7 +2078,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             final boolean isNoGeometryAssigned = (properties.get(IS_NO_GEOMETRY_ASSIGNED) != null)
                                 ? properties.get(IS_NO_GEOMETRY_ASSIGNED) : false;
                             if (!hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
-                                tmpFeature = new DefaultStyledFeature();
+                                tmpFeature = new FlurtstueckNamedStyledFeature();
                                 tmpFeature.setEditable(false);
                                 ((DefaultStyledFeature)tmpFeature).setCanBeSelected(false);
 
@@ -2107,6 +2108,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                     styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
                                 }
                                 tmpFeature.setGeometry(result);
+                                ((FlurtstueckNamedStyledFeature)tmpFeature).setName(flurstueckKey.getKeyString());
                                 tmpFeature = new StyledFeatureGroupWrapper((StyledFeature)tmpFeature,
                                         FEATURE_GRP,
                                         FEATURE_GRP);
@@ -2412,6 +2414,42 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
 
         @Override
         public void changedUpdate(final DocumentEvent e) {
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private class FlurtstueckNamedStyledFeature extends DefaultStyledFeature implements FeatureNameProvider {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private String name;
+
+        //~ Constructors -------------------------------------------------------
+
+        /**
+         * Creates a new FlurtstueckNamedStyledFeature object.
+         */
+        public FlurtstueckNamedStyledFeature() {
+        }
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @param  name  DOCUMENT ME!
+         */
+        public void setName(final String name) {
+            this.name = name;
         }
     }
 }
