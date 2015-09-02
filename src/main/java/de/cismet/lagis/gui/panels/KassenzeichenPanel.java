@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 
+import javax.swing.JTable;
+
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.KassenzeichenCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
@@ -55,6 +57,7 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
     //~ Static fields/initializers ---------------------------------------------
 
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(KassenzeichenPanel.class);
+    private static KassenzeichenPanel INSTANCE;
 
     //~ Instance fields --------------------------------------------------------
 
@@ -76,7 +79,7 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
     /**
      * Creates new form KassenzeichenPanel.
      */
-    public KassenzeichenPanel() {
+    private KassenzeichenPanel() {
         setIsCoreWidget(true);
         initComponents();
         TableSelectionUtils.crossReferenceModelAndTable(tableModel, (KassenzeichenTable)tKassenzeichen);
@@ -89,6 +92,27 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static KassenzeichenPanel getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new KassenzeichenPanel();
+        }
+        return INSTANCE;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public JTable getTable() {
+        return tKassenzeichen;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The

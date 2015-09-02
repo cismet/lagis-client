@@ -1361,7 +1361,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             LOG.error("Error. No Histroy Component available");
         }
         pInformation = new InformationPanel();
-        pKassenzeichen = new KassenzeichenPanel();
+        pKassenzeichen = KassenzeichenPanel.getInstance();
 
         if (pHistory != null) {
             widgets.add(pHistory);

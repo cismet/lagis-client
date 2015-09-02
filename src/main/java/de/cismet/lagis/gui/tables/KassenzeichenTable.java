@@ -45,17 +45,26 @@ public class KassenzeichenTable extends AbstractCidsBeanTable_Lagis {
 
                         @Override
                         public void kassenzeichennummerAdded(final Integer kassenzeichennummer) {
-                            final KassenzeichenCustomBean tmp = KassenzeichenCustomBean.createNew();
-                            tmp.setKassenzeichennummer(kassenzeichennummer);
-                            tmp.setZugeordnet_am(new Timestamp(new Date().getTime()));
-                            tmp.setZugeordnet_von(SessionManager.getSession().getUser().getName());
-                            ((KassenzeichenTableModel)getModel()).addCidsBean(tmp);
-                            fireItemAdded();
+                            addNewKassenzeichen(kassenzeichennummer);
                         }
                     }));
         } catch (Exception ex) {
             LOG.error("error creating bean for Kassenzeichen", ex);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  kassenzeichennummer  DOCUMENT ME!
+     */
+    public void addNewKassenzeichen(final Integer kassenzeichennummer) {
+        final KassenzeichenCustomBean tmp = KassenzeichenCustomBean.createNew();
+        tmp.setKassenzeichennummer(kassenzeichennummer);
+        tmp.setZugeordnet_am(new Timestamp(new Date().getTime()));
+        tmp.setZugeordnet_von(SessionManager.getSession().getUser().getName());
+        ((KassenzeichenTableModel)getModel()).addCidsBean(tmp);
+        fireItemAdded();
     }
 
     @Override
