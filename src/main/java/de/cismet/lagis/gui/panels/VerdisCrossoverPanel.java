@@ -699,28 +699,18 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
             final FlurstueckSchluesselCustomBean currentKey = LagisBroker.getInstance()
                         .getCurrentFlurstueckSchluessel();
             if (currentKey != null) {
-                Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
+                final Geometry flurstueckGeom = LagisBroker.getInstance().getInstance().getCurrentWFSGeometry();
                 if (flurstueckGeom != null) {
-                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen (vor Transformation): "
-                                + flurstueckGeom
-                                + ",SRS" + flurstueckGeom.getSRID());
-                    flurstueckGeom = CrsTransformer.transformToGivenCrs(flurstueckGeom,
-                            "EPSG:31466"); // Hardcoded FTW
-                    log.info("Crossover: Geometrie zum bestimmen der Kassenzeichen: " + flurstueckGeom + ",SRS"
-                                + flurstueckGeom.getSRID());
-
-//                    final KassenzeichenFacadeRemote verdisServer = LagisBroker.getInstance().getVerdisServer();
-
                     final double buffer = (flurstueckGeom.getArea() > 100)
                         ? LagisBroker.getInstance().getKassenzeichenBuffer100()
                         : LagisBroker.getInstance().getKassenzeichenBuffer();
 
                     final String query = "SELECT 11, k.id\n"
-                                + "FROM  kassenzeichen k, geom\n"
-                                + "WHERE k.geometrie = geom.id\n"
+                                + "FROM  kassenzeichen k, kassenzeichen_geometrie kg, geom\n"
+                                + "WHERE k.id = kg.kassenzeichen AND kg.geometrie = geom.id\n"
                                 + "AND not isEmpty(geom.geo_field)\n"
                                 + "AND intersects(geom.geo_field,st_buffer(st_buffer(geometryfromtext('"
-                                + flurstueckGeom.toText() + "',31466), "
+                                + flurstueckGeom.toString() + "',25832), "
                                 + buffer + "), 0))";
 
                     if (log.isDebugEnabled()) {
