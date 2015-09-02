@@ -959,7 +959,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 break;
             }
         }
-        if (!isSelected) {
+        if (!isSelected && (bandNutzungen.getNumberOfMembers() > 0)) {
             // select last one
             jBand1.setSelectedMember((NKFBandMember)bandNutzungen.getMember(i - 1));
         }
@@ -1070,149 +1070,148 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     sortedNutzungen);
 
             if (!sortedHistoricNutzungen.isEmpty()) {
-                if (sortedHistoricNutzungen.size() > 1) {
-                    final Iterator<NutzungBuchungCustomBean> it = sortedHistoricNutzungen.iterator();
+                final Iterator<NutzungBuchungCustomBean> it = sortedHistoricNutzungen.iterator();
 
-                    final Calendar c = Calendar.getInstance();
-                    final NutzungBuchungCustomBean firstNutzung = it.next();
+                final Calendar c = Calendar.getInstance();
+                final NutzungBuchungCustomBean firstNutzung = it.next();
 
-                    final int minPreDays = 5;
-                    final int minPostDays = 5;
+                final int minPreDays = 5;
+                final int minPostDays = 5;
 
-                    c.setTime(firstNutzung.getGueltigbis());
-                    c.set(Calendar.DAY_OF_MONTH, 1);
-                    int preOffset = diffInDays(firstNutzung.getGueltigbis(), c.getTime());
-                    if (preOffset < minPreDays) {
-                        c.add(Calendar.MONTH, -1);
-                        preOffset = diffInDays(firstNutzung.getGueltigbis(), c.getTime());
-                    }
+                c.setTime(firstNutzung.getGueltigbis());
+                c.set(Calendar.DAY_OF_MONTH, 1);
+                int preOffset = diffInDays(firstNutzung.getGueltigbis(), c.getTime());
+                if (preOffset < minPreDays) {
+                    c.add(Calendar.MONTH, -1);
+                    preOffset = diffInDays(firstNutzung.getGueltigbis(), c.getTime());
+                }
 
-                    c.setTime(firstNutzung.getGueltigbis());
-                    c.add(Calendar.DATE, -preOffset);
-                    final Date firstDate = c.getTime();
+                c.setTime(firstNutzung.getGueltigbis());
+                c.add(Calendar.DATE, -preOffset);
+                final Date firstDate = c.getTime();
 
-                    int previousDayDiff = preOffset;
-                    final NKFBandMember firstNkfBandMember = new NKFBandMember(
-                            0,
-                            previousDayDiff,
-                            firstNutzung.getGueltigbis());
-                    bandNutzungen.addMember(firstNkfBandMember);
-                    firstNkfBandMember.addListener(new NKFBandMember.Listener() {
+                int previousDayDiff = preOffset;
+                final NKFBandMember firstNkfBandMember = new NKFBandMember(
+                        0,
+                        previousDayDiff,
+                        firstNutzung.getGueltigbis());
+                bandNutzungen.addMember(firstNkfBandMember);
+                firstNkfBandMember.addListener(new NKFBandMember.Listener() {
 
-                            @Override
-                            public void memberSelected(final boolean selected) {
-                                if (selected) {
-                                    memberSelect(firstNkfBandMember);
-                                } else {
-                                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void memberSelected(final boolean selected) {
+                            if (selected) {
+                                memberSelect(firstNkfBandMember);
+                            } else {
+                                SwingUtilities.invokeLater(new Runnable() {
 
-                                            @Override
-                                            public void run() {
-                                                memberUnselect();
-                                            }
-                                        });
-                                }
-                            }
-                        });
-
-                    NutzungBuchungCustomBean previousNutzung = firstNutzung;
-                    while (it.hasNext()) {
-                        final NutzungBuchungCustomBean curNutzung = it.next();
-                        final Date curGueltigBis = LagisBroker.getDateWithoutTime(curNutzung.getGueltigbis());
-                        final Date preGueltigBis = LagisBroker.getDateWithoutTime(
-                                previousNutzung.getGueltigbis());
-                        if (!curGueltigBis.equals(preGueltigBis)) {
-                            final int curDayDiff = previousDayDiff + diffInDays(curGueltigBis, preGueltigBis);
-                            final NKFBandMember nkfBandMember = new NKFBandMember(
-                                    previousDayDiff,
-                                    curDayDiff,
-                                    curGueltigBis);
-                            nkfBandMember.addListener(new NKFBandMember.Listener() {
-
-                                    @Override
-                                    public void memberSelected(final boolean selected) {
-                                        if (selected) {
-                                            memberSelect(nkfBandMember);
-                                        } else {
-                                            SwingUtilities.invokeLater(new Runnable() {
-
-                                                    @Override
-                                                    public void run() {
-                                                        memberUnselect();
-                                                    }
-                                                });
+                                        @Override
+                                        public void run() {
+                                            memberUnselect();
                                         }
-                                    }
-                                });
-                            bandNutzungen.addMember(nkfBandMember);
-                            previousNutzung = curNutzung;
-                            previousDayDiff = curDayDiff;
-                        }
-                    }
-                    final NutzungBuchungCustomBean lastNutzung = previousNutzung;
-
-                    c.setTime(lastNutzung.getGueltigbis());
-                    c.set(Calendar.DAY_OF_MONTH, 1);
-                    c.add(Calendar.MONTH, 1);
-                    int postOffset = diffInDays(c.getTime(), lastNutzung.getGueltigbis());
-                    if (postOffset < minPostDays) {
-                        c.add(Calendar.MONTH, 1);
-                        postOffset = diffInDays(c.getTime(), lastNutzung.getGueltigbis());
-                    }
-
-                    final int endDayDiff = previousDayDiff + postOffset;
-                    final NKFBandMember bandMember = new NKFBandMember(
-                            previousDayDiff,
-                            endDayDiff,
-                            null);
-                    bandMember.addListener(new NKFBandMember.Listener() {
-
-                            @Override
-                            public void memberSelected(final boolean selected) {
-                                if (selected) {
-                                    memberSelect(bandMember);
-                                } else {
-                                    SwingUtilities.invokeLater(new Runnable() {
-
-                                            @Override
-                                            public void run() {
-                                                memberUnselect();
-                                            }
-                                        });
-                                }
+                                    });
                             }
-                        });
-                    bandNutzungen.addMember(bandMember);
+                        }
+                    });
 
-                    // MONTHS
-                    Date previousDate = firstDate;
-                    previousDayDiff = 0;
-                    while (previousDayDiff < endDayDiff) {
-                        c.setTime(previousDate);
-
-                        final String prevDateMonth = c.getDisplayName(
-                                Calendar.MONTH,
-                                Calendar.LONG,
-                                Locale.getDefault());
-                        final String prevDateYear = Integer.toString(c.get(Calendar.YEAR));
-
-                        c.set(Calendar.DAY_OF_MONTH, 1);
-                        c.add(Calendar.MONTH, 1);
-                        final Date curDate = c.getTime();
-
-                        final int curDayDiff = previousDayDiff + diffInDays(curDate, previousDate);
-                        bandMonth.addMember(new SimpleTextSection(
-                                prevDateMonth
-                                        + " "
-                                        + prevDateYear,
+                NutzungBuchungCustomBean previousNutzung = firstNutzung;
+                while (it.hasNext()) {
+                    final NutzungBuchungCustomBean curNutzung = it.next();
+                    final Date curGueltigBis = LagisBroker.getDateWithoutTime(curNutzung.getGueltigbis());
+                    final Date preGueltigBis = LagisBroker.getDateWithoutTime(
+                            previousNutzung.getGueltigbis());
+                    if (!curGueltigBis.equals(preGueltigBis)) {
+                        final int curDayDiff = previousDayDiff + diffInDays(curGueltigBis, preGueltigBis);
+                        final NKFBandMember nkfBandMember = new NKFBandMember(
                                 previousDayDiff,
                                 curDayDiff,
-                                false,
-                                false));
+                                curGueltigBis);
+                        nkfBandMember.addListener(new NKFBandMember.Listener() {
 
-                        previousDate = curDate;
+                                @Override
+                                public void memberSelected(final boolean selected) {
+                                    if (selected) {
+                                        memberSelect(nkfBandMember);
+                                    } else {
+                                        SwingUtilities.invokeLater(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    memberUnselect();
+                                                }
+                                            });
+                                    }
+                                }
+                            });
+                        bandNutzungen.addMember(nkfBandMember);
+                        previousNutzung = curNutzung;
                         previousDayDiff = curDayDiff;
                     }
+                }
+                final NutzungBuchungCustomBean lastNutzung = previousNutzung;
+
+                c.setTime(lastNutzung.getGueltigbis());
+                c.set(Calendar.DAY_OF_MONTH, 1);
+                c.add(Calendar.MONTH, 1);
+                int postOffset = diffInDays(c.getTime(), lastNutzung.getGueltigbis());
+                if (postOffset < minPostDays) {
+                    c.add(Calendar.MONTH, 1);
+                    postOffset = diffInDays(c.getTime(), lastNutzung.getGueltigbis());
+                }
+
+                final int endDayDiff = previousDayDiff + postOffset;
+                final NKFBandMember bandMember = new NKFBandMember(
+                        previousDayDiff,
+                        endDayDiff,
+                        null);
+                bandMember.addListener(new NKFBandMember.Listener() {
+
+                        @Override
+                        public void memberSelected(final boolean selected) {
+                            if (selected) {
+                                memberSelect(bandMember);
+                            } else {
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            memberUnselect();
+                                        }
+                                    });
+                            }
+                        }
+                    });
+                bandNutzungen.addMember(bandMember);
+
+                // MONTHS
+                Date previousDate = firstDate;
+                previousDayDiff = 0;
+                while (previousDayDiff < endDayDiff) {
+                    c.setTime(previousDate);
+
+                    final String prevDateMonth = c.getDisplayName(
+                            Calendar.MONTH,
+                            Calendar.LONG,
+                            Locale.getDefault());
+                    final String prevDateYear = Integer.toString(c.get(Calendar.YEAR));
+
+                    c.set(Calendar.DAY_OF_MONTH, 1);
+                    c.add(Calendar.MONTH, 1);
+                    final Date curDate = c.getTime();
+
+                    final int curDayDiff = previousDayDiff + diffInDays(curDate, previousDate);
+                    bandMonth.addMember(new SimpleTextSection(
+                            prevDateMonth
+                                    + " "
+                                    + prevDateYear,
+                            previousDayDiff,
+                            curDayDiff,
+                            false,
+                            false));
+
+                    previousDate = curDate;
+                    previousDayDiff = curDayDiff;
+                }
 
 //                            // YEARS
 //                            previousDate = firstDate;
@@ -1240,25 +1239,26 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 //                                previousDayDiff = curDayDiff;
 //                            }
 
-                    if (endDayDiff > 75) {
-                        jBand1.setZoomFactor(endDayDiff / 75d);
-                    } else {
-                        jBand1.setZoomFactor(1);
-                    }
-                    jBand1.setModel(jBand1.getModel());
-                    SwingUtilities.invokeLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                memberUnselect();
-                            }
-                        });
+                if (endDayDiff > 75) {
+                    jBand1.setZoomFactor(endDayDiff / 75d);
+                } else {
+                    jBand1.setZoomFactor(1);
                 }
+                SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            memberUnselect();
+                        }
+                    });
+                jBand1.setVisible(true);
             } else {
                 lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
                 lblCurrentHistoryPostion.setVisible(true);
                 jComboBox1.setVisible(false);
+                jBand1.setVisible(false);
             }
+            jBand1.setModel(jBand1.getModel());
         } catch (Exception ex) {
             LOG.error("Fehler beim updaten des NKF History Sliders (Change Filter)", ex);
         }
