@@ -537,6 +537,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public String toString() {
-        return "de.cismet.lagisEE.entity.extension.vermietung.MiePa[id=" + getId() + "]";
+        return getLage() + " (" + getAktenzeichen() + ")";
     }
 }

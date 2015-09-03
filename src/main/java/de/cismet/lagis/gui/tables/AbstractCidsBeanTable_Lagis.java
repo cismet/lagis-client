@@ -156,6 +156,12 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
         }
         this.setSortable(false);
         addNewItem();
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    protected void fireItemAdded() {
         if (SwingUtilities.isEventDispatchThread()) {
             selectAndScrollToLastRow();
         } else {
@@ -227,7 +233,8 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      */
     protected void tbtnSortItemStateChanged(final ItemEvent evt) {
         if (tbtnSort.isSelected()) { // disable sort
-            previously_sorted_column_index = ((JXTable)this).getSortedColumn().getModelIndex();
+            previously_sorted_column_index = (((JXTable)this).getSortedColumn() != null)
+                ? ((JXTable)this).getSortedColumn().getModelIndex() : 0;
             previously_used_sort_order = ((JXTable)this).getSortOrder(previously_sorted_column_index);
             ((JXTable)this).setSortable(false);
         } else {                     // sort the table

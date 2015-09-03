@@ -375,4 +375,9 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     @Override
     public void setHighlightingEnabled(final boolean enabled) {
     }
+
+    @Override
+    public String toString() {
+        return "D: " + getDienststelle() + " - G: " + getGebrauch();
+    }
 }

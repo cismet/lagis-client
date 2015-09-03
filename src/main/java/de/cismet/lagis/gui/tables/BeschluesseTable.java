@@ -44,6 +44,7 @@ public class BeschluesseTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void addNewItem() {
         documentContainer.addNewBeschluss();
+        fireItemAdded();
     }
 
     @Override
