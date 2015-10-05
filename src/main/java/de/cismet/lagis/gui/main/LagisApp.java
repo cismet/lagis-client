@@ -567,6 +567,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 null,
                 null,
                 null,
+                null,
                 descriptionPane);
             alkisRendererDialog = new JDialog(this, false);
             alkisRendererDialog.setTitle("Alkis Renderer");
