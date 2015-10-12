@@ -39,6 +39,7 @@ public class ReBeTable extends AbstractCidsBeanTable_Lagis {
             }
 
             ((ReBeTableModel)getModel()).addCidsBean(tmpReBe);
+            fireItemAdded();
         } catch (Exception ex) {
             LOG.error("error creating rebe bean", ex);
         }

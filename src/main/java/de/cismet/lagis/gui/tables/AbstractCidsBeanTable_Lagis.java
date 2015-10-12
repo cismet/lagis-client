@@ -70,6 +70,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
     private SortOrder previously_used_sort_order = SortOrder.ASCENDING;
     private JToggleButton tbtnSort;
     private JButton btnUndo;
+    private AbstractAction addAction;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -78,6 +79,13 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      */
     public AbstractCidsBeanTable_Lagis() {
         super();
+        addAction = new AbstractAction() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    btnAddActionPerformed(e);
+                }
+            };
         this.getSelectionModel().addListSelectionListener(this);
     }
 
@@ -89,13 +97,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      * @return  DOCUMENT ME!
      */
     public Action getAddAction() {
-        return new AbstractAction() {
-
-                @Override
-                public void actionPerformed(final ActionEvent e) {
-                    btnAddActionPerformed(e);
-                }
-            };
+        return addAction;
     }
 
     /**
@@ -154,6 +156,12 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
         }
         this.setSortable(false);
         addNewItem();
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    protected void fireItemAdded() {
         if (SwingUtilities.isEventDispatchThread()) {
             selectAndScrollToLastRow();
         } else {
@@ -225,7 +233,8 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
      */
     protected void tbtnSortItemStateChanged(final ItemEvent evt) {
         if (tbtnSort.isSelected()) { // disable sort
-            previously_sorted_column_index = ((JXTable)this).getSortedColumn().getModelIndex();
+            previously_sorted_column_index = (((JXTable)this).getSortedColumn() != null)
+                ? ((JXTable)this).getSortedColumn().getModelIndex() : 0;
             previously_used_sort_order = ((JXTable)this).getSortOrder(previously_sorted_column_index);
             ((JXTable)this).setSortable(false);
         } else {                     // sort the table

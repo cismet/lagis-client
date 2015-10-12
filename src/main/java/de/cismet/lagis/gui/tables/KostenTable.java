@@ -44,6 +44,7 @@ public class KostenTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void addNewItem() {
         documentContainer.addNewKosten();
+        fireItemAdded();
     }
 
     @Override

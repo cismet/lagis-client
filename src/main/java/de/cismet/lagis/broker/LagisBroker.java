@@ -33,6 +33,8 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.image.RenderedImage;
 
+import java.net.URL;
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -46,6 +48,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.*;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -70,6 +74,8 @@ import de.cismet.tools.CurrentStackTrace;
 import de.cismet.tools.configuration.Configurable;
 
 import de.cismet.tools.gui.StaticSwingTools;
+
+import static de.cismet.lagis.gui.panels.VerdisCrossoverPanel.createQuery;
 
 /**
  * DOCUMENT ME!
@@ -184,6 +190,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private Geometry currentWFSGeometry;
     private double kassenzeichenBuffer = -0.2;
     private double kassenzeichenBuffer100 = -0.5;
+    private boolean skipSecurityCheckFlurstueckAssistent = false;
 
     private boolean nkfAdminPermission = false;
 
@@ -243,6 +250,47 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             broker = new LagisBroker();
         }
         return broker;
+    }
+
+    /**
+     * ToDo place query generation in VerdisCrossover. Give key get Query.
+     *
+     * @param  bean  e bean DOCUMENT ME!
+     */
+    public void openKassenzeichenInVerdis(final CidsBean bean) {
+        if (bean != null) {
+            if ((verdisCrossoverPort < 0) || (verdisCrossoverPort > 65535)) {
+                log.warn("Crossover: verdisCrossoverPort ist ungültig: " + verdisCrossoverPort);
+            } else {
+                // ToDo Thread
+                final URL verdisQuery = createQuery(verdisCrossoverPort, bean);
+                if (verdisQuery != null) {
+                    final SwingWorker<Void, Void> openKassenzeichen = new SwingWorker<Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                verdisQuery.openStream();
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                try {
+                                    get();
+                                } catch (Exception ex) {
+                                    log.error("Fehler beim öffnen des Kassenzeichens", ex);
+                                    // ToDo message to user;
+                                }
+                            }
+                        };
+                    LagisBroker.getInstance().execute(openKassenzeichen);
+                } else {
+                    log.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
+                }
+            }
+        } else {
+            log.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
+        }
     }
 
     /**
@@ -2018,52 +2066,41 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         this.domain = domain;
     }
 
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @version  $Revision$, $Date$
-//     */
-//    class MailAuthenticator extends Authenticator {
-//
-//        //~ Instance fields ----------------------------------------------------
-//
-//        /**
-//         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String user;
-//        /**
-//         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String password;
-//
-//        //~ Constructors -------------------------------------------------------
-//
-//        /**
-//         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
-//         * aus den beiden Parametern user und passwort.
-//         *
-//         * @param  user      String, der Username fuer den Mailaccount.
-//         * @param  password  String, das Passwort fuer den Mailaccount.
-//         */
-//        public MailAuthenticator(final String user, final String password) {
-//            this.user = user;
-//            this.password = password;
-//        }
-//
-//        //~ Methods ------------------------------------------------------------
-//
-//        /**
-//         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
-//         *
-//         * @return  DOCUMENT ME!
-//         *
-//         * @see     javax.mail.Authenticator#getPasswordAuthentication()
-//         */
-//        @Override
-//        protected PasswordAuthentication getPasswordAuthentication() {
-//            return new PasswordAuthentication(this.user, this.password);
-//        }
-//    }
+    /**
+     * /** * DOCUMENT ME! * * @version $Revision$, $Date$
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isSkipSecurityCheckFlurstueckAssistent() {
+        return skipSecurityCheckFlurstueckAssistent;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  skipSecurityCheckFlurstueckAssistent  DOCUMENT ME!
+     */
+    public void setSkipSecurityCheckFlurstueckAssistent(final boolean skipSecurityCheckFlurstueckAssistent) {
+        this.skipSecurityCheckFlurstueckAssistent = skipSecurityCheckFlurstueckAssistent;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean checkFlurstueckWizardUserWantsToFinish() {
+        if (!isSkipSecurityCheckFlurstueckAssistent()) {
+            if (
+                JOptionPane.showConfirmDialog(
+                            LagisBroker.getInstance().getParentComponent(),
+                            "<html>Möchten Sie die Aktion wirklich abschließen ?",
+                            "Sicherheitsabfrage",
+                            JOptionPane.WARNING_MESSAGE)
+                        != JOptionPane.YES_OPTION) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -291,6 +291,32 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  feature  DOCUMENT ME!
+     */
+    public void doStuff(final WFSFeature feature) {
+        final HashMap props = feature.getProperties();
+        final String gem = (String)props.get(gemarkungIdentifier);
+        final String flur = (String)props.get(flurIdentifier);
+        final String flurstz = (String)props.get(
+                flurstueckZaehlerIdentifier);
+        final String flurstn = (String)props.get(
+                flurstueckNennerIdentifier);
+        final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
+        key.setGemarkung(
+            LagisBroker.getInstance().getGemarkungForKey(
+                Integer.parseInt(gem)));
+        key.setFlur(Integer.parseInt(flur));
+        key.setFlurstueckZaehler(Integer.parseInt(flurstz));
+        if (flurstn != null) {
+            key.setFlurstueckNenner(Integer.parseInt(flurstn));
+        } else {
+            key.setFlurstueckNenner(0);
+        }
+        feature.setName("Flurstück " + key.toString());
+    }
+    /**
+     * DOCUMENT ME!
      */
     private void addSeparator() {
         final JSeparator sep = new JSeparator(javax.swing.SwingConstants.VERTICAL);
@@ -1815,6 +1841,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                     log.debug("Schlüssel konnte konstruiert werden");
                                 }
                                 LagisBroker.getInstance().loadFlurstueck(key);
+                                dwf.setName("Flurstück " + key.toString());
                             } else {
                                 if (log.isDebugEnabled()) {
                                     log.debug(
