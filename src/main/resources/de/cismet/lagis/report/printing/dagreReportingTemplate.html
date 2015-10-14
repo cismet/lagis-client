@@ -1,0 +1,179 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<title>DAGRE-D3-Graph</title>
+
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://cpettitt.github.io/project/graphlib-dot/v0.5.2/graphlib-dot.js"></script>
+<script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
+
+<style>
+
+
+    .node {
+        white-space: nowrap;
+    }
+
+    .node rect,
+    .node circle,
+    .node ellipse {
+        stroke: #333;
+        fill: #fff;
+        stroke-width: 1.5px;
+    }
+
+    .cluster rect {
+        stroke: #333;
+        fill: #000;
+        fill-opacity: 0.1;
+        stroke-width: 1.5px;
+    }
+
+    .edgePath path.path {
+        stroke: #333;
+        stroke-width: 1.5px;
+        fill: none;
+    }
+
+    h1, h2 {
+        color: #333;
+    }
+
+    textarea {
+        width: 800px;
+    }
+
+    label {
+        margin-top: 1em;
+        display: block;
+    }
+
+    .error {
+        color: red;
+    }
+
+    svg {
+        display:block; border:0px solid #ccc; position:absolute;
+        top:0px; left:0px; width:100%; height:100%; background:#eee;
+        /*        opacity: 0.5;*/
+    }
+
+
+</style>
+
+
+
+<body onLoad="go();">
+
+
+    <svg>
+    <g/>
+    </svg>
+
+    <script>
+        var margin = {top: 20, right: 20, bottom: 20, left: 20};
+        var width = window.innerWidth - margin.left - margin.right;
+        var height = window.innerHeight - margin.top - margin.bottom;
+
+        var graphPosX, graphPosY;
+        var x = d3.scale.linear()
+                .domain([-width / 2, width / 2])
+                .range([0, width]);
+
+        var y = d3.scale.linear()
+                .domain([-height / 2, height / 2])
+                .range([height, 0]);
+
+        var svg = d3.select("svg");
+        var inner = d3.select("svg g");
+        // Set up zoom support
+        var zoom = d3.behavior.zoom()
+                .x(x)
+                .y(y)
+                .center([width / 2, height / 2])
+                .size([width, height])
+                .on("zoom", function () {
+                    inner.attr("transform", "translate(" + d3.event.translate + ")" +
+                            "scale(" + d3.event.scale + ")");
+                });
+        svg.call(zoom);
+        var render = dagreD3.render();
+
+        function go() {
+            draw('__graphString__');
+        }
+
+        function draw(graph) {
+            var g;
+            try {
+                g = graphlibDot.read(graph);
+            } catch (e) {
+                console.log("AMOK");
+                throw e;
+            }
+
+
+            // Set margins, if not present
+            if (!g.graph().hasOwnProperty("marginx") &&
+                    !g.graph().hasOwnProperty("marginy")) {
+                g.graph().marginx = 0;
+                g.graph().marginy = 0;
+            }
+
+            function done() {
+                console.log("done");
+
+                var width = window.innerWidth - margin.left - margin.right;
+                var height = window.innerHeight - margin.top - margin.bottom;
+        
+                var graphWidth = d3.select("svg g").node().getBoundingClientRect().width;
+                var graphHeight = d3.select("svg g").node().getBoundingClientRect().height;
+
+                var zoomlevel;
+                
+                if (graphWidth < graphHeight) {
+                    zoomlevel = height / graphHeight;
+                } else {
+                    zoomlevel = width / graphWidth;
+                }
+                if (zoomlevel > 1) {
+                    zoomlevel = 1;
+                }
+
+                zoom.scale(zoomlevel);
+
+                translator(margin.left + (width - (graphWidth * zoomlevel)) / 2, margin.top + (height - (graphHeight * zoomlevel)) / 2, true);
+
+                setTimeout(function () {
+                    java.pageRendered();
+                }, 50);
+            }
+
+            // Render the graph into svg g
+            render(inner, g);
+            //done();
+            setTimeout(done, 50);
+        }
+
+        function translator(x, y, withEvent) {
+            graphPosX = x;
+            graphPosY = y;
+            if (withEvent) {
+                zoom.translate([graphPosX, graphPosY]).event(svg);
+            } else {
+                zoom.translate([graphPosX, graphPosY]);
+            }
+        }
+
+        function coordinates(point) {
+            var scale = zoom.scale(), translate = zoom.translate();
+            return [(point[0] - translate[0]) / scale, (point[1] - translate[1]) / scale];
+        }
+
+        function point(coordinates) {
+            var scale = zoom.scale(), translate = zoom.translate();
+            return [coordinates[0] * scale + translate[0], coordinates[1] * scale + translate[1]];
+        }
+
+
+    </script>

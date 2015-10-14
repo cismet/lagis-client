@@ -31,6 +31,7 @@ import org.jdom.Element;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.image.RenderedImage;
 
 import java.net.URL;
 
@@ -208,6 +209,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private StringBuffer developerRecipients;
     private StringBuffer maintenanceRecipients;
 
+    private RenderedImage historyImage;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -288,6 +291,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         } else {
             log.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public RenderedImage getHistoryImage() {
+        return historyImage;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  historyImage  DOCUMENT ME!
+     */
+    public void setHistoryImage(final RenderedImage historyImage) {
+        this.historyImage = historyImage;
     }
 
     /**
