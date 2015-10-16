@@ -21,8 +21,6 @@ import javafx.concurrent.Worker;
 
 import javafx.embed.swing.SwingFXUtils;
 
-import javafx.geometry.Rectangle2D;
-
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 
@@ -31,6 +29,8 @@ import net.sf.jasperreports.engine.JRDataSource;
 import netscape.javascript.JSObject;
 
 import org.apache.commons.io.IOUtils;
+
+import org.openide.util.Exceptions;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -43,13 +43,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.RenderedImage;
 
-import java.io.File;
 import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.imageio.ImageIO;
 
 import javax.swing.SwingWorker;
 
@@ -86,7 +83,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final double DPI_FACTOR = 150d / 72d;
+    private static final double DPI_FACTOR = 600d / 72d;
     private static final int HISTORY_IMAGE_WIDTH = 545;
     private static final int HISTORY_IMAGE_HEIGHT = 211;
 
@@ -104,10 +101,23 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private static final String REPORT_MASTER = "/de/cismet/lagis/reports/FlurstueckDetailsReport.jasper"; // NOI18N
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReportPrintingWidget.class);
 
+    private static final String TEMPLATE;
+
+    static {
+        String tmp = null;
+        try {
+            tmp = IOUtils.toString(ReportPrintingWidget.class.getResourceAsStream("dagreReportingTemplate.html"));
+        } catch (IOException ex) {
+            LOG.error(ex, ex);
+        }
+        TEMPLATE = tmp;
+    }
+
     //~ Instance fields --------------------------------------------------------
 
-    PDFCreatingWaitDialog pdfWait;
-    FXWebViewPanel myWeb = null;
+    private PDFCreatingWaitDialog pdfWait;
+    private FXWebViewPanel myWeb = null;
+    private final String graphContent;
 
     private final Component parentComponent;
 
@@ -180,14 +190,18 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         this.checkDetailAvailability();
         initHistory();
+
+        graphContent = getGraphContent();
     }
 
     //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
      */
-    private void initHistory() {
+    private static String getGraphContent() {
         String graphString;
         try {
             graphString = CidsBroker.getInstance()
@@ -200,14 +214,14 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
             graphString = "digraph G{\"Fehler beim Ermitteln der Historie\"}";
             LOG.error("Error when craeting Historygraph", ex);
         }
+        return TEMPLATE.replaceAll("__graphString__", graphString.replaceAll("\n", ""));
+    }
 
+    /**
+     * DOCUMENT ME!
+     */
+    private void initHistory() {
         try {
-            final String template = IOUtils.toString(this.getClass().getResourceAsStream(
-                        "dagreReportingTemplate.html"));
-            final String graph = template.replaceAll("__graphString__", graphString.replaceAll("\n", ""));
-            LOG.info(graph.substring(graph.length() - 100));
-            LOG.info("init FXWexxxbViewPanel");
-
             new SwingWorker<Void, Void>() {
 
                     @Override
@@ -244,7 +258,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
                                                         }
                                                     }
                                                 });
-                                    myWeb.loadContent(graph);
+                                    myWeb.loadContent(graphContent);
                                 }
                             });
                     }
@@ -256,31 +270,35 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  zoomlevel  DOCUMENT ME!
      */
-    public void pageRendered() {
+    public void pageRendered(final String zoomlevel) {
+        final double zl = Double.parseDouble(zoomlevel);
         Platform.runLater(new Runnable() {
 
                 @Override
                 public void run() {
-//                    try {
-                    final SnapshotParameters params = new SnapshotParameters();
-                    final WritableImage snapshot = myWeb.getWebView().snapshot(params, null);
-                    final RenderedImage renderedImage = SwingFXUtils.fromFXImage(snapshot, null);
+                    if (zl < 1) {
+                        myWeb.setSize(
+                            new Dimension(
+                                (int)(HISTORY_IMAGE_WIDTH / DPI_FACTOR / zl),
+                                (int)(HISTORY_IMAGE_HEIGHT / DPI_FACTOR / zl)));
+                        myWeb.loadContent(graphContent);
+                    } else {
+                        final SnapshotParameters params = new SnapshotParameters();
+                        final WritableImage snapshot = myWeb.getWebView().snapshot(params, null);
+                        final RenderedImage renderedImage = SwingFXUtils.fromFXImage(snapshot, null);
 
-//                        final File captureFile = new File("/home/jruiz/cap_rep.png");
-//                        ImageIO.write(renderedImage, "png", captureFile);
-                    LagisBroker.getInstance().setHistoryImage(renderedImage);
-                    EventQueue.invokeLater(new Runnable() {
+                        LagisBroker.getInstance().setHistoryImage(renderedImage);
+                        EventQueue.invokeLater(new Runnable() {
 
-                            @Override
-                            public void run() {
-                                cmdOk.setEnabled(true);
-                            }
-                        });
-//                    } catch (final IOException t) {
-//                        LOG.error(t, t);
-//                        LagisBroker.getInstance().setHistoryImage(null);
-//                    }
+                                @Override
+                                public void run() {
+                                    cmdOk.setEnabled(true);
+                                }
+                            });
+                    }
                 }
             });
     }

@@ -25,6 +25,8 @@ import netscape.javascript.JSObject;
 
 import org.apache.commons.io.IOUtils;
 
+import org.openide.util.Exceptions;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -32,6 +34,7 @@ import java.awt.EventQueue;
 import java.awt.image.RenderedImage;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
@@ -54,12 +57,14 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
             JFXOffscreenSnapshotTester.class);
     private static final String DIAG_HTML = "/home/jruiz/diag.html";
     private static final String CAP_PNG = "/home/jruiz/cap.png";
+    private static final String CAP2_PNG = "/home/jruiz/cap2.png";
     private static final String GRAPH =
         "digraph G{\"Barmen 201 250/0\"->\"Barmen 201 253/0\" [lineInterpolate=\"linear\"];\"Barmen 201 250/0\"->\"Barmen 201 254/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 133/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 134/0\" [lineInterpolate=\"linear\"];\"Barmen 206 132/0\"->\"Barmen 206 135/0\" [lineInterpolate=\"linear\"];\"Barmen 206 135/0\"->\"Barmen 205 709/0\" [lineInterpolate=\"linear\"];\"Barmen 206 134/0\"->\"Barmen 201 255/0\" [lineInterpolate=\"linear\"];\"Barmen 205 688/0\"->\"pseudo Schluessel18746\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 200 316/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 250/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 251/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 201 252/0\" [lineInterpolate=\"linear\"];\"pseudo Schluessel18746\"->\"Barmen 206 132/0\" [lineInterpolate=\"linear\"];\"Barmen 205 688/0\"  [style=\"fill: #eee; font-weight: bold\"];\"pseudo Schluessel18746\" [label=\"    \"]}";
 
     //~ Instance fields --------------------------------------------------------
 
-    FXWebViewPanel myWeb = null;
+    private FXWebViewPanel myWeb = null;
+    private final String graph;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -76,7 +81,15 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
      */
     public JFXOffscreenSnapshotTester() {
         initComponents();
-        doGraph();
+
+        String template = null;
+        try {
+            template = IOUtils.toString(this.getClass().getResourceAsStream("dagreReportingTemplate.html"));
+        } catch (IOException ex) {
+            LOG.fatal(ex, ex);
+        }
+        graph = template.replaceAll("__graphString__", GRAPH);
+        doGraph(1135, 440);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -166,12 +179,12 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  x  DOCUMENT ME!
+     * @param  y  DOCUMENT ME!
      */
-    private void doGraph() {
+    private void doGraph(final int x, final int y) {
         try {
-            final String template = IOUtils.toString(this.getClass().getResourceAsStream(
-                        "dagreReportingTemplate.html"));
-            final String graph = template.replaceAll("__graphString__", GRAPH);
 //            IOUtils.write(s, new FileWriter(new File("/Users/thorsten/tmp/x/diag.html")));
 //            FileUtils.writeStringToFile(new File(DIAG_HTML), graph);
             LOG.info(graph.substring(graph.length() - 100));
@@ -181,8 +194,10 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
 
                     @Override
                     protected Void doInBackground() throws Exception {
-                        myWeb = new FXWebViewPanel();
-                        LOG.info("FXWebViewPanel inited");
+                        if (myWeb == null) {
+                            myWeb = new FXWebViewPanel();
+                            LOG.info("FXWebViewPanel inited");
+                        }
                         return null;
                     }
 
@@ -194,7 +209,7 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
                                 public void run() {
                                     try {
                                         myWeb.setVisible(true);
-                                        myWeb.setSize(new Dimension(1135, 440));
+                                        myWeb.setSize(new Dimension(x, y));
                                         myWeb.getWebEngine()
                                                 .getLoadWorker()
                                                 .stateProperty()
@@ -218,7 +233,7 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
      * @param  evt  DOCUMENT ME!
      */
     private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
-        doGraph();
+        doGraph(1135, 440);
     }                                                                            //GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -227,13 +242,15 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
      * @param  evt  DOCUMENT ME!
      */
     private void jButton2ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton2ActionPerformed
-        doSnap();
+        doSnap(CAP_PNG);
     }                                                                            //GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  filename  DOCUMENT ME!
      */
-    public void doSnap() {
+    public void doSnap(final String filename) {
         jProgressBar1.setIndeterminate(true);
 
         Platform.runLater(new Runnable() {
@@ -246,7 +263,7 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
                         final WritableImage snapshot = myWeb.getWebView().snapshot(params, null);
                         final RenderedImage renderedImage = SwingFXUtils.fromFXImage(snapshot, null);
 
-                        final File captureFile = new File(CAP_PNG);
+                        final File captureFile = new File(filename);
                         ImageIO.write(renderedImage, "png", captureFile);
                         EventQueue.invokeLater(new Runnable() {
 
@@ -311,9 +328,19 @@ public class JFXOffscreenSnapshotTester extends javax.swing.JFrame {
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  zoomlevel  DOCUMENT ME!
      */
-    public void pageRendered() {
-        doSnap();
+    public void pageRendered(final String zoomlevel) {
+        final double zl = Double.parseDouble(zoomlevel);
+        LOG.fatal(zl);
+        if (zl < 1) {
+            doSnap(CAP_PNG);
+
+            doGraph((int)(1135 / zl), (int)(440 / zl));
+        } else {
+            doSnap(CAP2_PNG);
+        }
     }
 
     //~ Inner Classes ----------------------------------------------------------
