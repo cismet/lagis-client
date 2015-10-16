@@ -145,14 +145,14 @@
                 translator(margin.left + (width - (graphWidth * zoomlevel)) / 2, margin.top + (height - (graphHeight * zoomlevel)) / 2, true);
 
                 setTimeout(function () {
-                    java.pageRendered();
-                }, 50);
+                    java.pageRendered(zoomlevel);
+                }, 100);
             }
 
             // Render the graph into svg g
             render(inner, g);
             //done();
-            setTimeout(done, 50);
+            setTimeout(done, 100);
         }
 
         function translator(x, y, withEvent) {

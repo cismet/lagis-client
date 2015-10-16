@@ -72,8 +72,6 @@ public class HistoryDiagramScriptlet extends JRDefaultScriptlet {
      */
     public Image loadHistoryImage() {
         final RenderedImage img = LagisBroker.getInstance().getHistoryImage();
-        System.out.println("breite:" + img.getWidth());
-        System.out.println("hoehe:" + img.getHeight());
         if (img instanceof BufferedImage) {
             return (BufferedImage)img;
         }
