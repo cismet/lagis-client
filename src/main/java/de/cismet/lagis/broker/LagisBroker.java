@@ -76,6 +76,7 @@ import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.gui.StaticSwingTools;
 
 import static de.cismet.lagis.gui.panels.VerdisCrossoverPanel.createQuery;
+import javax.swing.SwingUtilities;
 
 /**
  * DOCUMENT ME!
@@ -156,6 +157,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // resolving Gemarkungen
     private static HashMap<Integer, GemarkungCustomBean> gemarkungsHashMap;
     private static GregorianCalendar calender = new GregorianCalendar();
+
+    private String title;
+    private String totd;
 
     //~ Instance fields --------------------------------------------------------
 
@@ -2102,5 +2106,35 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             }
         }
         return true;
+    }
+    
+    public void setTotd(final String totd) {
+        this.totd = totd;
+        refreshAppTitle();    
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+        refreshAppTitle();
+    }
+
+    private void refreshAppTitle() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            final LagisApp lagisApp = (LagisApp)getParentComponent();
+        if ((totd == null) || totd.trim().isEmpty()) {
+                lagisApp.setTitle(title);
+            } else {
+                lagisApp.setTitle(title + " - " + totd);
+            }
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        refreshAppTitle();
+                    }
+                });
+        }
+        
     }
 }
