@@ -1710,8 +1710,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 if (log.isDebugEnabled()) {
                     log.debug("Split");
                 }
-                ((StyledFeature)pf.getFeature()).setGeometry(null);
                 final Feature[] f_arr = pf.split();
+                ((StyledFeature)pf.getFeature()).setGeometry(null);
                 mappingComponent.getFeatureCollection().removeFeature(pf.getFeature());
                 f_arr[0].setEditable(true);
                 f_arr[1].setEditable(true);
