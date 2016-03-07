@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.*;
@@ -76,7 +77,6 @@ import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.gui.StaticSwingTools;
 
 import static de.cismet.lagis.gui.panels.VerdisCrossoverPanel.createQuery;
-import javax.swing.SwingUtilities;
 
 /**
  * DOCUMENT ME!
@@ -158,13 +158,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private static HashMap<Integer, GemarkungCustomBean> gemarkungsHashMap;
     private static GregorianCalendar calender = new GregorianCalendar();
 
-    private String title;
-    private String totd;
-
     //~ Instance fields --------------------------------------------------------
 
     HighlighterFactory highlighterFac = new HighlighterFactory();
     Vector<FlurstueckChangeListener> observedFlurstueckChangedListeners = new Vector<FlurstueckChangeListener>();
+
+    private String title;
+    private String totd;
 
     private boolean loggedIn = false;
     private MappingComponent mappingComponent;
@@ -2107,21 +2107,34 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         }
         return true;
     }
-    
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  totd  DOCUMENT ME!
+     */
     public void setTotd(final String totd) {
         this.totd = totd;
-        refreshAppTitle();    
+        refreshAppTitle();
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  title  DOCUMENT ME!
+     */
     public void setTitle(final String title) {
         this.title = title;
         refreshAppTitle();
     }
 
+    /**
+     * DOCUMENT ME!
+     */
     private void refreshAppTitle() {
         if (SwingUtilities.isEventDispatchThread()) {
             final LagisApp lagisApp = (LagisApp)getParentComponent();
-        if ((totd == null) || totd.trim().isEmpty()) {
+            if ((totd == null) || totd.trim().isEmpty()) {
                 lagisApp.setTitle(title);
             } else {
                 lagisApp.setTitle(title + " - " + totd);
@@ -2135,6 +2148,5 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     }
                 });
         }
-        
     }
 }
