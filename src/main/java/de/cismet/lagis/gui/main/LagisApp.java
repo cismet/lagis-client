@@ -15,6 +15,7 @@ package de.cismet.lagis.gui.main;
 import Sirius.navigator.DefaultNavigatorExceptionHandler;
 import Sirius.navigator.connection.*;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
+import Sirius.navigator.exception.ConnectionException;
 import Sirius.navigator.plugin.context.PluginContext;
 import Sirius.navigator.plugin.interfaces.*;
 import Sirius.navigator.ui.ComponentRegistry;
@@ -78,9 +79,16 @@ import javax.swing.filechooser.FileFilter;
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.navigatorstartuphooks.MotdStartUpHook;
 import de.cismet.cids.custom.objectrenderer.utils.alkis.AlkisUtils;
+import de.cismet.cids.custom.wunda_blau.startuphooks.MotdWundaStartupHook;
+import de.cismet.cids.custom.wunda_blau.toolbaritem.TestSetMotdAction;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+import de.cismet.cids.navigatorstartuphooks.CidsServerMessageStartUpHook;
+import de.cismet.cids.servermessage.CidsServerMessageNotifier;
+import de.cismet.cids.servermessage.CidsServerMessageNotifierListener;
+import de.cismet.cids.servermessage.CidsServerMessageNotifierListenerEvent;
 
 import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.MappingModelEvent;
@@ -420,11 +428,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         try {
 //            CidsBroker.setMainframe(this);
             isPlugin = !(context == null);
-            setTitle("LagIS");
-
-            // TODO no hardcoding
-            ///DoesentWork
-            System.setProperty("com.sun.corba.ee.transport.ORBTCPConnectTimeouts", "250:3000:100:2000");
 
             LOG.info("Starten der LaGIS Applikation");
             if (LOG.isDebugEnabled()) {
@@ -752,6 +755,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     }
                 });
             LagisBroker.getInstance().setParentComponent(this);
+            LagisBroker.getInstance().setTitle("LagIS");
+            
             // TODO GEHT SCHIEF WENN ES SCHON DER PARENTFRAME IST
             clipboarder = new ClipboardWaitDialog(StaticSwingTools.getParentFrame(this), true);
             final StatusBar statusBar = new StatusBar(mapComponent);
@@ -945,6 +950,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
             this.fsInfoClipboard.addCopyListener(pFlurstueck);
             this.fsInfoClipboard.addPasteListener(pFlurstueck);
+            
+            final TestSetMotdAction testSetMotdAction = new TestSetMotdAction();
+            if (testSetMotdAction.isVisible()) {
+                toolbar.add(testSetMotdAction);
+            }            
+        
+            initTotd();
+            initStartupHooks();
         } catch (Exception ex) {
             LOG.fatal("Fehler beim konstruieren des LaGIS Objektes", ex);
         }
@@ -1242,7 +1255,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             e.printStackTrace();
         }
     }
-
+    
     /**
      * DOCUMENT ME!
      */
@@ -1581,7 +1594,47 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             LOG.error("Fehler beim initalisieren der Flurstueck Comboboxen: ", ex);
         }
     }
+    
+    private void initTotd() {
+        try {
+            if (SessionManager.getConnection().hasConfigAttr(
+                            SessionManager.getSession().getUser(),
+                            "csm://"
+                            + MotdWundaStartupHook.MOTD_MESSAGE_TOTD)) {
+                CidsServerMessageNotifier.getInstance()
+                        .subscribe(new CidsServerMessageNotifierListener() {
 
+                                @Override
+                                public void messageRetrieved(final CidsServerMessageNotifierListenerEvent event) {
+                                    try {
+                                        final String totd = (String)event.getMessage().getContent();
+                                        LagisBroker.getInstance().setTotd(totd);
+                                    } catch (final Exception ex) {
+                                        LOG.warn(ex, ex);
+                                    }
+                                }
+                            },
+                            MotdWundaStartupHook.MOTD_MESSAGE_TOTD);
+            }
+        } catch (final ConnectionException ex) {
+            LOG.warn("Konnte Rechte an csm://" + MotdWundaStartupHook.MOTD_MESSAGE_TOTD
+                        + " nicht abfragen. Keine Titleleiste des Tages !",
+                ex);
+        }        
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void initStartupHooks() {
+        try {
+            new MotdStartUpHook().applicationStarted();
+            new CidsServerMessageStartUpHook().applicationStarted();
+        } catch (Exception ex) {
+            LOG.error("Fehler beim Ausführen der StartupHooks: ", ex);
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
      * content of this method is always regenerated by the Form Editor.
