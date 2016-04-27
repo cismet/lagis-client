@@ -136,8 +136,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // public static final Color SUCCESSFUL_COLOR = new Color(89,184,73);
     public static final Color INITIAL_COLOR = Color.WHITE;
     // WFS Geometry Color
-    public static final Color STADT_FILLING_COLOR = new Color(43, 106, 21, 150);
-    public static final Color ABTEILUNG_IX_FILLING_COLOR = new Color(100, 40, 106, 150);
+    public static final Color STADT_FILLING_COLOR = new Color(43, 106, 21);
+    public static final Color ABTEILUNG_IX_FILLING_COLOR = new Color(100, 40, 106);
     public static final Color UNKNOWN_FILLING_COLOR = UNKOWN_COLOR;
     public static final Color HISTORIC_FLURSTUECK_COLOR = Color.DARK_GRAY;
     // public static final Color ODD_ROW_COLOR = new Color(252,84,114,120);

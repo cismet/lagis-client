@@ -58,6 +58,7 @@ import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.features.WFSFeature;
 import de.cismet.cismap.commons.gui.FeatureGroupMember;
+import de.cismet.cismap.commons.gui.FeatureLayerTransparencyButton;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 import de.cismet.cismap.commons.gui.piccolo.PFeature;
@@ -154,12 +155,13 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private javax.swing.JButton cmdUndo;
     private javax.swing.JButton cmdWmsBackground;
     private javax.swing.JButton cmdZoom;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
-    private javax.swing.JSeparator jSeparator8;
+    private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
 
@@ -285,6 +287,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         super.add(panel, java.awt.BorderLayout.SOUTH);
         ((Observable)mappingComponent.getMemUndo()).addObserver(this);
         ((Observable)mappingComponent.getMemRedo()).addObserver(this);
+
+        mappingComponent.getFeatureLayer().setTransparency(150 / 255f);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -556,6 +560,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdUndo = new javax.swing.JButton();
         cmdRedo = new javax.swing.JButton();
         jSeparator8 = new javax.swing.JToolBar.Separator();
+        jButton2 = new FeatureLayerTransparencyButton();
         jPanel1 = new javax.swing.JPanel();
         cmdAdd = new javax.swing.JButton();
 
@@ -962,7 +967,24 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 }
             });
         jToolBar1.add(cmdRedo);
+
+        jSeparator8.setMaximumSize(new java.awt.Dimension(2, 32767));
+        jSeparator8.setMinimumSize(new java.awt.Dimension(2, 10));
+        jSeparator8.setPreferredSize(new java.awt.Dimension(2, 10));
         jToolBar1.add(jSeparator8);
+
+        jButton2.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/flurstueck_transp.png"))); // NOI18N
+        jButton2.setToolTipText("Featurelayer-Transparenz einstellen");
+        jButton2.setBorderPainted(false);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setMaximumSize(new java.awt.Dimension(22, 18));
+        jButton2.setMinimumSize(new java.awt.Dimension(22, 18));
+        jButton2.setPreferredSize(new java.awt.Dimension(22, 18));
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton2);
 
         add(jToolBar1, java.awt.BorderLayout.NORTH);
 
@@ -991,7 +1013,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                jPanel1Layout.createSequentialGroup().addContainerGap(599, Short.MAX_VALUE).add(
+                jPanel1Layout.createSequentialGroup().addContainerGap(753, Short.MAX_VALUE).add(
                     cmdAdd,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
