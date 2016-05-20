@@ -30,8 +30,6 @@ import netscape.javascript.JSObject;
 
 import org.apache.commons.io.IOUtils;
 
-import org.openide.util.Exceptions;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -69,7 +67,6 @@ import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
 
 import de.cismet.tools.gui.FXWebViewPanel;
-import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.downloadmanager.DownloadManager;
 import de.cismet.tools.gui.downloadmanager.DownloadManagerDialog;
 
@@ -115,7 +112,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
     //~ Instance fields --------------------------------------------------------
 
-    private PDFCreatingWaitDialog pdfWait;
     private FXWebViewPanel myWeb = null;
     private final String graphContent;
 
@@ -166,7 +162,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         parentComponent = frame;
 
-        pdfWait = new PDFCreatingWaitDialog(StaticSwingTools.getParentFrame(this), true);
         initComponents();
         panDesc.setBackground(new Color(216, 228, 248));
 
@@ -207,8 +202,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
             graphString = CidsBroker.getInstance()
                         .getHistoryGraph(LagisBroker.getInstance().getCurrentFlurstueck(),
                                 CidsBroker.HistoryLevel.DIRECT_RELATIONS,
-                                CidsBroker.HistoryType.BOTH,
                                 0,
+                                CidsBroker.HistorySibblingLevel.NONE,
+                                0,
+                                CidsBroker.HistoryType.BOTH,
                                 null);
         } catch (final Exception ex) {
             graphString = "digraph G{\"Fehler beim Ermitteln der Historie\"}";
