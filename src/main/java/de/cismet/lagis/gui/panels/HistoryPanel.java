@@ -41,6 +41,8 @@ import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
+import de.cismet.tools.StaticDebuggingTools;
+
 import de.cismet.tools.configuration.Configurable;
 
 import de.cismet.tools.gui.FXWebViewPanel;
@@ -56,8 +58,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     //~ Static fields/initializers ---------------------------------------------
 
     // TODO Auslagern in ConfigFile
-    private static final String DEFAULT_DOT_HEADER = "digraph G{\n";
-
     private static HistoryPanel instance;
 
     //~ Instance fields --------------------------------------------------------
@@ -66,8 +66,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     private Timer levelTimer = new Timer();
     private HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMap =
         new HashMap<String, FlurstueckSchluesselCustomBean>();
-    private HashMap<String, String> pseudoKeys = new HashMap<String, String>();
-    private String dotGraphRepresentation = "";
     private FlurstueckCustomBean currentFlurstueck;
     // private Thread panelRefresherThread;
     private final BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
@@ -80,11 +78,21 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox cbxHistoryOptions;
+    private javax.swing.JComboBox cbxHistoryOptions1;
     private javax.swing.JComboBox cbxHistoryType;
     private javax.swing.JCheckBox ckxHoldFlurstueck;
     private javax.swing.JCheckBox ckxScaleToFit;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
+    private javax.swing.Box.Filler filler3;
+    private javax.swing.Box.Filler filler4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel lblDatumEnt;
     private javax.swing.JLabel lblDatumEntWert;
     private javax.swing.JLabel lblDatumHist;
@@ -93,8 +101,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     private javax.swing.JPanel panHistInfo;
     private javax.swing.JPanel panInformation;
     private javax.swing.JPanel panOptions;
-    private javax.swing.JPanel panPlaceholder;
     private javax.swing.JSpinner sprLevels;
+    private javax.swing.JSpinner sprLevels1;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -106,9 +114,18 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         setIsCoreWidget(true);
         initComponents();
 
-        final SpinnerNumberModel model = new SpinnerNumberModel(1, 1, 100, 1);
-        sprLevels.setModel(model);
+        final boolean sibblingOptionsEnabled = StaticDebuggingTools.checkHomeForFile(
+                "cismetLagisSibblingOptionsEnabled");
+
+        sprLevels1.setVisible(sibblingOptionsEnabled);
+        cbxHistoryOptions1.setVisible(sibblingOptionsEnabled);
+
+        final SpinnerNumberModel sprLevelModel = new SpinnerNumberModel(1, 1, 100, 1);
+        sprLevels.setModel(sprLevelModel);
         sprLevels.setEnabled(false);
+        final SpinnerNumberModel sprLevelModel1 = new SpinnerNumberModel(1, 1, 100, 1);
+        sprLevels1.setModel(sprLevelModel1);
+        sprLevels1.setEnabled(false);
 
         add(webViewPanel, BorderLayout.CENTER);
         try {
@@ -199,10 +216,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             // ToDo remove Strings
                             log.debug("Erstelle Historien Anfrage:");
                         }
+
+                        // -----
+
                         CidsBroker.HistoryLevel level;
-                        int levelCount = 0;
+                        final int levelCount;
                         if (cbxHistoryOptions.getSelectedItem().equals("Direkte Vorgänger/Nachfolger")) {
                             level = CidsBroker.HistoryLevel.DIRECT_RELATIONS;
+                            levelCount = 0;
                             if (log.isDebugEnabled()) {
                                 log.debug("nur angrenzendte Flurstücke");
                             }
@@ -214,10 +235,32 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             }
                         } else {
                             level = CidsBroker.HistoryLevel.All;
+                            levelCount = 0;
                             if (log.isDebugEnabled()) {
                                 log.debug("Alle Levels");
                             }
                         }
+
+                        // -----
+
+                        CidsBroker.HistorySibblingLevel levelSibbling;
+                        final int levelSibblingCount;
+                        if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister")) {
+                            levelSibbling = CidsBroker.HistorySibblingLevel.SIBBLING_ONLY;
+                            levelSibblingCount = 0;
+                        } else if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister, vollständig")) {
+                            levelSibbling = CidsBroker.HistorySibblingLevel.FULL;
+                            levelSibblingCount = 0;
+                        } else if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister, begrenzte Tiefe")) {
+                            levelSibbling = CidsBroker.HistorySibblingLevel.CUSTOM;
+                            levelSibblingCount = ((Number)sprLevels1.getValue()).intValue();
+                        } else { // keine Geschwister
+                            levelSibbling = CidsBroker.HistorySibblingLevel.NONE;
+                            levelSibblingCount = 0;
+                        }
+
+                        // -----
+
                         CidsBroker.HistoryType type;
                         if (cbxHistoryType.getSelectedItem().equals("Nur Nachfolger")) {
                             type = CidsBroker.HistoryType.SUCCESSOR;
@@ -235,13 +278,20 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                 log.debug("Vorgänger/Nachfolger");
                             }
                         }
+
+                        // -----
+
                         nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
 
                         final String dotGraphRepresentation = CidsBroker.getInstance()
-                                    .getHistoryGraph(getCurrentObject(),
+                                    .getHistoryGraph(
+                                        getCurrentObject(),
                                         level,
+                                        levelCount,
+                                        levelSibbling,
+                                        levelSibblingCount,
                                         type,
-                                        levelCount, nodeToKeyMap);
+                                        nodeToKeyMap);
 
                         try {
                             final String rawscript = "var graphInput='" + dotGraphRepresentation
@@ -348,7 +398,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             return;
         }
         updateInformation();
-        resetDotGraph();
         try {
             // TODO FALSE
             // cancel active running thread
@@ -374,13 +423,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     public synchronized void clearComponent() {
     }
 
-    /**
-     * DOCUMENT ME!
-     */
-    private void resetDotGraph() {
-        dotGraphRepresentation = DEFAULT_DOT_HEADER;
-    }
-
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         levelTimer.cancel();
@@ -395,7 +437,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             if (log.isDebugEnabled()) {
                 log.debug("Flurstückchanged HistoryPanel");
             }
-            resetDotGraph();
             try {
                 // TODO FALSE
                 // cancel active running thread
@@ -463,59 +504,73 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        jPanel5 = new javax.swing.JPanel();
         panHistInfo = new javax.swing.JPanel();
         panOptions = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        ckxScaleToFit = new javax.swing.JCheckBox();
-        ckxHoldFlurstueck = new javax.swing.JCheckBox();
         lblVisulaization = new javax.swing.JLabel();
-        cbxHistoryType = new javax.swing.JComboBox();
-        panPlaceholder = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         cbxHistoryOptions = new javax.swing.JComboBox();
         sprLevels = new javax.swing.JSpinner();
+        cbxHistoryType = new javax.swing.JComboBox();
+        cbxHistoryOptions1 = new javax.swing.JComboBox();
+        sprLevels1 = new javax.swing.JSpinner();
+        jPanel2 = new javax.swing.JPanel();
+        ckxScaleToFit = new javax.swing.JCheckBox();
+        ckxHoldFlurstueck = new javax.swing.JCheckBox();
+        filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0));
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 32767));
         panInformation = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         lblDatumEnt = new javax.swing.JLabel();
         lblDatumEntWert = new javax.swing.JLabel();
         lblDatumHist = new javax.swing.JLabel();
         lblDatumHistWert = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 32767));
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(32767, 0));
 
         setLayout(new java.awt.BorderLayout());
 
+        jPanel5.setLayout(new java.awt.GridBagLayout());
+
+        panHistInfo.setLayout(new java.awt.GridBagLayout());
+
         panOptions.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        panOptions.setLayout(new java.awt.GridBagLayout());
+
+        jPanel3.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setText("Optionen:");
-
-        ckxScaleToFit.setSelected(true);
-        ckxScaleToFit.setText("an Bildschimgröße anpassen");
-        ckxScaleToFit.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    ckxScaleToFitActionPerformed(evt);
-                }
-            });
-
-        ckxHoldFlurstueck.setText("Historie halten");
-        ckxHoldFlurstueck.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    ckxHoldFlurstueckActionPerformed(evt);
-                }
-            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(1, 1, 0, 0);
+        jPanel3.add(jLabel1, gridBagConstraints);
 
         lblVisulaization.setText("Darstellung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(1, 0, 0, 0);
+        jPanel3.add(lblVisulaization, gridBagConstraints);
 
-        cbxHistoryType.setModel(new javax.swing.DefaultComboBoxModel(
-                new String[] { "Alle Flurstücke", "Nur Nachfolger", "Nur Vorgänger" }));
-        cbxHistoryType.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cbxHistoryTypeActionPerformed(evt);
-                }
-            });
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         cbxHistoryOptions.setModel(new javax.swing.DefaultComboBoxModel(
                 new String[] { "Direkte Vorgänger/Nachfolger", "Vollständig", "Begrenzte Tiefe" }));
@@ -526,7 +581,15 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                     cbxHistoryOptionsActionPerformed(evt);
                 }
             });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel1.add(cbxHistoryOptions, gridBagConstraints);
 
+        sprLevels.setMinimumSize(new java.awt.Dimension(60, 1));
+        sprLevels.setPreferredSize(new java.awt.Dimension(60, 1));
         sprLevels.addChangeListener(new javax.swing.event.ChangeListener() {
 
                 @Override
@@ -534,141 +597,246 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                     sprLevelsStateChanged(evt);
                 }
             });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 0);
+        jPanel1.add(sprLevels, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout panPlaceholderLayout = new org.jdesktop.layout.GroupLayout(
-                panPlaceholder);
-        panPlaceholder.setLayout(panPlaceholderLayout);
-        panPlaceholderLayout.setHorizontalGroup(
-            panPlaceholderLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panPlaceholderLayout.createSequentialGroup().addContainerGap().add(
-                    cbxHistoryOptions,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(4, 4, 4).add(sprLevels).addContainerGap()));
-        panPlaceholderLayout.setVerticalGroup(
-            panPlaceholderLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panPlaceholderLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                    sprLevels,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                    cbxHistoryOptions,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)));
+        cbxHistoryType.setModel(new javax.swing.DefaultComboBoxModel(
+                new String[] { "Alle Flurstücke", "Nur Nachfolger", "Nur Vorgänger" }));
+        cbxHistoryType.addActionListener(new java.awt.event.ActionListener() {
 
-        final org.jdesktop.layout.GroupLayout panOptionsLayout = new org.jdesktop.layout.GroupLayout(panOptions);
-        panOptions.setLayout(panOptionsLayout);
-        panOptionsLayout.setHorizontalGroup(
-            panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panOptionsLayout.createSequentialGroup().add(
-                    panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
-                        panOptionsLayout.createSequentialGroup().addContainerGap().add(
-                            ckxScaleToFit,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            218,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        panOptionsLayout.createSequentialGroup().addContainerGap().add(ckxHoldFlurstueck)))
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        lblVisulaization).add(
-                        panOptionsLayout.createSequentialGroup().add(12, 12, 12).add(
-                            panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                panOptionsLayout.createSequentialGroup().add(12, 12, 12).add(
-                                    cbxHistoryType,
-                                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                                    227,
-                                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()).add(
-                                panPlaceholder,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE))))));
-        panOptionsLayout.setVerticalGroup(
-            panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panOptionsLayout.createSequentialGroup().add(
-                    panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        lblVisulaization).add(jLabel1)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panPlaceholder,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(ckxScaleToFit)).add(
-                    panOptionsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panOptionsLayout.createSequentialGroup().addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.UNRELATED).add(ckxHoldFlurstueck)).add(
-                        panOptionsLayout.createSequentialGroup().add(5, 5, 5).add(
-                            cbxHistoryType,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).addContainerGap(13, Short.MAX_VALUE)));
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cbxHistoryTypeActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        jPanel1.add(cbxHistoryType, gridBagConstraints);
+
+        cbxHistoryOptions1.setModel(new javax.swing.DefaultComboBoxModel(
+                new String[] {
+                    "keine Geschwister",
+                    "Geschwister",
+                    "Geschwister, vollständig",
+                    "Geschwister, begrenzte Tiefe"
+                }));
+        cbxHistoryOptions1.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cbxHistoryOptions1ActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel1.add(cbxHistoryOptions1, gridBagConstraints);
+
+        sprLevels1.setMinimumSize(new java.awt.Dimension(60, 1));
+        sprLevels1.setPreferredSize(new java.awt.Dimension(60, 1));
+        sprLevels1.addChangeListener(new javax.swing.event.ChangeListener() {
+
+                @Override
+                public void stateChanged(final javax.swing.event.ChangeEvent evt) {
+                    sprLevels1StateChanged(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 4, 0, 0);
+        jPanel1.add(sprLevels1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel3.add(jPanel1, gridBagConstraints);
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
+
+        ckxScaleToFit.setSelected(true);
+        ckxScaleToFit.setText("an Bildschimgröße anpassen");
+        ckxScaleToFit.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    ckxScaleToFitActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipadx = -5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(ckxScaleToFit, gridBagConstraints);
+
+        ckxHoldFlurstueck.setText("Historie halten");
+        ckxHoldFlurstueck.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    ckxHoldFlurstueckActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(ckxHoldFlurstueck, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 1.0;
+        jPanel2.add(filler4, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel3.add(jPanel2, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 1.0;
+        jPanel3.add(filler3, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 6);
+        panOptions.add(jPanel3, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
+        panHistInfo.add(panOptions, gridBagConstraints);
 
         panInformation.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        panInformation.setLayout(new java.awt.GridBagLayout());
+
+        jPanel4.setLayout(new java.awt.GridBagLayout());
 
         jLabel3.setText("Informationen");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel4.add(jLabel3, gridBagConstraints);
 
         lblDatumEnt.setText("Datum Entstehung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel4.add(lblDatumEnt, gridBagConstraints);
 
         lblDatumEntWert.setText("Keine Angabe");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        jPanel4.add(lblDatumEntWert, gridBagConstraints);
 
         lblDatumHist.setText("Datum Historisch seit:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel4.add(lblDatumHist, gridBagConstraints);
 
         lblDatumHistWert.setText("Keine Angabe");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        jPanel4.add(lblDatumHistWert, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 1.0;
+        jPanel4.add(filler1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        jPanel4.add(filler2, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout panInformationLayout = new org.jdesktop.layout.GroupLayout(
-                panInformation);
-        panInformation.setLayout(panInformationLayout);
-        panInformationLayout.setHorizontalGroup(
-            panInformationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                panInformationLayout.createSequentialGroup().addContainerGap(12, Short.MAX_VALUE).add(
-                    panInformationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        panInformationLayout.createSequentialGroup().add(lblDatumHist).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(lblDatumHistWert)).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        panInformationLayout.createSequentialGroup().add(lblDatumEnt).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(lblDatumEntWert))).addContainerGap()).add(
-                panInformationLayout.createSequentialGroup().add(jLabel3).addContainerGap(171, Short.MAX_VALUE)));
-        panInformationLayout.setVerticalGroup(
-            panInformationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panInformationLayout.createSequentialGroup().addContainerGap().add(jLabel3).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panInformationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        lblDatumEnt).add(lblDatumEntWert)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panInformationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        lblDatumHist).add(lblDatumHistWert)).addContainerGap(23, Short.MAX_VALUE)));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 6);
+        panInformation.add(jPanel4, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout panHistInfoLayout = new org.jdesktop.layout.GroupLayout(panHistInfo);
-        panHistInfo.setLayout(panHistInfoLayout);
-        panHistInfoLayout.setHorizontalGroup(
-            panHistInfoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panHistInfoLayout.createSequentialGroup().addContainerGap().add(
-                    panOptions,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panInformation,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).add(174, 174, 174)));
-        panHistInfoLayout.setVerticalGroup(
-            panHistInfoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panHistInfoLayout.createSequentialGroup().addContainerGap().add(
-                    panHistInfoLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panInformation,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        panOptions,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        panHistInfo.add(panInformation, gridBagConstraints);
 
-        add(panHistInfo, java.awt.BorderLayout.SOUTH);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        jPanel5.add(panHistInfo, gridBagConstraints);
+
+        add(jPanel5, java.awt.BorderLayout.SOUTH);
     } // </editor-fold>//GEN-END:initComponents
 
     /**
@@ -697,7 +865,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      * @param  evt  DOCUMENT ME!
      */
     private void cbxHistoryOptionsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryOptionsActionPerformed
-        if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
+        if ("Begrenzte Tiefe".equals(cbxHistoryOptions.getSelectedItem())) {
             if (log.isDebugEnabled()) {
                 log.debug("Begrentzte Tiefe ausgewählt");
             }
@@ -705,6 +873,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             levelTimer.schedule(new delayedRefresh(), 2000);
             sprLevels.setEnabled(true);
         } else {
+            sprLevels.setValue(1);
             sprLevels.setEnabled(false);
             levelTimer.cancel();
             refresh();
@@ -717,8 +886,17 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      * @param  evt  DOCUMENT ME!
      */
     private void cbxHistoryTypeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryTypeActionPerformed
+        final boolean nurNachfolger = "Nur Nachfolger".equals(cbxHistoryType.getSelectedItem());
+
+        cbxHistoryOptions1.setEnabled(!nurNachfolger);
+        sprLevels1.setEnabled(nurNachfolger);
+
+        if (nurNachfolger) {
+            cbxHistoryOptions1.setSelectedItem("keine Geschwister");
+            sprLevels1.setValue(1);
+        }
         refresh();
-    }                                                                                  //GEN-LAST:event_cbxHistoryTypeActionPerformed
+    } //GEN-LAST:event_cbxHistoryTypeActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -739,6 +917,38 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     private void ckxHoldFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_ckxHoldFlurstueckActionPerformed
 // TODO add your handling code here:
     } //GEN-LAST:event_ckxHoldFlurstueckActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cbxHistoryOptions1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryOptions1ActionPerformed
+        if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister, begrenzte Tiefe")) {
+            if (log.isDebugEnabled()) {
+                log.debug("Geschwister, begrenzte Tiefe Tiefe ausgewählt");
+            }
+            levelTimer = new Timer();
+            levelTimer.schedule(new delayedRefresh(), 2000);
+            sprLevels1.setEnabled(true);
+        } else {
+            sprLevels1.setEnabled(false);
+            sprLevels1.setValue(1);
+            levelTimer.cancel();
+            refresh();
+        }
+    }                                                                                      //GEN-LAST:event_cbxHistoryOptions1ActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void sprLevels1StateChanged(final javax.swing.event.ChangeEvent evt) { //GEN-FIRST:event_sprLevels1StateChanged
+        levelTimer.cancel();
+        levelTimer = new Timer();
+        levelTimer.schedule(new delayedRefresh(), 1500);
+    }                                                                              //GEN-LAST:event_sprLevels1StateChanged
 
     @Override
     public void configure(final org.jdom.Element parent) {
