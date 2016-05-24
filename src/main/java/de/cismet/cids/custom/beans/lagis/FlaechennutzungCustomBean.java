@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Flaechennutzung;
@@ -26,13 +27,12 @@ public class FlaechennutzungCustomBean extends BasicEntity implements Flaechennu
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             FlaechennutzungCustomBean.class);
-    public static final String TABLE = "flaechennutzung";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -52,10 +52,10 @@ public class FlaechennutzungCustomBean extends BasicEntity implements Flaechennu
     public static FlaechennutzungCustomBean createNew() {
         try {
             return (FlaechennutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.FLAECHENNUTZUNG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.FLAECHENNUTZUNG + " bean", ex);
             return null;
         }
     }

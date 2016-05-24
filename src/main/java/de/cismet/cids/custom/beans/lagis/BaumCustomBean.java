@@ -19,7 +19,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.baum.Baum;
@@ -36,7 +37,20 @@ public class BaumCustomBean extends BasicEntity implements Baum {
 
     private static final transient org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             BaumCustomBean.class);
-    public static final String TABLE = "baum";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "lage",
+            "auftragnehmer",
+            "baumnummer",
+            "alte_nutzung",
+            "erfassungsdatum",
+            "faelldatum",
+            "flaeche",
+            "bemerkung",
+            "fk_geom",
+            "fk_baum_nutzung",
+            "ar_baum_merkmale"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -55,20 +69,6 @@ public class BaumCustomBean extends BasicEntity implements Baum {
     private GeomCustomBean fk_geom;
     private BaumNutzungCustomBean fk_baum_nutzung;
     private Collection<BaumMerkmalCustomBean> ar_baum_merkmale;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "lage",
-            "auftragnehmer",
-            "baumnummer",
-            "alte_nutzung",
-            "erfassungsdatum",
-            "faelldatum",
-            "flaeche",
-            "bemerkung",
-            "fk_geom",
-            "fk_baum_nutzung",
-            "ar_baum_merkmale"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -88,11 +88,11 @@ public class BaumCustomBean extends BasicEntity implements Baum {
     public static BaumCustomBean createNew() {
         try {
             final BaumCustomBean bean = (BaumCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.BAUM);
             return bean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.BAUM + " bean", ex);
             return null;
         }
     }
@@ -422,7 +422,7 @@ public class BaumCustomBean extends BasicEntity implements Baum {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
             try {
-                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, "geom");
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(LagisConstants.DOMAIN_LAGIS, "geom");
             } catch (Exception ex) {
                 LOG.error("error creating geom bean", ex);
             }

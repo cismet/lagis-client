@@ -19,7 +19,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
@@ -36,7 +37,14 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltungsbereichCustomBean.class);
-    public static final String TABLE = "verwaltungsbereich";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "fk_verwaltungsgebrauch",
+            "fk_verwaltende_dienststelle",
+            "fk_verwaltungsbereiche_eintrag",
+            "flaeche",
+            "fk_geom"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -49,14 +57,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     private VerwaltungsbereicheEintragCustomBean fk_verwaltungsbereiche_eintrag;
     private GeomCustomBean fk_geom;
     private Integer flaeche;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "fk_verwaltungsgebrauch",
-            "fk_verwaltende_dienststelle",
-            "fk_verwaltungsbereiche_eintrag",
-            "flaeche",
-            "fk_geom"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -77,11 +77,11 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
         try {
             final VerwaltungsbereichCustomBean bean;
             bean = (VerwaltungsbereichCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERWALTUNGSBEREICH);
             return bean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERWALTUNGSBEREICH + " bean", ex);
             return null;
         }
     }
@@ -270,7 +270,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
             try {
-                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, "geom");
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(LagisConstants.DOMAIN_LAGIS, "geom");
             } catch (Exception ex) {
                 LOG.error("error creating geom bean", ex);
             }

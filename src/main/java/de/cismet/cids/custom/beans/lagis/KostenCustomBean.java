@@ -13,7 +13,8 @@ import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Kosten;
@@ -29,7 +30,13 @@ public class KostenCustomBean extends BasicEntity implements Kosten {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KostenCustomBean.class);
-    public static final String TABLE = "kosten";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "datum",
+            "fk_kostenart",
+            "betrag",
+            "fk_vertrag"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -38,7 +45,6 @@ public class KostenCustomBean extends BasicEntity implements Kosten {
     private KostenartCustomBean fk_kostenart;
     private Double betrag;
     private VertragCustomBean fk_vertrag;
-    private String[] PROPERTY_NAMES = new String[] { "id", "datum", "fk_kostenart", "betrag", "fk_vertrag" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -57,9 +63,11 @@ public class KostenCustomBean extends BasicEntity implements Kosten {
      */
     public static KostenCustomBean createNew() {
         try {
-            return (KostenCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (KostenCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.KOSTEN);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.KOSTEN + " bean", ex);
             return null;
         }
     }

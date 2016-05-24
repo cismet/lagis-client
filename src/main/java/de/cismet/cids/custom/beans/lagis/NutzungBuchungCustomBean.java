@@ -18,7 +18,8 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.NutzungsBuchung;
@@ -35,7 +36,20 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             NutzungBuchungCustomBean.class);
-    public static final String TABLE = "nutzung_buchung";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "bemerkung",
+            "flaeche",
+            "gueltig_bis",
+            "gueltig_von",
+            "ist_buchwert",
+            "quadratmeterpreis",
+            "fk_anlageklasse",
+            "fk_nutzung",
+            "fk_nutzungsart",
+            "ar_bebauungen",
+            "ar_flaechennutzungen"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -51,20 +65,6 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
     private NutzungsartCustomBean fk_nutzungsart;
     private Collection<BebauungCustomBean> ar_bebauungen;
     private Collection<FlaechennutzungCustomBean> ar_flaechennutzungen;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "bemerkung",
-            "flaeche",
-            "gueltig_bis",
-            "gueltig_von",
-            "ist_buchwert",
-            "quadratmeterpreis",
-            "fk_anlageklasse",
-            "fk_nutzung",
-            "fk_nutzungsart",
-            "ar_bebauungen",
-            "ar_flaechennutzungen"
-        };
 
     private boolean sollGeloeschtWerden = false;
 
@@ -88,10 +88,10 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
     public static NutzungBuchungCustomBean createNew() {
         try {
             return (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.NUTZUNG_BUCHUNG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.NUTZUNG_BUCHUNG + " bean", ex);
             return null;
         }
     }

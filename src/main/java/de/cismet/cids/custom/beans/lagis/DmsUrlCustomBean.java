@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.DmsUrl;
@@ -33,8 +34,6 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
             "fk_url",
             "fk_flurstueck"
         };
-
-    public static final String TABLE = "dms_url";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -62,9 +61,11 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
      */
     public static DmsUrlCustomBean createNew() {
         try {
-            return (DmsUrlCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (DmsUrlCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.DMS_URL);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.DMS_URL + " bean", ex);
             return null;
         }
     }

@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.history.FlurstueckHistorie;
@@ -26,7 +27,13 @@ public class FlurstueckHistorieCustomBean extends BasicEntity implements Flurstu
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             FlurstueckHistorieCustomBean.class);
-    public static final String TABLE = "flurstueck_historie";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "index",
+            "fk_flurstueck_aktion",
+            "fk_vorgaenger",
+            "fk_nachfolger"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -35,13 +42,6 @@ public class FlurstueckHistorieCustomBean extends BasicEntity implements Flurstu
     private FlurstueckAktionCustomBean fk_flurstueck_aktion;
     private FlurstueckCustomBean fk_vorgaenger;
     private FlurstueckCustomBean fk_nachfolger;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "index",
-            "fk_flurstueck_aktion",
-            "fk_vorgaenger",
-            "fk_nachfolger"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -61,10 +61,10 @@ public class FlurstueckHistorieCustomBean extends BasicEntity implements Flurstu
     public static FlurstueckHistorieCustomBean createNew() {
         try {
             return (FlurstueckHistorieCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.FLURSTUECK_HISTORIE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.FLURSTUECK_HISTORIE + " bean", ex);
             return null;
         }
     }

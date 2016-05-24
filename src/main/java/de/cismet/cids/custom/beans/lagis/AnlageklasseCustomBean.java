@@ -7,11 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import org.openide.util.Exceptions;
-
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
@@ -27,14 +26,13 @@ public class AnlageklasseCustomBean extends BasicEntity implements Anlageklasse 
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(AnlageklasseCustomBean.class);
-    public static final String TABLE = "anlageklasse";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "schluessel", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String schluessel;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "schluessel", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -53,9 +51,11 @@ public class AnlageklasseCustomBean extends BasicEntity implements Anlageklasse 
      */
     public static AnlageklasseCustomBean createNew() {
         try {
-            return (AnlageklasseCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (AnlageklasseCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.ANLAGEKLASSE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.ANLAGEKLASSE + " bean", ex);
             return null;
         }
     }

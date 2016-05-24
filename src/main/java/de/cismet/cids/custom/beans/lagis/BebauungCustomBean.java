@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Bebauung;
@@ -25,13 +26,12 @@ public class BebauungCustomBean extends BasicEntity implements Bebauung {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BebauungCustomBean.class);
-    public static final String TABLE = "bebauung";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -50,9 +50,11 @@ public class BebauungCustomBean extends BasicEntity implements Bebauung {
      */
     public static BebauungCustomBean createNew() {
         try {
-            return (BebauungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (BebauungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.BEBAUUNG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.BEBAUUNG + " bean", ex);
             return null;
         }
     }

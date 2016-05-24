@@ -77,7 +77,7 @@ public class BrokerTester {
         "Sirius.navigator.connection.proxy.DefaultConnectionProxyHandler";
 
     public static final String CALLSERVER_URL = "rmi://localhost/callServer";
-    public static final String CALLSERVER_DOMAIN = CidsBroker.LAGIS_DOMAIN;
+    public static final String CALLSERVER_DOMAIN = "LAGIS";
     public static final String CALLSERVER_USER = "admin";
     public static final String CALLSERVER_PASSWORD = "*";
     public static final String CALLSERVER_GROUP = "Administratoren";

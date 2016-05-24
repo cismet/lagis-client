@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
@@ -25,7 +26,12 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaNutzungCustomBean.class);
-    public static final String TABLE = "mipa_nutzung";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "ausgewaehlte_nummer",
+            "fk_ausgewaehlte_auspraegung",
+            "fk_mipa_kategorie"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -33,12 +39,6 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
     private Integer ausgewaehlte_nummer;
     private MipaKategorieAuspraegungCustomBean fk_ausgewaehlte_auspraegung;
     private MipaKategorieCustomBean fk_mipa_kategorie;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "ausgewaehlte_nummer",
-            "fk_ausgewaehlte_auspraegung",
-            "fk_mipa_kategorie"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -57,9 +57,11 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
      */
     public static MipaNutzungCustomBean createNew() {
         try {
-            return (MipaNutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (MipaNutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.MIPA_NUTZUNG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.MIPA_NUTZUNG + " bean", ex);
             return null;
         }
     }

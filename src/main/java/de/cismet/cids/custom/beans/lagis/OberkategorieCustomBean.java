@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Oberkategorie;
@@ -25,14 +26,13 @@ public class OberkategorieCustomBean extends BasicEntity implements Oberkategori
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(OberkategorieCustomBean.class);
-    public static final String TABLE = "oberkategorie";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private String abkuerzung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -51,9 +51,11 @@ public class OberkategorieCustomBean extends BasicEntity implements Oberkategori
      */
     public static OberkategorieCustomBean createNew() {
         try {
-            return (OberkategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (OberkategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.OBERKATEGORIE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.OBERKATEGORIE + " bean", ex);
             return null;
         }
     }

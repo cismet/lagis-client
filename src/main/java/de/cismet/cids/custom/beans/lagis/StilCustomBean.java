@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Stil;
@@ -25,13 +26,12 @@ public class StilCustomBean extends BasicEntity implements Stil {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(StilCustomBean.class);
-    public static final String TABLE = "stil";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -50,9 +50,11 @@ public class StilCustomBean extends BasicEntity implements Stil {
      */
     public static StilCustomBean createNew() {
         try {
-            return (StilCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (StilCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.STIL);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.STIL + " bean", ex);
             return null;
         }
     }

@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
@@ -25,13 +26,12 @@ public class BeschlussartCustomBean extends BasicEntity implements Beschlussart 
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BeschlussartCustomBean.class);
-    public static final String TABLE = "beschlussart";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -50,9 +50,11 @@ public class BeschlussartCustomBean extends BasicEntity implements Beschlussart 
      */
     public static BeschlussartCustomBean createNew() {
         try {
-            return (BeschlussartCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (BeschlussartCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.BESCHLUSSART);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.BESCHLUSSART + " bean", ex);
             return null;
         }
     }

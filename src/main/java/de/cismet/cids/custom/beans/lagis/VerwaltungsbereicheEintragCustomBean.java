@@ -14,7 +14,8 @@ import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 
@@ -30,7 +31,13 @@ public class VerwaltungsbereicheEintragCustomBean extends BasicEntity {
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltungsbereicheEintragCustomBean.class);
-    public static final String TABLE = "verwaltungsbereiche_eintrag";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "fk_flurstueck",
+            "geaendert_am",
+            "geaendert_von",
+            "n_verwaltungsbereiche"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -39,13 +46,6 @@ public class VerwaltungsbereicheEintragCustomBean extends BasicEntity {
     private FlurstueckCustomBean fk_flurstueck;
     private Timestamp geaendert_am;
     private String geaendert_von;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "fk_flurstueck",
-            "geaendert_am",
-            "geaendert_von",
-            "n_verwaltungsbereiche"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -66,11 +66,11 @@ public class VerwaltungsbereicheEintragCustomBean extends BasicEntity {
         try {
             final VerwaltungsbereicheEintragCustomBean bean;
             bean = (VerwaltungsbereicheEintragCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERWALTUNGSBEREICHE_EINTRAG);
             return bean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERWALTUNGSBEREICHE_EINTRAG + " bean", ex);
             return null;
         }
     }

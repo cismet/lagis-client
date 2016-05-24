@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.extension.baum.BaumKategorieAuspraegung;
 
@@ -25,13 +26,12 @@ public class BaumKategorieAuspraegungCustomBean extends CidsBean implements Baum
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             BaumKategorieAuspraegungCustomBean.class);
-    public static final String TABLE = "baum_kategorie_auspraegung";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -51,10 +51,10 @@ public class BaumKategorieAuspraegungCustomBean extends CidsBean implements Baum
     public static BaumKategorieAuspraegungCustomBean createNew() {
         try {
             return (BaumKategorieAuspraegungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.BAUM_KATEGORIE_AUSPRAEGUNG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.BAUM_KATEGORIE_AUSPRAEGUNG + " bean", ex);
             return null;
         }
     }

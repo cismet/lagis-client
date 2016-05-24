@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import org.openide.util.Exceptions;
-
 import java.util.*;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -18,7 +16,8 @@ import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagis.util.SortedList;
 
@@ -36,16 +35,15 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NutzungCustomBean.class);
-    public static final String TABLE = "nutzung";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "fk_flurstueck", "n_buchungen" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private FlurstueckCustomBean fk_flurstueck;
     private Collection<NutzungBuchungCustomBean> n_buchungen;
-    private String[] PROPERTY_NAMES = new String[] { "id", "fk_flurstueck", "n_buchungen" };
 
-    private List<NutzungBuchungCustomBean> sortedBuchungen = new SortedList<NutzungBuchungCustomBean>(
+    private final List<NutzungBuchungCustomBean> sortedBuchungen = new SortedList<NutzungBuchungCustomBean>(
             new Comparator<NutzungBuchungCustomBean>() {
 
                 @Override
@@ -81,8 +79,8 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     public static NutzungCustomBean createNew(final boolean addDummyBuchung) {
         try {
             final NutzungCustomBean nutzung = (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.NUTZUNG);
 
             if (addDummyBuchung) {
                 final NutzungBuchungCustomBean buchung = NutzungBuchungCustomBean.createNew();
@@ -92,7 +90,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
             return nutzung;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.NUTZUNG + " bean", ex);
             return null;
         }
     }
@@ -131,7 +129,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             }
             try {
                 initialBuchwert = (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                        CidsBroker.LAGIS_DOMAIN,
+                        LagisConstants.DOMAIN_LAGIS,
                         "nutzung_buchung");
             } catch (Exception ex) {
                 LOG.error("error creating nutzung_buchung bean", ex);

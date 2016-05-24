@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
@@ -26,9 +27,15 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltungsgebrauchCustomBean.class);
-    public static final String TABLE = "verwaltungsgebrauch";
 
     private static final String SEPARATOR = "/";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "bezeichnung",
+            "abkuerzung",
+            "unterabschnitt",
+            "fk_kategorie"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -37,13 +44,6 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
     private String abkuerzung;
     private String unterabschnitt;
     private KategorieCustomBean fk_kategorie;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "bezeichnung",
-            "abkuerzung",
-            "unterabschnitt",
-            "fk_kategorie"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -63,10 +63,10 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
     public static VerwaltungsgebrauchCustomBean createNew() {
         try {
             return (VerwaltungsgebrauchCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERWALTUNGSGEBRAUCH);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERWALTUNGSGEBRAUCH + " bean", ex);
             return null;
         }
     }

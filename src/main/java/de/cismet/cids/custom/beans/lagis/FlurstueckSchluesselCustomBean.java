@@ -7,7 +7,6 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 
 import java.sql.Timestamp;
@@ -17,6 +16,9 @@ import java.util.Date;
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.broker.CidsBroker;
+
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
@@ -33,13 +35,28 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             FlurstueckSchluesselCustomBean.class);
-    public static final String TABLE = "flurstueck_schluessel";
 
     private static final String META_CLASS_PK = "ID";
     private static final int META_CLASS_ID = 28;
 
     private static final String BASE_QUERY = " SELECT " + META_CLASS_ID + ',' + META_CLASS_PK
-                + " FROM " + TABLE;
+                + " FROM " + LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL;
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "flur",
+            "flurstueck_zaehler",
+            "flurstueck_nenner",
+            "ist_gesperrt",
+            "bemerkung_sperre",
+            "datum_entstehung",
+            "gueltig_bis",
+            "fk_gemarkung",
+            "datum_letzter_stadtbesitz",
+            "war_staedtisch",
+            "fk_flurstueck_art",
+            "letzter_bearbeiter",
+            "letzte_bearbeitung"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -57,22 +74,6 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     private FlurstueckArtCustomBean fk_flurstueck_art;
     private String letzter_bearbeiter;
     private Timestamp letzte_bearbeitung;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "flur",
-            "flurstueck_zaehler",
-            "flurstueck_nenner",
-            "ist_gesperrt",
-            "bemerkung_sperre",
-            "datum_entstehung",
-            "gueltig_bis",
-            "fk_gemarkung",
-            "datum_letzter_stadtbesitz",
-            "war_staedtisch",
-            "fk_flurstueck_art",
-            "letzter_bearbeiter",
-            "letzte_bearbeitung"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -93,12 +94,12 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
         try {
             final FlurstueckSchluesselCustomBean newBean = (FlurstueckSchluesselCustomBean)CidsBean
                         .createNewCidsBeanFromTableName(
-                            CidsBroker.LAGIS_DOMAIN,
-                            TABLE);
+                            LagisConstants.DOMAIN_LAGIS,
+                            LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
             newBean.setIstGesperrt(false);
             return newBean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL + " bean", ex);
             return null;
         }
     }

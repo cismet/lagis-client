@@ -19,8 +19,10 @@ import java.util.List;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Flurstueck;
@@ -36,7 +38,21 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(Flurstueck.class);
-    public static final String TABLE = "flurstueck";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "bemerkung",
+            "fk_spielplatz",
+            "fk_flurstueck_schluessel",
+            "in_stadtbesitz",
+            "ar_baeume",
+            "ar_mipas",
+            "ar_vertraege",
+            "n_verwaltungsbereiche_eintraege",
+            "n_dms_urls",
+            "n_nutzungen",
+            "n_rebes",
+            "n_kassenzeichen"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -57,21 +73,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private Collection<NutzungCustomBean> n_nutzungen;
     private Collection<RebeCustomBean> n_rebes;
     private Collection<KassenzeichenCustomBean> n_kassenzeichen;
-    private final String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "bemerkung",
-            "fk_spielplatz",
-            "fk_flurstueck_schluessel",
-            "in_stadtbesitz",
-            "ar_baeume",
-            "ar_mipas",
-            "ar_vertraege",
-            "n_verwaltungsbereiche_eintraege",
-            "n_dms_urls",
-            "n_nutzungen",
-            "n_rebes",
-            "n_kassenzeichen"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -90,9 +91,11 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
      */
     public static FlurstueckCustomBean createNew() {
         try {
-            return (FlurstueckCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (FlurstueckCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.FLURSTUECK);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.FLURSTUECK + " bean", ex);
             return null;
         }
     }

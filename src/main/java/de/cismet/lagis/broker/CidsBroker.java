@@ -29,6 +29,9 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
 
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
+
 import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.lagisEE.util.FlurKey;
@@ -42,7 +45,7 @@ public final class CidsBroker {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    public static final String LAGIS_DOMAIN = "LAGIS";
+// public static final String LAGIS_DOMAIN = "LAGIS";
 
     public static final String CLASS__FLURSTUECK_SCHLUESSEL = "flurstueck_schluessel";
     public static final String CLASS__ANLAGEKLASSE = "anlageklasse";
@@ -115,7 +118,7 @@ public final class CidsBroker {
             setProxy(SessionManager.getProxy());
             if (!SessionManager.isInitialized()) {
                 SessionManager.init(getProxy());
-                ClassCacheMultiple.setInstance(LAGIS_DOMAIN);
+                ClassCacheMultiple.setInstance(LagisConstants.DOMAIN_LAGIS);
             }
         } catch (Throwable e) {
             LOG.fatal("no connection to the cids server possible. too bad.", e);
@@ -1394,17 +1397,17 @@ public final class CidsBroker {
 
                         final User user = SessionManager.getSession().getUser();
                         final MetaClass mcDmsUrl = ClassCacheMultiple.getMetaClass(
-                                CidsBroker.LAGIS_DOMAIN,
-                                DmsUrlCustomBean.TABLE);
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.DMS_URL);
                         final MetaClass mcNutzung = ClassCacheMultiple.getMetaClass(
-                                CidsBroker.LAGIS_DOMAIN,
-                                NutzungCustomBean.TABLE);
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.NUTZUNG);
                         final MetaClass mcRebe = ClassCacheMultiple.getMetaClass(
-                                CidsBroker.LAGIS_DOMAIN,
-                                RebeCustomBean.TABLE);
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.REBE);
                         final MetaClass mcVerwaltungsbereichEintrag = ClassCacheMultiple.getMetaClass(
-                                CidsBroker.LAGIS_DOMAIN,
-                                VerwaltungsbereicheEintragCustomBean.TABLE);
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.VERWALTUNGSBEREICHE_EINTRAG);
 
                         final String queryDmsUrl = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
                                     + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " fk_flurstueck = "

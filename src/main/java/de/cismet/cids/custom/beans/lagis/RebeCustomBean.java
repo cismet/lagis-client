@@ -21,7 +21,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.ReBe;
@@ -37,7 +38,18 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RebeCustomBean.class);
-    public static final String TABLE = "rebe";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "datum_eintragung",
+            "datum_loeschung",
+            "nummer",
+            "ist_recht",
+            "beschreibung",
+            "fk_rebe_art",
+            "fk_geom",
+            "fk_flurstueck",
+            "bemerkung"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -54,18 +66,6 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     private GeomCustomBean fk_geom;
     private FlurstueckCustomBean fk_flurstueck;
     private String bemerkung;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "datum_eintragung",
-            "datum_loeschung",
-            "nummer",
-            "ist_recht",
-            "beschreibung",
-            "fk_rebe_art",
-            "fk_geom",
-            "fk_flurstueck",
-            "bemerkung"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -85,13 +85,13 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     public static RebeCustomBean createNew() {
         try {
             final RebeCustomBean rebe = (RebeCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.REBE);
             // property change mechanism does not work in constructor
             rebe.setIstRecht(Boolean.FALSE);
             return rebe;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.REBE + " bean", ex);
             return null;
         }
     }
@@ -407,7 +407,7 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
             try {
-                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, "geom");
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(LagisConstants.DOMAIN_LAGIS, "geom");
             } catch (Exception ex) {
                 LOG.error("error creating geom bean", ex);
             }

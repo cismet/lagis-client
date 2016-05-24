@@ -11,7 +11,8 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
@@ -28,9 +29,16 @@ public class VerwaltendeDienststelleCustomBean extends BasicEntity implements Ve
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltendeDienststelleCustomBean.class);
-    public static final String TABLE = "verwaltende_dienststelle";
 
     private static final String SEPARATOR = ".";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "abkuerzung_abteilung",
+            "bezeichnung_abteilung",
+            "email_adresse",
+            "fk_ressort",
+            "n_farben"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -40,14 +48,6 @@ public class VerwaltendeDienststelleCustomBean extends BasicEntity implements Ve
     private String email_adresse;
     private RessortCustomBean fk_ressort;
     private Collection<FarbeCustomBean> n_farben;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "abkuerzung_abteilung",
-            "bezeichnung_abteilung",
-            "email_adresse",
-            "fk_ressort",
-            "n_farben"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -67,10 +67,10 @@ public class VerwaltendeDienststelleCustomBean extends BasicEntity implements Ve
     public static VerwaltendeDienststelleCustomBean createNew() {
         try {
             return (VerwaltendeDienststelleCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERWALTENDE_DIENSTSTELLE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERWALTENDE_DIENSTSTELLE + " bean", ex);
             return null;
         }
     }

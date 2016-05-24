@@ -11,7 +11,8 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorie;
@@ -27,7 +28,12 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaCustomBean.class);
-    public static final String TABLE = "mipa_kategorie";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "bezeichnung",
+            "hat_nummer_als_auspraegung",
+            "ar_kategorie_auspraegungen"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -35,12 +41,6 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
     private String bezeichnung;
     private Boolean hat_nummer_als_auspraegung;
     private Collection<MipaKategorieAuspraegungCustomBean> ar_kategorie_auspraegungen;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "bezeichnung",
-            "hat_nummer_als_auspraegung",
-            "ar_kategorie_auspraegungen"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -59,9 +59,11 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
      */
     public static MipaKategorieCustomBean createNew() {
         try {
-            return (MipaKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (MipaKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.MIPA_KATEGORIE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.MIPA_KATEGORIE + " bean", ex);
             return null;
         }
     }

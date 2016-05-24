@@ -11,7 +11,8 @@ import java.sql.Timestamp;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 
@@ -26,7 +27,14 @@ public class KassenzeichenCustomBean extends BasicEntity {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KassenzeichenCustomBean.class);
-    public static final String TABLE = "kassenzeichen";
+
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "kassenzeichennummer",
+            "fk_flurstueck",
+            "zugeordnet_am",
+            "zugeordnet_von"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -35,14 +43,6 @@ public class KassenzeichenCustomBean extends BasicEntity {
     private Integer kassenzeichennummer;
     private Timestamp zugeordnet_am;
     private String zugeordnet_von;
-
-    private final String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "kassenzeichennummer",
-            "fk_flurstueck",
-            "zugeordnet_am",
-            "zugeordnet_von"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -63,11 +63,11 @@ public class KassenzeichenCustomBean extends BasicEntity {
         try {
             final KassenzeichenCustomBean bean;
             bean = (KassenzeichenCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.KASSENZEICHEN);
             return bean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.KASSENZEICHEN + " bean", ex);
             return null;
         }
     }
