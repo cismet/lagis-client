@@ -12,6 +12,8 @@
  */
 package de.cismet.lagis.gui.panels;
 
+import Sirius.server.middleware.types.MetaObject;
+
 import javafx.application.Platform;
 
 import netscape.javascript.JSObject;
@@ -32,8 +34,13 @@ import javax.swing.SpinnerNumberModel;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
@@ -60,12 +67,12 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     // TODO Auslagern in ConfigFile
     private static HistoryPanel instance;
 
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(HistoryPanel.class);
+
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private Timer levelTimer = new Timer();
-    private HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMap =
-        new HashMap<String, FlurstueckSchluesselCustomBean>();
+    private HashMap<String, Integer> nodeToKeyMap = new HashMap<String, Integer>();
     private FlurstueckCustomBean currentFlurstueck;
     // private Thread panelRefresherThread;
     private final BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
@@ -123,7 +130,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         final SpinnerNumberModel sprLevelModel = new SpinnerNumberModel(1, 1, 100, 1);
         sprLevels.setModel(sprLevelModel);
         sprLevels.setEnabled(false);
-        final SpinnerNumberModel sprLevelModel1 = new SpinnerNumberModel(1, 1, 100, 1);
+        final SpinnerNumberModel sprLevelModel1 = new SpinnerNumberModel(0, 0, 100, 1);
         sprLevels1.setModel(sprLevelModel1);
         sprLevels1.setEnabled(false);
 
@@ -148,14 +155,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                                 this.getClass().getResourceAsStream("dagreTemplate.html"));
                                         webView.loadContent(s);
                                     } catch (Exception e) {
-                                        log.fatal(e, e);
+                                        LOG.fatal(e, e);
                                     }
                                 }
                             });
                     }
                 }.start();
         } catch (Exception e) {
-            log.error("Error during initialization of HistoryPanel", e);
+            LOG.error("Error during initialization of HistoryPanel", e);
         }
 
         updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
@@ -176,10 +183,10 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                                 final JSObject jsobj = (JSObject)webView.getWebEngine()
                                                             .executeScript("window");
                                                 jsobj.setMember("java", HistoryPanel.this);
-                                                log.info("Callback steht zur Verfügung");
+                                                LOG.info("Callback steht zur Verfügung");
                                                 callBackInited = true;
                                             } catch (Exception e) {
-                                                log.error("Callback steht nicht zur Verfügung", e);
+                                                LOG.error("Callback steht nicht zur Verfügung", e);
                                             }
                                         }
                                     });
@@ -191,12 +198,12 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                         try {
                                             webView.getWebEngine().executeScript(script);
                                         } catch (Exception e) {
-                                            log.error("Error when executing script " + script, e);
+                                            LOG.error("Error when executing script " + script, e);
                                         }
                                     }
                                 });
                         } catch (Exception e) {
-                            log.error("Error in Backgroundthread", e);
+                            LOG.error("Error in Backgroundthread", e);
                         }
                         if (isUpdateAvailable()) {
                             cleanup();
@@ -207,14 +214,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             cleanup();
                             return;
                         }
-                        log.info("Konstruiere Flurstückhistoriengraph");
+                        LOG.info("Konstruiere Flurstückhistoriengraph");
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
                         }
-                        if (log.isDebugEnabled()) {
+                        if (LOG.isDebugEnabled()) {
                             // ToDo remove Strings
-                            log.debug("Erstelle Historien Anfrage:");
+                            LOG.debug("Erstelle Historien Anfrage:");
                         }
 
                         // -----
@@ -224,20 +231,20 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                         if (cbxHistoryOptions.getSelectedItem().equals("Direkte Vorgänger/Nachfolger")) {
                             level = CidsBroker.HistoryLevel.DIRECT_RELATIONS;
                             levelCount = 0;
-                            if (log.isDebugEnabled()) {
-                                log.debug("nur angrenzendte Flurstücke");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("nur angrenzendte Flurstücke");
                             }
                         } else if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
                             level = CidsBroker.HistoryLevel.CUSTOM;
                             levelCount = ((Number)sprLevels.getValue()).intValue();
-                            if (log.isDebugEnabled()) {
-                                log.debug("begrentze Tiefe mit " + levelCount + " Stufen");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("begrentze Tiefe mit " + levelCount + " Stufen");
                             }
                         } else {
                             level = CidsBroker.HistoryLevel.All;
                             levelCount = 0;
-                            if (log.isDebugEnabled()) {
-                                log.debug("Alle Levels");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Alle Levels");
                             }
                         }
 
@@ -264,24 +271,24 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                         CidsBroker.HistoryType type;
                         if (cbxHistoryType.getSelectedItem().equals("Nur Nachfolger")) {
                             type = CidsBroker.HistoryType.SUCCESSOR;
-                            if (log.isDebugEnabled()) {
-                                log.debug("nur Nachfolger");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("nur Nachfolger");
                             }
                         } else if (cbxHistoryType.getSelectedItem().equals("Nur Vorgänger")) {
                             type = CidsBroker.HistoryType.PREDECESSOR;
-                            if (log.isDebugEnabled()) {
-                                log.debug("nur Vorgänger");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("nur Vorgänger");
                             }
                         } else {
                             type = CidsBroker.HistoryType.BOTH;
-                            if (log.isDebugEnabled()) {
-                                log.debug("Vorgänger/Nachfolger");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Vorgänger/Nachfolger");
                             }
                         }
 
                         // -----
 
-                        nodeToKeyMap = new HashMap<String, FlurstueckSchluesselCustomBean>();
+                        nodeToKeyMap = new HashMap<String, Integer>();
 
                         final String dotGraphRepresentation = CidsBroker.getInstance()
                                     .getHistoryGraph(
@@ -297,7 +304,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                             final String rawscript = "var graphInput='" + dotGraphRepresentation
                                         + "'; draw(graphInput);";
                             final String script = rawscript.replaceAll("\n", "");
-                            log.info("script to run:" + script);
+                            LOG.info("script to run:" + script);
                             Platform.runLater(new Runnable() {
 
                                     @Override
@@ -305,15 +312,15 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                         try {
                                             webView.getWebEngine().executeScript(script);
                                         } catch (Exception e) {
-                                            log.error("Error when executing script " + script, e);
+                                            LOG.error("Error when executing script " + script, e);
                                         }
                                     }
                                 });
                         } catch (Exception e) {
-                            log.error("Error in Backgroundthread", e);
+                            LOG.error("Error in Backgroundthread", e);
                         }
                     } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
+                        LOG.error("Fehler im refresh thread: ", ex);
                     }
                 }
 
@@ -337,16 +344,26 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     public void fstckClicked(final String info) {
         Toolkit.getDefaultToolkit().beep();
 
-        final FlurstueckSchluesselCustomBean hit = nodeToKeyMap.get("\"" + info + "\"");
-        if ((hit != null) && !currentFlurstueck.getFlurstueckSchluessel().equals(hit)
-                    && (hit.toString() != null) && hit.isEchterSchluessel()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Neuer Schlüssel ist != null");
+        final Integer hit = nodeToKeyMap.get(info);
+        if ((hit != null) && !currentFlurstueck.getId().equals(hit)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Neuer Schlüssel ist != null");
             }
-            LagisBroker.getInstance().loadFlurstueck(hit);
+            try {
+                final MetaObject mo = CidsBroker.getInstance()
+                            .getMetaObject(
+                                hit,
+                                CidsBean.getMetaClassFromTableName(
+                                    LagisConstants.DOMAIN_LAGIS,
+                                    LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL).getID(),
+                                LagisConstants.DOMAIN_LAGIS);
+                LagisBroker.getInstance().loadFlurstueck((FlurstueckSchluesselCustomBean)mo.getBean());
+            } catch (final Exception ex) {
+                LOG.error(ex, ex);
+            }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Neuer Schlüssel == null oder gleich oder toString == null");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Neuer Schlüssel == null oder gleich oder toString == null");
             }
         }
     }
@@ -364,28 +381,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         return instance;
     }
 
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @return  DOCUMENT ME!
-//     */
-//    public Image getImage() {
-//        final int width = this.gp.getWidth();
-//        final int height = this.gp.getHeight();
-//
-//        final BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-//
-////        final Graphics imgGraphics = img.getGraphics();
-////        imgGraphics.setColor(gp.getBackground());
-////        imgGraphics.fillRect(0, 0, img.getWidth(), img.getHeight());
-//
-//        gp.print(img.getGraphics());
-//
-//
-//
-//
-//        return img;
-//    }
     @Override
     public void refresh(final Object refreshObject) {
     }
@@ -403,14 +398,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             // cancel active running thread
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
-            log.error("Fehler beim laden der FlurstücksHistory");
+            LOG.error("Fehler beim laden der FlurstücksHistory");
         }
     }
 
     @Override
     public void setComponentEditable(final boolean isEditable) {
-        if (log.isDebugEnabled()) {
-            log.debug("FlurstueckSearchPanel --> setComponentEditable finished");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("FlurstueckSearchPanel --> setComponentEditable finished");
         }
     }
 
@@ -428,14 +423,14 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         levelTimer.cancel();
         currentFlurstueck = newFlurstueck;
         updateInformation();
-        if ((nodeToKeyMap.get("\"" + newFlurstueck + "\"") != null) && ckxHoldFlurstueck.isSelected()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Flurstück ist bereits in der Historie vorhanden und hold ist aktiviert --> kein update");
+        if ((nodeToKeyMap.get(newFlurstueck.toString()) != null) && ckxHoldFlurstueck.isSelected()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Flurstück ist bereits in der Historie vorhanden und hold ist aktiviert --> kein update");
             }
             LagisBroker.getInstance().flurstueckChangeFinished(HistoryPanel.this);
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Flurstückchanged HistoryPanel");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Flurstückchanged HistoryPanel");
             }
             try {
                 // TODO FALSE
@@ -445,7 +440,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
             } catch (Exception ex) {
                 // TODO FALSE
                 LagisBroker.getInstance().flurstueckChangeFinished(HistoryPanel.this);
-                log.error("Fehler beim laden der FlurstücksHistory");
+                LOG.error("Fehler beim laden der FlurstücksHistory");
             }
         }
         // ugly better solution ?? --> because how should a programmer  know that he must use this method if he uses the
@@ -482,7 +477,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                 lblDatumEntWert.setToolTipText("");
             }
         } else {
-            log.warn("Flurstückschlüssel ist == null");
+            LOG.warn("Flurstückschlüssel ist == null");
             lblDatumEntWert.setText("Keine Angabe");
             lblDatumEntWert.setToolTipText("");
 //            lblDatumLSBWert.setText("Keine Angabe");
@@ -853,7 +848,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                     try {
                         webView.getWebEngine().executeScript("setFitToScreen(" + ckxScaleToFit.isSelected() + ");");
                     } catch (Exception e) {
-                        log.error("Error during executing setFitToScreen ", e);
+                        LOG.error("Error during executing setFitToScreen ", e);
                     }
                 }
             });
@@ -866,8 +861,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      */
     private void cbxHistoryOptionsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryOptionsActionPerformed
         if ("Begrenzte Tiefe".equals(cbxHistoryOptions.getSelectedItem())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Begrentzte Tiefe ausgewählt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Begrentzte Tiefe ausgewählt");
             }
             levelTimer = new Timer();
             levelTimer.schedule(new delayedRefresh(), 2000);
@@ -893,7 +888,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
         if (nurNachfolger) {
             cbxHistoryOptions1.setSelectedItem("keine Geschwister");
-            sprLevels1.setValue(1);
+            sprLevels1.setValue(0);
         }
         refresh();
     } //GEN-LAST:event_cbxHistoryTypeActionPerformed
@@ -925,15 +920,15 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      */
     private void cbxHistoryOptions1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxHistoryOptions1ActionPerformed
         if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister, begrenzte Tiefe")) {
-            if (log.isDebugEnabled()) {
-                log.debug("Geschwister, begrenzte Tiefe Tiefe ausgewählt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Geschwister, begrenzte Tiefe Tiefe ausgewählt");
             }
             levelTimer = new Timer();
             levelTimer.schedule(new delayedRefresh(), 2000);
             sprLevels1.setEnabled(true);
         } else {
             sprLevels1.setEnabled(false);
-            sprLevels1.setValue(1);
+            sprLevels1.setValue(0);
             levelTimer.cancel();
             refresh();
         }

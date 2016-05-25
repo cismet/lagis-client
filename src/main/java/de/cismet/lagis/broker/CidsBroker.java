@@ -16,8 +16,6 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.newuser.User;
 
-import java.text.DecimalFormat;
-
 import java.util.*;
 
 import de.cismet.cids.custom.beans.lagis.*;
@@ -32,6 +30,9 @@ import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
 import de.cismet.lagis.commons.LagisConstants;
 import de.cismet.lagis.commons.LagisMetaclassConstants;
 
+import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearch;
+import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearchResultItem;
+
 import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.lagisEE.util.FlurKey;
@@ -45,23 +46,8 @@ public final class CidsBroker {
 
     //~ Static fields/initializers ---------------------------------------------
 
-// public static final String LAGIS_DOMAIN = "LAGIS";
-
-    public static final String CLASS__FLURSTUECK_SCHLUESSEL = "flurstueck_schluessel";
-    public static final String CLASS__ANLAGEKLASSE = "anlageklasse";
-    public static final String CLASS__BAUM = "baum";
-    public static final String CLASS__BAUM_KATEGORIE = "baum_kategorie";
-    public static final String CLASS__BAUM_KATEGORIE_AUSPRAEGUNG = "baum_kategorie_auspraegung";
-    public static final String CLASS__BAUM_MERKMAL = "baum_merkmal";
-    public static final String CLASS__BAUM_NUTZUNG = "baum_nutzung";
-    public static final String CLASS__BEBAUUNG = "bebauung";
-
     private static CidsBroker instance = null;
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CidsBroker.class);
-
-//    private static Vector<Session> nkfSessions = new Vector<Session>();
-    private static final DecimalFormat CURRENCE_FORMATER = new DecimalFormat(",##0.00 \u00A4");
-
     private static final String DEFAULT_DOT_HEADER = "digraph G{\n";
 
     //~ Enums ------------------------------------------------------------------
@@ -426,7 +412,7 @@ public final class CidsBroker {
                         // TODO Duplicated code --> extract
 
                         final MetaClass metaclass = CidsBroker.getInstance()
-                                    .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
+                                    .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
                         if (metaclass == null) {
                             return null;
                         }
@@ -469,7 +455,7 @@ public final class CidsBroker {
                         final GemarkungCustomBean completed = completeGemarkung(currentGemarkung);
                         if (completed != null) {
                             final MetaClass metaclass = CidsBroker.getInstance()
-                                        .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
+                                        .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
                             if (metaclass == null) {
                                 return null;
                             }
@@ -520,7 +506,7 @@ public final class CidsBroker {
                     final FlurKey currentFlur = (FlurKey)key;
 
                     final MetaClass metaclass = CidsBroker.getInstance()
-                                .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
+                                .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
                     if (metaclass == null) {
                         return null;
                     }
@@ -1886,9 +1872,9 @@ public final class CidsBroker {
      *
      * @param   currentFlurstueck   DOCUMENT ME!
      * @param   level               allEdges level DOCUMENT ME!
-     * @param   levelCount          DOCUMENT ME!
+     * @param   levelLimit          DOCUMENT ME!
      * @param   sibblingLevel       DOCUMENT ME!
-     * @param   sibblingLevelCount  DOCUMENT ME!
+     * @param   sibblingLevelLimit  DOCUMENT ME!
      * @param   type                DOCUMENT ME!
      * @param   nodeToKeyMapIn      DOCUMENT ME!
      *
@@ -1898,172 +1884,128 @@ public final class CidsBroker {
      */
     public String getHistoryGraph(final FlurstueckCustomBean currentFlurstueck,
             final HistoryLevel level,
-            final int levelCount,
+            final int levelLimit,
             final HistorySibblingLevel sibblingLevel,
-            final int sibblingLevelCount,
+            final int sibblingLevelLimit,
             final HistoryType type,
-            final HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMapIn) throws ActionNotSuccessfulException {
+            final HashMap<String, Integer> nodeToKeyMapIn) throws ActionNotSuccessfulException {
         final StringBuilder dotGraphRepresentation = new StringBuilder(DEFAULT_DOT_HEADER);
 
-        final HashMap<String, FlurstueckSchluesselCustomBean> nodeToKeyMap = (nodeToKeyMapIn == null)
-            ? new HashMap<String, FlurstueckSchluesselCustomBean>() : nodeToKeyMapIn;
-        final HashMap<String, String> pseudoKeys = new HashMap<String, String>();
+        try {
+            final boolean followPredecessors = HistoryType.BOTH.equals(type) || HistoryType.PREDECESSOR.equals(type);
+            final boolean followSuccessors = HistoryType.BOTH.equals(type) || HistoryType.SUCCESSOR.equals(type);
 
-        final FlurstueckSchluesselCustomBean schluessel = currentFlurstueck.getFlurstueckSchluessel();
-
-        final Collection<FlurstueckHistorieCustomBean> allEdges = CidsBroker.getInstance()
-                    .getHistoryEntries(schluessel,
-                        level,
-                        levelCount,
-                        sibblingLevel,
-                        sibblingLevelCount,
-                        type);
-
-        if ((allEdges != null) && (allEdges.size() > 0)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Historie Graph hat: " + allEdges.size() + " Kanten");
-            }
-            final Iterator<FlurstueckHistorieCustomBean> it = allEdges.iterator();
-            while (it.hasNext()) {
-                final FlurstueckHistorieCustomBean currentEdge = it.next();
-                final String currentVorgaenger = currentEdge.getVorgaenger().toString();
-                final String currentNachfolger = currentEdge.getNachfolger().toString();
-
-                if (currentVorgaenger.startsWith("pseudo")) {
-                    pseudoKeys.put(currentVorgaenger, "    ");
+            final int predecessorLevelCount;
+            final int successorLevelCount;
+            switch (level) {
+                case All: {
+                    predecessorLevelCount = followPredecessors ? Integer.MIN_VALUE : 1;
+                    successorLevelCount = followSuccessors ? Integer.MAX_VALUE : 0;
                 }
-                if (currentNachfolger.startsWith("pseudo")) {
-                    pseudoKeys.put(currentNachfolger, "    ");
+                break;
+                case DIRECT_RELATIONS: {
+                    predecessorLevelCount = followPredecessors ? -1 : Integer.MAX_VALUE;
+                    successorLevelCount = followSuccessors ? 1 : Integer.MIN_VALUE;
+                }
+                break;
+                case CUSTOM: {
+                    predecessorLevelCount = followPredecessors ? -levelLimit : Integer.MAX_VALUE;
+                    successorLevelCount = followSuccessors ? levelLimit : Integer.MIN_VALUE;
+                }
+                break;
+                default: {
+                    predecessorLevelCount = Integer.MAX_VALUE; // disabled
+                    successorLevelCount = Integer.MIN_VALUE;   // disabled
+                }
+            }
+
+            final int sibblingLevelCount;
+            switch (sibblingLevel) {
+                case FULL: {
+                    sibblingLevelCount = Integer.MAX_VALUE;
+                }
+                break;
+                case SIBBLING_ONLY: {
+                    sibblingLevelCount = 0;
+                }
+                break;
+                case CUSTOM: {
+                    sibblingLevelCount = sibblingLevelLimit;
+                }
+                break;
+                case NONE:
+                default: {
+                    sibblingLevelCount = Integer.MIN_VALUE;
+                }
+            }
+
+            final FlurstueckHistorieGraphSearch search = new FlurstueckHistorieGraphSearch(
+                    currentFlurstueck.getId(),
+                    predecessorLevelCount,
+                    successorLevelCount,
+                    sibblingLevelCount);
+            final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = proxy.customServerSearch(search);
+            final HashMap<String, String> pseudoKeys = new HashMap<String, String>();
+
+            final HashMap<String, Integer> nodeToKeyMap = (nodeToKeyMapIn == null) ? new HashMap<String, Integer>()
+                                                                                   : nodeToKeyMapIn;
+
+            if ((allEdges != null) && (allEdges.size() > 0)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Historie Graph hat: " + allEdges.size() + " Kanten");
+                }
+                for (final FlurstueckHistorieGraphSearchResultItem currentEdge : allEdges) {
+                    final String currentVorgaenger = currentEdge.getVorgaengerName();
+                    final String currentNachfolger = currentEdge.getNachfolgerName();
+
+                    if (currentVorgaenger.startsWith("pseudo")) {
+                        pseudoKeys.put(currentVorgaenger, "    ");
+                    }
+                    if (currentNachfolger.startsWith("pseudo")) {
+                        pseudoKeys.put(currentNachfolger, "    ");
+                    }
+                    dotGraphRepresentation.append("\"")
+                            .append(currentVorgaenger)
+                            .append("\"->\"")
+                            .append(currentNachfolger)
+                            .append("\" [lineInterpolate=\"linear\"];\n"); // additional options:
+                    // e.g.: basis, linear – Normal line (jagged). step-before – a stepping graph alternating between
+                    // vertical and horizontal segments. step-after - a stepping graph alternating between horizontal
+                    // and vertical segments. basis - a B-spline, with control point duplication on the ends (that's the
+                    // one above). basis-open - an open B-spline; may not intersect the start or end. basis-closed - a
+                    // closed B-spline, with the start and the end closed in a loop. bundle - equivalent to basis,
+                    // except a separate tension parameter is used to straighten the spline. This could be really cool
+                    // with varying tension. cardinal - a Cardinal spline, with control point duplication on the ends.
+                    // It looks slightly more 'jagged' than basis. cardinal-open - an open Cardinal spline; may not
+                    // intersect the start or end, but will intersect other control points. So kind of shorter than
+                    // 'cardinal'. cardinal-closed - a closed Cardinal spline, looped back on itself. monotone - cubic
+                    // interpolation that makes the graph only slightly smoother.
+                    nodeToKeyMap.put(currentEdge.getVorgaengerName(), currentEdge.getVorgaengerSchluesselId());
+                    nodeToKeyMap.put(currentEdge.getNachfolgerName(), currentEdge.getNachfolgerSchluesselId());
                 }
                 dotGraphRepresentation.append("\"")
-                        .append(currentVorgaenger)
-                        .append("\"->\"")
-                        .append(currentNachfolger)
-                        .append("\" [lineInterpolate=\"linear\"];\n"); // additional options:
-                // e.g.: basis, linear – Normal line (jagged). step-before – a stepping graph alternating between
-                // vertical and horizontal segments. step-after - a stepping graph alternating between horizontal and
-                // vertical segments. basis - a B-spline, with control point duplication on the ends (that's the one
-                // above). basis-open - an open B-spline; may not intersect the start or end. basis-closed - a closed
-                // B-spline, with the start and the end closed in a loop. bundle - equivalent to basis, except a
-                // separate tension parameter is used to straighten the spline. This could be really cool with varying
-                // tension. cardinal - a Cardinal spline, with control point duplication on the ends. It looks slightly
-                // more 'jagged' than basis. cardinal-open - an open Cardinal spline; may not intersect the start or
-                // end, but will intersect other control points. So kind of shorter than 'cardinal'. cardinal-closed - a
-                // closed Cardinal spline, looped back on itself. monotone - cubic interpolation that makes the graph
-                // only slightly smoother.
-                nodeToKeyMap.put("\"" + currentEdge.getVorgaenger().toString() + "\"",
-                    currentEdge.getVorgaenger().getFlurstueckSchluessel());
-                nodeToKeyMap.put("\"" + currentEdge.getNachfolger().toString() + "\"",
-                    currentEdge.getNachfolger().getFlurstueckSchluessel());
+                        .append(currentFlurstueck)
+                        .append("\"  [style=\"fill: #eee; font-weight: bold\"];\n");
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Historie Graph ist < 1 --> keine Historie");
+                }
+                dotGraphRepresentation.append("\"")
+                        .append(currentFlurstueck)
+                        .append("\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
+                nodeToKeyMap.put(currentFlurstueck.toString(), currentFlurstueck.getId());
             }
-            dotGraphRepresentation.append("\"")
-                    .append(currentFlurstueck)
-                    .append("\"  [style=\"fill: #eee; font-weight: bold\"];\n");
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Historie Graph ist < 1 --> keine Historie");
-            }
-            dotGraphRepresentation.append("\"")
-                    .append(currentFlurstueck)
-                    .append("\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
-            nodeToKeyMap.put("\"" + currentFlurstueck + "\"",
-                currentFlurstueck.getFlurstueckSchluessel());
-        }
 
-        if (pseudoKeys.size() > 0) {
-            for (final String key : pseudoKeys.keySet()) {
-                dotGraphRepresentation.append("\"").append(key).append("\" [label=\"    \"]");
+            if (pseudoKeys.size() > 0) {
+                for (final String key : pseudoKeys.keySet()) {
+                    dotGraphRepresentation.append("\"").append(key).append("\" [label=\"    \"]");
+                }
             }
+            dotGraphRepresentation.append("}");
+        } catch (final Exception ex) {
+            throw new ActionNotSuccessfulException("error while searching historie for " + currentFlurstueck, ex);
         }
-        dotGraphRepresentation.append("}");
         return dotGraphRepresentation.toString();
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   schluessel          DOCUMENT ME!
-     * @param   level               DOCUMENT ME!
-     * @param   levelCount          DOCUMENT ME!
-     * @param   sibblingLevel       DOCUMENT ME!
-     * @param   sibblingLevelCount  DOCUMENT ME!
-     * @param   type                DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
-     */
-    public Collection<FlurstueckHistorieCustomBean> getHistoryEntries(final FlurstueckSchluesselCustomBean schluessel,
-            final HistoryLevel level,
-            final int levelCount,
-            final HistorySibblingLevel sibblingLevel,
-            final int sibblingLevelCount,
-            final HistoryType type) throws ActionNotSuccessfulException {
-        return getHistoryEntries(schluessel, level, levelCount, sibblingLevel, sibblingLevelCount, type, null);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   schluessel            DOCUMENT ME!
-     * @param   level                 DOCUMENT ME!
-     * @param   levelCount            DOCUMENT ME!
-     * @param   sibblingLevel         DOCUMENT ME!
-     * @param   sibblingLevelCount    DOCUMENT ME!
-     * @param   type                  DOCUMENT ME!
-     * @param   dontFollowSchluessel  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
-     */
-    public Collection<FlurstueckHistorieCustomBean> getHistoryEntries(final FlurstueckSchluesselCustomBean schluessel,
-            final HistoryLevel level,
-            final int levelCount,
-            final HistorySibblingLevel sibblingLevel,
-            final int sibblingLevelCount,
-            final HistoryType type,
-            final FlurstueckSchluesselCustomBean dontFollowSchluessel) throws ActionNotSuccessfulException {
-        final Collection<FlurstueckHistorieCustomBean> allEdges = new HashSet<FlurstueckHistorieCustomBean>();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Historiensuche mit Parametern: HistoryType=" + type + " Level=" + level + " LevelCount="
-                        + levelCount);
-        }
-        try {
-            final boolean successor = HistoryType.BOTH.equals(type) || HistoryType.SUCCESSOR.equals(type);
-            final boolean predecessor = HistoryType.BOTH.equals(type) || HistoryType.PREDECESSOR.equals(type);
-            final int subLevelCount = HistoryLevel.DIRECT_RELATIONS.equals(level)
-                ? 1 : (HistoryLevel.CUSTOM.equals(level) ? levelCount : -1);
-            if (predecessor) {
-                addHistoryEntriesForNeighbours(
-                    schluessel,
-                    level,
-                    subLevelCount,
-                    sibblingLevel,
-                    sibblingLevelCount,
-                    CidsBroker.HistoryType.PREDECESSOR,
-                    allEdges);
-            }
-            if (successor) {
-                addHistoryEntriesForNeighbours(
-                    schluessel,
-                    level,
-                    subLevelCount,
-                    HistorySibblingLevel.NONE,
-                    -1,
-                    CidsBroker.HistoryType.SUCCESSOR,
-                    allEdges);
-            }
-        } catch (Exception ex) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Failure during querying of history entries", ex);
-            }
-            throw new ActionNotSuccessfulException("Fehler beim abfragen der Historieneinträge.", ex);
-        }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Historien Suche abgeschlossen");
-        }
-        return allEdges;
     }
 
     /**
@@ -2206,7 +2148,7 @@ public final class CidsBroker {
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForMiPa(final MipaCustomBean miPa) {
         final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
-                    .getLagisMetaClass(CidsBroker.CLASS__FLURSTUECK_SCHLUESSEL);
+                    .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
@@ -2340,7 +2282,7 @@ public final class CidsBroker {
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForBaum(final BaumCustomBean baum) {
         final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
-                    .getLagisMetaClass(CidsBroker.CLASS__FLURSTUECK_SCHLUESSEL);
+                    .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
@@ -2898,7 +2840,8 @@ public final class CidsBroker {
                 final FlurstueckSchluesselCustomBean oldSchluessel = (FlurstueckSchluesselCustomBean)CidsBroker
                             .getInstance()
                             .getLagisMetaObject(key.getId(),
-                                    CidsBroker.getInstance().getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL).getId())
+                                    CidsBroker.getInstance().getLagisMetaClass(
+                                        LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL).getId())
                             .getBean();
 
                 if ((oldSchluessel != null) && (oldSchluessel.getFlurstueckArt() != null)
@@ -3102,186 +3045,6 @@ public final class CidsBroker {
         historyEntry.setVorgaenger(oldFlurstueck);
         historyEntry.setNachfolger(newFlurstueck);
         createFlurstueckHistoryEntry(historyEntry);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   key                DOCUMENT ME!
-     * @param   level              DOCUMENT ME!
-     * @param   levelCount         DOCUMENT ME!
-     * @param   levelSibbling      DOCUMENT ME!
-     * @param   levelSiblingCount  DOCUMENT ME!
-     * @param   type               DOCUMENT ME!
-     * @param   allEdges           DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
-     */
-    private void addHistoryEntriesForNeighbours(final FlurstueckSchluesselCustomBean key,
-            final CidsBroker.HistoryLevel level,
-            final int levelCount,
-            final CidsBroker.HistorySibblingLevel levelSibbling,
-            final int levelSiblingCount,
-            final CidsBroker.HistoryType type,
-            final Collection<FlurstueckHistorieCustomBean> allEdges) throws ActionNotSuccessfulException {
-        addHistoryEntriesForNeighbours(key, level, levelCount, levelSibbling, levelSiblingCount, type, allEdges, null);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   key                DOCUMENT ME!
-     * @param   level              DOCUMENT ME!
-     * @param   levelCount         DOCUMENT ME!
-     * @param   levelSibbling      DOCUMENT ME!
-     * @param   levelSiblingCount  DOCUMENT ME!
-     * @param   type               DOCUMENT ME!
-     * @param   allEdges           DOCUMENT ME!
-     * @param   dontFollowKey      DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
-     */
-    private void addHistoryEntriesForNeighbours(final FlurstueckSchluesselCustomBean key,
-            final CidsBroker.HistoryLevel level,
-            int levelCount,
-            final CidsBroker.HistorySibblingLevel levelSibbling,
-            final int levelSiblingCount,
-            final CidsBroker.HistoryType type,
-            final Collection<FlurstueckHistorieCustomBean> allEdges,
-            final FlurstueckSchluesselCustomBean dontFollowKey) throws ActionNotSuccessfulException {
-        Collection<FlurstueckHistorieCustomBean> foundEdges;
-        Collection<FlurstueckHistorieCustomBean> neighbours;
-
-        final boolean predecessor = CidsBroker.HistoryType.PREDECESSOR.equals(type);
-        final boolean successor = CidsBroker.HistoryType.SUCCESSOR.equals(type);
-        if (predecessor) {
-            neighbours = getHistoryPredecessors(key);
-        } else {
-            neighbours = getHistorySuccessor(key);
-        }
-
-        if ((neighbours != null) && predecessor) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt Vorgängerkanten zu diesem Knoten");
-            }
-            replacePseudoFlurstuecke(neighbours, allEdges, type);
-            allEdges.addAll(neighbours);
-        } else if ((neighbours != null) && successor) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt Nachfoglerkanten zu diesem Knoten");
-            }
-            replacePseudoFlurstuecke(neighbours, allEdges, type);
-            allEdges.addAll(neighbours);
-        } else if (successor) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt keine Nachfolgerkanten zu diesem Knoten");
-            }
-            return;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt keine Vorgängerkanten zu diesem Knoten");
-            }
-            return;
-        }
-
-        if (!CidsBroker.HistoryLevel.All.equals(level)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("HistoryLevel = " + level);
-            }
-            if (levelCount > 0) {
-                levelCount = --levelCount;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("LevelCount " + (levelCount + 1) + " wurde um eins reduziert auf " + levelCount);
-                }
-            }
-        }
-
-        final Iterator<FlurstueckHistorieCustomBean> itr = neighbours.iterator();
-
-        while (itr.hasNext()) {
-            final FlurstueckHistorieCustomBean next = itr.next();
-            if ((levelCount > 0) || CidsBroker.HistoryLevel.All.equals(level)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Suche rekursiv nach weiteren Vorgängern");
-                }
-                final FlurstueckSchluesselCustomBean vorgaengerSchluessel = next.getVorgaenger()
-                            .getFlurstueckSchluessel();
-                if (predecessor) {
-                    foundEdges = ((dontFollowKey == null) || !dontFollowKey.equals(vorgaengerSchluessel))
-                        ? getHistoryEntries(
-                            vorgaengerSchluessel,
-                            level,
-                            levelCount,
-                            HistorySibblingLevel.NONE,
-                            -1,
-                            type) : null;
-                } else {
-                    final FlurstueckSchluesselCustomBean nachfolgerSchluessel = next.getNachfolger()
-                                .getFlurstueckSchluessel();
-                    foundEdges = ((dontFollowKey == null) || !dontFollowKey.equals(nachfolgerSchluessel))
-                        ? getHistoryEntries(
-                            nachfolgerSchluessel,
-                            level,
-                            levelCount,
-                            HistorySibblingLevel.NONE,
-                            -1,
-                            type) : null;
-                }
-                if (foundEdges != null) {
-                    allEdges.addAll(foundEdges);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Rekursive suche brachte keine Ergebnisse");
-                    }
-                }
-            }
-
-            if (!HistorySibblingLevel.NONE.equals(levelSibbling)) {
-                final HistoryLevel subLevel = HistorySibblingLevel.CUSTOM.equals(levelSibbling)
-                    ? HistoryLevel.CUSTOM
-                    : (HistorySibblingLevel.FULL.equals(levelSibbling) ? HistoryLevel.All : HistoryLevel.CUSTOM);
-                final int subLevelCount = HistorySibblingLevel.CUSTOM.equals(levelSibbling)
-                    ? (levelSiblingCount + 1) : (HistorySibblingLevel.FULL.equals(levelSibbling) ? -1 : 0);
-                foundEdges = getHistoryEntries(next.getVorgaenger().getFlurstueckSchluessel(),
-                        subLevel,
-                        subLevelCount,
-                        HistorySibblingLevel.NONE,
-                        -1,
-                        HistoryType.SUCCESSOR,
-                        key);
-                if (foundEdges != null) {
-                    allEdges.addAll(foundEdges);
-                }
-            }
-        }
-
-        if (levelCount == 0) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-            }
-            return;
-        }
-
-        if (!CidsBroker.HistoryLevel.All.equals(level)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("HistoryLevel = " + level);
-            }
-            if (levelCount > 0) {
-                levelCount = --levelCount;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("LevelCount " + (levelCount + 1) + " wurde um eins reduziert auf " + levelCount);
-                }
-                if (levelCount == 0) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-                    }
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-                }
-            }
-        }
     }
 
     /**
