@@ -171,7 +171,6 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                 protected void update() {
                     try {
                         try {
-                            final String script = "loading();";
                             if (!callBackInited) {
                                 Thread.sleep(1000);
 
@@ -190,18 +189,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
                                             }
                                         }
                                     });
+                                setHtmlLoading();
                             }
-                            Platform.runLater(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        try {
-                                            webView.getWebEngine().executeScript(script);
-                                        } catch (Exception e) {
-                                            LOG.error("Error when executing script " + script, e);
-                                        }
-                                    }
-                                });
                         } catch (Exception e) {
                             LOG.error("Error in Backgroundthread", e);
                         }
@@ -342,7 +331,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
      * @param  info  DOCUMENT ME!
      */
     public void fstckClicked(final String info) {
-        Toolkit.getDefaultToolkit().beep();
+        setHtmlLoading();
 
         final Integer hit = nodeToKeyMap.get(info);
         if ((hit != null) && !currentFlurstueck.getId().equals(hit)) {
@@ -392,6 +381,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         if (currentFlurstueck == null) {
             return;
         }
+        setHtmlLoading();
         updateInformation();
         try {
             // TODO FALSE
@@ -418,10 +408,28 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     public synchronized void clearComponent() {
     }
 
+    /**
+     * DOCUMENT ME!
+     */
+    private void setHtmlLoading() {
+        Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        webView.getWebEngine().executeScript("loading();");
+                    } catch (Exception e) {
+                        LOG.error("Error when executing script loading();", e);
+                    }
+                }
+            });
+    }
+
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         levelTimer.cancel();
         currentFlurstueck = newFlurstueck;
+        setHtmlLoading();
         updateInformation();
         if ((nodeToKeyMap.get(newFlurstueck.toString()) != null) && ckxHoldFlurstueck.isSelected()) {
             if (LOG.isDebugEnabled()) {

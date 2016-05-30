@@ -323,7 +323,9 @@
                 inner.call(render, g);//.each("end", done);
                 setTimeout(done, 50)
 
-            }
+            } else {
+                ready();
+            }            
         }
 
         function nodeClicked(node) {
