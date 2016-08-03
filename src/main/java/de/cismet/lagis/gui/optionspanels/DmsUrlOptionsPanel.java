@@ -495,13 +495,14 @@ public class DmsUrlOptionsPanel extends AbstractOptionsPanel {
      * @return  DOCUMENT ME!
      */
     public static File getFileSystemRootDir() {
-        File directory = new File(System.getProperty("user.dir"));
-
-        // Find System Root
-        while (!FileSystemView.getFileSystemView().isFileSystemRoot(directory)) {
-            directory = directory.getParentFile();
+        // #60 NPE in DmsUrlOptionsPanel.getFileSystemRootDir
+        File[] roots = FileSystemView.getFileSystemView().getRoots();
+        if ((roots == null) || (roots.length == 0)) {
+            LOG.warn("could not get default FileSystemView roo directory!");
+            roots = File.listRoots();
         }
-        return directory;
+
+        return roots[0];
     }
 
     @Override
