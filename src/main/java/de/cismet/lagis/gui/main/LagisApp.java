@@ -47,10 +47,12 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXLoginPane;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.auth.DefaultUserNameStore;
 import org.jdesktop.swingx.auth.LoginService;
+import org.jdesktop.swingx.error.ErrorInfo;
 
 import org.jdom.Element;
 
@@ -960,8 +962,19 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
             initTotd();
             initStartupHooks();
-        } catch (Exception ex) {
-            LOG.fatal("Fehler beim konstruieren des LaGIS Objektes", ex);
+        } catch (final Exception exception) {
+            final ErrorInfo errorInfo = new ErrorInfo(
+                    "LaGIS kann nicht gestartet werden",
+                    "Fehler beim konstruieren des LaGIS Objektes",
+                    null,
+                    "",
+                    exception,
+                    null,
+                    null);
+            JXErrorPane.showDialog(this, errorInfo);
+
+            LOG.fatal("Fehler beim konstruieren des LaGIS Objektes", exception);
+            System.exit(1);
         }
     }
 
