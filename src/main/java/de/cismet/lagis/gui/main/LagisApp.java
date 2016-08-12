@@ -3102,13 +3102,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @param  evt  DOCUMENT ME!
      */
     private void cmdPrintActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdPrintActionPerformed
-        final String oldMode = mapComponent.getInteractionMode();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("oldInteractionMode:" + oldMode);
-        }
-
-        mapComponent.showPrintingSettingsDialog(oldMode);
-    } //GEN-LAST:event_cmdPrintActionPerformed
+        mapComponent.showPrintingSettingsDialog();
+    }                                                                            //GEN-LAST:event_cmdPrintActionPerformed
 
     /**
      * DOCUMENT ME!

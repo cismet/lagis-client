@@ -2078,7 +2078,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 //                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
 //                                curFeature)) {
 //                    if (LOG.isDebugEnabled()) {
-//                        LOG.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
+//                        LOG.debug("In edit modus, mindestens ein pFeature selectiert: " + curFeature);
 //                    }
 //                    cmdCopyFlaeche.setEnabled(true);
 //                    return;
