@@ -14,7 +14,11 @@
     <version>2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>LagIS Client</name>
+    <properties>
+        <names.lagis-client>LagIS Client</names.lagis-client>
+    </properties>
+    <name>${names.lagis-client}</name>
+    
     <description>!!! description pending !!!</description>
     <licenses>
         <license>
