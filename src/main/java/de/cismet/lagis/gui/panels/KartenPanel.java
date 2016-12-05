@@ -49,6 +49,9 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.commons.searchgeometrylistener.BaulastblattNodesSearchCreateSearchGeometryListener;
+import de.cismet.cids.custom.commons.searchgeometrylistener.FlurstueckNodesSearchCreateSearchGeometryListener;
+import de.cismet.cids.custom.commons.searchgeometrylistener.RissNodesSearchCreateSearchGeometryListener;
 
 import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;
@@ -149,6 +152,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private javax.swing.JButton cmdRedo;
     private javax.swing.JButton cmdRemoveHandle;
     private javax.swing.JButton cmdRemovePolygon;
+    private javax.swing.JToggleButton cmdSearchAlkisLandparcel;
+    private javax.swing.JToggleButton cmdSearchBaulasten;
+    private javax.swing.JToggleButton cmdSearchVermessungRiss;
     private javax.swing.JButton cmdSelect;
     private javax.swing.JButton cmdSnap;
     private javax.swing.JButton cmdSplitPoly;
@@ -157,11 +163,13 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private javax.swing.JButton cmdZoom;
     private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
-    private javax.swing.JToolBar.Separator jSeparator8;
+    private javax.swing.JSeparator jSeparator8;
+    private javax.swing.JSeparator jSeparator9;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
 
@@ -544,6 +552,11 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdPan = new javax.swing.JButton();
         cmdSelect = new javax.swing.JButton();
         cmdALB = new javax.swing.JButton();
+        jSeparator10 = new javax.swing.JSeparator();
+        cmdSearchAlkisLandparcel = new javax.swing.JToggleButton();
+        cmdSearchBaulasten = new javax.swing.JToggleButton();
+        cmdSearchVermessungRiss = new javax.swing.JToggleButton();
+        jSeparator9 = new javax.swing.JSeparator();
         cmdMovePolygon = new javax.swing.JButton();
         cmdNewPolygon = new javax.swing.JButton();
         cmdNewPoint = new javax.swing.JButton();
@@ -559,7 +572,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         jSeparator7 = new javax.swing.JSeparator();
         cmdUndo = new javax.swing.JButton();
         cmdRedo = new javax.swing.JButton();
-        jSeparator8 = new javax.swing.JToolBar.Separator();
+        jSeparator8 = new javax.swing.JSeparator();
         jButton2 = new FeatureLayerTransparencyButton();
         jPanel1 = new javax.swing.JPanel();
         cmdAdd = new javax.swing.JButton();
@@ -752,6 +765,87 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 }
             });
         jToolBar1.add(cmdALB);
+
+        jSeparator10.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jSeparator10.setMaximumSize(new java.awt.Dimension(2, 32767));
+        jSeparator10.setMinimumSize(new java.awt.Dimension(2, 10));
+        jSeparator10.setPreferredSize(new java.awt.Dimension(2, 10));
+        jToolBar1.add(jSeparator10);
+
+        cmdSearchAlkisLandparcel.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/alk.png"))); // NOI18N
+        cmdSearchAlkisLandparcel.setToolTipText("Flurstücke suchen");
+        cmdSearchAlkisLandparcel.setBorderPainted(false);
+        cmdSearchAlkisLandparcel.setContentAreaFilled(false);
+        cmdSearchAlkisLandparcel.setFocusPainted(false);
+        cmdSearchAlkisLandparcel.setFocusable(false);
+        cmdSearchAlkisLandparcel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdSearchAlkisLandparcel.setMaximumSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setMinimumSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdSearchAlkisLandparcel.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdSearchAlkisLandparcelActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdSearchAlkisLandparcel);
+
+        cmdSearchBaulasten.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/Baulast.png")));          // NOI18N
+        cmdSearchBaulasten.setToolTipText("Baulasten suchen");
+        cmdSearchBaulasten.setBorderPainted(false);
+        cmdSearchBaulasten.setContentAreaFilled(false);
+        cmdSearchBaulasten.setFocusPainted(false);
+        cmdSearchBaulasten.setFocusable(false);
+        cmdSearchBaulasten.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdSearchBaulasten.setMaximumSize(new java.awt.Dimension(22, 18));
+        cmdSearchBaulasten.setMinimumSize(new java.awt.Dimension(22, 18));
+        cmdSearchBaulasten.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchBaulasten.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/Baulast_selected.png"))); // NOI18N
+        cmdSearchBaulasten.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdSearchBaulasten.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdSearchBaulastenActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdSearchBaulasten);
+        cmdSearchBaulasten.setVisible(LagisBroker.getInstance().checkPermissionBaulasten());
+
+        cmdSearchVermessungRiss.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/vermessungsriss.png")));          // NOI18N
+        cmdSearchVermessungRiss.setToolTipText("Vermessungsrisse suchen");
+        cmdSearchVermessungRiss.setBorderPainted(false);
+        cmdSearchVermessungRiss.setContentAreaFilled(false);
+        cmdSearchVermessungRiss.setFocusPainted(false);
+        cmdSearchVermessungRiss.setFocusable(false);
+        cmdSearchVermessungRiss.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdSearchVermessungRiss.setMaximumSize(new java.awt.Dimension(22, 18));
+        cmdSearchVermessungRiss.setMinimumSize(new java.awt.Dimension(22, 18));
+        cmdSearchVermessungRiss.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchVermessungRiss.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/vermessungsriss_selected.png"))); // NOI18N
+        cmdSearchVermessungRiss.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdSearchVermessungRiss.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdSearchVermessungRissActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdSearchVermessungRiss);
+        cmdSearchVermessungRiss.setVisible(LagisBroker.getInstance().checkPermissionRisse());
+
+        jSeparator9.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jSeparator9.setMaximumSize(new java.awt.Dimension(2, 32767));
+        jSeparator9.setMinimumSize(new java.awt.Dimension(2, 10));
+        jSeparator9.setPreferredSize(new java.awt.Dimension(2, 10));
+        jToolBar1.add(jSeparator9);
 
         cmdMovePolygon.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/movePoly.png")));          // NOI18N
@@ -968,6 +1062,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             });
         jToolBar1.add(cmdRedo);
 
+        jSeparator8.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jSeparator8.setMaximumSize(new java.awt.Dimension(2, 32767));
         jSeparator8.setMinimumSize(new java.awt.Dimension(2, 10));
         jSeparator8.setPreferredSize(new java.awt.Dimension(2, 10));
@@ -1493,6 +1588,33 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             log.debug("... fertig");
         }
     }                                                                           //GEN-LAST:event_cmdRedoActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdSearchAlkisLandparcelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchAlkisLandparcelActionPerformed
+        mappingComponent.setInteractionMode(FlurstueckNodesSearchCreateSearchGeometryListener.NAME);
+    }                                                                                            //GEN-LAST:event_cmdSearchAlkisLandparcelActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdSearchVermessungRissActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchVermessungRissActionPerformed
+        mappingComponent.setInteractionMode(RissNodesSearchCreateSearchGeometryListener.NAME);
+    }                                                                                           //GEN-LAST:event_cmdSearchVermessungRissActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchBaulastenActionPerformed
+        mappingComponent.setInteractionMode(BaulastblattNodesSearchCreateSearchGeometryListener.NAME);
+    }                                                                                      //GEN-LAST:event_cmdSearchBaulastenActionPerformed
 
     /**
      * DOCUMENT ME!
