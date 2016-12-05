@@ -773,7 +773,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         jToolBar1.add(jSeparator10);
 
         cmdSearchAlkisLandparcel.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/cids/custom/commons/gui/alk.png"))); // NOI18N
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/alk.png")));          // NOI18N
         cmdSearchAlkisLandparcel.setToolTipText("Flurstücke suchen");
         cmdSearchAlkisLandparcel.setBorderPainted(false);
         cmdSearchAlkisLandparcel.setContentAreaFilled(false);
@@ -783,6 +783,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdSearchAlkisLandparcel.setMaximumSize(new java.awt.Dimension(22, 18));
         cmdSearchAlkisLandparcel.setMinimumSize(new java.awt.Dimension(22, 18));
         cmdSearchAlkisLandparcel.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/alk_selected.png"))); // NOI18N
         cmdSearchAlkisLandparcel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         cmdSearchAlkisLandparcel.addActionListener(new java.awt.event.ActionListener() {
 
@@ -1322,6 +1324,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdSplitPoly.setSelected(false);
         cmdJoinPoly.setSelected(false);
         cmdRaisePolygon.setSelected(false);
+        cmdSearchAlkisLandparcel.setSelected(false);
+        cmdSearchBaulasten.setSelected(false);
+        cmdSearchVermessungRiss.setSelected(false);
     }
 
     @Override
@@ -1595,6 +1600,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  evt  DOCUMENT ME!
      */
     private void cmdSearchAlkisLandparcelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchAlkisLandparcelActionPerformed
+        removeMainGroupSelection();
+        cmdSearchAlkisLandparcel.setSelected(true);
         mappingComponent.setInteractionMode(FlurstueckNodesSearchCreateSearchGeometryListener.NAME);
     }                                                                                            //GEN-LAST:event_cmdSearchAlkisLandparcelActionPerformed
 
@@ -1604,6 +1611,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  evt  DOCUMENT ME!
      */
     private void cmdSearchVermessungRissActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchVermessungRissActionPerformed
+        removeMainGroupSelection();
+        cmdSearchAlkisLandparcel.setSelected(true);
         mappingComponent.setInteractionMode(RissNodesSearchCreateSearchGeometryListener.NAME);
     }                                                                                           //GEN-LAST:event_cmdSearchVermessungRissActionPerformed
 
@@ -1613,6 +1622,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  evt  DOCUMENT ME!
      */
     private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchBaulastenActionPerformed
+        removeMainGroupSelection();
+        cmdSearchAlkisLandparcel.setSelected(true);
         mappingComponent.setInteractionMode(BaulastblattNodesSearchCreateSearchGeometryListener.NAME);
     }                                                                                      //GEN-LAST:event_cmdSearchBaulastenActionPerformed
 
