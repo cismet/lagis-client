@@ -142,12 +142,6 @@
             <version>1.7.7</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>lagis-configuration</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>com.jhlabs</groupId>
             <artifactId>filters</artifactId>
             <version>2.0.235</version>
