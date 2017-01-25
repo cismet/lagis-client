@@ -13,7 +13,8 @@ import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.locking.Sperre;
@@ -29,7 +30,13 @@ public class SperreCustomBean extends BasicEntity implements Sperre {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(SperreCustomBean.class);
-    public static final String TABLE = "sperre";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "fk_flurstueck_schluessel",
+            "benutzerkonto",
+            "informationen",
+            "zeitstempel_timestamp"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -38,13 +45,6 @@ public class SperreCustomBean extends BasicEntity implements Sperre {
     private String benutzerkonto;
     private String informationen;
     private Timestamp zeitstempel_timestamp;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "fk_flurstueck_schluessel",
-            "benutzerkonto",
-            "informationen",
-            "zeitstempel_timestamp"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -63,9 +63,11 @@ public class SperreCustomBean extends BasicEntity implements Sperre {
      */
     public static SperreCustomBean createNew() {
         try {
-            return (SperreCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (SperreCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.SPERRE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.SPERRE + " bean", ex);
             return null;
         }
     }

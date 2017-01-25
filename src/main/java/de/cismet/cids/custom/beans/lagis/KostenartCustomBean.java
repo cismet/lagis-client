@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
@@ -25,14 +26,13 @@ public class KostenartCustomBean extends BasicEntity implements Kostenart {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KostenartCustomBean.class);
-    public static final String TABLE = "kostenart";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "ist_nebenkostenart" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private Boolean ist_nebenkostenart;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "ist_nebenkostenart" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -51,9 +51,11 @@ public class KostenartCustomBean extends BasicEntity implements Kostenart {
      */
     public static KostenartCustomBean createNew() {
         try {
-            return (KostenartCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (KostenartCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.KOSTENART);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.KOSTENART + " bean", ex);
             return null;
         }
     }

@@ -7,14 +7,10 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
@@ -31,9 +27,15 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltungsgebrauchCustomBean.class);
-    public static final String TABLE = "verwaltungsgebrauch";
 
     private static final String SEPARATOR = "/";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "bezeichnung",
+            "abkuerzung",
+            "unterabschnitt",
+            "fk_kategorie"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -42,15 +44,6 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
     private String abkuerzung;
     private String unterabschnitt;
     private KategorieCustomBean fk_kategorie;
-    private Collection<FarbeCustomBean> n_farben;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "bezeichnung",
-            "abkuerzung",
-            "unterabschnitt",
-            "fk_kategorie",
-            "n_farben"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -70,10 +63,10 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
     public static VerwaltungsgebrauchCustomBean createNew() {
         try {
             return (VerwaltungsgebrauchCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERWALTUNGSGEBRAUCH);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERWALTUNGSGEBRAUCH + " bean", ex);
             return null;
         }
     }
@@ -184,46 +177,9 @@ public class VerwaltungsgebrauchCustomBean extends BasicEntity implements Verwal
         this.propertyChangeSupport.firePropertyChange("fk_kategorie", null, this.fk_kategorie);
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<FarbeCustomBean> getN_farben() {
-        return this.n_farben;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setN_farben(final Collection<FarbeCustomBean> val) {
-//        Collections.sort((List<FarbeCustomBean>)val, new Comparator<FarbeCustomBean>() {
-//
-//                @Override
-//                public int compare(final FarbeCustomBean o1, final FarbeCustomBean o2) {
-//                    return (int)(o1.getId() - o2.getId());
-//                }
-//            });
-        this.n_farben = val;
-
-        this.propertyChangeSupport.firePropertyChange("n_farben", null, this.n_farben);
-    }
-
     @Override
     public String[] getPropertyNames() {
         return this.PROPERTY_NAMES;
-    }
-
-    @Override
-    public Collection<FarbeCustomBean> getFarben() {
-        return getN_farben();
-    }
-
-    @Override
-    public void setFarben(final Collection<FarbeCustomBean> val) {
-        setFarben(val);
     }
 
     @Override

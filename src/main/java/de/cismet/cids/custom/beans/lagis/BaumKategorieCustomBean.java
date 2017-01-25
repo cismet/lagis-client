@@ -11,7 +11,8 @@ import java.util.Collection;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
 
@@ -26,14 +27,13 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BaumKategorieCustomBean.class);
-    public static final String TABLE = "baum_kategorie";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "ar_kategorie_auspraegungen" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private Collection<BaumKategorieAuspraegungCustomBean> ar_kategorie_auspraegungen;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "ar_kategorie_auspraegungen" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -52,9 +52,11 @@ public class BaumKategorieCustomBean extends CidsBean implements BaumKategorie {
      */
     public static BaumKategorieCustomBean createNew() {
         try {
-            return (BaumKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (BaumKategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.BAUM_KATEGORIE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.BAUM_KATEGORIE + " bean", ex);
             return null;
         }
     }

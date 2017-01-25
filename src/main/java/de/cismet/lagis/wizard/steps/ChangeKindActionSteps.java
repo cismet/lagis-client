@@ -41,6 +41,8 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.wizard.panels.ChangeKindActionPanel;
 
 /**
@@ -101,6 +103,10 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
 
         @Override
         public void start(final Map wizardData, final ResultProgressHandle progress) {
+            if (!LagisBroker.getInstance().checkFlurstueckWizardUserWantsToFinish()) {
+                progress.failed("Die Aktion wurde durch den Benutzer abgebrochen.", true);
+                return;
+            }
             if (log.isDebugEnabled()) {
                 log.debug("WizardFinisher: Flurstueckart ändern: ");
             }
@@ -122,11 +128,6 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                         progress.setBusy("Flurstückart wird geändert");
                         key.setFlurstueckArt(newArt);
                         CidsBroker.getInstance().modifyFlurstueckSchluessel(key);
-                        final FlurstueckCustomBean changedFlurstueck = CidsBroker.getInstance().retrieveFlurstueck(key);
-                        if (changedFlurstueck.getRechteUndBelastungen() != null) {
-                            changedFlurstueck.getRechteUndBelastungen().clear();
-                            CidsBroker.getInstance().modifyFlurstueck(changedFlurstueck);
-                        }
                         CidsBroker.getInstance().releaseLock(sperre);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)

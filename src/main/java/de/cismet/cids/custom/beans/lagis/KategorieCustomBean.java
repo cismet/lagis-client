@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Kategorie;
@@ -25,7 +26,12 @@ public class KategorieCustomBean extends BasicEntity implements Kategorie {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KategorieCustomBean.class);
-    public static final String TABLE = "kategorie";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "bezeichnung",
+            "abkuerzung",
+            "fk_oberkategorie"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -33,7 +39,6 @@ public class KategorieCustomBean extends BasicEntity implements Kategorie {
     private String bezeichnung;
     private String abkuerzung;
     private OberkategorieCustomBean fk_oberkategorie;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung", "fk_oberkategorie" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -52,9 +57,11 @@ public class KategorieCustomBean extends BasicEntity implements Kategorie {
      */
     public static KategorieCustomBean createNew() {
         try {
-            return (KategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (KategorieCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.KATEGORIE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.KATEGORIE + " bean", ex);
             return null;
         }
     }

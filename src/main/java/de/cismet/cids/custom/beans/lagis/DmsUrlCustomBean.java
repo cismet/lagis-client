@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.DmsUrl;
@@ -25,7 +26,14 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DmsUrlCustomBean.class);
-    public static final String TABLE = "dms_url";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "typ",
+            "name",
+            "beschreibung",
+            "fk_url",
+            "fk_flurstueck"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -35,7 +43,6 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     private String beschreibung;
     private UrlCustomBean fk_url;
     private FlurstueckCustomBean fk_flurstueck;
-    private String[] PROPERTY_NAMES = new String[] { "id", "typ", "name", "beschreibung", "fk_url", "fk_flurstueck" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -54,9 +61,11 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
      */
     public static DmsUrlCustomBean createNew() {
         try {
-            return (DmsUrlCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (DmsUrlCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.DMS_URL);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.DMS_URL + " bean", ex);
             return null;
         }
     }
@@ -191,7 +200,7 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
 
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return PROPERTY_NAMES;
     }
 
     @Override
@@ -202,5 +211,16 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     @Override
     public void setUrl(final UrlCustomBean val) {
         setFk_url(val);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getUrlString() {
+        final UrlCustomBean urlEntity = getUrl();
+        final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
+        return urlBase.getProtPrefix() + urlBase.getServer() + urlBase.getPfad() + urlEntity.getObjektname();
     }
 }

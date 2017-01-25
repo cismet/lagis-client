@@ -51,10 +51,9 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private WizardController wizardController;
-    private Map wizardData;
-    private boolean isStaedtisch = true;
-    private ButtonGroup rbGroup;
+    private final WizardController wizardController;
+    private final Map wizardData;
+    private final ButtonGroup rbGroup;
     private boolean isDeactivated = true;
     private final Icon icoStaedtisch = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/current.png"));
@@ -97,6 +96,7 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
         rbAbteilungIX.getModel().addChangeListener(this);
         rbStaedtisch.setEnabled(false);
         rbAbteilungIX.setEnabled(false);
+        panChangeKind.requestFlurstueck(LagisBroker.getInstance().getCurrentFlurstueckSchluessel());
     }
 
     //~ Methods ----------------------------------------------------------------

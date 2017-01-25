@@ -13,7 +13,8 @@ import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Beschluss;
@@ -29,7 +30,7 @@ public class BeschlussCustomBean extends BasicEntity implements Beschluss {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(BeschlussCustomBean.class);
-    public static final String TABLE = "beschluss";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "datum", "fk_beschlussart", "fk_vertrag" };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -37,7 +38,6 @@ public class BeschlussCustomBean extends BasicEntity implements Beschluss {
     private Timestamp datum;
     private BeschlussartCustomBean fk_beschlussart;
     private VertragsartCustomBean fk_vertrag;
-    private String[] PROPERTY_NAMES = new String[] { "id", "datum", "fk_beschlussart", "fk_vertrag" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -56,9 +56,11 @@ public class BeschlussCustomBean extends BasicEntity implements Beschluss {
      */
     public static BeschlussCustomBean createNew() {
         try {
-            return (BeschlussCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (BeschlussCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.BESCHLUSS);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.BESCHLUSS + " bean", ex);
             return null;
         }
     }

@@ -44,8 +44,7 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
 
     //~ Instance fields --------------------------------------------------------
 
-    @Context
-    private UriInfo context;
+    @Context private UriInfo context;
 
     //~ Constructors -----------------------------------------------------------
 

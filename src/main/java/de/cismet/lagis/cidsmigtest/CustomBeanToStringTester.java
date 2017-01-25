@@ -610,21 +610,11 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
         if (object == null) {
             return "null";
         }
-        final List<Farbe> farben = Arrays.asList(object.getFarben().toArray(new Farbe[0]));
-        Collections.sort((List<Farbe>)farben, new Comparator<Farbe>() {
-
-                @Override
-                public int compare(final Farbe o1, final Farbe o2) {
-                    return (int)(o1.getId() - o2.getId());
-                }
-            });
-
         return "\n" + tab() + "[Verwaltungsgebrauch |"
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
                     + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
                     + "\n" + t() + "UnterAbschnitt: " + getStringOf(object.getUnterAbschnitt())
-                    + "\n" + t() + "Farben: " + getStringOf(farben)
                     + "\n" + t() + "Kategorie: " + getStringOf(object.getKategorie())
                     + "\n" + t() + "toString: " + getStringOf(object.toString())
                     + "\n" + untab() + "]";

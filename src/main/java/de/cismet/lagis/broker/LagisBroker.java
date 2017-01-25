@@ -17,6 +17,8 @@ package de.cismet.lagis.broker;
 
 import Sirius.navigator.connection.ConnectionSession;
 
+import Sirius.server.middleware.types.MetaClass;
+
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.infonode.docking.RootWindow;
@@ -31,6 +33,9 @@ import org.jdom.Element;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.image.RenderedImage;
+
+import java.net.URL;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -42,9 +47,12 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.*;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -70,6 +78,8 @@ import de.cismet.tools.configuration.Configurable;
 
 import de.cismet.tools.gui.StaticSwingTools;
 
+import static de.cismet.lagis.gui.panels.VerdisCrossoverPanel.createQuery;
+
 /**
  * DOCUMENT ME!
  *
@@ -81,7 +91,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     //~ Static fields/initializers ---------------------------------------------
 
     private static LagisBroker broker = null;
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LagisBroker.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LagisBroker.class);
     private static Vector<Resettable> clearAndDisableListeners = new Vector<Resettable>();
     private static DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
     // private static DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY);
@@ -128,8 +138,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // public static final Color SUCCESSFUL_COLOR = new Color(89,184,73);
     public static final Color INITIAL_COLOR = Color.WHITE;
     // WFS Geometry Color
-    public static final Color STADT_FILLING_COLOR = new Color(43, 106, 21, 150);
-    public static final Color ABTEILUNG_IX_FILLING_COLOR = new Color(100, 40, 106, 150);
+    public static final Color STADT_FILLING_COLOR = new Color(43, 106, 21);
+    public static final Color ABTEILUNG_IX_FILLING_COLOR = new Color(100, 40, 106);
     public static final Color UNKNOWN_FILLING_COLOR = UNKOWN_COLOR;
     public static final Color HISTORIC_FLURSTUECK_COLOR = Color.DARK_GRAY;
     // public static final Color ODD_ROW_COLOR = new Color(252,84,114,120);
@@ -154,6 +164,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
     HighlighterFactory highlighterFac = new HighlighterFactory();
     Vector<FlurstueckChangeListener> observedFlurstueckChangedListeners = new Vector<FlurstueckChangeListener>();
+
+    private String title;
+    private String totd;
 
     private boolean loggedIn = false;
     private MappingComponent mappingComponent;
@@ -181,7 +194,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // TODO Jean
     // private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
-    private double kassenzeichenBuffer = -0.5;
+    private double kassenzeichenBuffer = -0.2;
+    private double kassenzeichenBuffer100 = -0.5;
+    private boolean skipSecurityCheckFlurstueckAssistent = false;
 
     private boolean nkfAdminPermission = false;
 
@@ -199,6 +214,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private StringBuffer nkfRecipients;
     private StringBuffer developerRecipients;
     private StringBuffer maintenanceRecipients;
+
+    private RenderedImage historyImage;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -242,6 +259,65 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     }
 
     /**
+     * ToDo place query generation in VerdisCrossover. Give key get Query.
+     *
+     * @param  bean  e bean DOCUMENT ME!
+     */
+    public void openKassenzeichenInVerdis(final CidsBean bean) {
+        if (bean != null) {
+            if ((verdisCrossoverPort < 0) || (verdisCrossoverPort > 65535)) {
+                LOG.warn("Crossover: verdisCrossoverPort ist ungültig: " + verdisCrossoverPort);
+            } else {
+                // ToDo Thread
+                final URL verdisQuery = createQuery(verdisCrossoverPort, bean);
+                if (verdisQuery != null) {
+                    final SwingWorker<Void, Void> openKassenzeichen = new SwingWorker<Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                verdisQuery.openStream();
+                                return null;
+                            }
+
+                            @Override
+                            protected void done() {
+                                try {
+                                    get();
+                                } catch (Exception ex) {
+                                    LOG.error("Fehler beim öffnen des Kassenzeichens", ex);
+                                    // ToDo message to user;
+                                }
+                            }
+                        };
+                    LagisBroker.getInstance().execute(openKassenzeichen);
+                } else {
+                    LOG.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
+                }
+            }
+        } else {
+            LOG.warn("Crossover: Kann angebenes Flurstück nicht öffnwen");
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public RenderedImage getHistoryImage() {
+        return historyImage;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  historyImage  DOCUMENT ME!
+     */
+    public void setHistoryImage(final RenderedImage historyImage) {
+        this.historyImage = historyImage;
+    }
+
+    /**
      * DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
@@ -257,9 +333,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         try {
             nkfAdminPermission = getSession().getConnection()
                         .hasConfigAttr(getSession().getUser(), "lagis.perm.nkf.admin");
-            log.info("NKF Admin Recht wurde gesetzt: " + nkfAdminPermission);
+            LOG.info("NKF Admin Recht wurde gesetzt: " + nkfAdminPermission);
         } catch (Exception ex) {
-            log.error(
+            LOG.error(
                 "Fehler beim setzen der NKF Admin Rechte. Rechte wurden nicht richtig gesetzt und deshalb deaktiviert.",
                 ex);
         }
@@ -300,8 +376,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
                     @Override
                     public void run() {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Lagis Broker : Reset widgets");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Lagis Broker : Reset widgets");
                         }
 //         Iterator<Resettable> it = clearAndDisableListeners.iterator();
 //         while(it.hasNext()){
@@ -315,14 +391,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             tmp.clearComponent();
                             tmp.setComponentEditable(false);
                         }
-                        if (log.isDebugEnabled()) {
-                            log.debug("Lagis Broker : Reset widgets durch");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Lagis Broker : Reset widgets durch");
                         }
                     }
                 });
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Lagis Broker : Reset widgets");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Lagis Broker : Reset widgets");
         }
 //         Iterator<Resettable> it = clearAndDisableListeners.iterator();
 //         while(it.hasNext()){
@@ -336,8 +412,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             tmp.clearComponent();
             tmp.setComponentEditable(false);
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Lagis Broker : Reset widgets durch");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Lagis Broker : Reset widgets durch");
         }
     }
 
@@ -347,8 +423,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @param  isEditable  DOCUMENT ME!
      */
     public synchronized void setWidgetsEditable(final boolean isEditable) {
-        if (log.isDebugEnabled()) {
-            log.debug("Setze Widgets editable: " + isEditable);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Setze Widgets editable: " + isEditable);
         }
         if (!EventQueue.isDispatchThread()) {
             EventQueue.invokeLater(new Runnable() {
@@ -637,8 +713,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     if (result.getBenutzerkonto().equals(getAccountName())
                                 && result.getZeitstempel().equals(newSperre.getZeitstempel())) {
                         currentSperre = result;
-                        if (log.isDebugEnabled()) {
-                            log.debug("Sperre konnte erfolgreich angelegt werden");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Sperre konnte erfolgreich angelegt werden");
                         }
                         setWidgetsEditable(true);
                         for (final Feature feature
@@ -648,7 +724,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         }
                         return true;
                     } else {
-                        log.info("Sperre für flurstueck " + currentFlurstueck.getId()
+                        LOG.info("Sperre für flurstueck " + currentFlurstueck.getId()
                                     + " bereitsvorhanden von Benutzer " + result.getBenutzerkonto());
                         JOptionPane.showMessageDialog(
                             parentComponent,
@@ -660,18 +736,18 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         return false;
                     }
                 } else {
-                    log.info("Es konnte keine Sperre angelegt werden ?? warum");
+                    LOG.info("Es konnte keine Sperre angelegt werden ?? warum");
                     return false;
                 }
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Sperre Flurstueck ist null oder eine Sperre ist bereits vorhanden: \nSperre: "
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Sperre Flurstueck ist null oder eine Sperre ist bereits vorhanden: \nSperre: "
                                 + currentSperre + "\nFlursuteck: " + currentFlurstueck);
                 }
                 return false;
             }
         } catch (Exception ex) {
-            log.error("Fehler beim anlegen der Sperre", ex);
+            LOG.error("Fehler beim anlegen der Sperre", ex);
             return false;
         }
     }
@@ -686,27 +762,27 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             if ((currentFlurstueck != null) && (currentSperre != null)) {
                 final boolean result = CidsBroker.getInstance().releaseLock(currentSperre);
                 if (result) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Sperre erfolgreich gelöst");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Sperre erfolgreich gelöst");
                     }
                     currentSperre = null;
                     setWidgetsEditable(false);
                     return true;
                 } else {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Sperre konnte nicht entfernt werden ?? warum todo");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Sperre konnte nicht entfernt werden ?? warum todo");
                     }
                     return false;
                 }
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Sperre Flurstueck ist null oder eine Sperre ist bereits vorhanden: \nSperre: "
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Sperre Flurstueck ist null oder eine Sperre ist bereits vorhanden: \nSperre: "
                                 + currentSperre + "\nFlursuteck: " + currentFlurstueck);
                 }
                 return false;
             }
         } catch (Exception ex) {
-            log.error("Fehler beim lösen der Sperre", ex);
+            LOG.error("Fehler beim lösen der Sperre", ex);
             return false;
         }
     }
@@ -745,11 +821,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public synchronized void reloadFlurstueck() {
         if (currentFlurstueck != null) {
-            log.info("reloadFlurstueck");
+            LOG.info("reloadFlurstueck");
             resetWidgets();
             loadFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
         } else {
-            log.info("can't reload flurstueck == null");
+            LOG.info("can't reload flurstueck == null");
         }
     }
 
@@ -757,7 +833,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * DOCUMENT ME!
      */
     public synchronized void reloadFlurstueckKeys() {
-        log.info("updateFlurstueckKeys");
+        LOG.info("updateFlurstueckKeys");
         requester.updateFlurstueckKeys();
     }
 
@@ -776,7 +852,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 JOptionPane.WARNING_MESSAGE);
             return;
         }
-        log.info("loadFlurstueck");
+        LOG.info("loadFlurstueck");
         resetWidgets();
         requester.requestFlurstueck(key);
     }
@@ -809,8 +885,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 while (it.hasNext()) {
                     final Widget curWidget = it.next();
                     if (curWidget instanceof FlurstueckSaver) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Daten von: " + curWidget.getWidgetName() + " werden gespeichert");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Daten von: " + curWidget.getWidgetName() + " werden gespeichert");
                         }
                         ((FlurstueckSaver)curWidget).updateFlurstueckForSaving(currentFlurstueck);
                     }
@@ -827,9 +903,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         currentFlurstueck.getVerwaltungsbereiche();
                     if (((oldBereiche == null) || (oldBereiche.size() == 0))
                                 && ((newBereiche == null) || (newBereiche.size() == 0))) {
-                        log.info("Es existieren keine Verwaltungsbereiche --> keine Veränderung");
+                        LOG.info("Es existieren keine Verwaltungsbereiche --> keine Veränderung");
                     } else if (((oldBereiche == null) || (oldBereiche.size() == 0))) {
-                        log.info("Es wurden nur neue Verwaltungsbereiche angelegt: " + newBereiche.size());
+                        LOG.info("Es wurden nur neue Verwaltungsbereiche angelegt: " + newBereiche.size());
                         for (final VerwaltungsbereichCustomBean currentBereich : newBereiche) {
                             try {
 //                                Message newMessage = new Message();
@@ -847,12 +923,12 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                             Message.VERWALTUNGSBEREICH_NEW,
                                             currentDienstelle));
                                 } else {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("neuer Verwaltungsbereich angelegt ohne Dienstellenzuordnung");
+                                    if (LOG.isDebugEnabled()) {
+                                        LOG.debug("neuer Verwaltungsbereich angelegt ohne Dienstellenzuordnung");
                                     }
                                 }
                             } catch (Exception ex) {
-                                log.error("Fehler beim prüfen eines neuen Verwaltungsbereichs", ex);
+                                LOG.error("Fehler beim prüfen eines neuen Verwaltungsbereichs", ex);
                                 messages.add(Message.createNewMessage(
                                         Message.RECEIVER_ADMIN,
                                         Message.VERWALTUNGSBEREICH_ERROR,
@@ -863,7 +939,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             }
                         }
                     } else if (((newBereiche == null) || (newBereiche.size() == 0))) {
-                        log.info("Es wurden alle alten Verwaltungsbereiche gelöscht: " + oldBereiche.size());
+                        LOG.info("Es wurden alle alten Verwaltungsbereiche gelöscht: " + oldBereiche.size());
                         for (final VerwaltungsbereichCustomBean currentBereich : oldBereiche) {
                             try {
 //                                Message newMessage = new Message();
@@ -877,7 +953,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                         Message.VERWALTUNGSBEREICH_DELETED,
                                         currentBereich.getDienststelle()));
                             } catch (Exception ex) {
-                                log.error("Fehler beim prüfen eines alten Verwaltungsbereichs", ex);
+                                LOG.error("Fehler beim prüfen eines alten Verwaltungsbereichs", ex);
                                 messages.add(Message.createNewMessage(
                                         Message.RECEIVER_ADMIN,
                                         Message.VERWALTUNGSBEREICH_ERROR,
@@ -888,7 +964,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             }
                         }
                     } else {
-                        log.info("Es exitieren sowohl alte wie neue Verwaltungsbereiche -> abgleich");
+                        LOG.info("Es exitieren sowohl alte wie neue Verwaltungsbereiche -> abgleich");
                         final Vector modDienststellen = new Vector();
                         final Vector addedDienststellen = new Vector();
                         final Vector deletedDienststellen = new Vector();
@@ -899,7 +975,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                 if (((currentBereich.getId() == null)
                                                 || (currentBereich.getId() == -1))
                                             && !oldBereiche.contains(currentBereich)) {
-                                    log.info("Es wurden ein neuer Verwaltungsbereich angelegt: " + currentBereich);
+                                    LOG.info("Es wurden ein neuer Verwaltungsbereich angelegt: " + currentBereich);
                                     // TODO duplicated code see checkofdifferences
                                     final VerwaltendeDienststelleCustomBean currentDienstelle =
                                         currentBereich.getDienststelle();
@@ -909,15 +985,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                                 Message.VERWALTUNGSBEREICH_NEW,
                                                 currentDienstelle));
                                     } else {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("neuer Verwaltungsbereich angelegt ohne Dienstellenzuordnung");
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug("neuer Verwaltungsbereich angelegt ohne Dienstellenzuordnung");
                                         }
                                     }
                                 } else if ((currentBereich.getId() != null)
                                             && (currentBereich.getId() != -1)
                                             && oldBereiche.contains(currentBereich)) {
                                     final int index = oldBereicheVector.indexOf(currentBereich);
-                                    log.info("Verwaltungsbereich war schon in Datenbank: " + currentBereich
+                                    LOG.info("Verwaltungsbereich war schon in Datenbank: " + currentBereich
                                                 + " index in altem Datenbestand=" + index);
                                     final VerwaltungsbereichCustomBean oldBereich = oldBereicheVector.get(index);
                                     final VerwaltendeDienststelleCustomBean oldDienststelle =
@@ -925,17 +1001,17 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                     final VerwaltendeDienststelleCustomBean newDienststelle =
                                         currentBereich.getDienststelle();
                                     if ((oldDienststelle != null) && (newDienststelle != null)) {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("AlteDienstelle=" + oldDienststelle + " NeueDienststelle="
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug("AlteDienstelle=" + oldDienststelle + " NeueDienststelle="
                                                         + newDienststelle);
                                         }
                                         if (oldDienststelle.equals(newDienststelle)) {
-                                            if (log.isDebugEnabled()) {
-                                                log.debug("Dienstelle des Verwaltungsbereich ist gleich geblieben");
+                                            if (LOG.isDebugEnabled()) {
+                                                LOG.debug("Dienstelle des Verwaltungsbereich ist gleich geblieben");
                                             }
                                         } else {
-                                            if (log.isDebugEnabled()) {
-                                                log.debug("Dienstelle des Verwaltungsbereichs hat sich geändert");
+                                            if (LOG.isDebugEnabled()) {
+                                                LOG.debug("Dienstelle des Verwaltungsbereichs hat sich geändert");
                                             }
                                             modDienststellen.add(Message.createNewMessage(
                                                     Message.RECEIVER_VERWALTUNGSSTELLE,
@@ -944,8 +1020,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                                     newDienststelle));
                                         }
                                     } else if (oldDienststelle == null) {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug(
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug(
                                                 "Einem vorhandenen Verwaltungsbereich wurde eine Dienstelle zugeordnet");
                                         }
                                         addedDienststellen.add(Message.createNewMessage(
@@ -953,8 +1029,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                                 Message.VERWALTUNGSBEREICH_NEW,
                                                 newDienststelle));
                                     } else {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("Eine vorhandene Dienstellenzuordnung wurde entfernt");
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug("Eine vorhandene Dienstellenzuordnung wurde entfernt");
                                         }
                                         deletedDienststellen.add(Message.createNewMessage(
                                                 Message.RECEIVER_VERWALTUNGSSTELLE,
@@ -963,7 +1039,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                     }
                                     oldBereicheVector.remove(currentBereich);
                                 } else if ((currentBereich.getId() != null) && (currentBereich.getId() != -1)) {
-                                    log.error(
+                                    LOG.error(
                                         "Verwaltungsbereich hat eine ID, existiert aber nicht in altem Datenbestand --> equals funktioniert nicht");
                                     messages.add(Message.createNewMessage(
                                             Message.RECEIVER_ADMIN,
@@ -972,7 +1048,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                             currentBereich));
                                     // TODO Nachricht an Benutzer
                                 } else {
-                                    log.fatal("nichtbehandelter fall currentBereich: " + currentBereich);
+                                    LOG.fatal("nichtbehandelter fall currentBereich: " + currentBereich);
                                     messages.add(Message.createNewMessage(
                                             Message.RECEIVER_ADMIN,
                                             Message.VERWALTUNGSBEREICH_ERROR,
@@ -981,7 +1057,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                     // TODO Nachricht an Benutzer
                                 }
                             } catch (Exception ex) {
-                                log.error(
+                                LOG.error(
                                     "Fehler beim abgeleich von alten und neuen Verwaltungsbereichen für die emailbenachrichtigung",
                                     ex);
                                 messages.add(Message.createNewMessage(
@@ -993,25 +1069,25 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                 // TODO Nachricht an Benutzer
                             }
                         }
-                        if (log.isDebugEnabled()) {
-                            log.debug("gelöschte Verwaltungsbereiche erfassen");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("gelöschte Verwaltungsbereiche erfassen");
                         }
                         for (final VerwaltungsbereichCustomBean currentBereich : oldBereicheVector) {
                             try {
                                 if (!newBereiche.contains(currentBereich)) {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Verwaltungsbereich existiert nicht mehr in neuem Datenbestand: "
+                                    if (LOG.isDebugEnabled()) {
+                                        LOG.debug("Verwaltungsbereich existiert nicht mehr in neuem Datenbestand: "
                                                     + currentBereich);
                                     }
                                     final VerwaltendeDienststelleCustomBean oldDienststelle =
                                         currentBereich.getDienststelle();
                                     if (oldDienststelle == null) {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("Für Verwaltungsbereich wurde keine Dienstelle zugeordnet");
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug("Für Verwaltungsbereich wurde keine Dienstelle zugeordnet");
                                         }
                                     } else {
-                                        if (log.isDebugEnabled()) {
-                                            log.debug("Verwaltungsbereich hatte eine Dienstelle");
+                                        if (LOG.isDebugEnabled()) {
+                                            LOG.debug("Verwaltungsbereich hatte eine Dienstelle");
                                         }
                                         deletedDienststellen.add(Message.createNewMessage(
                                                 Message.RECEIVER_VERWALTUNGSSTELLE,
@@ -1031,15 +1107,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         messages.addAll(addedDienststellen);
                         messages.addAll(modDienststellen);
                         messages.addAll(deletedDienststellen);
-                        if (log.isDebugEnabled()) {
-                            log.debug("Nachrichten insgesamt: " + messages.size() + "davon sind neue Dienstellen="
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Nachrichten insgesamt: " + messages.size() + "davon sind neue Dienstellen="
                                         + addedDienststellen.size() + " gelöschte=" + deletedDienststellen.size()
                                         + " modifizierte=" + modDienststellen.size());
                         }
                     }
                 } catch (Exception ex) {
                     // TODO what doing by generall failure sending the other and the failure ?
-                    log.fatal("Fehler bei der email benachrichtigung", ex);
+                    LOG.fatal("Fehler bei der email benachrichtigung", ex);
                     messages.add(Message.createNewMessage(
                             Message.RECEIVER_ADMIN,
                             Message.GENERAL_ERROR,
@@ -1056,14 +1132,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             if (ex instanceof ActionNotSuccessfulException) {
                 final ActionNotSuccessfulException reason = (ActionNotSuccessfulException)ex;
                 if (reason.hasNestedExceptions()) {
-                    log.error("Nested changeKind Exceptions: ", reason.getNestedExceptions());
+                    LOG.error("Nested changeKind Exceptions: ", reason.getNestedExceptions());
                 }
                 buffer.append(reason.getMessage());
             } else {
-                log.error("Unbekannter Fehler: ", ex);
+                LOG.error("Unbekannter Fehler: ", ex);
                 buffer.append("Unbekannter Fehler bitte wenden Sie sich an Ihren Systemadministrator");
             }
-            log.error("Fehler beim speichern des aktuellen Flurstücks", ex);
+            LOG.error("Fehler beim speichern des aktuellen Flurstücks", ex);
             JOptionPane.showMessageDialog(
                 parentComponent,
                 buffer.toString(),
@@ -1343,8 +1419,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         while (it.hasNext()) {
             final Refreshable curRefreshable = it.next();
             if (curRefreshable.getClass().equals(refreshClass)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("ein Refreshable gefunden");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("ein Refreshable gefunden");
                 }
                 return curRefreshable;
             }
@@ -1390,8 +1466,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     @Override
     public synchronized void fireFlurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         getMappingComponent().getFeatureCollection().unselectAll();
-        if (log.isDebugEnabled()) {
-            log.debug("FlurstueckChangeEvent");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("FlurstueckChangeEvent");
         }
         warnIfThreadIsNotEDT();
 //        Iterator<ChangeListener> it = flurstueckChangedListeners.iterator();
@@ -1401,8 +1477,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         resetWidgets();
         getMappingComponent().getFeatureCollection().removeAllFeatures();
         if (newFlurstueck != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("neues Flurstück != null");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("neues Flurstück != null");
             }
             observedFlurstueckChangedListeners.clear();
             for (final Widget widget : widgets) {
@@ -1422,8 +1498,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 }
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("neues Flurstück == null");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("neues Flurstück == null");
             }
             observedFlurstueckChangedListeners.clear();
             setWidgetsEditable(false);
@@ -1440,10 +1516,10 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public void setIsUnkownFlurstueck(final boolean isUnkown) {
         if (isUnkownFlurstueck() == true) {
-            if (log.isDebugEnabled()) {
-                log.debug("FlurstückSchlüssel ist unbekannt: " + isUnkown);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("FlurstückSchlüssel ist unbekannt: " + isUnkown);
             }
-            log.info("setze currentFlurstück=null");
+            LOG.info("setze currentFlurstück=null");
             if ((getParentComponent() != null) && (getParentComponent() instanceof LagisApp)) {
                 ((LagisApp)getParentComponent()).setFlurstueckUnkown();
             }
@@ -1459,16 +1535,16 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public void setCurrentFlurstueckSchluessel(final FlurstueckSchluesselCustomBean flurstueckSchluessel,
             final boolean isUnkown) {
-        if (log.isDebugEnabled()) {
-            log.debug("setCurrentFlurstueckSchluessel");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("setCurrentFlurstueckSchluessel");
         }
         if ((currentFlurstueck != null) && !isUnkown) {
-            if (log.isDebugEnabled()) {
-                log.debug("CurrentFlurstueckSchluessel ist ein bekanntes Flurstück");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("CurrentFlurstueckSchluessel ist ein bekanntes Flurstück");
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("CurrentFlurstueckSchluessel ist ein unbekanntes Flurstück");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("CurrentFlurstueckSchluessel ist ein unbekanntes Flurstück");
             }
         }
         setIsUnkownFlurstueck(isUnkown);
@@ -1495,21 +1571,21 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
     @Override
     public void flurstueckChangeFinished(final FlurstueckChangeListener fcListener) {
-        if (log.isDebugEnabled()) {
-            log.debug("FlurstueckChangeListener hat update beendet: " + fcListener);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("FlurstueckChangeListener hat update beendet: " + fcListener);
         }
         observedFlurstueckChangedListeners.remove(fcListener);
         if (observedFlurstueckChangedListeners.isEmpty() && (flustueckChangeInProgress || isUnkown)) {
             if (isUnkown) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Flurstueck is unkown");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstueck is unkown");
                 }
             }
             flustueckChangeInProgress = false;
-            if (log.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 // log.debug("setting isUnknown = false");
                 // isUnkown=false;
-                log.debug("Alle FlurstueckChangeListener sind fertig --> zoom");
+                LOG.debug("Alle FlurstueckChangeListener sind fertig --> zoom");
             }
             EventQueue.invokeLater(new Runnable() {
 
@@ -1519,13 +1595,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     }
                 });
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Anzahl restlicher Listener: " + observedFlurstueckChangedListeners.size());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Anzahl restlicher Listener: " + observedFlurstueckChangedListeners.size());
             }
-            if (log.isDebugEnabled()) {
-                log.debug("Anzahl restlicher Listener: " + observedFlurstueckChangedListeners);
-                log.debug("flurstueckChange in progress: " + flustueckChangeInProgress);
-                log.debug("isUnkown " + isUnkown);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Anzahl restlicher Listener: " + observedFlurstueckChangedListeners);
+                LOG.debug("flurstueckChange in progress: " + flustueckChangeInProgress);
+                LOG.debug("isUnkown " + isUnkown);
             }
         }
     }
@@ -1556,7 +1632,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public String getAccountName() {
         if (account == null) {
-            log.fatal("Benutzername unvollständig: " + account);
+            LOG.fatal("Benutzername unvollständig: " + account);
         }
         return account;
     }
@@ -1669,13 +1745,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 developerRecipients.deleteCharAt(developerRecipients.length() - 1);
                 nkfRecipients.deleteCharAt(nkfRecipients.length() - 1);
                 maintenanceRecipients.deleteCharAt(maintenanceRecipients.length() - 1);
-                if (log.isDebugEnabled()) {
-                    log.debug("Emails werden von: " + emailConfig + " verschickt");
-                    log.debug("Empfänger vorhanden: nkf=" + nkfMailaddresses.size() + " admin="
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Emails werden von: " + emailConfig + " verschickt");
+                    LOG.debug("Empfänger vorhanden: nkf=" + nkfMailaddresses.size() + " admin="
                                 + developerMailaddresses.size() + " maintenance=" + maintenanceMailAddresses.size());
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("Empfänger vorhanden: nkf=" + nkfRecipients.toString() + " admin="
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Empfänger vorhanden: nkf=" + nkfRecipients.toString() + " admin="
                                 + developerRecipients.toString() + " maintenance=" + developerRecipients.toString());
                 }
                 if ((nkfMailaddresses.size() == 0) || (developerMailaddresses.size() == 0)
@@ -1683,14 +1759,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     throw new Exception("Eine oder mehrere Emailadressen sind nicht konfiguriert");
                 }
             } catch (Exception ex) {
-                log.fatal(
+                LOG.fatal(
                     "Fehler beim konfigurieren der Emaileinstellungen, es können keine Emails versand werden.",
                     ex);
                 emailConfig = null;
                 // TODO Benutzerinformation Applikation beenden?
             }
         } catch (Exception ex) {
-            log.error("Fehler beim konfigurieren des Lagis Brokers: ", ex);
+            LOG.error("Fehler beim konfigurieren des Lagis Brokers: ", ex);
         }
         try {
             final HashMap<String, Boolean> perms = new HashMap<String, Boolean>();
@@ -1708,18 +1784,18 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     final String userGroup = currentPermission.getChildText("userGroup");
                     final String userDomain = currentPermission.getChildText("userDomain");
                     final String permissionString = userGroup + "@" + userDomain;
-                    log.info("Permissions für: login=*@" + permissionString + " readWriteAllowed=" + isReadWriteAllowed
+                    LOG.info("Permissions für: login=*@" + permissionString + " readWriteAllowed=" + isReadWriteAllowed
                                 + "(boolean)/" + isReadWriteAllowedString + "(String)");
                     if (permissionString != null) {
                         perms.put(permissionString.toLowerCase(), isReadWriteAllowed);
                     }
                 } catch (Exception ex) {
-                    log.fatal("Fehler beim lesen eines Userechtes", ex);
+                    LOG.fatal("Fehler beim lesen eines Userechtes", ex);
                 }
             }
             setPermissions(perms);
         } catch (Exception ex) {
-            log.fatal("Fehler beim lesen der Userrechte (Permissions)", ex);
+            LOG.fatal("Fehler beim lesen der Userrechte (Permissions)", ex);
             setPermissions(new HashMap<String, Boolean>());
             // TODO wenigstens den Nutzer benachrichtigen sonst ist es zu hard oder nur lesen modus --> besser!!!
             // System.exit(1);
@@ -1731,7 +1807,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 LagisBroker.getInstance().setCallserverUrl(prefsCids.getChildText("callserverurl"));
                 LagisBroker.getInstance().setConnectionClass(prefsCids.getChildText("connectionclass"));
             } catch (Exception ex) {
-                log.fatal("Fehler beim lesen der cidsAppBackendcSettings", ex);
+                LOG.fatal("Fehler beim lesen der cidsAppBackendcSettings", ex);
                 System.exit(1);
             }
         }
@@ -1829,7 +1905,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public static void warnIfThreadIsNotEDT() {
         if (!EventQueue.isDispatchThread()) {
-            log.fatal("current Thread is not EDT, but should be --> look", new CurrentStackTrace());
+            LOG.fatal("current Thread is not EDT, but should be --> look", new CurrentStackTrace());
         }
     }
 
@@ -1838,7 +1914,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public static void warnIfThreadIsEDT() {
         if (EventQueue.isDispatchThread()) {
-            log.fatal("current Thread is EDT, but should not --> look", new CurrentStackTrace());
+            LOG.fatal("current Thread is EDT, but should not --> look", new CurrentStackTrace());
         }
     }
     // TODO what if error during saving
@@ -1850,7 +1926,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         if (parentComponent instanceof LagisApp) {
             ((LagisApp)parentComponent).acceptChanges();
         } else {
-            log.warn("Parent Component ist keine LagisApp Klasse");
+            LOG.warn("Parent Component ist keine LagisApp Klasse");
         }
     }
 
@@ -1862,11 +1938,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public void execute(final SwingWorker workerThread) {
         try {
             execService.submit(workerThread);
-            if (log.isDebugEnabled()) {
-                log.debug("SwingWorker an Threadpool übermittelt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("SwingWorker an Threadpool übermittelt");
             }
         } catch (Exception ex) {
-            log.fatal("Fehler beim starten eines Swingworkers", ex);
+            LOG.fatal("Fehler beim starten eines Swingworkers", ex);
         }
     }
 
@@ -1904,6 +1980,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public double getKassenzeichenBuffer() {
         return kassenzeichenBuffer;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  kassenzeichenBuffer100  DOCUMENT ME!
+     */
+    public void setKassenzeichenBuffer100(final double kassenzeichenBuffer100) {
+        this.kassenzeichenBuffer100 = kassenzeichenBuffer100;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public double getKassenzeichenBuffer100() {
+        return kassenzeichenBuffer100;
     }
 
     /**
@@ -1978,52 +2072,113 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         this.domain = domain;
     }
 
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @version  $Revision$, $Date$
-//     */
-//    class MailAuthenticator extends Authenticator {
-//
-//        //~ Instance fields ----------------------------------------------------
-//
-//        /**
-//         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String user;
-//        /**
-//         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String password;
-//
-//        //~ Constructors -------------------------------------------------------
-//
-//        /**
-//         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
-//         * aus den beiden Parametern user und passwort.
-//         *
-//         * @param  user      String, der Username fuer den Mailaccount.
-//         * @param  password  String, das Passwort fuer den Mailaccount.
-//         */
-//        public MailAuthenticator(final String user, final String password) {
-//            this.user = user;
-//            this.password = password;
-//        }
-//
-//        //~ Methods ------------------------------------------------------------
-//
-//        /**
-//         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
-//         *
-//         * @return  DOCUMENT ME!
-//         *
-//         * @see     javax.mail.Authenticator#getPasswordAuthentication()
-//         */
-//        @Override
-//        protected PasswordAuthentication getPasswordAuthentication() {
-//            return new PasswordAuthentication(this.user, this.password);
-//        }
-//    }
+    /**
+     * /** * DOCUMENT ME! * * @version $Revision$, $Date$
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isSkipSecurityCheckFlurstueckAssistent() {
+        return skipSecurityCheckFlurstueckAssistent;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  skipSecurityCheckFlurstueckAssistent  DOCUMENT ME!
+     */
+    public void setSkipSecurityCheckFlurstueckAssistent(final boolean skipSecurityCheckFlurstueckAssistent) {
+        this.skipSecurityCheckFlurstueckAssistent = skipSecurityCheckFlurstueckAssistent;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean checkFlurstueckWizardUserWantsToFinish() {
+        if (!isSkipSecurityCheckFlurstueckAssistent()) {
+            if (
+                JOptionPane.showConfirmDialog(
+                            LagisBroker.getInstance().getParentComponent(),
+                            "<html>Möchten Sie die Aktion wirklich abschließen ?",
+                            "Sicherheitsabfrage",
+                            JOptionPane.WARNING_MESSAGE)
+                        != JOptionPane.YES_OPTION) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  totd  DOCUMENT ME!
+     */
+    public void setTotd(final String totd) {
+        this.totd = totd;
+        refreshAppTitle();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  title  DOCUMENT ME!
+     */
+    public void setTitle(final String title) {
+        this.title = title;
+        refreshAppTitle();
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void refreshAppTitle() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            final LagisApp lagisApp = (LagisApp)getParentComponent();
+            if ((totd == null) || totd.trim().isEmpty()) {
+                lagisApp.setTitle(title);
+            } else {
+                lagisApp.setTitle(title + " - " + totd);
+            }
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        refreshAppTitle();
+                    }
+                });
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean checkPermissionBaulasten() {
+        MetaClass mc = null;
+        try {
+            mc = CidsBean.getMetaClassFromTableName("WUNDA_BLAU", "alb_baulastblatt");
+        } catch (Exception ex) {
+            LOG.info("exception while getting metaclass alb_baulastblatt", ex);
+        }
+        return mc != null;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean checkPermissionRisse() {
+        MetaClass mc = null;
+        try {
+            mc = CidsBean.getMetaClassFromTableName("WUNDA_BLAU", "vermessung_riss");
+        } catch (Exception ex) {
+            LOG.info("exception while getting metaclass vermessung_riss", ex);
+        }
+        return mc != null;
+    }
 }

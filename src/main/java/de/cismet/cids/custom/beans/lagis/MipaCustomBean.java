@@ -21,7 +21,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
@@ -37,7 +38,20 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaCustomBean.class);
-    public static final String TABLE = "mipa";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "nutzer",
+            "lage",
+            "nutzung",
+            "vertragsbeginn",
+            "vertragsende",
+            "flaeche",
+            "bemerkung",
+            "fk_geom",
+            "aktenzeichen",
+            "fk_mipa_nutzung",
+            "ar_mipa_merkmale"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -56,20 +70,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
     private String aktenzeichen;
     private MipaNutzungCustomBean fk_mipa_nutzung;
     private Collection<MipaMerkmalCustomBean> ar_mipa_merkmale;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "nutzer",
-            "lage",
-            "nutzung",
-            "vertragsbeginn",
-            "vertragsende",
-            "flaeche",
-            "bemerkung",
-            "fk_geom",
-            "aktenzeichen",
-            "fk_mipa_nutzung",
-            "ar_mipa_merkmale"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -89,11 +89,11 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
     public static MipaCustomBean createNew() {
         try {
             final MipaCustomBean bean = (MipaCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.MIPA);
             return bean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.MIPA + " bean", ex);
             return null;
         }
     }
@@ -440,7 +440,7 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
             try {
-                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, "geom");
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(LagisConstants.DOMAIN_LAGIS, "geom");
             } catch (Exception ex) {
                 LOG.error("error creating geom bean", ex);
             }
@@ -537,6 +537,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public String toString() {
-        return "de.cismet.lagisEE.entity.extension.vermietung.MiePa[id=" + getId() + "]";
+        return getLage() + " (" + getAktenzeichen() + ")";
     }
 }

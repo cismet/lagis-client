@@ -12,28 +12,46 @@
  */
 package de.cismet.lagis.report.printing;
 
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
+import javafx.application.Platform;
 
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.error.ErrorInfo;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+import javafx.concurrent.Worker;
+
+import javafx.embed.swing.SwingFXUtils;
+
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.WritableImage;
+
+import net.sf.jasperreports.engine.JRDataSource;
+
+import netscape.javascript.JSObject;
+
+import org.apache.commons.io.IOUtils;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.RenderedImage;
 
-import java.io.InputStream;
+import java.io.IOException;
 
 import java.util.HashMap;
-import java.util.logging.Level;
+import java.util.Map;
 
-import de.cismet.cismap.commons.gui.printing.JasperDownload;
+import javax.swing.SwingWorker;
+
+import de.cismet.cismap.commons.gui.printing.JasperReportDownload;
+
+import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.checkbox.IconCheckBox;
 
@@ -48,9 +66,7 @@ import de.cismet.lagis.report.datasource.VorgaengeDataSource;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
 
-import de.cismet.tools.CismetThreadPool;
-
-import de.cismet.tools.gui.StaticSwingTools;
+import de.cismet.tools.gui.FXWebViewPanel;
 import de.cismet.tools.gui.downloadmanager.DownloadManager;
 import de.cismet.tools.gui.downloadmanager.DownloadManagerDialog;
 
@@ -64,6 +80,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
     //~ Static fields/initializers ---------------------------------------------
 
+    private static final double DPI_FACTOR = 600d / 72d;
+    private static final int HISTORY_IMAGE_WIDTH = 545;
+    private static final int HISTORY_IMAGE_HEIGHT = 211;
+
     private static final String PERM_KEY_BAUM = "Baumdatei";              // NOI18N
     private static final String PERM_KEY_MIPA = "Vermietung/Verpachtung"; // NOI18N
 
@@ -76,11 +96,24 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private static final String PARAM_NOTIZEN = "param_notizen";     // NOI18N
 
     private static final String REPORT_MASTER = "/de/cismet/lagis/reports/FlurstueckDetailsReport.jasper"; // NOI18N
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ReportPrintingWidget.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(ReportPrintingWidget.class);
+
+    private static final String TEMPLATE;
+
+    static {
+        String tmp = null;
+        try {
+            tmp = IOUtils.toString(ReportPrintingWidget.class.getResourceAsStream("dagreReportingTemplate.html"));
+        } catch (IOException ex) {
+            LOG.error(ex, ex);
+        }
+        TEMPLATE = tmp;
+    }
 
     //~ Instance fields --------------------------------------------------------
 
-    PDFCreatingWaitDialog pdfWait;
+    private FXWebViewPanel myWeb = null;
+    private final String graphContent;
 
     private final Component parentComponent;
 
@@ -96,6 +129,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
@@ -128,7 +162,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
 
         parentComponent = frame;
 
-        pdfWait = new PDFCreatingWaitDialog(StaticSwingTools.getParentFrame(this), true);
         initComponents();
         panDesc.setBackground(new Color(216, 228, 248));
 
@@ -151,9 +184,121 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         this.handleParamMap(PARAM_NOTIZEN, true);
 
         this.checkDetailAvailability();
+        initHistory();
+
+        graphContent = getGraphContent();
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private static String getGraphContent() {
+        String graphString;
+        try {
+            graphString = CidsBroker.getInstance()
+                        .getHistoryGraph(LagisBroker.getInstance().getCurrentFlurstueck(),
+                                CidsBroker.HistoryLevel.DIRECT_RELATIONS,
+                                0,
+                                CidsBroker.HistorySibblingLevel.NONE,
+                                0,
+                                CidsBroker.HistoryType.BOTH,
+                                null);
+        } catch (final Exception ex) {
+            graphString = "digraph G{\"Fehler beim Ermitteln der Historie\"}";
+            LOG.error("Error when craeting Historygraph", ex);
+        }
+        return TEMPLATE.replaceAll("__graphString__", graphString.replaceAll("\n", ""));
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void initHistory() {
+        try {
+            new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        myWeb = new FXWebViewPanel();
+                        LOG.info("FXWebViewPanel inited");
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        final Dimension dim = new Dimension((int)(HISTORY_IMAGE_WIDTH * DPI_FACTOR),
+                                (int)(HISTORY_IMAGE_HEIGHT * DPI_FACTOR));
+                        myWeb.setVisible(true);
+                        myWeb.setSize(dim);
+                        Platform.runLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    myWeb.getWebEngine()
+                                            .getLoadWorker()
+                                            .stateProperty()
+                                            .addListener(new ChangeListener<javafx.concurrent.Worker.State>() {
+
+                                                    @Override
+                                                    public void changed(
+                                                            final ObservableValue<? extends Worker.State> observable,
+                                                            final Worker.State oldValue,
+                                                            final Worker.State newValue) {
+                                                        if (newValue == Worker.State.SUCCEEDED) {
+                                                            final JSObject jsobj = (JSObject)myWeb.getWebEngine()
+                                                                .executeScript("window");
+                                                            jsobj.setMember("java", ReportPrintingWidget.this);
+                                                        }
+                                                    }
+                                                });
+                                    myWeb.loadContent(graphContent);
+                                }
+                            });
+                    }
+                }.execute();
+        } catch (final Exception exception) {
+            LOG.error("Error while filling template", exception);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  zoomlevel  DOCUMENT ME!
+     */
+    public void pageRendered(final String zoomlevel) {
+        final double zl = Double.parseDouble(zoomlevel);
+        Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (zl < 1) {
+                        myWeb.setSize(
+                            new Dimension(
+                                (int)(HISTORY_IMAGE_WIDTH / DPI_FACTOR / zl),
+                                (int)(HISTORY_IMAGE_HEIGHT / DPI_FACTOR / zl)));
+                        myWeb.loadContent(graphContent);
+                    } else {
+                        final SnapshotParameters params = new SnapshotParameters();
+                        final WritableImage snapshot = myWeb.getWebView().snapshot(params, null);
+                        final RenderedImage renderedImage = SwingFXUtils.fromFXImage(snapshot, null);
+
+                        LagisBroker.getInstance().setHistoryImage(renderedImage);
+                        EventQueue.invokeLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    cmdOk.setEnabled(true);
+                                }
+                            });
+                    }
+                }
+            });
+    }
 
     /**
      * DOCUMENT ME!
@@ -327,6 +472,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         lbl2 = new javax.swing.JLabel();
         txt2 = new javax.swing.JTextField();
         panDesc = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         jLabel5 = new javax.swing.JLabel();
         panLoadAndInscribe = new javax.swing.JPanel();
         scpLoadingStatus = new javax.swing.JScrollPane();
@@ -383,24 +529,29 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         panDesc.setBackground(java.awt.SystemColor.inactiveCaptionText);
         panDesc.setMaximumSize(new java.awt.Dimension(32767, 240));
         panDesc.setPreferredSize(new java.awt.Dimension(160, 240));
+        panDesc.setLayout(new java.awt.BorderLayout());
+
+        jPanel2.setOpaque(false);
 
         jLabel5.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/cismap/commons/gui/res/frameprint.png"))); // NOI18N
 
-        final org.jdesktop.layout.GroupLayout panDescLayout = new org.jdesktop.layout.GroupLayout(panDesc);
-        panDesc.setLayout(panDescLayout);
-        panDescLayout.setHorizontalGroup(
-            panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panDescLayout.createSequentialGroup().add(23, 23, 23).add(jLabel5).addContainerGap(
-                    38,
+        final org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+                jPanel2Layout.createSequentialGroup().add(23, 23, 23).add(jLabel5).addContainerGap(
+                    39,
                     Short.MAX_VALUE)));
-        panDescLayout.setVerticalGroup(
-            panDescLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                panDescLayout.createSequentialGroup().addContainerGap(89, Short.MAX_VALUE).add(jLabel5).add(
+                jPanel2Layout.createSequentialGroup().addContainerGap(89, Short.MAX_VALUE).add(jLabel5).add(
                     23,
                     23,
                     23)));
+
+        panDesc.add(jPanel2, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -418,7 +569,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         scpLoadingStatus.setMinimumSize(new java.awt.Dimension(26, 29));
         scpLoadingStatus.setPreferredSize(new java.awt.Dimension(8, 29));
 
-        notizenTextArea.setBackground(java.awt.SystemColor.text);
         notizenTextArea.setMinimumSize(new java.awt.Dimension(0, 50));
         notizenTextArea.setPreferredSize(new java.awt.Dimension(6, 50));
         scpLoadingStatus.setViewportView(notizenTextArea);
@@ -584,6 +734,7 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         cmdOk.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
                 "ReportPrintingWidget.cmdOk.text")); // NOI18N
+        cmdOk.setEnabled(false);
         cmdOk.setMaximumSize(new java.awt.Dimension(100, 29));
         cmdOk.setMinimumSize(new java.awt.Dimension(100, 29));
         cmdOk.setPreferredSize(new java.awt.Dimension(100, 29));
@@ -603,10 +754,10 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 9);
         getContentPane().add(jPanel1, gridBagConstraints);
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel6.setText(org.openide.util.NbBundle.getMessage(
                 ReportPrintingWidget.class,
-                "ReportPrintingWidget.jLabel6.text")); // NOI18N
+                "ReportPrintingWidget.jLabel6.text"));       // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -677,74 +828,49 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
      * @param  evt  DOCUMENT ME!
      */
     private void cmdOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdOkActionPerformed
-        final Runnable r = new Runnable() {
+        // RenderedImage in den Broker setzen
+        // Dann den JAsper kram machen und im Scriptlet den Broker nach dem IMage fragen
+        EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    try {
-                        if (DownloadManagerDialog.showAskingForUserTitle((Frame)parentComponent)) {
-                            java.awt.EventQueue.invokeLater(new Runnable() {
+                    final JasperReportDownload.JasperReportDataSourceGenerator dataSourceGenerator =
+                        new JasperReportDownload.JasperReportDataSourceGenerator() {
 
-                                    @Override
-                                    public void run() {
-                                        StaticSwingTools.showDialog(pdfWait);
-                                    }
-                                });
-
-                            if (notizenCheckBox.isSelected()) {
-                                paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
+                            @Override
+                            public JRDataSource generateDataSource() {
+                                return new EmptyDataSource(1);
                             }
+                        };
 
-                            final InputStream in = getClass().getResourceAsStream(REPORT_MASTER);
-                            final JasperReport jasperReport = (JasperReport)JRLoader.loadObject(in);
-                            final JasperPrint jasperPrint = JasperFillManager.fillReport(
-                                    jasperReport,
-                                    paramMap,
-                                    new EmptyDataSource(1));
+                    final JasperReportDownload.JasperReportParametersGenerator parametersGenerator =
+                        new JasperReportDownload.JasperReportParametersGenerator() {
 
-                            final String jobname = DownloadManagerDialog.getJobname();
-                            DownloadManager.instance()
-                                    .add(new JasperDownload(
-                                            jasperPrint,
-                                            jobname,
-                                            "Lagis-Druck",
-                                            "lagis_flurstueck_details"));
+                            @Override
+                            public Map generateParamters() {
+                                if (notizenCheckBox.isSelected()) {
+                                    paramMap.put(PARAM_NOTIZEN, notizenTextArea.getText());
+                                }
+                                return paramMap;
+                            }
+                        };
 
-                            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        pdfWait.dispose();
-                                    }
-                                });
-                        }
-                    } catch (final Exception tt) {
-                        log.error("Error during Jaspern", tt); // NOI18N
-
-                        final ErrorInfo ei = new ErrorInfo(
-
-                                java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
-                                    "ReportPrintingWidget.cmdOKActionPerformed(ActionEvent).ErrorInfo.title"),
-
-                                java.util.ResourceBundle.getBundle("de/cismet/lagis/report/printing/Bundle").getString(
-                                    "ReportPrintingWidget.cmdOKActionPerformed(ActionEvent).ErrorInfo.message"),
-                                null,
-                                null,
-                                tt,
-                                Level.ALL,
-                                null);
-                        JXErrorPane.showDialog(ReportPrintingWidget.this.parentComponent, ei);
-
-                        if (pdfWait.isVisible()) {
-                            pdfWait.dispose();
-                        }
+                    if (DownloadManagerDialog.getInstance().showAskingForUserTitleDialog((Frame)parentComponent)) {
+                        final String jobname = DownloadManagerDialog.getInstance().getJobName();
+                        DownloadManager.instance()
+                                .add(
+                                    new JasperReportDownload(
+                                        REPORT_MASTER,
+                                        parametersGenerator,
+                                        dataSourceGenerator,
+                                        jobname,
+                                        "Lagis-Druck",
+                                        "lagis_flurstueck_details"));
                     }
+
+                    setVisible(false);
                 }
-            };
-
-        CismetThreadPool.execute(r);
-
-        setVisible(false);
+            });
     } //GEN-LAST:event_cmdOkActionPerformed
 
     /**
@@ -831,7 +957,6 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
                 public void run() {
                     final ReportPrintingWidget rpw = new ReportPrintingWidget(new javax.swing.JFrame(), true);
                     rpw.pack();
-                    ;
                     rpw.setVisible(true);
                 }
             });

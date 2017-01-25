@@ -19,7 +19,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cismap.commons.gui.piccolo.FeatureAnnotationSymbol;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
@@ -36,7 +37,14 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             VerwaltungsbereichCustomBean.class);
-    public static final String TABLE = "verwaltungsbereich";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "fk_verwaltungsgebrauch",
+            "fk_verwaltende_dienststelle",
+            "fk_verwaltungsbereiche_eintrag",
+            "flaeche",
+            "fk_geom"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -46,15 +54,9 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     private Integer id;
     private VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch;
     private VerwaltendeDienststelleCustomBean fk_verwaltende_dienststelle;
+    private VerwaltungsbereicheEintragCustomBean fk_verwaltungsbereiche_eintrag;
     private GeomCustomBean fk_geom;
-    private FlurstueckCustomBean fk_flurstueck;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "fk_verwaltungsgebrauch",
-            "fk_verwaltende_dienststelle",
-            "fk_geom",
-            "fk_flurstueck"
-        };
+    private Integer flaeche;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -75,11 +77,11 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
         try {
             final VerwaltungsbereichCustomBean bean;
             bean = (VerwaltungsbereichCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERWALTUNGSBEREICH);
             return bean;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERWALTUNGSBEREICH + " bean", ex);
             return null;
         }
     }
@@ -97,13 +99,13 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     /**
      * DOCUMENT ME!
      *
-     * @param  val  DOCUMENT ME!
+     * @param  id  DOCUMENT ME!
      */
     @Override
-    public void setId(final Integer val) {
-        this.id = val;
-
-        this.propertyChangeSupport.firePropertyChange("id", null, this.id);
+    public void setId(final Integer id) {
+        final Object old = this.id;
+        this.id = id;
+        this.propertyChangeSupport.firePropertyChange("id", old, this.id);
     }
 
     /**
@@ -118,12 +120,12 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     /**
      * DOCUMENT ME!
      *
-     * @param  val  DOCUMENT ME!
+     * @param  fk_verwaltungsgebrauch  DOCUMENT ME!
      */
-    public void setFk_verwaltungsgebrauch(final VerwaltungsgebrauchCustomBean val) {
-        this.fk_verwaltungsgebrauch = val;
-
-        this.propertyChangeSupport.firePropertyChange("fk_verwaltungsgebrauch", null, this.fk_verwaltungsgebrauch);
+    public void setFk_verwaltungsgebrauch(final VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch) {
+        final Object old = this.fk_verwaltungsgebrauch;
+        this.fk_verwaltungsgebrauch = fk_verwaltungsgebrauch;
+        this.propertyChangeSupport.firePropertyChange("fk_verwaltungsgebrauch", old, this.fk_verwaltungsgebrauch);
     }
 
     /**
@@ -138,14 +140,14 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     /**
      * DOCUMENT ME!
      *
-     * @param  val  DOCUMENT ME!
+     * @param  fk_verwaltende_dienststelle  DOCUMENT ME!
      */
-    public void setFk_verwaltende_dienststelle(final VerwaltendeDienststelleCustomBean val) {
-        this.fk_verwaltende_dienststelle = val;
-
+    public void setFk_verwaltende_dienststelle(final VerwaltendeDienststelleCustomBean fk_verwaltende_dienststelle) {
+        final Object old = this.fk_verwaltende_dienststelle;
+        this.fk_verwaltende_dienststelle = fk_verwaltende_dienststelle;
         this.propertyChangeSupport.firePropertyChange(
             "fk_verwaltende_dienststelle",
-            null,
+            old,
             this.fk_verwaltende_dienststelle);
     }
 
@@ -161,12 +163,12 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     /**
      * DOCUMENT ME!
      *
-     * @param  val  DOCUMENT ME!
+     * @param  fk_geom  DOCUMENT ME!
      */
-    public void setFk_geom(final GeomCustomBean val) {
-        this.fk_geom = val;
-
-        this.propertyChangeSupport.firePropertyChange("fk_geom", null, this.fk_geom);
+    public void setFk_geom(final GeomCustomBean fk_geom) {
+        final Object old = this.fk_geom;
+        this.fk_geom = fk_geom;
+        this.propertyChangeSupport.firePropertyChange("fk_geom", old, this.fk_geom);
     }
 
     /**
@@ -174,19 +176,23 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
      *
      * @return  DOCUMENT ME!
      */
-    public FlurstueckCustomBean getFk_flurstueck() {
-        return this.fk_flurstueck;
+    public VerwaltungsbereicheEintragCustomBean getFk_verwaltungsbereiche_eintrag() {
+        return fk_verwaltungsbereiche_eintrag;
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  val  DOCUMENT ME!
+     * @param  fk_verwaltungsbereiche_eintrag  DOCUMENT ME!
      */
-    public void setFk_flurstueck(final FlurstueckCustomBean val) {
-        this.fk_flurstueck = val;
-
-        this.propertyChangeSupport.firePropertyChange("fk_flurstueck", null, this.fk_flurstueck);
+    public void setFk_verwaltungsbereiche_eintrag(
+            final VerwaltungsbereicheEintragCustomBean fk_verwaltungsbereiche_eintrag) {
+        final Object old = this.fk_verwaltungsbereiche_eintrag;
+        this.fk_verwaltungsbereiche_eintrag = fk_verwaltungsbereiche_eintrag;
+        this.propertyChangeSupport.firePropertyChange(
+            "fk_verwaltungsbereiche_eintrag",
+            old,
+            this.fk_verwaltungsbereiche_eintrag);
     }
 
     @Override
@@ -216,12 +222,18 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     @Override
     public Integer getFlaeche() {
-        final Geometry tmp = getGeometry();
-        if (tmp != null) {
-            return (int)Math.round(tmp.getArea());
-        } else {
-            return 0;
-        }
+        return flaeche;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  flaeche  DOCUMENT ME!
+     */
+    public void setFlaeche(final Integer flaeche) {
+        final Object old = this.flaeche;
+        this.flaeche = flaeche;
+        this.propertyChangeSupport.firePropertyChange("flaeche", old, this.flaeche);
     }
 
     @Override
@@ -258,7 +270,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
         GeomCustomBean geomBean = getGeometrie();
         if (getGeometrie() == null) {
             try {
-                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, "geom");
+                geomBean = (GeomCustomBean)CidsBean.createNewCidsBeanFromTableName(LagisConstants.DOMAIN_LAGIS, "geom");
             } catch (Exception ex) {
                 LOG.error("error creating geom bean", ex);
             }
@@ -320,7 +332,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     @Override
     public Paint getFillingPaint() {
         final Collection<FarbeCustomBean> farben;
-        if ((getGebrauch() != null) && ((farben = getGebrauch().getFarben()) != null)) {
+        if ((getDienststelle() != null) && ((farben = getDienststelle().getFarben()) != null)) {
             final Iterator<FarbeCustomBean> it = farben.iterator();
             final FarbeCustomBean farbe;
             if (it.hasNext() && ((farbe = it.next()) != null)) {
@@ -362,5 +374,10 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     @Override
     public void setHighlightingEnabled(final boolean enabled) {
+    }
+
+    @Override
+    public String toString() {
+        return "D: " + getDienststelle() + " - G: " + getGebrauch();
     }
 }

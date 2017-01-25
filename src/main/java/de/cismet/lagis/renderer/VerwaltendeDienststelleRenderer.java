@@ -6,7 +6,7 @@
 *
 ****************************************************/
 /*
- * VerwaltungsgebrauchRenderer.java
+ * VerwaltendeDienststelleRenderer.java
  *
  * Created on 15. Mai 2007, 11:40
  *
@@ -32,7 +32,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import de.cismet.cids.custom.beans.lagis.FarbeCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 
 /**
  * DOCUMENT ME!
@@ -40,7 +40,7 @@ import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
  * @author   Puhl
  * @version  $Revision$, $Date$
  */
-public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
+public class VerwaltendeDienststelleRenderer extends DefaultTableCellRenderer {
 
     //~ Instance fields --------------------------------------------------------
 
@@ -73,9 +73,9 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new instance of VerwaltungsgebrauchRenderer.
+     * Creates a new instance of VerwaltendeDienststelleRenderer.
      */
-    public VerwaltungsgebrauchRenderer() {
+    public VerwaltendeDienststelleRenderer() {
         super();
         final Format format = Format.getPrettyFormat();
         // TODO: WHY NOT USING UTF-8
@@ -100,13 +100,13 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
     @Override
     public void setValue(final Object value) {
         try {
-            if (value instanceof VerwaltungsgebrauchCustomBean) {
-                final VerwaltungsgebrauchCustomBean tmp = (VerwaltungsgebrauchCustomBean)value;
+            if (value instanceof VerwaltendeDienststelleCustomBean) {
+                final VerwaltendeDienststelleCustomBean tmp = (VerwaltendeDienststelleCustomBean)value;
                 final Collection<FarbeCustomBean> farben;
                 final FarbeCustomBean farbe;
                 if (tmp != null) {
                     if (log.isDebugEnabled()) {
-                        log.debug("verwaltungsgebrauch != null");
+                        log.debug("VerwaltendeDienststelleCustomBean != null");
                     }
                     if (((farben = tmp.getFarben()) != null) && !farben.isEmpty()) {
                         farbe = farben.iterator().next();
@@ -121,9 +121,8 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
 
                     try {
                         final Element html = htmlTooltip.getChild("HTML");
-                        html.getChild("Oberkategorie").setText(tmp.getKategorie().getOberkategorie().getBezeichnung());
-                        html.getChild("Kategorie").setText(tmp.getKategorie().getBezeichnung());
-                        html.getChild("Verwaltungsgebrauch").setText(tmp.getBezeichnung());
+                        html.getChild("Abteilung").setText(tmp.getAbkuerzungAbteilung());
+                        html.getChild("Ressort").setText(tmp.getRessort().getAbkuerzung());
                         final String htmlString = serializer.outputString(html);
                         if (log.isDebugEnabled()) {
                             log.debug("setting htmltooltip: " + htmlString);
@@ -146,7 +145,7 @@ public class VerwaltungsgebrauchRenderer extends DefaultTableCellRenderer {
                 setToolTipText("Objektnutzung");
             }
         } catch (Exception ex) {
-            log.warn("Fehler beim Rendern eines Verwaltungsgebrauchs", ex);
+            log.warn("Fehler beim Rendern einer VerwaltendenDienststelle", ex);
             setIcon(new ColorIcon(Color.black));
             setIconTextGap(5);
             setBorder(new EmptyBorder(0, 5, 0, 0));

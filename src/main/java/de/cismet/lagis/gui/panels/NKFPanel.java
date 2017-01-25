@@ -27,6 +27,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.*;
 
+import java.text.SimpleDateFormat;
+
 import java.util.*;
 
 import javax.swing.*;
@@ -37,7 +39,6 @@ import de.cismet.cids.custom.beans.lagis.*;
 
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
-import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -72,7 +73,11 @@ import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
 
-import de.cismet.tools.gui.StaticSwingTools;
+import de.cismet.tools.gui.jbands.JBand;
+import de.cismet.tools.gui.jbands.PlainBand;
+import de.cismet.tools.gui.jbands.SimpleBandModel;
+import de.cismet.tools.gui.jbands.SimpleTextSection;
+import de.cismet.tools.gui.jbands.interfaces.BandMemberSelectable;
 
 /**
  * DOCUMENT ME!
@@ -84,7 +89,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     FlurstueckChangeListener,
     FlurstueckSaver,
     TableModelListener,
-    ChangeListener,
     ListSelectionListener,
     Configurable {
 
@@ -92,56 +96,48 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     private static final String WIDGET_NAME = "NKF Datenpanel";
     private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
-    private static final int YEAR_SCALE = 1;
-    private static final int MONTH_SCALE = 2;
-    private static final int DAY_SCALE = 3;
     private static final NKFPanel instance = new NKFPanel();
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(NKFPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
     // perhaps not good
-    ArrayList<Date> dateToTicks;
-    ArrayList<NutzungBuchungCustomBean> historicNutzungenDayClasses;
     boolean isOnlyHistoric = false;
     private FlurstueckCustomBean currentFlurstueck;
     private final NKFTableModel tableModel = new NKFTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isFlurstueckEditable = true;
-    private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
-    private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"));
-    private Icon icoBooked = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoBooked = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
-    private Icon icoNotBooked = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoNotBooked = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
     private final ArrayList<NutzungCustomBean> copyPasteList = new ArrayList();
     private JPopupMenu predecessorPopup;
-    private Date currentDate;
-    private ArrayList<NutzungBuchungCustomBean> sortedNutzungen;
-    private int counter = 0;
-    private int mode;
-    private Date first;
-    private Date last;
+
     private NutzungBuchungCustomBean currentPopupNutzung = null;
+
+    private final PlainBand bandNutzungen;
+    private final PlainBand bandMonth;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddNutzung;
     private javax.swing.JButton btnCopyNutzung;
     private javax.swing.JButton btnFlipBuchung;
     private javax.swing.JButton btnPasteNutzung;
     private javax.swing.JButton btnRemoveNutzung;
-    private javax.swing.JCheckBox cbxChanges;
+    private de.cismet.tools.gui.jbands.JBand jBand1;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblCurrentHistoryPostion;
     private javax.swing.JLabel lblHistoricIcon;
-    private javax.swing.JSlider slrHistory;
     private javax.swing.JTable tNutzung;
     private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
@@ -156,19 +152,25 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private NKFPanel() {
         setIsCoreWidget(true);
         initComponents();
-        slrHistory.addChangeListener(this);
-        slrHistory.setMajorTickSpacing(5);
-        slrHistory.setMinorTickSpacing(1);
-        slrHistory.setSnapToTicks(true);
-        slrHistory.setPaintTicks(true);
-        slrHistory.setEnabled(false);
-        cbxChanges.setEnabled(false);
+        final SimpleBandModel bandModel = new SimpleBandModel();
+        bandNutzungen = new PlainBand();
+        bandMonth = new PlainBand();
+//                final PlainBand bandYear = new PlainBand();
+
+//                bandModel.addBand(bandYear);
+        bandModel.addBand(bandMonth);
+        bandModel.addBand(bandNutzungen);
+        jBand1.setModel(bandModel);
+
         btnRemoveNutzung.setEnabled(false);
-        btnAddNutzung.setEnabled(false);
+        ((NKFTable)tNutzung).getAddAction().setEnabled(false);
         btnFlipBuchung.setEnabled(false);
         configureTable();
         configBackgroundThread();
         configurePopupMenue();
+
+        jBand1.setSelectionMode(JBand.SelectionMode.SINGLE_SELECTION);
+        jBand1.setHideEmptyPrePostfix(true);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -239,7 +241,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             cleanup();
                             return;
                         }
-                        updateSlider();
+                        updateBands();
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -401,13 +403,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             isInEditMode = isEditable;
             tableModel.setInEditMode(isEditable);
             if (isEditable) {
-                if (!slrHistory.isEnabled()) {
-                    btnAddNutzung.setEnabled(true);
-                } else if (slrHistory.getValue() == slrHistory.getMaximum()) {
-                    btnAddNutzung.setEnabled(true);
-                } else {
-                    btnAddNutzung.setEnabled(false);
-                }
+                memberUnselect();
+                ((NKFTable)tNutzung).getAddAction().setEnabled(true);
+
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
                     final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
@@ -430,7 +428,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 btnFlipBuchung.setEnabled(false);
                 btnPasteNutzung.setEnabled(isEditable);
                 btnCopyNutzung.setEnabled(false);
-                btnAddNutzung.setEnabled(false);
+                ((NKFTable)tNutzung).getAddAction().setEnabled(false);
                 final TableCellEditor currentEditor = tNutzung.getCellEditor();
                 if (currentEditor != null) {
                     currentEditor.cancelCellEditing();
@@ -466,15 +464,12 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
+        jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tNutzung = new NKFTable();
         jLabel1 = new javax.swing.JLabel();
-        slrHistory = new JSlider(JSlider.HORIZONTAL, 0, 15, 15);
         jLabel2 = new javax.swing.JLabel();
         lblCurrentHistoryPostion = new javax.swing.JLabel();
-        cbxChanges = new javax.swing.JCheckBox();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
         lblHistoricIcon = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         btnAddNutzung = new javax.swing.JButton();
@@ -483,6 +478,12 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         btnCopyNutzung = new javax.swing.JButton();
         btnFlipBuchung = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
+        jBand1 = new de.cismet.tools.gui.jbands.JBand(true);
+        jComboBox1 = new javax.swing.JComboBox();
+
+        setLayout(new java.awt.GridBagLayout());
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
@@ -519,28 +520,48 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             });
         jScrollPane1.setViewportView(tNutzung);
 
-        jLabel1.setText("Nutzungen:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel2.add(jScrollPane1, gridBagConstraints);
 
-        slrHistory.setMaximum(0);
+        jLabel1.setText("Nutzungen:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        jPanel2.add(jLabel1, gridBagConstraints);
 
         jLabel2.setText("NKF Historie:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(8, 0, 0, 0);
+        jPanel2.add(jLabel2, gridBagConstraints);
 
         lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-
-        cbxChanges.setText(" Nach Änderungen");
-        cbxChanges.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        cbxChanges.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cbxChangesActionPerformed(evt);
-                }
-            });
-
-        jLabel4.setText("Filter");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(8, 6, 0, 0);
+        jPanel2.add(lblCurrentHistoryPostion, gridBagConstraints);
 
         lblHistoricIcon.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/nutzung/emptyDummy64.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
+        jPanel2.add(lblHistoricIcon, gridBagConstraints);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -649,77 +670,46 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         jPanel1.add(tbtnSort, gridBagConstraints);
         tbtnSort.addItemListener(((NKFTable)tNutzung).getSortItemListener());
 
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        jScrollPane1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        574,
-                        Short.MAX_VALUE).add(
-                        layout.createSequentialGroup().add(jLabel1).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(
-                            jPanel1,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        slrHistory,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        574,
-                        Short.MAX_VALUE).add(
-                        layout.createSequentialGroup().add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                layout.createSequentialGroup().add(10, 10, 10).add(cbxChanges).addPreferredGap(
-                                    org.jdesktop.layout.LayoutStyle.RELATED).add(jLabel5)).add(
-                                layout.createSequentialGroup().add(jLabel2).addPreferredGap(
-                                    org.jdesktop.layout.LayoutStyle.RELATED).add(lblCurrentHistoryPostion)).add(
-                                jLabel4)).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            261,
-                            Short.MAX_VALUE).add(lblHistoricIcon))).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
-                        jPanel1,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        32,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    335,
-                    Short.MAX_VALUE).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        layout.createSequentialGroup().add(15, 15, 15).add(jLabel4).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(cbxChanges).add(
-                                jLabel5)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel2).add(
-                                lblCurrentHistoryPostion))).add(
-                        layout.createSequentialGroup().addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            lblHistoricIcon))).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    slrHistory,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()));
-    } // </editor-fold>//GEN-END:initComponents
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        jPanel2.add(jPanel1, gridBagConstraints);
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void cbxChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbxChangesActionPerformed
-        updateSlider();
-    }                                                                              //GEN-LAST:event_cbxChangesActionPerformed
+        jBand1.setMinimumSize(new java.awt.Dimension(23, 80));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel2.add(jBand1, gridBagConstraints);
+
+        jComboBox1.setRenderer(new DateComboBoxRenderer());
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jComboBox1ActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(5, 6, 0, 0);
+        jPanel2.add(jComboBox1, gridBagConstraints);
+        jComboBox1.setVisible(true);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        add(jPanel2, gridBagConstraints);
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
@@ -800,6 +790,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         }
     }                                                                                  //GEN-LAST:event_btnFlipBuchungActionPerformed
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void jComboBox1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jComboBox1ActionPerformed
+        final Date date = (Date)jComboBox1.getSelectedItem();
+        tableModel.setModelToHistoryDate(date);
+    }                                                                              //GEN-LAST:event_jComboBox1ActionPerformed
+
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
@@ -837,7 +837,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 final NutzungBuchungCustomBean nutzung = tableModel.getCidsBeanAtRow(((JXTable)tNutzung)
                                 .convertRowIndexToModel(
                                     selecetdRow));
-                if (cbxChanges.isSelected() && (nutzung != null) && (e.getClickCount() == 2)
+                if ((nutzung != null) && (e.getClickCount() == 2)
                             && (!isInEditMode
                                 || ((tNutzung.getSelectedColumn() == 1) || (tNutzung.getSelectedColumn() == 9)
                                     || (tNutzung.getSelectedColumn() == 10)
@@ -882,36 +882,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * @param  nutzung  DOCUMENT ME!
      */
     private void selectNutzungInHistory(final NutzungBuchungCustomBean nutzung) {
-        final int tickToJump = getTickForNutzung(nutzung);
-        if (tickToJump != -1) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es wurde ein Tick gefunden zu dem gesprungen werden kann: " + tickToJump);
-            }
-            slrHistory.setValue(tickToJump);
-            final int index = tableModel.getIndexOfCidsBean(nutzung);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("index: " + index);
-            }
-            final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
-            if (index != -1) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("DisplayedIndex: " + displayedIndex);
-                    LOG.debug("Tablemodel rowCount: " + tableModel.getRowCount());
-                }
-                tNutzung.getSelectionModel().clearSelection();
-                tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
-                final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
-                if (tmp != null) {
-                    tNutzung.scrollRectToVisible(tmp);
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Keine passende Nutzung im TableModel gefunden");
-                }
-            }
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Kein Tick gefunden zu dem gesprungen werden kann");
+        // TODO richtigen Member identifiezieren
+        jBand1.setSelectedMember((BandMemberSelectable)null);
+        final int index = tableModel.getIndexOfCidsBean(nutzung);
+        final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
+        if (index != -1) {
+            tNutzung.getSelectionModel().clearSelection();
+            tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
+            final Rectangle tmp = tNutzung.getCellRect(displayedIndex, 0, true);
+            if (tmp != null) {
+                tNutzung.scrollRectToVisible(tmp);
             }
         }
     }
@@ -965,426 +945,322 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
         }
     }
-// ToDo refactorn viel zu kompliziert??
-// ToDo SliderStateChanged
-// private boolean wasRemovedEnabled = false;
 
-    @Override
-    public void stateChanged(final ChangeEvent e) {
-        if (cbxChanges.isSelected()) {
-            if (historicNutzungenDayClasses != null) {
-                try {
-                    final JSlider source = (JSlider)e.getSource();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Aktuelle Slider position: " + source.getValue());
-                    }
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Counter: " + counter);
-                    }
-                    if (source.getValue() < counter) {
-                        lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(
-                                historicNutzungenDayClasses.get(source.getValue()).getGueltigbis()));
-                    } else {
-                        lblCurrentHistoryPostion.setText("Aktuelle Nutzungen");
-                    }
-                    if (!source.getValueIsAdjusting()) {
-                        if (source.getValue() < counter) {
-                            tableModel.setModelToHistoryDate(historicNutzungenDayClasses.get(source.getValue())
-                                        .getGueltigbis());
-                            lblHistoricIcon.setIcon(icoHistoricIcon);
-                            if (isInEditMode) {
-                                btnAddNutzung.setEnabled(false);
-                                // wasRemovedEnabled = btnRemoveNutzung.isEnabled();
-                                btnRemoveNutzung.setEnabled(false);
-                            }
-                        } else {
-                            lblHistoricIcon.setIcon(icoHistoricIconDummy);
-                            tableModel.setModelToHistoryDate(null);
-                            if (isInEditMode) {
-                                btnAddNutzung.setEnabled(true);
-                                // TODO WHY DOES THIS NOT WORK
-                                // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
-                                btnRemoveNutzung.setEnabled(false);
-                            }
-                        }
-                    }
-                } catch (Exception ex) {
-                    LOG.error("Fehler beim updaten des Slider labels: ", ex);
-                }
-            }
-        } else {
-            final JSlider source = (JSlider)e.getSource();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Aktuelle Slider position: " + source.getValue());
-            }
-            final int currentValue = source.getValue();
-            final GregorianCalendar calender = new GregorianCalendar();
-            if (currentValue == slrHistory.getMaximum()) {
-                lblCurrentHistoryPostion.setText("Aktuelle Nutzungen");
-                currentDate = last;
-            } else if (currentValue == (slrHistory.getMaximum() - 1)) {
-                lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(last));
-                currentDate = last;
-            } else if (mode == DAY_SCALE) {
-                calender.setTime(first);
-                // TRY DAYS
-                calender.add(calender.HOUR, currentValue * 24);
-                currentDate = calender.getTime();
-                lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(currentDate));
-            } else if (mode == MONTH_SCALE) {
-                calender.setTime(first);
-                calender.add(calender.MONTH, currentValue);
-                currentDate = calender.getTime();
-                lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(currentDate));
-            } else if (mode == YEAR_SCALE) {
-                calender.setTime(first);
-                calender.add(calender.YEAR, currentValue);
-                currentDate = calender.getTime();
-                lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(currentDate));
-            }
-
-            if (!source.getValueIsAdjusting()) {
-                if (currentDate != null) {
-                    if (currentValue == slrHistory.getMaximum()) {
-                        tableModel.setModelToHistoryDate(null);
-                        lblHistoricIcon.setIcon(icoHistoricIconDummy);
-                        if (isInEditMode) {
-                            btnAddNutzung.setEnabled(true);
-                            // TODO WHY DOES THIS NOT WORK
-                            // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
-                            btnRemoveNutzung.setEnabled(false);
-                        }
-                        return;
-                    }
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("currentDate: " + currentDate);
-                        LOG.debug("lastDate: " + last);
-                    }
-                    final Date tmpDate = LagisBroker.getDateWithoutTime(last);
-                    final Date tmpDate2 = LagisBroker.getDateWithoutTime(currentDate);
-                    if (!tmpDate.equals(tmpDate2)) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("current == last");
-                        }
-                        tableModel.setModelToHistoryDate(currentDate);
-                        // TODO THIS CAUSE IS IMPOSSIBLE BECAUSE NO EDIT MODE FOR HISTORIC FLURstück
-                        if (isOnlyHistoric) {
-                            lblHistoricIcon.setIcon(icoHistoricIcon);
-                            btnAddNutzung.setEnabled(false);
-                            btnRemoveNutzung.setEnabled(false);
-                        } else {
-                            lblHistoricIcon.setIcon(icoHistoricIcon);
-                            if (isInEditMode) {
-                                btnAddNutzung.setEnabled(false);
-                                // wasRemovedEnabled = btnRemoveNutzung.isEnabled();
-                                btnRemoveNutzung.setEnabled(false);
-                            }
-                        }
-                    } else {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("current != last");
-                        }
-                        if (!isOnlyHistoric) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("nicht nur historische");
-                            }
-                            tableModel.setModelToHistoryDate(last);
-                            lblHistoricIcon.setIcon(icoHistoricIconDummy);
-                            if (isInEditMode) {
-                                btnAddNutzung.setEnabled(true);
-                                // TODO WHY DOES THIS NOT WORK
-                                // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
-                                btnRemoveNutzung.setEnabled(false);
-                            }
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("nur historische");
-                            }
-                            tableModel.setModelToHistoryDate(currentDate);
-                            lblHistoricIcon.setIcon(icoHistoricIcon);
-                            if (isInEditMode) {
-                                btnAddNutzung.setEnabled(false);
-                                btnRemoveNutzung.setEnabled(false);
-                            }
-                        }
-                    }
-                }
+    /**
+     * DOCUMENT ME!
+     */
+    public void memberUnselect() {
+        boolean isSelected = false;
+        int i;
+        for (i = 0; i < bandNutzungen.getNumberOfMembers(); i++) {
+            final NKFBandMember bm = (NKFBandMember)bandNutzungen.getMember(i);
+            if (bm.isSelected()) {
+                isSelected = true;
+                break;
             }
         }
+        if (!isSelected && (bandNutzungen.getNumberOfMembers() > 0)) {
+            // select last one
+            jBand1.setSelectedMember((NKFBandMember)bandNutzungen.getMember(i - 1));
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  bandMember  DOCUMENT ME!
+     */
+    public void memberSelect(final NKFBandMember bandMember) {
+        try {
+            jBand1.scrollToBandMember(bandMember);
+            final Date date = bandMember.getDate();
+            jComboBox1.removeAllItems();
+            if (date != null) {
+                lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(date));
+
+                final HashSet<Date> dates = new HashSet<Date>();
+                for (final NutzungCustomBean nutzung_ : currentFlurstueck.getNutzungen()) {
+                    dates.addAll(nutzung_.getDatesForDay(bandMember.getDate()));
+                }
+
+                for (final Date date_ : dates) {
+                    jComboBox1.addItem(date_);
+                }
+//                tableModel.setModelToHistoryDate(dates.iterator().next());
+                lblHistoricIcon.setIcon(icoHistoricIcon);
+                if (isInEditMode) {
+                    ((NKFTable)tNutzung).getAddAction().setEnabled(false);
+                    btnRemoveNutzung.setEnabled(false);
+                }
+            } else {
+                lblCurrentHistoryPostion.setText("Aktuelle Nutzungen");
+                lblHistoricIcon.setIcon(icoHistoricIconDummy);
+
+                jComboBox1.addItem(null);
+
+//                tableModel.setModelToHistoryDate(null);
+                if (isInEditMode) {
+                    ((NKFTable)tNutzung).getAddAction().setEnabled(true);
+                    // TODO WHY DOES THIS NOT WORK
+                    // btnRemoveNutzung.setEnabled(wasRemovedEnabled);
+                    btnRemoveNutzung.setEnabled(false);
+                }
+            }
+            jComboBox1.setSelectedIndex(0);
+            jComboBox1.setVisible(jComboBox1.getItemCount() > 1);
+            lblCurrentHistoryPostion.setVisible(jComboBox1.getItemCount() <= 1);
+        } catch (Exception ex) {
+            LOG.error("Fehler beim updaten des Slider labels: ", ex);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   from  DOCUMENT ME!
+     * @param   to    DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private int diffInDays(final Date from, final Date to) {
+        return (int)((from.getTime() - to.getTime()) / (24 * 60 * 60 * 1000));
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   sortedNutzungen  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private List<NutzungBuchungCustomBean> getSortedHistoricsortedNutzungen(
+            final List<NutzungBuchungCustomBean> sortedNutzungen) {
+        final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen = new ArrayList<NutzungBuchungCustomBean>();
+        for (final NutzungBuchungCustomBean curBuchung : sortedNutzungen) {
+            if (curBuchung.getGueltigbis() == null) {
+                break;
+            }
+            sortedHistoricNutzungen.add(curBuchung);
+        }
+        return sortedHistoricNutzungen;
     }
 
     /**
      * ToDo refactor.
      */
-    public synchronized void updateSlider() {
+    public synchronized void updateBands() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("update Slider", new CurrentStackTrace());
         }
-        if (cbxChanges.isSelected()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("nach Änderungen");
-            }
-            try {
-                slrHistory.setSnapToTicks(true);
-                slrHistory.setMajorTickSpacing(5);
-                slrHistory.setMinorTickSpacing(1);
-                sortedNutzungen = tableModel.getAllBuchungen();
-                final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen =
-                    new ArrayList<NutzungBuchungCustomBean>();
-                if (sortedNutzungen != null) {
-                    // sortedNutzungen = (Vector) tableModel.getAllNutzungen().clone();
-                    counter = 0;
-                    if (sortedNutzungen.size() >= 1) {
-                        for (final NutzungBuchungCustomBean curBuchung : sortedNutzungen) {
-                            if (curBuchung.getGueltigbis() == null) {
-                                break;
-                            }
-                            sortedHistoricNutzungen.add(curBuchung);
-                            counter++;
-                        }
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Anzahl historischer NKF Einträge: " + counter);
-                        }
-                        if (counter != 0) {
-                            if (counter > 1) {
-                                historicNutzungenDayClasses = new ArrayList<NutzungBuchungCustomBean>();
-                                dateToTicks = new ArrayList<Date>();
-                                counter = 0;
-                                final Iterator<NutzungBuchungCustomBean> it = sortedHistoricNutzungen.iterator();
-                                // TODO what if exactly one element is historic;
-                                NutzungBuchungCustomBean nutzungToTest = it.next();
-                                // boolean lastAreEquals = true;
-                                // NutzungCustomBean curNutzung = null;
-                                while (it.hasNext()) {
-                                    final NutzungBuchungCustomBean curNutzung = it.next();
-                                    final Date curGueltigBis = LagisBroker.getDateWithoutTime(
-                                            curNutzung.getGueltigbis());
-                                    final Date gueltigBisToTest = LagisBroker.getDateWithoutTime(
-                                            nutzungToTest.getGueltigbis());
-                                    if (LOG.isDebugEnabled()) {
-                                        LOG.debug("aktuell zu testende historische Nutzung: " + curGueltigBis
-                                                    + " millis: " + curGueltigBis.getTime());
-                                    }
-                                    if (LOG.isDebugEnabled()) {
-                                        LOG.debug("test historische Nutzung: " + gueltigBisToTest + " millis: "
-                                                    + gueltigBisToTest.getTime());
-                                    }
-                                    if (LOG.isDebugEnabled()) {
-                                        LOG.debug("Sind Nutzungen am gleichen Tag?: "
-                                                    + curGueltigBis.equals(gueltigBisToTest));
-                                    }
-                                    if (!curGueltigBis.equals(gueltigBisToTest)) {
-                                        if (LOG.isDebugEnabled()) {
-                                            LOG.debug("Nutzungen sind nicht gleichen Tag");
-                                        }
-                                        counter++;
-                                        historicNutzungenDayClasses.add(nutzungToTest);
-                                        dateToTicks.add(gueltigBisToTest);
-                                        nutzungToTest = curNutzung;
-                                    }
-                                    // if(curNutzung.getGueltigbis(). )
-                                }
-                                historicNutzungenDayClasses.add(nutzungToTest);
-                                dateToTicks.add(LagisBroker.getDateWithoutTime(nutzungToTest.getGueltigbis()));
-                                counter++;
-                            } else {
-                                dateToTicks = new ArrayList<Date>();
-                                historicNutzungenDayClasses = sortedHistoricNutzungen;
-                                dateToTicks.add(LagisBroker.getDateWithoutTime(
-                                        sortedHistoricNutzungen.get(0).getGueltigbis()));
-                            }
-                        }
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Anzahl historischer NKF Einträge an unterschiedlichen Tagen: " + counter);
-                        }
-                        // counter++;
-                        // log.debug("Anzahl Historischer NKF Einträge: "+counter);
-                        if (counter == 0) {
-                            slrHistory.setMinimum(0);
-                            slrHistory.setMaximum(0);
-                            slrHistory.setEnabled(false);
-                            cbxChanges.setEnabled(false);
-                            lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-                            sortedNutzungen = null;
-                            historicNutzungenDayClasses = null;
-                            dateToTicks = null;
-                        } else {
-                            slrHistory.setMinimum(0);
-                            // TODO WARUM?
-                            slrHistory.setMaximum(counter);
-//                            if (setToLatestHistoric) {
-//                                slrHistory.setValue(counter - 1);
-//                            } else {
-                            slrHistory.setValue(counter);
-//                            }
-                            slrHistory.setEnabled(true);
-                            cbxChanges.setEnabled(true);
-                        }
-                    } else {
-                        slrHistory.setMinimum(0);
-                        slrHistory.setMaximum(0);
-                        slrHistory.setEnabled(false);
-                        cbxChanges.setEnabled(false);
-                        lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-                        sortedNutzungen = null;
-                        historicNutzungenDayClasses = null;
-                        dateToTicks = null;
-                    }
-                } else {
-                    slrHistory.setMinimum(0);
-                    slrHistory.setMaximum(0);
-                    slrHistory.setEnabled(false);
-                    cbxChanges.setEnabled(false);
-                    lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-                    sortedNutzungen = null;
-                    historicNutzungenDayClasses = null;
-                    dateToTicks = null;
-                }
-            } catch (Exception ex) {
-                LOG.error("Fehler beim updaten des NKF History Sliders (Change Filter)", ex);
-            }
-        } else {
-//            log.debug("nach zeitstrahl. Set to last historic: " + setToLatestHistoric);
-            try {
-                isOnlyHistoric = false;
-                slrHistory.setSnapToTicks(false);
-                sortedNutzungen = (ArrayList)tableModel.getAllBuchungen();
-                final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen =
-                    new ArrayList<NutzungBuchungCustomBean>();
-                first = null;
-                last = null;
-                if (sortedNutzungen != null) {
-                    counter = 0;
-                    if (sortedNutzungen.size() >= 1) {
-                        // ToDO NKF Comparator
-                        Collections.sort(sortedNutzungen, NutzungBuchungCustomBean.DATE_COMPARATOR);
-                        final Iterator<NutzungBuchungCustomBean> it = sortedNutzungen.iterator();
-                        while (it.hasNext()) {
-                            final NutzungBuchungCustomBean curNutzung = it.next();
-                            // log.debug("current NutzungCustomBean gueltigBis: "+curNutzung.getGueltigbis());
-                            // curNutzung.getGueltigbis().getTime();
-                            if (curNutzung.getGueltigbis() == null) {
-                                break;
-                            }
-                            counter++;
-                            sortedHistoricNutzungen.add(curNutzung);
-                        }
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Anzahl historischer NKF Einträge: " + counter);
-                        }
-                        if (counter != 0) {
-                            first = sortedHistoricNutzungen.get(0).getGueltigvon();
-                            last = sortedHistoricNutzungen.get(sortedHistoricNutzungen.size() - 1).getGueltigbis();
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("last in millis: " + last.getTime());
-                            }
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("first: " + first + " last: " + last);
-                            }
-                            // TODO OPTIMIZE for example over isHistoric
-                            long between;
-                            if (sortedNutzungen.size() == sortedHistoricNutzungen.size()) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Nur historische Nutzungen");
-                                }
-                                between = last.getTime() - first.getTime();
-                                isOnlyHistoric = true;
-                            } else {
-                                last = new Date();
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Last gets new time: " + last.getTime());
-                                }
-                                between = last.getTime() - first.getTime();
-                            }
-                            if (LOG.isDebugEnabled()) {
-                                // TODO ROUND
-                                LOG.debug("Millisekunden zwischen den Nutzungen: " + between);
-                            }
-                            final int days = (int)(Math.round(between / 1000 / 60 / 60 / 24));
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Tage zwischen den Nutzungen: " + days);
-                            }
-                            final int months = (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30));
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Monate zwischen den Nutzungen: " + months);
-                            }
-                            final int years = (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Jahre zwischen den Nutzungen: " + years);
-                            }
+        final ArrayList<NutzungBuchungCustomBean> sortedNutzungen = tableModel.getAllBuchungen();
 
-                            if (days > 365) {
-                                if (months > 360) {
-                                    slrHistory.setMinimum(0);
-                                    slrHistory.setMaximum(years + 1);
-                                    slrHistory.setMinorTickSpacing(5);
-                                    slrHistory.setMajorTickSpacing(10);
-                                    mode = YEAR_SCALE;
-//                                    if (setToLatestHistoric) {
-//                                        slrHistory.setValue(years);
-//                                    } else {
-                                    slrHistory.setValue(years + 1);
-//                                    }
-                                    slrHistory.setEnabled(true);
-                                    cbxChanges.setEnabled(true);
-                                } else {
-                                    slrHistory.setMinimum(0);
-                                    slrHistory.setMinorTickSpacing(12);
-                                    slrHistory.setMaximum(months + 1);
-                                    mode = MONTH_SCALE;
-//                                    if (setToLatestHistoric) {
-//                                        slrHistory.setValue(months);
-//                                    } else {
-                                    slrHistory.setValue(months + 1);
-//                                    }
-                                    slrHistory.setEnabled(true);
-                                    cbxChanges.setEnabled(true);
-                                }
-                            } else {
-                                slrHistory.setMinimum(0);
-                                slrHistory.setMinorTickSpacing(30);
-                                slrHistory.setMaximum(days + 1);
-                                mode = DAY_SCALE;
-//                                if (setToLatestHistoric) {
-//                                    slrHistory.setValue(days);
-//                                } else {
-                                slrHistory.setValue(days + 1);
-//                                }
-                                slrHistory.setEnabled(true);
-                                cbxChanges.setEnabled(true);
-                            }
-                        } else {
-                            slrHistory.setMinimum(0);
-                            slrHistory.setMaximum(0);
-                            slrHistory.setEnabled(false);
-                            cbxChanges.setEnabled(false);
-                            lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-                            sortedNutzungen = null;
-                            historicNutzungenDayClasses = null;
-                            dateToTicks = null;
-                        }
-                    } else {
-                        // TODO NO HISTORY FUNCTION OR RETURN DUPLICATE CODE !!!
-                        slrHistory.setMinimum(0);
-                        slrHistory.setMaximum(0);
-                        slrHistory.setEnabled(false);
-                        cbxChanges.setEnabled(false);
-                        lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-                        sortedNutzungen = null;
-                        historicNutzungenDayClasses = null;
-                        dateToTicks = null;
-                    }
-                } else {
-                    slrHistory.setMinimum(0);
-                    slrHistory.setMaximum(0);
-                    slrHistory.setEnabled(false);
-                    cbxChanges.setEnabled(false);
-                    lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
-                    sortedNutzungen = null;
-                }
-            } catch (Exception ex) {
-                LOG.error("Fehler beim updaten des NKF History Sliders (Date Filter)", ex);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("nach Änderungen");
+        }
+        try {
+            bandNutzungen.removeAllMember();
+            bandMonth.removeAllMember();
+
+            for (int i = 0; i < bandNutzungen.getNumberOfMembers(); i++) {
+                final NKFBandMember nkfMember = (NKFBandMember)bandNutzungen.getMember(i);
+                nkfMember.removeAllListeners();
             }
+
+            final List<NutzungBuchungCustomBean> sortedHistoricNutzungen = getSortedHistoricsortedNutzungen(
+                    sortedNutzungen);
+
+            if (!sortedHistoricNutzungen.isEmpty()) {
+                final Iterator<NutzungBuchungCustomBean> it = sortedHistoricNutzungen.iterator();
+
+                final Calendar c = Calendar.getInstance();
+                final NutzungBuchungCustomBean firstNutzung = it.next();
+
+                final int minPreDays = 5;
+                final int minPostDays = 5;
+
+                c.setTime(firstNutzung.getGueltigbis());
+                c.set(Calendar.DAY_OF_MONTH, 1);
+                int preOffset = diffInDays(firstNutzung.getGueltigbis(), c.getTime());
+                if (preOffset < minPreDays) {
+                    c.add(Calendar.MONTH, -1);
+                    preOffset = diffInDays(firstNutzung.getGueltigbis(), c.getTime());
+                }
+
+                c.setTime(firstNutzung.getGueltigbis());
+                c.add(Calendar.DATE, -preOffset);
+                final Date firstDate = c.getTime();
+
+                int previousDayDiff = preOffset;
+                final NKFBandMember firstNkfBandMember = new NKFBandMember(
+                        0,
+                        previousDayDiff,
+                        firstNutzung.getGueltigbis());
+                bandNutzungen.addMember(firstNkfBandMember);
+                firstNkfBandMember.addListener(new NKFBandMember.Listener() {
+
+                        @Override
+                        public void memberSelected(final boolean selected) {
+                            if (selected) {
+                                memberSelect(firstNkfBandMember);
+                            } else {
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            memberUnselect();
+                                        }
+                                    });
+                            }
+                        }
+                    });
+
+                NutzungBuchungCustomBean previousNutzung = firstNutzung;
+                while (it.hasNext()) {
+                    final NutzungBuchungCustomBean curNutzung = it.next();
+                    final Date curGueltigBis = LagisBroker.getDateWithoutTime(curNutzung.getGueltigbis());
+                    final Date preGueltigBis = LagisBroker.getDateWithoutTime(
+                            previousNutzung.getGueltigbis());
+                    if (!curGueltigBis.equals(preGueltigBis)) {
+                        final int curDayDiff = previousDayDiff + diffInDays(curGueltigBis, preGueltigBis);
+                        final NKFBandMember nkfBandMember = new NKFBandMember(
+                                previousDayDiff,
+                                curDayDiff,
+                                curGueltigBis);
+                        nkfBandMember.addListener(new NKFBandMember.Listener() {
+
+                                @Override
+                                public void memberSelected(final boolean selected) {
+                                    if (selected) {
+                                        memberSelect(nkfBandMember);
+                                    } else {
+                                        SwingUtilities.invokeLater(new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    memberUnselect();
+                                                }
+                                            });
+                                    }
+                                }
+                            });
+                        bandNutzungen.addMember(nkfBandMember);
+                        previousNutzung = curNutzung;
+                        previousDayDiff = curDayDiff;
+                    }
+                }
+                final NutzungBuchungCustomBean lastNutzung = previousNutzung;
+
+                c.setTime(lastNutzung.getGueltigbis());
+                c.set(Calendar.DAY_OF_MONTH, 1);
+                c.add(Calendar.MONTH, 1);
+                int postOffset = diffInDays(c.getTime(), lastNutzung.getGueltigbis());
+                if (postOffset < minPostDays) {
+                    c.add(Calendar.MONTH, 1);
+                    postOffset = diffInDays(c.getTime(), lastNutzung.getGueltigbis());
+                }
+
+                final int endDayDiff = previousDayDiff + postOffset;
+                final NKFBandMember bandMember = new NKFBandMember(
+                        previousDayDiff,
+                        endDayDiff,
+                        null);
+                bandMember.addListener(new NKFBandMember.Listener() {
+
+                        @Override
+                        public void memberSelected(final boolean selected) {
+                            if (selected) {
+                                memberSelect(bandMember);
+                            } else {
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+                                            memberUnselect();
+                                        }
+                                    });
+                            }
+                        }
+                    });
+                bandNutzungen.addMember(bandMember);
+
+                // MONTHS
+                Date previousDate = firstDate;
+                previousDayDiff = 0;
+                while (previousDayDiff < endDayDiff) {
+                    c.setTime(previousDate);
+
+                    final String prevDateMonth = c.getDisplayName(
+                            Calendar.MONTH,
+                            Calendar.LONG,
+                            Locale.getDefault());
+                    final String prevDateYear = Integer.toString(c.get(Calendar.YEAR));
+
+                    c.set(Calendar.DAY_OF_MONTH, 1);
+                    c.add(Calendar.MONTH, 1);
+                    final Date curDate = c.getTime();
+
+                    final int curDayDiff = previousDayDiff + diffInDays(curDate, previousDate);
+                    bandMonth.addMember(new SimpleTextSection(
+                            prevDateMonth
+                                    + " "
+                                    + prevDateYear,
+                            previousDayDiff,
+                            curDayDiff,
+                            false,
+                            false));
+
+                    previousDate = curDate;
+                    previousDayDiff = curDayDiff;
+                }
+
+//                            // YEARS
+//                            previousDate = firstDate;
+//                            previousDayDiff = 0;
+//                            while (previousDayDiff < endDayDiff) {
+//                                c.setTime(previousDate);
+//
+//                                final boolean firstOfYear = c.get(Calendar.DAY_OF_YEAR) == 1;
+//
+//                                final String curYear = Integer.toString(c.get(Calendar.YEAR));
+//                                c.add(Calendar.YEAR, 1);
+//                                c.set(Calendar.DAY_OF_YEAR, 1);
+//                                final Date curDate = c.getTime();
+//
+//                                final int curDayDiff = previousDayDiff + diffInDays(curDate, previousDate);
+//                                final boolean lastOfYear = curDayDiff < endDayDiff;
+//                                bandYear.addMember(new SimpleTextSection(
+//                                        curYear,
+//                                        previousDayDiff,
+//                                        (curDayDiff <= endDayDiff) ? curDayDiff : endDayDiff,
+//                                        !firstOfYear,
+//                                        !lastOfYear));
+//
+//                                previousDate = curDate;
+//                                previousDayDiff = curDayDiff;
+//                            }
+
+                if (endDayDiff > 75) {
+                    jBand1.setZoomFactor(endDayDiff / 75d);
+                } else {
+                    jBand1.setZoomFactor(1);
+                }
+                SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            memberUnselect();
+                        }
+                    });
+                jBand1.setVisible(true);
+            } else {
+                lblCurrentHistoryPostion.setText("Keine Historie vorhanden");
+                lblCurrentHistoryPostion.setVisible(true);
+                jComboBox1.setVisible(false);
+                jBand1.setVisible(false);
+            }
+            jBand1.setModel(jBand1.getModel());
+        } catch (Exception ex) {
+            LOG.error("Fehler beim updaten des NKF History Sliders (Change Filter)", ex);
         }
         if (LOG.isDebugEnabled()) {
             LOG.debug("tablemodel rowcount: " + tableModel.getRowCount());
@@ -1442,64 +1318,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   current  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private int getTickForNutzung(final NutzungBuchungCustomBean current) {
-        if (cbxChanges.isSelected()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Tick wird für Buchung: " + current.getId() + " im Änderungsmodus ermittelt");
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("dateToTicks: " + dateToTicks);
-            }
-            return dateToTicks.indexOf(LagisBroker.getDateWithoutTime(current.getGueltigbis()));
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Tick wird für Buchung: " + current.getId() + " im Zeitstrahlmodus ermittelt");
-            }
-            if (current.getGueltigbis() == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Buchung ist nicht historisch, springe zu aktuellen Buchungen");
-                }
-                return slrHistory.getMaximum();
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Buchung ist historisch");
-                }
-                final long between = current.getGueltigbis().getTime() - first.getTime();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Zeit zwischen erster Buchung und ausgewählter: " + between);
-                }
-                if (mode == DAY_SCALE) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("DayScale");
-                    }
-                    return (int)(Math.round(between / 1000 / 60 / 60 / 24));
-                } else if (mode == MONTH_SCALE) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("MonthScale");
-                    }
-                    return (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30));
-                } else if (mode == YEAR_SCALE) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("YearScale");
-                    }
-                    return (int)(Math.round(between / 1000 / 60 / 60 / 24 / 30 / 12));
-                }
-            }
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Unknown Scale");
-            }
-            return -1;
-        }
-    }
-
-    // TODO USE
     @Override
     public Icon getWidgetIcon() {
         return null;
@@ -1514,7 +1332,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 return Validatable.ERROR;
             }
 
-            final boolean existingBufferDisolves = false;
             boolean existingUnvalidCurrentNutzung = false;
             boolean existsAtLeastOneValidCurrentNutzung = false;
 //            boolean existingUnbookedDeletedNutzung = false;
@@ -1560,23 +1377,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void configure(final Element parent) {
-        try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("configure NKFPanel");
-            }
-            cbxChanges.setSelected(Boolean.valueOf(
-                    parent.getChild("nkfConfiguration").getAttributeValue("displayedByChanges")));
-        } catch (Exception ex) {
-            LOG.warn("Fehler beim konfigurieren des NKFPanels: ", ex);
-            cbxChanges.setSelected(true);
-        }
     }
 
     @Override
     public Element getConfiguration() {
-        final Element ret = new Element("nkfConfiguration");
-        ret.setAttribute("displayedByChanges", String.valueOf(cbxChanges.isSelected()));
-        return ret;
+        return null;
     }
 
     @Override
@@ -1633,6 +1438,36 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     predecessorPopup.show(e.getComponent(), e.getX(), e.getY());
                 }
             }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public class DateComboBoxRenderer extends DefaultListCellRenderer {
+
+        //~ Instance fields ----------------------------------------------------
+
+        private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy - HH:mm:ss");
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public Component getListCellRendererComponent(final JList list,
+                final Object value,
+                final int index,
+                final boolean isSelected,
+                final boolean cellHasFocus) {
+            final Component comp = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
+            if (value != null) {
+                ((JLabel)comp).setText(sdf.format((Date)value));
+            } else {
+                ((JLabel)comp).setText("Aktuelle Nutzungen");
+            }
+            return comp;
         }
     }
 }

@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Ressort;
@@ -25,14 +26,13 @@ public class RessortCustomBean extends BasicEntity implements Ressort {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RessortCustomBean.class);
-    public static final String TABLE = "ressort";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private String abkuerzung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "abkuerzung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -51,9 +51,11 @@ public class RessortCustomBean extends BasicEntity implements Ressort {
      */
     public static RessortCustomBean createNew() {
         try {
-            return (RessortCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (RessortCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.RESSORT);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.RESSORT + " bean", ex);
             return null;
         }
     }

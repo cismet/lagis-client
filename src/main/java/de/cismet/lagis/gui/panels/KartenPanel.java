@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -45,9 +47,11 @@ import javax.swing.JSeparator;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
-import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.commons.searchgeometrylistener.BaulastblattNodesSearchCreateSearchGeometryListener;
+import de.cismet.cids.custom.commons.searchgeometrylistener.FlurstueckNodesSearchCreateSearchGeometryListener;
+import de.cismet.cids.custom.commons.searchgeometrylistener.RissNodesSearchCreateSearchGeometryListener;
 
 import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;
@@ -57,6 +61,7 @@ import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.features.WFSFeature;
 import de.cismet.cismap.commons.gui.FeatureGroupMember;
+import de.cismet.cismap.commons.gui.FeatureLayerTransparencyButton;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 import de.cismet.cismap.commons.gui.piccolo.PFeature;
@@ -68,7 +73,9 @@ import de.cismet.cismap.commons.gui.piccolo.eventlistener.JoinPolygonsListener;
 import de.cismet.cismap.commons.gui.piccolo.eventlistener.SelectionListener;
 import de.cismet.cismap.commons.gui.piccolo.eventlistener.SimpleMoveListener;
 import de.cismet.cismap.commons.gui.piccolo.eventlistener.SplitPolygonListener;
+import de.cismet.cismap.commons.gui.piccolo.eventlistener.actions.CustomAction;
 import de.cismet.cismap.commons.interaction.CismapBroker;
+import de.cismet.cismap.commons.interaction.memento.MementoInterface;
 
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -81,7 +88,6 @@ import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
 
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.JHistoryButton;
@@ -95,7 +101,8 @@ import de.cismet.tools.gui.historybutton.JHistoryButton;
 public class KartenPanel extends AbstractWidget implements FlurstueckChangeListener,
     FeatureCollectionListener,
     Configurable,
-    NoPermissionsWidget {
+    NoPermissionsWidget,
+    Observer {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -115,23 +122,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private String flurstueckZaehlerIdentifier = null;
     private String flurstueckNennerIdentifier = null;
     private boolean isEditable = true;
-
     private final JButton cmdCopyFlaeche = new JButton();
     private final JButton cmdPasteFlaeche = new JButton();
-
     private Object clipboard = null;
     private boolean clipboardPasted = true; // wegen des ersten mals
     private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
-
     private final Map<String, FeatureGroupActionListener> featureGroupButtonListenerMap;
-
     private final JLabel lblInfo;
     private Object lastOverFeature;
-
     // Variables declaration - do not modify
-
     // NOI18N
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cmdALB;
     private javax.swing.JButton cmdAdd;
@@ -149,18 +149,27 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private javax.swing.JButton cmdNewPolygon;
     private javax.swing.JButton cmdPan;
     private javax.swing.JButton cmdRaisePolygon;
+    private javax.swing.JButton cmdRedo;
     private javax.swing.JButton cmdRemoveHandle;
     private javax.swing.JButton cmdRemovePolygon;
+    private javax.swing.JToggleButton cmdSearchAlkisLandparcel;
+    private javax.swing.JToggleButton cmdSearchBaulasten;
+    private javax.swing.JToggleButton cmdSearchVermessungRiss;
     private javax.swing.JButton cmdSelect;
     private javax.swing.JButton cmdSnap;
     private javax.swing.JButton cmdSplitPoly;
+    private javax.swing.JButton cmdUndo;
     private javax.swing.JButton cmdWmsBackground;
     private javax.swing.JButton cmdZoom;
+    private javax.swing.JButton jButton2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JSeparator jSeparator10;
     private javax.swing.JSeparator jSeparator4;
     private javax.swing.JSeparator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JSeparator jSeparator7;
+    private javax.swing.JSeparator jSeparator8;
+    private javax.swing.JSeparator jSeparator9;
     private javax.swing.JToolBar jToolBar1;
     // End of variables declaration//GEN-END:variables
 
@@ -284,10 +293,40 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         panel.add(this.lblInfo, BorderLayout.WEST);
         panel.add(this.jPanel1, BorderLayout.EAST);
         super.add(panel, java.awt.BorderLayout.SOUTH);
+        ((Observable)mappingComponent.getMemUndo()).addObserver(this);
+        ((Observable)mappingComponent.getMemRedo()).addObserver(this);
+
+        mappingComponent.getFeatureLayer().setTransparency(150 / 255f);
     }
 
     //~ Methods ----------------------------------------------------------------
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  feature  DOCUMENT ME!
+     */
+    public void doStuff(final WFSFeature feature) {
+        final HashMap props = feature.getProperties();
+        final String gem = (String)props.get(gemarkungIdentifier);
+        final String flur = (String)props.get(flurIdentifier);
+        final String flurstz = (String)props.get(
+                flurstueckZaehlerIdentifier);
+        final String flurstn = (String)props.get(
+                flurstueckNennerIdentifier);
+        final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
+        key.setGemarkung(
+            LagisBroker.getInstance().getGemarkungForKey(
+                Integer.parseInt(gem)));
+        key.setFlur(Integer.parseInt(flur));
+        key.setFlurstueckZaehler(Integer.parseInt(flurstz));
+        if (flurstn != null) {
+            key.setFlurstueckNenner(Integer.parseInt(flurstn));
+        } else {
+            key.setFlurstueckNenner(0);
+        }
+        feature.setName("Flurstück " + key.toString());
+    }
     /**
      * DOCUMENT ME!
      */
@@ -513,6 +552,11 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdPan = new javax.swing.JButton();
         cmdSelect = new javax.swing.JButton();
         cmdALB = new javax.swing.JButton();
+        jSeparator10 = new javax.swing.JSeparator();
+        cmdSearchAlkisLandparcel = new javax.swing.JToggleButton();
+        cmdSearchBaulasten = new javax.swing.JToggleButton();
+        cmdSearchVermessungRiss = new javax.swing.JToggleButton();
+        jSeparator9 = new javax.swing.JSeparator();
         cmdMovePolygon = new javax.swing.JButton();
         cmdNewPolygon = new javax.swing.JButton();
         cmdNewPoint = new javax.swing.JButton();
@@ -526,6 +570,10 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdAddHandle = new javax.swing.JButton();
         cmdRemoveHandle = new javax.swing.JButton();
         jSeparator7 = new javax.swing.JSeparator();
+        cmdUndo = new javax.swing.JButton();
+        cmdRedo = new javax.swing.JButton();
+        jSeparator8 = new javax.swing.JSeparator();
+        jButton2 = new FeatureLayerTransparencyButton();
         jPanel1 = new javax.swing.JPanel();
         cmdAdd = new javax.swing.JButton();
 
@@ -718,6 +766,89 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             });
         jToolBar1.add(cmdALB);
 
+        jSeparator10.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jSeparator10.setMaximumSize(new java.awt.Dimension(2, 32767));
+        jSeparator10.setMinimumSize(new java.awt.Dimension(2, 10));
+        jSeparator10.setPreferredSize(new java.awt.Dimension(2, 10));
+        jToolBar1.add(jSeparator10);
+
+        cmdSearchAlkisLandparcel.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/alk.png")));          // NOI18N
+        cmdSearchAlkisLandparcel.setToolTipText("Flurstücke suchen");
+        cmdSearchAlkisLandparcel.setBorderPainted(false);
+        cmdSearchAlkisLandparcel.setContentAreaFilled(false);
+        cmdSearchAlkisLandparcel.setFocusPainted(false);
+        cmdSearchAlkisLandparcel.setFocusable(false);
+        cmdSearchAlkisLandparcel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdSearchAlkisLandparcel.setMaximumSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setMinimumSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchAlkisLandparcel.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/alk_selected.png"))); // NOI18N
+        cmdSearchAlkisLandparcel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdSearchAlkisLandparcel.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdSearchAlkisLandparcelActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdSearchAlkisLandparcel);
+
+        cmdSearchBaulasten.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/Baulast.png")));          // NOI18N
+        cmdSearchBaulasten.setToolTipText("Baulasten suchen");
+        cmdSearchBaulasten.setBorderPainted(false);
+        cmdSearchBaulasten.setContentAreaFilled(false);
+        cmdSearchBaulasten.setFocusPainted(false);
+        cmdSearchBaulasten.setFocusable(false);
+        cmdSearchBaulasten.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdSearchBaulasten.setMaximumSize(new java.awt.Dimension(22, 18));
+        cmdSearchBaulasten.setMinimumSize(new java.awt.Dimension(22, 18));
+        cmdSearchBaulasten.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchBaulasten.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/Baulast_selected.png"))); // NOI18N
+        cmdSearchBaulasten.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdSearchBaulasten.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdSearchBaulastenActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdSearchBaulasten);
+        cmdSearchBaulasten.setVisible(LagisBroker.getInstance().checkPermissionBaulasten());
+
+        cmdSearchVermessungRiss.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/vermessungsriss.png")));          // NOI18N
+        cmdSearchVermessungRiss.setToolTipText("Vermessungsrisse suchen");
+        cmdSearchVermessungRiss.setBorderPainted(false);
+        cmdSearchVermessungRiss.setContentAreaFilled(false);
+        cmdSearchVermessungRiss.setFocusPainted(false);
+        cmdSearchVermessungRiss.setFocusable(false);
+        cmdSearchVermessungRiss.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdSearchVermessungRiss.setMaximumSize(new java.awt.Dimension(22, 18));
+        cmdSearchVermessungRiss.setMinimumSize(new java.awt.Dimension(22, 18));
+        cmdSearchVermessungRiss.setPreferredSize(new java.awt.Dimension(22, 18));
+        cmdSearchVermessungRiss.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/vermessungsriss_selected.png"))); // NOI18N
+        cmdSearchVermessungRiss.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdSearchVermessungRiss.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdSearchVermessungRissActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdSearchVermessungRiss);
+        cmdSearchVermessungRiss.setVisible(LagisBroker.getInstance().checkPermissionRisse());
+
+        jSeparator9.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jSeparator9.setMaximumSize(new java.awt.Dimension(2, 32767));
+        jSeparator9.setMinimumSize(new java.awt.Dimension(2, 10));
+        jSeparator9.setPreferredSize(new java.awt.Dimension(2, 10));
+        jToolBar1.add(jSeparator9);
+
         cmdMovePolygon.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/movePoly.png")));          // NOI18N
         cmdMovePolygon.setToolTipText("Polygon verschieben");
@@ -896,6 +1027,62 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         jSeparator7.setPreferredSize(new java.awt.Dimension(2, 10));
         jToolBar1.add(jSeparator7);
 
+        cmdUndo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/undo.png"))); // NOI18N
+        cmdUndo.setToolTipText("Undo");
+        cmdUndo.setBorderPainted(false);
+        cmdUndo.setContentAreaFilled(false);
+        cmdUndo.setEnabled(false);
+        cmdUndo.setFocusPainted(false);
+        cmdUndo.setFocusable(false);
+        cmdUndo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdUndo.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdUndo.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdUndoActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdUndo);
+
+        cmdRedo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/redo.png"))); // NOI18N
+        cmdRedo.setBorderPainted(false);
+        cmdRedo.setContentAreaFilled(false);
+        cmdRedo.setEnabled(false);
+        cmdRedo.setFocusPainted(false);
+        cmdRedo.setFocusable(false);
+        cmdRedo.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdRedo.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdRedo.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdRedoActionPerformed(evt);
+                }
+            });
+        jToolBar1.add(cmdRedo);
+
+        jSeparator8.setOrientation(javax.swing.SwingConstants.VERTICAL);
+        jSeparator8.setMaximumSize(new java.awt.Dimension(2, 32767));
+        jSeparator8.setMinimumSize(new java.awt.Dimension(2, 10));
+        jSeparator8.setPreferredSize(new java.awt.Dimension(2, 10));
+        jToolBar1.add(jSeparator8);
+
+        jButton2.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/flurstueck_transp.png"))); // NOI18N
+        jButton2.setToolTipText("Featurelayer-Transparenz einstellen");
+        jButton2.setBorderPainted(false);
+        jButton2.setContentAreaFilled(false);
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setMaximumSize(new java.awt.Dimension(22, 18));
+        jButton2.setMinimumSize(new java.awt.Dimension(22, 18));
+        jButton2.setPreferredSize(new java.awt.Dimension(22, 18));
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton2);
+
         add(jToolBar1, java.awt.BorderLayout.NORTH);
 
         jPanel1.setMinimumSize(new java.awt.Dimension(50, 100));
@@ -923,7 +1110,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                jPanel1Layout.createSequentialGroup().addContainerGap(599, Short.MAX_VALUE).add(
+                jPanel1Layout.createSequentialGroup().addContainerGap(753, Short.MAX_VALUE).add(
                     cmdAdd,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
@@ -938,6 +1125,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         add(jPanel1, java.awt.BorderLayout.SOUTH);
     } // </editor-fold>//GEN-END:initComponents
+
     /**
      * DOCUMENT ME!
      *
@@ -1136,6 +1324,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdSplitPoly.setSelected(false);
         cmdJoinPoly.setSelected(false);
         cmdRaisePolygon.setSelected(false);
+        cmdSearchAlkisLandparcel.setSelected(false);
+        cmdSearchBaulasten.setSelected(false);
+        cmdSearchVermessungRiss.setSelected(false);
     }
 
     @Override
@@ -1190,6 +1381,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
             cmdCopyFlaeche.setVisible(isEditable);
             cmdPasteFlaeche.setVisible(isEditable);
+            cmdUndo.setVisible(isEditable);
+            cmdRedo.setVisible(isEditable);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
@@ -1229,12 +1422,17 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
                         cmdCopyFlaeche.setVisible(isEditable);
                         cmdPasteFlaeche.setVisible(isEditable);
+                        jSeparator8.setVisible(isEditable);
                     }
                 });
         }
         if (log.isDebugEnabled()) {
             log.debug("MapPanel --> setComponentEditable finished");
         }
+
+        // Clear the undo/redo memory to seperate the edit sessions
+        mappingComponent.getMemUndo().clear();
+        mappingComponent.getMemRedo().clear();
     }
 
     @Override
@@ -1347,6 +1545,87 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             cmdForeground.setSelected(true);
         }
     }                                                                                 //GEN-LAST:event_cmdForegroundActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdUndoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdUndoActionPerformed
+        log.info("UNDO");
+        final CustomAction a = mappingComponent.getMemUndo().getLastAction();
+        if (log.isDebugEnabled()) {
+            log.debug("... Aktion ausf\u00FChren: " + a.info());
+        }
+        try {
+            a.doAction();
+        } catch (Exception e) {
+            log.error("Error beim Ausf\u00FChren der Aktion", e);
+        }
+        final CustomAction inverse = a.getInverse();
+        mappingComponent.getMemRedo().addAction(inverse);
+        if (log.isDebugEnabled()) {
+            log.debug("... neue Aktion auf REDO-Stack: " + inverse);
+            log.debug("... fertig");
+        }
+    }                                                                           //GEN-LAST:event_cmdUndoActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdRedoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdRedoActionPerformed
+        log.info("REDO");
+        final CustomAction a = mappingComponent.getMemRedo().getLastAction();
+        if (log.isDebugEnabled()) {
+            log.debug("... Aktion ausf\u00FChren: " + a.info());
+        }
+        try {
+            a.doAction();
+        } catch (Exception e) {
+            log.error("Error beim Ausf\u00FChren der Aktion", e);
+        }
+        final CustomAction inverse = a.getInverse();
+        mappingComponent.getMemUndo().addAction(inverse);
+        if (log.isDebugEnabled()) {
+            log.debug("... neue Aktion auf UNDO-Stack: " + inverse);
+            log.debug("... fertig");
+        }
+    }                                                                           //GEN-LAST:event_cmdRedoActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdSearchAlkisLandparcelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchAlkisLandparcelActionPerformed
+        removeMainGroupSelection();
+        cmdSearchAlkisLandparcel.setSelected(true);
+        mappingComponent.setInteractionMode(FlurstueckNodesSearchCreateSearchGeometryListener.NAME);
+    }                                                                                            //GEN-LAST:event_cmdSearchAlkisLandparcelActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdSearchVermessungRissActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchVermessungRissActionPerformed
+        removeMainGroupSelection();
+        cmdSearchVermessungRiss.setSelected(true);
+        mappingComponent.setInteractionMode(RissNodesSearchCreateSearchGeometryListener.NAME);
+    }                                                                                           //GEN-LAST:event_cmdSearchVermessungRissActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchBaulastenActionPerformed
+        removeMainGroupSelection();
+        cmdSearchBaulasten.setSelected(true);
+        mappingComponent.setInteractionMode(BaulastblattNodesSearchCreateSearchGeometryListener.NAME);
+    }                                                                                      //GEN-LAST:event_cmdSearchBaulastenActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1586,8 +1865,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 if (log.isDebugEnabled()) {
                     log.debug("Split");
                 }
-                ((StyledFeature)pf.getFeature()).setGeometry(null);
                 final Feature[] f_arr = pf.split();
+                ((StyledFeature)pf.getFeature()).setGeometry(null);
                 mappingComponent.getFeatureCollection().removeFeature(pf.getFeature());
                 f_arr[0].setEditable(true);
                 f_arr[1].setEditable(true);
@@ -1641,7 +1920,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             final PNode p = null;
             PFeature pf = null;
             if (o instanceof SelectionListener) {
-                pf = ((SelectionListener)o).getSelectedPFeature();
+                pf = ((SelectionListener)o).getAffectedPFeature();
                 //
                 // if (pf!=null && pf.getFeature() instanceof Flaeche|| pf.getFeature() instanceof PureNewFeature) {
                 // if (((DefaultFeatureCollection)mappingComp.getFeatureCollection()).isSelected(pf.getFeature())) {
@@ -1717,6 +1996,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                     log.debug("Schlüssel konnte konstruiert werden");
                                 }
                                 LagisBroker.getInstance().loadFlurstueck(key);
+                                dwf.setName("Flurstück " + key.toString());
                             } else {
                                 if (log.isDebugEnabled()) {
                                     log.debug(
@@ -1788,6 +2068,59 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     @Override
     public Element getConfiguration() {
         return null;
+    }
+
+    @Override
+    public void update(final Observable o, final Object arg) {
+        if (o.equals(mappingComponent.getMemUndo())) {
+            if (arg.equals(MementoInterface.ACTIVATE) && !cmdUndo.isEnabled()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("UNDO-Button aktivieren");
+                }
+                EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            cmdUndo.setEnabled(true);
+                        }
+                    });
+            } else if (arg.equals(MementoInterface.DEACTIVATE) && cmdUndo.isEnabled()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("UNDO-Button deaktivieren");
+                }
+                EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            cmdUndo.setEnabled(false);
+                        }
+                    });
+            }
+        } else if (o.equals(mappingComponent.getMemRedo())) {
+            if (arg.equals(MementoInterface.ACTIVATE) && !cmdRedo.isEnabled()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("REDO-Button aktivieren");
+                }
+                EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            cmdRedo.setEnabled(true);
+                        }
+                    });
+            } else if (arg.equals(MementoInterface.DEACTIVATE) && cmdRedo.isEnabled()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("REDO-Button deaktivieren");
+                }
+                EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            cmdRedo.setEnabled(false);
+                        }
+                    });
+            }
+        }
     }
 
     @Override
@@ -1878,7 +2211,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 //                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
 //                                curFeature)) {
 //                    if (LOG.isDebugEnabled()) {
-//                        LOG.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
+//                        LOG.debug("In edit modus, mindestens ein pFeature selectiert: " + curFeature);
 //                    }
 //                    cmdCopyFlaeche.setEnabled(true);
 //                    return;
@@ -1892,7 +2225,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 //            cmdCopyFlaeche.setEnabled(false);
 //        }
 //    }
-
     @Override
     public void featureSelectionChanged(final FeatureCollectionEvent fce) {
         if (log.isDebugEnabled()) {
@@ -1962,7 +2294,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         private final String invisibText;
         private final Icon visibleIcon;
         private final Icon invisibleIcon;
-
         private boolean isVisible;
 
         //~ Constructors -------------------------------------------------------

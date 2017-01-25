@@ -27,6 +27,7 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
@@ -48,7 +49,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private WizardController wizardController;
+    private final WizardController wizardController;
     private Map wizardData;
     private final ArrayList<FlurstueckChooser> joinCandidates = new ArrayList<FlurstueckChooser>();
     private ArrayList<FlurstueckSchluesselCustomBean> joinKeys;
@@ -75,6 +76,7 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
         this.wizardData = wizardData;
         wizardController.setProblem("Bitte wählen Sie die Flurstücke aus, die zusammengelegt werden soll");
         btnRemoveJoinMember.setEnabled(false);
+        addJoinMember(LagisBroker.getInstance().getCurrentFlurstueckSchluessel());
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -297,9 +299,9 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
     /**
      * DOCUMENT ME!
      *
-     * @param  evt  DOCUMENT ME!
+     * @param  key  DOCUMENT ME!
      */
-    private void btnAddJoinMemberActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddJoinMemberActionPerformed
+    private void addJoinMember(final FlurstueckSchluesselCustomBean key) {
         final FlurstueckChooser tmp = new FlurstueckChooser(FlurstueckChooser.Mode.CONTINUATION);
 
         if (joinCandidates.size() > 0) {
@@ -332,6 +334,9 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
             }
         }
         tmp.addValidationStateChangedListener(this);
+        if (key != null) {
+            tmp.requestFlurstueck(key);
+        }
         panJoinMembers.add(tmp);
         joinCandidates.add(tmp);
         btnRemoveJoinMember.setEnabled(true);
@@ -339,5 +344,14 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
         spJoinMembers.getViewport().repaint();
         spJoinMembers.revalidate();
         validationStateChanged(null);
-    } //GEN-LAST:event_btnAddJoinMemberActionPerformed
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddJoinMemberActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddJoinMemberActionPerformed
+        addJoinMember(null);
+    }                                                                                    //GEN-LAST:event_btnAddJoinMemberActionPerformed
 }

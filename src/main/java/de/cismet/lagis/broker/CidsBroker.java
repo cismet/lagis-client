@@ -16,8 +16,6 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.newuser.User;
 
-import java.text.DecimalFormat;
-
 import java.util.*;
 
 import de.cismet.cids.custom.beans.lagis.*;
@@ -28,6 +26,12 @@ import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
+
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
+
+import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearch;
+import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearchResultItem;
 
 import de.cismet.lagisEE.interfaces.Key;
 
@@ -42,22 +46,9 @@ public final class CidsBroker {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    public static final String LAGIS_DOMAIN = "LAGIS";
-
-    public static final String CLASS__FLURSTUECK_SCHLUESSEL = "flurstueck_schluessel";
-    public static final String CLASS__ANLAGEKLASSE = "anlageklasse";
-    public static final String CLASS__BAUM = "baum";
-    public static final String CLASS__BAUM_KATEGORIE = "baum_kategorie";
-    public static final String CLASS__BAUM_KATEGORIE_AUSPRAEGUNG = "baum_kategorie_auspraegung";
-    public static final String CLASS__BAUM_MERKMAL = "baum_merkmal";
-    public static final String CLASS__BAUM_NUTZUNG = "baum_nutzung";
-    public static final String CLASS__BEBAUUNG = "bebauung";
-
     private static CidsBroker instance = null;
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(CidsBroker.class);
-
-//    private static Vector<Session> nkfSessions = new Vector<Session>();
-    private static DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
+    private static final String DEFAULT_DOT_HEADER = "digraph G{\n";
 
     //~ Enums ------------------------------------------------------------------
 
@@ -71,6 +62,18 @@ public final class CidsBroker {
         //~ Enum constants -----------------------------------------------------
 
         DIRECT_RELATIONS, All, CUSTOM
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public enum HistorySibblingLevel {
+
+        //~ Enum constants -----------------------------------------------------
+
+        NONE, SIBBLING_ONLY, FULL, CUSTOM
     }
 
     /**
@@ -93,7 +96,6 @@ public final class CidsBroker {
 
 // @Resource(name = "mail/nkf_mailaddress")
 // private Session nkfMailer;
-
     /**
      * Creates a new instance of CidsBroker.
      */
@@ -102,7 +104,7 @@ public final class CidsBroker {
             setProxy(SessionManager.getProxy());
             if (!SessionManager.isInitialized()) {
                 SessionManager.init(getProxy());
-                ClassCacheMultiple.setInstance(LAGIS_DOMAIN);
+                ClassCacheMultiple.setInstance(LagisConstants.DOMAIN_LAGIS);
             }
         } catch (Throwable e) {
             LOG.fatal("no connection to the cids server possible. too bad.", e);
@@ -406,11 +408,11 @@ public final class CidsBroker {
                         LOG.debug("Key ist Gemarkung");
                     }
                     final GemarkungCustomBean currentGemarkung = (GemarkungCustomBean)key;
-                    if ((currentGemarkung != null) && (currentGemarkung.getSchluessel() != null)) {
+                    if ((currentGemarkung.getSchluessel() != null)) {
                         // TODO Duplicated code --> extract
 
                         final MetaClass metaclass = CidsBroker.getInstance()
-                                    .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
+                                    .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
                         if (metaclass == null) {
                             return null;
                         }
@@ -449,11 +451,11 @@ public final class CidsBroker {
                         } else {
                             return new HashSet();
                         }
-                    } else if ((currentGemarkung != null) && (currentGemarkung.getBezeichnung() != null)) {
+                    } else if ((currentGemarkung.getBezeichnung() != null)) {
                         final GemarkungCustomBean completed = completeGemarkung(currentGemarkung);
                         if (completed != null) {
                             final MetaClass metaclass = CidsBroker.getInstance()
-                                        .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
+                                        .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
                             if (metaclass == null) {
                                 return null;
                             }
@@ -487,6 +489,7 @@ public final class CidsBroker {
                                     final Integer flur = Integer.parseInt(mo.toString());
                                     flurKeys.add(new FlurKey(currentGemarkung, flur));
                                 }
+                                return flurKeys;
                             } else {
                                 return new HashSet();
                             }
@@ -503,7 +506,7 @@ public final class CidsBroker {
                     final FlurKey currentFlur = (FlurKey)key;
 
                     final MetaClass metaclass = CidsBroker.getInstance()
-                                .getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL);
+                                .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
                     if (metaclass == null) {
                         return null;
                     }
@@ -1195,6 +1198,7 @@ public final class CidsBroker {
         }
         return beans;
     }
+
     /**
      * DOCUMENT ME!
      *
@@ -1218,18 +1222,17 @@ public final class CidsBroker {
         key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
         try {
-            if (key != null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("createFlurstueck: key ist != null");
-                }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("createFlurstueck: key ist != null");
+            }
 
-                final FlurstueckSchluesselCustomBean checkedKey = this.completeFlurstueckSchluessel(key);
-                if (checkedKey != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("createFlurstueck: Vervollständigter key ist == null");
-                    }
-                    return null;
+            final FlurstueckSchluesselCustomBean checkedKey = this.completeFlurstueckSchluessel(key);
+            if (checkedKey != null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("createFlurstueck: Vervollständigter key ist == null");
                 }
+                return null;
+            }
 
 //                final Integer keyId = key.getId();
 //
@@ -1239,33 +1242,25 @@ public final class CidsBroker {
 //                    }
 //                    return null;
 //                }
-
 //                }
 //                else {
 //                    checkedKey = FlurstueckSchluesselCustomBean.createNewById(key.getId());
 //                }
-
-                final FlurstueckCustomBean newFlurstueck = FlurstueckCustomBean.createNew();
-                // datamodell refactoring 22.10.07
-                final Date datumEntstehung = new Date();
-                key.setEntstehungsDatum(datumEntstehung);
-                key.setIstGesperrt(false);
-                newFlurstueck.setFlurstueckSchluessel(key);
-                // newFlurstueck.setEntstehungsDatum(new Date());
-                // newFlurstueck.setIstGesperrt(false);
-                checkIfFlurstueckWasStaedtisch(key, datumEntstehung);
-                newFlurstueck.persist();
-                if (LOG.isDebugEnabled()) {
-                    // edit(newFlurstueck);
-                    LOG.debug("createFlurstueck: neues Flurstück erzeugt");
-                }
-                return retrieveFlurstueck(key);
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("createFlurstueck: key ist == null");
-                }
-                return null;
+            final FlurstueckCustomBean newFlurstueck = FlurstueckCustomBean.createNew();
+            // datamodell refactoring 22.10.07
+            final Date datumEntstehung = new Date();
+            key.setEntstehungsDatum(datumEntstehung);
+            key.setIstGesperrt(false);
+            newFlurstueck.setFlurstueckSchluessel(key);
+            // newFlurstueck.setEntstehungsDatum(new Date());
+            // newFlurstueck.setIstGesperrt(false);
+            checkIfFlurstueckWasStaedtisch(key, datumEntstehung);
+            newFlurstueck.persist();
+            if (LOG.isDebugEnabled()) {
+                // edit(newFlurstueck);
+                LOG.debug("createFlurstueck: neues Flurstück erzeugt");
             }
+            return retrieveFlurstueck(key);
         } catch (Exception ex) {
             LOG.error("Fehler beim anlegen des Flurstücks", ex);
         }
@@ -1313,7 +1308,7 @@ public final class CidsBroker {
                 LOG.debug("Rename Flurstück");
             }
             final FlurstueckCustomBean oldFlurstueck = retrieveFlurstueck(oldFlurstueckSchluessel);
-            final FlurstueckCustomBean newFlurstueck;
+            FlurstueckCustomBean newFlurstueck;
 
             if (oldFlurstueck != null) {
                 if (LOG.isDebugEnabled()) {
@@ -1385,6 +1380,75 @@ public final class CidsBroker {
 //                        createFlurstueckHistoryEntry(historyEntry);
                             LOG.debug("Alle Aktionen für das umbenennen erfolgreich abgeschlossen.");
                         }
+
+                        final User user = SessionManager.getSession().getUser();
+                        final MetaClass mcDmsUrl = ClassCacheMultiple.getMetaClass(
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.DMS_URL);
+                        final MetaClass mcNutzung = ClassCacheMultiple.getMetaClass(
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.NUTZUNG);
+                        final MetaClass mcRebe = ClassCacheMultiple.getMetaClass(
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.REBE);
+                        final MetaClass mcVerwaltungsbereichEintrag = ClassCacheMultiple.getMetaClass(
+                                LagisConstants.DOMAIN_LAGIS,
+                                LagisMetaclassConstants.VERWALTUNGSBEREICHE_EINTRAG);
+
+                        final String queryDmsUrl = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
+                                    + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+                        final String queryNutzung = "SELECT " + mcNutzung.getID() + ", " + mcNutzung.getPrimaryKey()
+                                    + " FROM " + mcNutzung.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+                        final String queryRebe = "SELECT " + mcRebe.getID() + ", " + mcRebe.getPrimaryKey() + " FROM "
+                                    + mcRebe.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+                        final String queryVerwaltungsbereichEintrag = "SELECT " + mcVerwaltungsbereichEintrag.getID()
+                                    + ", "
+                                    + mcVerwaltungsbereichEintrag.getPrimaryKey() + " FROM "
+                                    + mcVerwaltungsbereichEintrag.getTableName() + " WHERE " + " fk_flurstueck = "
+                                    + oldFlurstueck.getId().toString();
+
+                        newFlurstueck.getAr_baeume().addAll(oldFlurstueck.getAr_baeume());
+                        oldFlurstueck.getAr_baeume().clear();
+
+                        newFlurstueck.getAr_mipas().addAll(oldFlurstueck.getAr_mipas());
+                        oldFlurstueck.getAr_mipas().clear();
+
+                        newFlurstueck.getAr_vertraege().addAll(oldFlurstueck.getAr_vertraege());
+                        oldFlurstueck.getAr_vertraege().clear();
+
+                        for (final MetaObject moDmsUrl
+                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryDmsUrl)) {
+                            moDmsUrl.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moDmsUrl.getBean().persist();
+                        }
+
+                        for (final MetaObject moNutzung
+                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) {
+                            moNutzung.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moNutzung.getBean().persist();
+                        }
+
+                        for (final MetaObject moRebe : SessionManager.getProxy().getMetaObjectByQuery(user, queryRebe)) {
+                            moRebe.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moRebe.getBean().persist();
+                        }
+
+                        for (final MetaObject moVerwaltungsbereichEintrag
+                                    : SessionManager.getProxy().getMetaObjectByQuery(
+                                        user,
+                                        queryVerwaltungsbereichEintrag)) {
+                            moVerwaltungsbereichEintrag.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                            moVerwaltungsbereichEintrag.getBean().persist();
+                        }
+
+                        newFlurstueck.setFk_spielplatz(oldFlurstueck.getFk_spielplatz());
+                        newFlurstueck.setBemerkung(oldFlurstueck.getBemerkung());
+                        newFlurstueck.setIn_stadtbesitz(oldFlurstueck.getIn_stadtbesitz());
+                        newFlurstueck = (FlurstueckCustomBean)newFlurstueck.persist();
+                        oldFlurstueck.persist();
                     } else {
                         if (LOG.isDebugEnabled()) {
                             // TODO IF THIS CASE IS POSSIBLE ROLLBACK TRANSACTION
@@ -1435,24 +1499,22 @@ public final class CidsBroker {
      */
     public SperreCustomBean isLocked(final FlurstueckSchluesselCustomBean key) {
         if (key != null) {
-            if (key != null) {
-                final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("sperre");
-                if (metaclass == null) {
-                    return null;
+            final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("sperre");
+            if (metaclass == null) {
+                return null;
+            }
+            final String query = "SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
+                        + metaclass.getPrimaryKey() + " "
+                        + "FROM " + metaclass.getTableName() + " "
+                        + "WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = " + key.getId();
+            final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+            if ((mos != null) && (mos.length > 0)) {
+                final SperreCustomBean sperre = (SperreCustomBean)mos[0].getBean();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Es ist eine Sperre vorhanden und wird von: " + sperre.getBenutzerkonto()
+                                + " gehalten");
                 }
-                final String query = "SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                            + metaclass.getPrimaryKey() + " "
-                            + "FROM " + metaclass.getTableName() + " "
-                            + "WHERE " + metaclass.getTableName() + ".fk_flurstueck_schluessel = " + key.getId();
-                final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
-                if ((mos != null) && (mos.length > 0)) {
-                    final SperreCustomBean sperre = (SperreCustomBean)mos[0].getBean();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Es ist eine Sperre vorhanden und wird von: " + sperre.getBenutzerkonto()
-                                    + " gehalten");
-                    }
-                    return sperre;
-                }
+                return sperre;
             }
         } else {
             if (LOG.isDebugEnabled()) {
@@ -1774,7 +1836,7 @@ public final class CidsBroker {
         }
         final Collection<FlurstueckHistorieCustomBean> allEdges = new HashSet<FlurstueckHistorieCustomBean>();
         try {
-            Collection<FlurstueckHistorieCustomBean> childEdges = getHistoryAccessors(schluessel);
+            Collection<FlurstueckHistorieCustomBean> childEdges = getHistoryPredecessors(schluessel);
             if (childEdges != null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Es gibt Kanten zu diesem Knoten");
@@ -1808,140 +1870,142 @@ public final class CidsBroker {
     /**
      * DOCUMENT ME!
      *
-     * @param   schluessel  DOCUMENT ME!
-     * @param   level       DOCUMENT ME!
-     * @param   type        DOCUMENT ME!
-     * @param   levelCount  DOCUMENT ME!
+     * @param   currentFlurstueck   DOCUMENT ME!
+     * @param   level               allEdges level DOCUMENT ME!
+     * @param   levelLimit          DOCUMENT ME!
+     * @param   sibblingLevel       DOCUMENT ME!
+     * @param   sibblingLevelLimit  DOCUMENT ME!
+     * @param   type                DOCUMENT ME!
+     * @param   nodeToKeyMapIn      DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      *
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
-    public Collection<FlurstueckHistorieCustomBean> getHistoryEntries(final FlurstueckSchluesselCustomBean schluessel,
+    public String getHistoryGraph(final FlurstueckCustomBean currentFlurstueck,
             final HistoryLevel level,
+            final int levelLimit,
+            final HistorySibblingLevel sibblingLevel,
+            final int sibblingLevelLimit,
             final HistoryType type,
-            int levelCount) throws ActionNotSuccessfulException {
-        final Collection<FlurstueckHistorieCustomBean> allEdges = new HashSet<FlurstueckHistorieCustomBean>();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Historiensuche mit Parametern: HistoryType=" + type + " Level=" + level + " LevelCount="
-                        + levelCount);
-        }
-        try {
-            switch (type) {
-                case BOTH: {
-                    switch (level) {
-                        case DIRECT_RELATIONS: {
-                            levelCount = 1;
-                            addHistoryEntriesForNeighbours(
-                                schluessel,
-                                level,
-                                CidsBroker.HistoryType.SUCCESSOR,
-                                levelCount,
-                                allEdges);
-                            addHistoryEntriesForNeighbours(
-                                schluessel,
-                                level,
-                                CidsBroker.HistoryType.PREDECESSOR,
-                                levelCount,
-                                allEdges);
-                            break;
-                        }
-                        case CUSTOM: {
-                            addHistoryEntriesForNeighbours(
-                                schluessel,
-                                level,
-                                CidsBroker.HistoryType.PREDECESSOR,
-                                levelCount,
-                                allEdges);
-                            addHistoryEntriesForNeighbours(
-                                schluessel,
-                                level,
-                                CidsBroker.HistoryType.SUCCESSOR,
-                                levelCount,
-                                allEdges);
-                            break;
-                        }
-                        default: {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Sammle Alle Knoten Vorgänger/Nachfolger (Rekursiv) für: " + schluessel);
-                            }
-                            addHistoryEntriesForNeighbours(
-                                schluessel,
-                                level,
-                                CidsBroker.HistoryType.PREDECESSOR,
-                                -1,
-                                allEdges);
-                            addHistoryEntriesForNeighbours(
-                                schluessel,
-                                level,
-                                CidsBroker.HistoryType.SUCCESSOR,
-                                -1,
-                                allEdges);
-                        }
-                    }
-                    break;
-                }
-                case SUCCESSOR: {
-                    switch (level) {
-                        case DIRECT_RELATIONS: {
-                            levelCount = 1;
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Sammle m Knoten Nachfolger (Rekursiv) für: " + schluessel);
-                            }
-                            addHistoryEntriesForNeighbours(schluessel, level, type, levelCount, allEdges);
-                            break;
-                        }
-                        case CUSTOM: {
-                            addHistoryEntriesForNeighbours(schluessel, level, type, levelCount, allEdges);
-                            break;
-                        }
-                        default: {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Sammle Alle/Custom Knoten Nachfolger (Rekursiv) für: " + schluessel);
-                            }
-                            addHistoryEntriesForNeighbours(schluessel, level, type, -1, allEdges);
-                        }
-                    }
-                    break;
-                }
-                case PREDECESSOR: {
-                    switch (level) {
-                        case DIRECT_RELATIONS: {
-                            levelCount = 1;
-                            addHistoryEntriesForNeighbours(schluessel, level, type, levelCount, allEdges);
-                            break;
-                        }
-                        case CUSTOM: {
-                            addHistoryEntriesForNeighbours(schluessel, level, type, levelCount, allEdges);
-                            break;
-                        }
-                        default: {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Sammle Alle/Custom Knoten Vorgänger (Rekursiv) für: " + schluessel);
-                            }
-                            addHistoryEntriesForNeighbours(schluessel, level, type, -1, allEdges);
-                        }
-                    }
+            final HashMap<String, Integer> nodeToKeyMapIn) throws ActionNotSuccessfulException {
+        final StringBuilder dotGraphRepresentation = new StringBuilder(DEFAULT_DOT_HEADER);
 
-                    break;
+        try {
+            final boolean followPredecessors = HistoryType.BOTH.equals(type) || HistoryType.PREDECESSOR.equals(type);
+            final boolean followSuccessors = HistoryType.BOTH.equals(type) || HistoryType.SUCCESSOR.equals(type);
+
+            final int predecessorLevelCount;
+            final int successorLevelCount;
+            switch (level) {
+                case All: {
+                    predecessorLevelCount = followPredecessors ? Integer.MIN_VALUE : 1;
+                    successorLevelCount = followSuccessors ? Integer.MAX_VALUE : 0;
                 }
+                break;
+                case DIRECT_RELATIONS: {
+                    predecessorLevelCount = followPredecessors ? -1 : Integer.MAX_VALUE;
+                    successorLevelCount = followSuccessors ? 1 : Integer.MIN_VALUE;
+                }
+                break;
+                case CUSTOM: {
+                    predecessorLevelCount = followPredecessors ? -levelLimit : Integer.MAX_VALUE;
+                    successorLevelCount = followSuccessors ? levelLimit : Integer.MIN_VALUE;
+                }
+                break;
                 default: {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("HistoryType is not defined");
-                    }
-                    throw new ActionNotSuccessfulException("Fehler beim abfragen der Historieneinträge.");
+                    predecessorLevelCount = Integer.MAX_VALUE; // disabled
+                    successorLevelCount = Integer.MIN_VALUE;   // disabled
                 }
             }
-        } catch (Exception ex) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Failure during querying of history entries", ex);
+
+            final int sibblingLevelCount;
+            switch (sibblingLevel) {
+                case FULL: {
+                    sibblingLevelCount = Integer.MAX_VALUE;
+                }
+                break;
+                case SIBBLING_ONLY: {
+                    sibblingLevelCount = 0;
+                }
+                break;
+                case CUSTOM: {
+                    sibblingLevelCount = sibblingLevelLimit;
+                }
+                break;
+                case NONE:
+                default: {
+                    sibblingLevelCount = Integer.MIN_VALUE;
+                }
             }
-            throw new ActionNotSuccessfulException("Fehler beim abfragen der Historieneinträge.", ex);
+
+            final FlurstueckHistorieGraphSearch search = new FlurstueckHistorieGraphSearch(
+                    currentFlurstueck.getId(),
+                    predecessorLevelCount,
+                    successorLevelCount,
+                    sibblingLevelCount);
+            final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = proxy.customServerSearch(search);
+            final HashMap<String, String> pseudoKeys = new HashMap<String, String>();
+
+            final HashMap<String, Integer> nodeToKeyMap = (nodeToKeyMapIn == null) ? new HashMap<String, Integer>()
+                                                                                   : nodeToKeyMapIn;
+
+            if ((allEdges != null) && (allEdges.size() > 0)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Historie Graph hat: " + allEdges.size() + " Kanten");
+                }
+                for (final FlurstueckHistorieGraphSearchResultItem currentEdge : allEdges) {
+                    final String currentVorgaenger = currentEdge.getVorgaengerName();
+                    final String currentNachfolger = currentEdge.getNachfolgerName();
+
+                    if (currentVorgaenger.startsWith("pseudo")) {
+                        pseudoKeys.put(currentVorgaenger, "    ");
+                    }
+                    if (currentNachfolger.startsWith("pseudo")) {
+                        pseudoKeys.put(currentNachfolger, "    ");
+                    }
+                    dotGraphRepresentation.append("\"")
+                            .append(currentVorgaenger)
+                            .append("\"->\"")
+                            .append(currentNachfolger)
+                            .append("\" [lineInterpolate=\"linear\"];\n"); // additional options:
+                    // e.g.: basis, linear – Normal line (jagged). step-before – a stepping graph alternating between
+                    // vertical and horizontal segments. step-after - a stepping graph alternating between horizontal
+                    // and vertical segments. basis - a B-spline, with control point duplication on the ends (that's the
+                    // one above). basis-open - an open B-spline; may not intersect the start or end. basis-closed - a
+                    // closed B-spline, with the start and the end closed in a loop. bundle - equivalent to basis,
+                    // except a separate tension parameter is used to straighten the spline. This could be really cool
+                    // with varying tension. cardinal - a Cardinal spline, with control point duplication on the ends.
+                    // It looks slightly more 'jagged' than basis. cardinal-open - an open Cardinal spline; may not
+                    // intersect the start or end, but will intersect other control points. So kind of shorter than
+                    // 'cardinal'. cardinal-closed - a closed Cardinal spline, looped back on itself. monotone - cubic
+                    // interpolation that makes the graph only slightly smoother.
+                    nodeToKeyMap.put(currentEdge.getVorgaengerName(), currentEdge.getVorgaengerSchluesselId());
+                    nodeToKeyMap.put(currentEdge.getNachfolgerName(), currentEdge.getNachfolgerSchluesselId());
+                }
+                dotGraphRepresentation.append("\"")
+                        .append(currentFlurstueck)
+                        .append("\"  [style=\"fill: #eee; font-weight: bold\"];\n");
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Historie Graph ist < 1 --> keine Historie");
+                }
+                dotGraphRepresentation.append("\"")
+                        .append(currentFlurstueck)
+                        .append("\"  [style=\"fill: #eee; font-weight: bold\"]" + ";\n");
+                nodeToKeyMap.put(currentFlurstueck.toString(), currentFlurstueck.getId());
+            }
+
+            if (pseudoKeys.size() > 0) {
+                for (final String key : pseudoKeys.keySet()) {
+                    dotGraphRepresentation.append("\"").append(key).append("\" [label=\"    \"]");
+                }
+            }
+            dotGraphRepresentation.append("}");
+        } catch (final Exception ex) {
+            throw new ActionNotSuccessfulException("error while searching historie for " + currentFlurstueck, ex);
         }
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Historien Suche abgeschlossen");
-        }
-        return allEdges;
+        return dotGraphRepresentation.toString();
     }
 
     /**
@@ -1972,17 +2036,10 @@ public final class CidsBroker {
             beans.add((VertragCustomBean)metaObject.getBean());
         }
 
-        if (beans != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl Vertraege ist: " + beans.size());
-            }
-            return beans;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Vertraege für Flurstück vorhanden");
-            }
-            return null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Anzahl Vertraege ist: " + beans.size());
         }
+        return beans;
     }
 
     /**
@@ -2012,17 +2069,10 @@ public final class CidsBroker {
         for (final MetaObject metaObject : mosVertrag) {
             keys.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
         }
-        if (keys != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl FlurstueckSchluessel ist: " + keys.size());
-            }
-            return keys;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Flurstückreferenzen für den Vertrag vorhanden");
-            }
-            return null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Anzahl FlurstueckSchluessel ist: " + keys.size());
         }
+        return keys;
     }
 
     /**
@@ -2083,17 +2133,10 @@ public final class CidsBroker {
             flurstueckSchluessel.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
         }
 
-        if (flurstueckSchluessel != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl Flurststückschlüssel für das Aktenzeichen ist: " + flurstueckSchluessel.size());
-            }
-            return flurstueckSchluessel;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Flurstückschlüssel mit dem angegebenen Aktenzeichen vorhanden");
-            }
-            return null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Anzahl Flurststückschlüssel für das Aktenzeichen ist: " + flurstueckSchluessel.size());
         }
+        return flurstueckSchluessel;
     }
 
     /**
@@ -2105,7 +2148,7 @@ public final class CidsBroker {
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForMiPa(final MipaCustomBean miPa) {
         final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
-                    .getLagisMetaClass(CidsBroker.CLASS__FLURSTUECK_SCHLUESSEL);
+                    .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
@@ -2190,17 +2233,10 @@ public final class CidsBroker {
             mipas.add((MipaCustomBean)metaObject.getBean());
         }
 
-        if (mipas != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl MiPas ist: " + mipas.size());
-            }
-            return mipas;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine MiPas für Flurstück vorhanden");
-            }
-            return null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Anzahl MiPas ist: " + mipas.size());
         }
+        return mipas;
     }
 
     /**
@@ -2231,17 +2267,10 @@ public final class CidsBroker {
             baeume.add((BaumCustomBean)metaObject.getBean());
         }
 
-        if (baeume != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl Baueme ist: " + baeume.size());
-            }
-            return baeume;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Baueme für Flurstück vorhanden");
-            }
-            return null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Anzahl Baueme ist: " + baeume.size());
         }
+        return baeume;
     }
 
     /**
@@ -2253,7 +2282,7 @@ public final class CidsBroker {
      */
     public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForBaum(final BaumCustomBean baum) {
         final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
-                    .getLagisMetaClass(CidsBroker.CLASS__FLURSTUECK_SCHLUESSEL);
+                    .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
@@ -2274,17 +2303,10 @@ public final class CidsBroker {
             keys.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
         }
 
-        if (keys != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl FlurstueckSchluessel ist: " + keys.size());
-            }
-            return keys;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Flurstückreferenzen für Baum vorhanden");
-            }
-            return null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Anzahl FlurstueckSchluessel ist: " + keys.size());
         }
+        return keys;
     }
 
     /**
@@ -2372,9 +2394,6 @@ public final class CidsBroker {
                                 LOG.debug("Flurstück ist Abteilung IX  --> alle Rechte werden entfernt");
                             }
                             final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
-                            if (flurstueck.getRechteUndBelastungen() != null) {
-                                flurstueck.getRechteUndBelastungen().clear();
-                            }
 
                             flurstueck.getFlurstueckSchluessel().setFlurstueckArt(abteilungIX);
                             if (flurstueck.getFlurstueckSchluessel().getDatumLetzterStadtbesitz() != null) {
@@ -2548,164 +2567,7 @@ public final class CidsBroker {
             throws ActionNotSuccessfulException {
         key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
-//        if (key != null) {
-//            SperreCustomBean tmpLock;
-//            if ((tmpLock = isLocked(key)) == null) {
-//                tmpLock = createLock(new SperreCustomBean(key, username));
-//                if (tmpLock == null) {
-//                    //TODO
-//                    //throw new EJBException(new ActionNotSuccessfulException("Anlegen einer SperreCustomBean nicht möglich"));
-//                    System.out.println("Anlegen einer SperreCustomBean für das Flurstück nicht möglich " + key.getKeyString() + ".");
-//                    throw new ActionNotSuccessfulException("Anlegen einer SperreCustomBean für das Flurstück " + key.getKeyString() + " nicht möglich.");
-//                } else {
-//                    System.out.println("SperreCustomBean für Flurstück " + key.getKeyString() + " Erfolgreich angelegt.");
-//                }
-//            } else {
-//                //TODO
-//                //throw new EJBException(new ActionNotSuccessfulException("Es exisitert bereits eine SperreCustomBean"));
-//                System.out.println("Es exisitert bereits eine SperreCustomBean für das Flurstück " + key.getKeyString() + " und wird von dem Benutzer " + tmpLock.getBenutzerkonto() + " gehalten.");
-//                throw new ActionNotSuccessfulException("Es exisitert bereits eine SperreCustomBean für das Flurstück " + key.getKeyString() + " und wird von dem Benutzer " + tmpLock.getBenutzerkonto() + " gehalten.");
-//            }
-//            try {
-//                FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
-//                if (flurstueck == null) {
-//                    System.out.println("Die Stillen Reserven des Flurstücks " + key.getKeyString() + " konnten nicht gebucht werden, weil kein Flurstück in der Datenbank gefunden wurde.");
-//                    throw new ActionNotSuccessfulException("Die Stillen Reserven des Flurstücks " + key.getKeyString() + " konnten nicht gebucht werden, weil kein Flurstück in der Datenbank gefunden wurde.");
-//                } else {
-//                    StringBuffer message = new StringBuffer();
-//                    message.append("Bei dem Flurstück ");
-//                    message.append(flurstueck.getFlurstueckSchluessel().getKeyString());
-//                    message.append(" wurden die Stillen Reserven der Nutzungen: \n\n");
-//
-//                    Set<Nutzung> nutzungen = null;
-//                    if ((nutzungen = flurstueck.getNutzungen()) == null) {
-//                        System.out.println("Keine Nutzungen vorhanden die gebucht werden müssten");
-//                    } else {
-//                        Iterator<Nutzung> it = nutzungen.iterator();
-//                        Vector<Nutzung> bookedNutzungen = new Vector<Nutzung>();
-//                        Date buchungsdatum = new Date();
-//                        while (it.hasNext()) {
-//                            NutzungCustomBean current = it.next();
-//                            if (current.getIstGebucht() == null) {
-//                                System.out.println("Ein Buchungstatus einer NutzungCustomBean ist unbekannt. ID: " + current.getId());
-//                                throw new ActionNotSuccessfulException("Der Buchungsstatus einer NutzungCustomBean ist unbekannt");
-//                            } else {
-//                                if (current.getIstGebucht()) {
-//                                    System.out.println("NutzungCustomBean ist bereits gebucht");
-//                                } else {
-//                                    System.out.println("Buche NutzungCustomBean: " + current.getId());
-//                                    message.append(current + "\n");
-//                                    current.setBuchungsDatum(buchungsdatum);
-//                                    current.setIstGebucht(true);
-//                                    current.setStilleReserve(0.0);
-//                                    bookedNutzungen.add(current);
-//                                }
-//                            }
-//                        }
-//                        //Vector im Moment unnötig
-//                        if (bookedNutzungen.size() < 1) {
-//                            System.out.println("Es wurden keine Nutzungen gebucht");
-//                        } else {
-//                            System.out.println("Es wurden " + bookedNutzungen.size() + " Nutzungen gebucht, sende Emailbenachrichtigungen");
-//                            it = bookedNutzungen.iterator();
-//                            message.append("gebucht.\n\n");
-//                            sendEmail("Lagis - Stille Reserven wurden gebucht", message.toString(), nkfSessions);
-//                        }
-//                    }
-//                }
-//                releaseLock(tmpLock);
-//            } catch (Exception ex) {
-//                System.out.println("Ein Fehler ist aufgetreten während dem buchen der Stillen Reserven --> löse SperreCustomBean");
-//                ex.printStackTrace();
-//                releaseLock(tmpLock);
-//                if (ex instanceof ActionNotSuccessfulException) {
-//                    throw (ActionNotSuccessfulException) ex;
-//                } else {
-//                    throw new ActionNotSuccessfulException("Ein Unbekannter Ausnamefehler ist aufgetreten. Bitte wenden Sie sich an Ihren Systemadministrator.", ex);
-//                }
-//            }
-//        } else {
-//            throw new ActionNotSuccessfulException("Kein gültiger Flurstückschlüssel angegeben");
-//        }
     }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  flurstueckHistorie  DOCUMENT ME!
-     * @param  allEdges            DOCUMENT ME!
-     * @param  direction           DOCUMENT ME!
-     */
-// public Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselForWFSFlurstueck(
-// final Collection<WfsFlurstuecke> wfsFlurstuecke) throws ActionNotSuccessfulException {
-// final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<FlurstueckSchluesselCustomBean>();
-// try {
-// if ((wfsFlurstuecke != null) && (wfsFlurstuecke.size() > 0)) {
-// for (final WfsFlurstuecke curWfsFlurstueck : wfsFlurstuecke) {
-// final FlurstueckSchluesselCustomBean curFlurstueckSchluessel =
-// getFlurstueckSchluesselForWFSFlurstueck(curWfsFlurstueck);
-// if (curFlurstueckSchluessel == null) {
-// if (LOG.isDebugEnabled()) {
-// // throw new ActionNotSuccessfulException("FlurstueckSchluesselCustomBean abfrage nicht
-// // erfolgreich. Kein Gegenstück zu WfSFlurstuecke vorhanden.");
-// LOG.debug(
-// "FlurstueckSchluessel abfrage nicht erfolgreich. Kein Gegenstück zu WfSFlurstuecke vorhanden.");
-// }
-// continue;
-// }
-// result.add(curFlurstueckSchluessel);
-// }
-// } else {
-// if (LOG.isDebugEnabled()) {
-// LOG.debug(
-// "WfsFlurstueck == null oder leer. Kann korrespondierenden Flurstueckschluessel nicht abrufen");
-// }
-// return result;
-// }
-// } catch (Exception ex) {
-// final String errorMessage = "Fehler beim Kompletieren eines Flurstückschluessels: ";
-// if (LOG.isDebugEnabled()) {
-// LOG.debug(errorMessage, ex);
-// }
-// throw new ActionNotSuccessfulException(errorMessage, ex);
-// }
-// return result;
-// }
-    /**
-     * TODO Jean: WFSFlurstueck CustomBean
-     *
-     * @param  flurstueckHistorie  wfsFlurstueck DOCUMENT ME!
-     * @param  allEdges            DOCUMENT ME!
-     * @param  direction           DOCUMENT ME!
-     */
-// public FlurstueckSchluesselCustomBean getFlurstueckSchluesselForWFSFlurstueck(
-// final WfsFlurstuecke wfsFlurstueck) throws ActionNotSuccessfulException {
-// try {
-// if (wfsFlurstueck != null) {
-// final FlurstueckSchluesselCustomBean fkey = new FlurstueckSchluesselCustomBean();
-// final GemarkungCustomBean gem = new GemarkungCustomBean();
-// gem.setSchluessel(wfsFlurstueck.getGem());
-// fkey.setGemarkung(gem);
-// fkey.setFlur(wfsFlurstueck.getFlur());
-// fkey.setFlurstueckZaehler(wfsFlurstueck.getFlurstz());
-// fkey.setFlurstueckNenner(wfsFlurstueck.getFlurstn());
-// return completeFlurstueckSchluessel(fkey);
-// } else {
-// if (LOG.isDebugEnabled()) {
-// LOG.debug("WfsFlurstueck == null. Kann korrespondierenden Flurstueckschluessel nicht abrufen");
-// }
-// return null;
-// }
-// } catch (Exception ex) {
-// final String errorMessage =
-// "Fehler beim Kompletieren eines Flurstückschluessels. Flurstueck vielleicht nicht vorhanden ";
-// if (LOG.isDebugEnabled()) {
-// LOG.debug(errorMessage + wfsFlurstueck, ex);
-// }
-// return null;
-// }
-// return null;
-// }
 
     /**
      * DOCUMENT ME!
@@ -2745,7 +2607,7 @@ public final class CidsBroker {
                     }
                     allEdges.add(currentFlurstueckHistorie);
                     pseudoKeysToRemove.add(currentFlurstueckHistorie);
-                    final Collection<FlurstueckHistorieCustomBean> result = getHistoryAccessors(
+                    final Collection<FlurstueckHistorieCustomBean> result = getHistoryPredecessors(
                             currentFlurstueckHistorie.getVorgaenger().getFlurstueckSchluessel());
                     if (result != null) {
                         realNeighbours.addAll(result);
@@ -2785,7 +2647,7 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    private Collection<FlurstueckHistorieCustomBean> getHistoryAccessors(
+    private Collection<FlurstueckHistorieCustomBean> getHistoryPredecessors(
             final FlurstueckSchluesselCustomBean flurstueckSchluessel) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Suche Vorgänger für Flurstück");
@@ -2978,7 +2840,8 @@ public final class CidsBroker {
                 final FlurstueckSchluesselCustomBean oldSchluessel = (FlurstueckSchluesselCustomBean)CidsBroker
                             .getInstance()
                             .getLagisMetaObject(key.getId(),
-                                    CidsBroker.getInstance().getLagisMetaClass(CLASS__FLURSTUECK_SCHLUESSEL).getId())
+                                    CidsBroker.getInstance().getLagisMetaClass(
+                                        LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL).getId())
                             .getBean();
 
                 if ((oldSchluessel != null) && (oldSchluessel.getFlurstueckArt() != null)
@@ -3043,19 +2906,6 @@ public final class CidsBroker {
             return true;
         } else {
             return false;
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  newSchluessel  DOCUMENT ME!
-     */
-    private void createFlurstueckSchluessel(final FlurstueckSchluesselCustomBean newSchluessel) {
-        try {
-            newSchluessel.persist();
-        } catch (Exception ex) {
-            LOG.error("Fehler beim anlegen des Flurstückschlüssels: " + newSchluessel, ex);
         }
     }
 
@@ -3158,276 +3008,6 @@ public final class CidsBroker {
     }
 
     /**
-     * This is the old version of processNutzungen(), please use processNutzungen() instead. This method is kept to have
-     * a draft for the emailMessage, which is not used at the moment and though not present in processNutzungen().
-     *
-     * @param   nutzungen      DOCUMENT ME!
-     * @param   flurstueckKey  DOCUMENT ME!
-     *
-     * @throws  ErrorInNutzungProcessingException  DOCUMENT ME!
-     *
-     * @see     processNutzungen()
-     */
-    private void processNutzungen_old(final Collection<NutzungCustomBean> nutzungen, final String flurstueckKey)
-            throws ErrorInNutzungProcessingException {
-        try {
-            // ToDo NKF Neue Kette Angelegt Mail etc ?? Testen
-            if ((nutzungen != null) && (nutzungen.size() > 0)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Anzahl Ketten in aktuellem Flurstück: " + nutzungen.size());
-                }
-                final Date bookingDate = new Date();
-                for (final NutzungCustomBean curNutzung : nutzungen) {
-                    StringBuffer emailMessage = null;
-                    String emailSubject = null;
-                    final Collection<NutzungCustomBean.NUTZUNG_STATES> nutzungsState = curNutzung.getNutzungsState();
-                    if (nutzungsState.isEmpty()) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Keine Änderung");
-                        }
-                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_CREATED)) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Neue Nutzung angelegt. Nachricht an Zuständige");
-                        }
-                        curNutzung.getBuchwert().setGueltigvon(bookingDate);
-                        final StringBuilder message = new StringBuilder();
-                        message.append("Bei dem Flurstück: ");
-                        message.append(flurstueckKey);
-                        message.append(" wurde eine neue Nutzung angelegt: \n\n");
-                        message.append(curNutzung.getOpenBuchung().getPrettyString());
-//                        sendEmail("Lagis - Neue Nutzung", message.toString(), nkfSessions);
-                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_CHANGED)) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Nutzungskette wurde modifiziert "
-                                        + Arrays.deepToString(nutzungsState.toArray()));
-                        }
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Setzte Datum für die letzten beiden Buchungen");
-                        }
-                        curNutzung.getOpenBuchung().setGueltigvon(bookingDate);
-                        curNutzung.getPreviousBuchung().setGueltigbis(bookingDate);
-                        if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNGSART_CHANGED)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Nutzungsart wurde geändert. Nachricht an Zuständige");
-                            }
-                            final StringBuilder message = new StringBuilder();
-                            message.append("Bei dem Flurstück ");
-                            message.append(flurstueckKey);
-                            message.append(" wurde die Nutzungsart der Nutzung: \n\n");
-                            message.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            message.append("\nwie folgt geändert:\n\n");
-                            message.append(curNutzung.getOpenBuchung().getNutzungsart().getPrettyString());
-//                            sendEmail("Lagis - Änderung einer Nutzungsart", message.toString(), nkfSessions);
-                        }
-                        if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_CREATED)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Stille Reserve wurde gebildet. Nachricht an Zuständige");
-                            }
-                            emailMessage = new StringBuffer();
-                            emailMessage.append("Bei dem Flurstück ");
-                            emailMessage.append(flurstueckKey);
-                            emailMessage.append(" wurde die Nutzung: \n\n");
-                            emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            emailMessage.append("\nwie folgt abgeändert:\n\n");
-                            emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                            emailMessage.append("\nEs wurde eine Stille Reserve in Höhe von: ")
-                                    .append(currencyFormatter.format(curNutzung.getStilleReserve()))
-                                    .append(" gebildet.");
-                            emailSubject = "Lagis - Stille Reserve wurde gebildet";
-                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_INCREASED)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Vorhandene Stille Reserve wurde erhöht. Nachricht an Zuständige");
-                            }
-                            emailMessage = new StringBuffer();
-                            emailMessage.append("Bei dem Flurstück ");
-                            emailMessage.append(flurstueckKey);
-                            emailMessage.append(" wurde die Nutzung: \n\n");
-                            emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            emailMessage.append("\nwie folgt abgeändert:\n\n");
-                            emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                            emailMessage.append("\nDie vorhandene Stille Reserve wurde um ")
-                                    .append(currencyFormatter.format(curNutzung.getDifferenceToPreviousBuchung()))
-                                    .append(" erhöht.");
-                            emailSubject = "Lagis - Stille Reserve wurde erhöht";
-                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_DECREASED)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Vorhandene Stille Reserve wurde vermindert. Nachricht an Zuständige");
-                            }
-                            emailMessage = new StringBuffer();
-                            emailMessage.append("Bei dem Flurstück ");
-                            emailMessage.append(flurstueckKey);
-                            emailMessage.append(" wurde die Nutzung: \n\n");
-                            emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            emailMessage.append("\nwie folgt abgeändert:\n\n");
-                            emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                            emailMessage.append("\nDie vorhandene Stille Reserve wurde um ")
-                                    .append(currencyFormatter.format(
-                                                Math.abs(curNutzung.getDifferenceToPreviousBuchung())))
-                                    .append(" reduziert.");
-                            emailSubject = "Lagis - Stille Reserve wurde reduziert";
-                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.STILLE_RESERVE_DISOLVED)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug(
-                                    "Vorhandene Stille Reserve wurde vollständig aufgebraucht. Nachricht an Zuständige");
-                            }
-                            emailMessage = new StringBuffer();
-                            emailMessage.append("Bei dem Flurstück ");
-                            emailMessage.append(flurstueckKey);
-                            emailMessage.append(" wurde die Nutzung: \n\n");
-                            emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            emailMessage.append("\nwie folgt abgeändert:\n\n");
-                            emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                            emailMessage.append(
-                                "\nEine Nutzung des Flurstücks wurde reduziert, die vorhandene Stille Reserve reicht nicht aus um die Differenz auszugleichen. ");
-                            emailMessage.append("Die Stille Reserve wird aufgelöst.");
-                            emailSubject = "Lagis - Stille Reserve wurde aufgelöst";
-                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.POSITIVE_BUCHUNG)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Positive Buchung ohne Stille Reserve. Nachricht an Zuständige");
-                            }
-                            emailMessage = new StringBuffer();
-                            emailMessage.append("Bei dem Flurstück ");
-                            emailMessage.append(flurstueckKey);
-                            emailMessage.append(" wurde die Nutzung: \n\n");
-                            emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            emailMessage.append("\nwie folgt abgeändert:\n\n");
-                            emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                            emailMessage.append(
-                                    "\nEs ist keine Stille Reserve vorhanden und es wurde keine gebildet.\n Der Gesamtpreis wurde um ")
-                                    .append(currencyFormatter.format(curNutzung.getDifferenceToPreviousBuchung()))
-                                    .append(" erhöht.");
-                            emailSubject = "Lagis - Gesamtpreis einer Nutzung hat sich erhöht";
-                        } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NEGATIVE_BUCHUNG)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Negative Buchung ohne Stille Reserve. Nachricht an Zuständige");
-                            }
-                            emailMessage = new StringBuffer();
-                            emailMessage.append("Bei dem Flurstück ");
-                            emailMessage.append(flurstueckKey);
-                            emailMessage.append(" wurde die Nutzung: \n\n");
-                            emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                            emailMessage.append("\nwie folgt abgeändert:\n\n");
-                            emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                            final StringBuffer append = emailMessage.append(
-                                        "\nEs ist keine Stille Reserve vorhanden. Der Gesamtpreis wurde um ")
-                                        .append(currencyFormatter.format(curNutzung.getDifferenceToPreviousBuchung()))
-                                        .append(" reduziert.");
-                            emailSubject = "Lagis - Gesamtpreis einer Nutzung hat sich vermindert";
-                        }
-                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.NUTZUNG_TERMINATED)) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Nutzungskette wurde terminiert, setze Buchungsdatum");
-                            LOG.debug("Benachrichtigung der Verantwortlichen Stelle über die Veränderung...");
-                        }
-                        emailMessage = new StringBuffer();
-                        emailMessage.append("Bei dem Flurstück ");
-                        emailMessage.append(flurstueckKey);
-                        emailMessage.append(" wurde die Nutzung: \n\n");
-                        emailMessage.append(curNutzung.getTerminalBuchung().getPrettyString());
-                        emailMessage.append("\n\n");
-                        emailMessage.append(
-                            "abgeschlossen. Es sind keine weiteren Buchungen mehr möglich auf dieser Nutzung.");
-                        emailSubject = "Lagis - Nutzung wurde gelöscht";
-                        // ToDo Nachricht an Zuständige ?? gab es bisher
-                        // curNutzung.terminateNutzung(bookingDate);
-                        curNutzung.getTerminalBuchung().setGueltigbis(bookingDate);
-                        // ToDo letzter Wert zum Buchwert setzen ?
-                    } else if (nutzungsState.contains(NutzungCustomBean.NUTZUNG_STATES.BUCHUNG_CREATED)) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("neue Buchung . Nachricht an Zuständige");
-                        }
-                        emailMessage = new StringBuffer();
-                        emailMessage.append("Bei dem Flurstück ");
-                        emailMessage.append(flurstueckKey);
-                        emailMessage.append(" wurde die Nutzung: \n\n");
-                        emailMessage.append(curNutzung.getPreviousBuchung().getPrettyString());
-                        emailMessage.append("\nwie folgt abgeändert:\n\n");
-                        emailMessage.append(curNutzung.getOpenBuchung().getPrettyString());
-                        emailSubject = "Lagis - Buchung wurde erzeugt";
-                    } else {
-                        throw new Exception("Kein Fall trifft auf Stati zu: "
-                                    + Arrays.toString(nutzungsState.toArray()));
-                    }
-                    // Nur Stille Reserve --> NutzungsartCustomBean Email weiter oben
-                    if (emailMessage != null) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Es wird eine Nachricht an die zuständige Behörde geschickt");
-                        }
-//                        sendEmail(emailSubject, emailMessage.toString(), nkfSessions);
-                    }
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Flurstück besitzt keine Nutzungen.");
-                }
-            }
-        } catch (Exception ex) {
-            throw new ErrorInNutzungProcessingException("Nutzungen konnten nicht verarbeitet werden", ex);
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  locks  subject DOCUMENT ME!
-     */
-// private void sendEmail(final String subject,
-// final String message, final Vector<Session> sessions) {
-// if (LOG.isDebugEnabled()) {
-// LOG.debug("Sende Email benachrichtigung");
-// }
-// try {
-// //final Properties lagisEEproperties = new Properties();
-// // lagisEEproperties.load(getClass().getResourceAsStream("/de/cismet/lagis/eeServer/defaultLagisEEServer.properties"));
-//
-//            // System.out.println("NKF EMAIL Address: "+lagisEEproperties.getProperty("nkf_Mailaddress"));
-//            // System.out.println("System Property test: "+System.getProperty("lagis.test"));
-//            // System.out.println("Session properties: "+nkfMailer.getProperties()); System.out.println("Session
-//            // Property: "+nkfMailer.getProperty("mail.lagis.test")); if
-//            // (lagisEEproperties.getProperty("nkf_Mailaddress") != null) {
-//            // System.out.println("Benachrichtigungsmailadresse gesetzt: " +
-//            // lagisEEproperties.getProperty("nkf_Mailaddress")); } else {
-//            // System.out.println("Benachrichtigungsmailadresse nicht gesetzt --> keine Mail"); return; }
-//            if (System.getProperty("lagis.nkfmail") != null) {
-//                if (LOG.isDebugEnabled()) {
-//                    LOG.debug("Benachrichtigungsmailadresse gesetzt: " + System.getProperty("lagis.nkfmail"));
-//                }
-//            } else {
-//                if (LOG.isDebugEnabled()) {
-//                    LOG.debug("Benachrichtigungsmailadresse nicht gesetzt --> keine Mail");
-//                }
-//                return;
-//            }
-//            // Problem with different auth --> see if multiple email addresses are needed
-// MailAuthenticator auth = new MailAuthenticator("", "");
-//
-//            //final Iterator<Session> sessionItr = sessions.iterator();
-//            // if (sessions != null && sessions.size() > 0) {
-//            // while (sessionItr.hasNext()) {
-//            // sessionItr.next();
-//            // Properties properties = new Properties();
-//            // properties.put("mail.smtp.host", "smtp.uni-saarland.de");
-//            // Session mailer = Session.getDefaultInstance(properties, null);
-//            final javax.mail.Message msg = new MimeMessage(nkfMailer);
-//            msg.setFrom(new InternetAddress("sebastian.puhl@cismet.de"));
-//            // TODO Surround with try catch
-//            msg.setRecipients(
-//                javax.mail.Message.RecipientType.TO,
-//                InternetAddress.parse(System.getProperty("lagis.nkfmail"), false));
-//            msg.setSubject(subject);
-//            msg.setText(message);
-//            msg.setSentDate(new Date());
-//            Transport.send(msg);
-//            // }
-//            // } else {
-//            // System.out.println("Keine Session vorhanden");
-//            // }
-//        } catch (Exception ex) {
-//            LOG.error("Fehler beim senden einer email", ex);
-//        }
-//    }
-
-    /**
      * DOCUMENT ME!
      *
      * @param  locks  DOCUMENT ME!
@@ -3465,126 +3045,6 @@ public final class CidsBroker {
         historyEntry.setVorgaenger(oldFlurstueck);
         historyEntry.setNachfolger(newFlurstueck);
         createFlurstueckHistoryEntry(historyEntry);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   key         DOCUMENT ME!
-     * @param   level       DOCUMENT ME!
-     * @param   type        DOCUMENT ME!
-     * @param   levelCount  DOCUMENT ME!
-     * @param   allEdges    DOCUMENT ME!
-     *
-     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
-     */
-    private void addHistoryEntriesForNeighbours(final FlurstueckSchluesselCustomBean key,
-            final CidsBroker.HistoryLevel level,
-            final CidsBroker.HistoryType type,
-            int levelCount,
-            final Collection<FlurstueckHistorieCustomBean> allEdges) throws ActionNotSuccessfulException {
-        Collection<FlurstueckHistorieCustomBean> foundEdges;
-        Collection<FlurstueckHistorieCustomBean> neighbours;
-
-        if (type == CidsBroker.HistoryType.PREDECESSOR) {
-            neighbours = getHistoryAccessors(key);
-        } else {
-            neighbours = getHistorySuccessor(key);
-        }
-
-        if ((neighbours != null) && (type == CidsBroker.HistoryType.PREDECESSOR)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt Vorgängerkanten zu diesem Knoten");
-            }
-            replacePseudoFlurstuecke(neighbours, allEdges, type);
-            allEdges.addAll(neighbours);
-        } else if ((neighbours != null) && (type == CidsBroker.HistoryType.SUCCESSOR)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt Nachfoglerkanten zu diesem Knoten");
-            }
-            replacePseudoFlurstuecke(neighbours, allEdges, type);
-            allEdges.addAll(neighbours);
-        } else if (type == CidsBroker.HistoryType.SUCCESSOR) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt keine Nachfolgerkanten zu diesem Knoten");
-            }
-            return;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es gibt keine Vorgängerkanten zu diesem Knoten");
-            }
-            return;
-        }
-
-        if (level != CidsBroker.HistoryLevel.All) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("HistoryLevel = " + level);
-            }
-            if (levelCount > 0) {
-                levelCount = --levelCount;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("LevelCount " + (levelCount + 1) + " wurde um eins reduziert auf " + levelCount);
-                }
-                if (levelCount == 0) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-                    }
-                    return;
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-                }
-                return;
-            }
-        }
-
-        final Iterator<FlurstueckHistorieCustomBean> itr = neighbours.iterator();
-
-        while (itr.hasNext()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Suche rekursiv nach weiteren Vorgängern");
-            }
-            if (type == CidsBroker.HistoryType.PREDECESSOR) {
-                foundEdges = getHistoryEntries(itr.next().getVorgaenger().getFlurstueckSchluessel(),
-                        level,
-                        type,
-                        levelCount);
-            } else {
-                foundEdges = getHistoryEntries(itr.next().getNachfolger().getFlurstueckSchluessel(),
-                        level,
-                        type,
-                        levelCount);
-            }
-            if (foundEdges != null) {
-                allEdges.addAll(foundEdges);
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Rekursive suche brachte keine Ergebnisse");
-                }
-            }
-        }
-
-        if (level != CidsBroker.HistoryLevel.All) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("HistoryLevel = " + level);
-            }
-            if (levelCount > 0) {
-                levelCount = --levelCount;
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("LevelCount " + (levelCount + 1) + " wurde um eins reduziert auf " + levelCount);
-                }
-                if (levelCount == 0) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-                    }
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Anzahl zu suchender Levels erschöpft kehre zurück");
-                }
-            }
-        }
     }
 
     /**
@@ -3676,53 +3136,4 @@ public final class CidsBroker {
         }
         return mos;
     }
-
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @version  $Revision$, $Date$
-//     */
-//    class MailAuthenticator extends Authenticator {
-//
-//        //~ Instance fields ----------------------------------------------------
-//
-//        /**
-//         * Ein String, der den Usernamen nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String user;
-//        /**
-//         * Ein String, der das Passwort nach der Erzeugung eines Objektes<br>
-//         * dieser Klasse enthalten wird.
-//         */
-//        private final String password;
-//
-//        //~ Constructors -------------------------------------------------------
-//
-//        /**
-//         * Der Konstruktor erzeugt ein MailAuthenticator Objekt<br>
-//         * aus den beiden Parametern user und passwort.
-//         *
-//         * @param  user      String, der Username fuer den Mailaccount.
-//         * @param  password  String, das Passwort fuer den Mailaccount.
-//         */
-//        public MailAuthenticator(final String user, final String password) {
-//            this.user = user;
-//            this.password = password;
-//        }
-//
-//        //~ Methods ------------------------------------------------------------
-//
-//        /**
-//         * Diese Methode gibt ein neues PasswortAuthentication Objekt zurueck.
-//         *
-//         * @return  DOCUMENT ME!
-//         *
-//         * @see     javax.mail.Authenticator#getPasswordAuthentication()
-//         */
-//        @Override
-//        protected PasswordAuthentication getPasswordAuthentication() {
-//            return new PasswordAuthentication(this.user, this.password);
-//        }
-//    }
 }

@@ -604,20 +604,11 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
         if (object == null) {
             return "null";
         }
-        final List<FarbeCustomBean> farben = Arrays.asList(object.getFarben().toArray(new FarbeCustomBean[0]));
-        Collections.sort((List<FarbeCustomBean>)farben, new Comparator<FarbeCustomBean>() {
-
-                @Override
-                public int compare(final FarbeCustomBean o1, final FarbeCustomBean o2) {
-                    return (int)(o1.getId() - o2.getId());
-                }
-            });
         return "\n" + tab() + "[Verwaltungsgebrauch |"
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
                     + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
                     + "\n" + t() + "UnterAbschnitt: " + getStringOf(object.getUnterAbschnitt())
-                    + "\n" + t() + "Farben: " + getStringOf(new HashSet<FarbeCustomBean>(farben))
                     + "\n" + t() + "Kategorie: " + getStringOf(object.getKategorie())
                     + "\n" + t() + "toString: " + getStringOf(object.toString())
                     + "\n" + untab() + "]";

@@ -1,4 +1,4 @@
-lagis-client
+lagis-client [![Build Status](http://ci.cismet.de/buildStatus/icon?job=lagis-client)](https://ci.cismet.de/job/lagis-client/)
 ============
 
 Software to manage and maintain city owned land property.

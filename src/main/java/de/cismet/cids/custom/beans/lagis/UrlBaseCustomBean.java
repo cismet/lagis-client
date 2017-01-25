@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.UrlBase;
@@ -25,7 +26,7 @@ public class UrlBaseCustomBean extends BasicEntity implements UrlBase {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(UrlBaseCustomBean.class);
-    public static final String TABLE = "url_base";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "prot_prefix", "server", "path" };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -33,7 +34,6 @@ public class UrlBaseCustomBean extends BasicEntity implements UrlBase {
     private String prot_prefix;
     private String server;
     private String path;
-    private String[] PROPERTY_NAMES = new String[] { "id", "prot_prefix", "server", "path" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -52,9 +52,11 @@ public class UrlBaseCustomBean extends BasicEntity implements UrlBase {
      */
     public static UrlBaseCustomBean createNew() {
         try {
-            return (UrlBaseCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (UrlBaseCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.URL_BASE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.URL_BASE + " bean", ex);
             return null;
         }
     }

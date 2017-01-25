@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import org.openide.util.Exceptions;
-
 import java.util.*;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -18,7 +16,8 @@ import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagis.util.SortedList;
 
@@ -36,16 +35,15 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NutzungCustomBean.class);
-    public static final String TABLE = "nutzung";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "fk_flurstueck", "n_buchungen" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private FlurstueckCustomBean fk_flurstueck;
     private Collection<NutzungBuchungCustomBean> n_buchungen;
-    private String[] PROPERTY_NAMES = new String[] { "id", "fk_flurstueck", "n_buchungen" };
 
-    private List<NutzungBuchungCustomBean> sortedBuchungen = new SortedList<NutzungBuchungCustomBean>(
+    private final List<NutzungBuchungCustomBean> sortedBuchungen = new SortedList<NutzungBuchungCustomBean>(
             new Comparator<NutzungBuchungCustomBean>() {
 
                 @Override
@@ -81,8 +79,8 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     public static NutzungCustomBean createNew(final boolean addDummyBuchung) {
         try {
             final NutzungCustomBean nutzung = (NutzungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                    CidsBroker.LAGIS_DOMAIN,
-                    TABLE);
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.NUTZUNG);
 
             if (addDummyBuchung) {
                 final NutzungBuchungCustomBean buchung = NutzungBuchungCustomBean.createNew();
@@ -92,7 +90,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
 
             return nutzung;
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.NUTZUNG + " bean", ex);
             return null;
         }
     }
@@ -131,7 +129,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
             }
             try {
                 initialBuchwert = (NutzungBuchungCustomBean)CidsBean.createNewCidsBeanFromTableName(
-                        CidsBroker.LAGIS_DOMAIN,
+                        LagisConstants.DOMAIN_LAGIS,
                         "nutzung_buchung");
             } catch (Exception ex) {
                 LOG.error("error creating nutzung_buchung bean", ex);
@@ -356,63 +354,81 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         }
     }
 
-    @Override
-    public Collection<NutzungBuchungCustomBean> getBuchungForDay(final Date val) {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   day  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<Date> getDatesForDay(final Date day) {
+        final Set<Date> result = new HashSet<Date>();
+        if (getBuchungsCount() > 0) {
+            if (day == null) {
+                final NutzungBuchungCustomBean openBuchung = getOpenBuchung();
+                if (openBuchung != null) {
+                    result.add(openBuchung.getGueltigbis());
+                }
+            } else {
+                final Date date = getDateWithoutTime(day);
+
+                for (final NutzungBuchungCustomBean curBuchung : getNutzungsBuchungen()) {
+                    final Date gueltigBis = curBuchung.getGueltigbis();
+                    final Date gueltigBisDay = getDateWithoutTime(gueltigBis);
+                    if ((gueltigBisDay != null) && gueltigBisDay.equals(date)) {
+                        result.add(gueltigBis);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   val           DOCUMENT ME!
+     * @param   daySensitive  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<NutzungBuchungCustomBean> getBuchungForDate(final Date val, final boolean daySensitive) {
         Date date = val;
         final Set<NutzungBuchungCustomBean> result = new HashSet<NutzungBuchungCustomBean>();
         if (getBuchungsCount() > 0) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Nutzungen vorhanden");
-            }
             if (date == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ziel Datum ist null --> nur aktuelle Nutzungen");
-                }
                 final NutzungBuchungCustomBean openBuchung = getOpenBuchung();
                 if (openBuchung != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Offene Buchung hinzugefügt");
-                    }
                     result.add(openBuchung);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Keine Offene Buchung vorhanden");
-                    }
                 }
             } else {
-                date = getDateWithoutTime(date);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Zieldatum vorhanden Nutzung wird gesucht");
-                }
+                date = daySensitive ? getDateWithoutTime(date) : date;
                 for (final NutzungBuchungCustomBean curBuchung : getNutzungsBuchungen()) {
-                    final Date gueltigVon = getDateWithoutTime(curBuchung.getGueltigvon());
-                    Date gueltigBis = getDateWithoutTime(curBuchung.getGueltigbis());
+                    final Date gueltigVon = daySensitive ? getDateWithoutTime(curBuchung.getGueltigvon())
+                                                         : curBuchung.getGueltigvon();
+                    Date gueltigBis = daySensitive ? getDateWithoutTime(curBuchung.getGueltigbis())
+                                                   : curBuchung.getGueltigbis();
                     if (gueltigBis == null) {
-                        gueltigBis = getDateWithoutTime(new Date());
+                        gueltigBis = daySensitive ? getDateWithoutTime(new Date()) : new Date();
                     }
-                    // ToDo better use before() after()
-                    if ((gueltigVon != null) && (gueltigVon.compareTo(date) <= 0)
-                                && (((gueltigBis == null) && ((new Date()).compareTo(date) >= 0))
-                                    || ((gueltigBis != null)
-                                        && (gueltigBis.compareTo(date) >= 0)))) {
+
+                    if ((gueltigVon != null)
+                                && (date.after(gueltigVon))
+                                && (date.before(gueltigBis) || date.equals(gueltigBis))) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Passende Nutzung mit gewünschtem Zeitbereich gefunden");
                         }
                         result.add(curBuchung);
                     }
                 }
-                if (result.isEmpty()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Keine passende Nutzung gefunden");
-                    }
-                }
-            }
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Nutzungen vorhanden");
             }
         }
         return result;
+    }
+
+    @Override
+    public Collection<NutzungBuchungCustomBean> getBuchungForDay(final Date val) {
+        return getBuchungForDate(val, true);
     }
 
     @Override

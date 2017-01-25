@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Farbe;
@@ -25,7 +26,12 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(FarbeCustomBean.class);
-    public static final String TABLE = "farbe";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "rgb_farbwert",
+            "fk_stil",
+            "fk_verwaltungsgebrauch"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -33,7 +39,6 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
     private Integer rgb_farbwert;
     private StilCustomBean fk_stil;
     private VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch;
-    private String[] PROPERTY_NAMES = new String[] { "id", "rgb_farbwert", "fk_stil", "fk_verwaltungsgebrauch" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -52,9 +57,11 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
      */
     public static FarbeCustomBean createNew() {
         try {
-            return (FarbeCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (FarbeCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.FARBE);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.FARBE + " bean", ex);
             return null;
         }
     }

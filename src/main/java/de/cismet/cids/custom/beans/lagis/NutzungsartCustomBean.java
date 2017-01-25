@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
@@ -25,14 +26,13 @@ public class NutzungsartCustomBean extends BasicEntity implements Nutzungsart {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(NutzungsartCustomBean.class);
-    public static final String TABLE = "nutzungsart";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "schluessel", "bezeichnung" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String schluessel;
     private String bezeichnung;
-    private String[] PROPERTY_NAMES = new String[] { "id", "schluessel", "bezeichnung" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -51,9 +51,11 @@ public class NutzungsartCustomBean extends BasicEntity implements Nutzungsart {
      */
     public static NutzungsartCustomBean createNew() {
         try {
-            return (NutzungsartCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (NutzungsartCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.NUTZUNGSART);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.NUTZUNGSART + " bean", ex);
             return null;
         }
     }

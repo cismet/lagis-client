@@ -590,7 +590,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         currentDate = historyDate;
         clearCidsBeans();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
-            final Collection buchungenForDay = curNutzung.getBuchungForDay(historyDate);
+            final Collection buchungenForDay = curNutzung.getBuchungForDate(historyDate, false);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Anzahl buchungen: " + buchungenForDay.size());
             }

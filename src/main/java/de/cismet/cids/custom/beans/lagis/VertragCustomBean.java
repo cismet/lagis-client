@@ -14,7 +14,8 @@ import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.Vertrag;
@@ -30,7 +31,19 @@ public class VertragCustomBean extends BasicEntity implements Vertrag {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(VertragCustomBean.class);
-    public static final String TABLE = "vertrag";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "aktenzeichen",
+            "vertragspartner",
+            "datum_auflassung",
+            "datum_eintragung",
+            "bemerkung",
+            "quadratmeterpreis",
+            "gesamtpreis",
+            "fk_vertragsart",
+            "n_beschluesse",
+            "n_kosten"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -45,19 +58,6 @@ public class VertragCustomBean extends BasicEntity implements Vertrag {
     private VertragsartCustomBean fk_vertragsart;
     private Collection<BeschlussCustomBean> n_beschluesse;
     private Collection<KostenCustomBean> n_kosten;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "aktenzeichen",
-            "vertragspartner",
-            "datum_auflassung",
-            "datum_eintragung",
-            "bemerkung",
-            "quadratmeterpreis",
-            "gesamtpreis",
-            "fk_vertragsart",
-            "n_beschluesse",
-            "n_kosten"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -76,9 +76,11 @@ public class VertragCustomBean extends BasicEntity implements Vertrag {
      */
     public static VertragCustomBean createNew() {
         try {
-            return (VertragCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (VertragCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.VERTRAG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.VERTRAG + " bean", ex);
             return null;
         }
     }

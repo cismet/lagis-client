@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
@@ -25,14 +26,13 @@ public class GemarkungCustomBean extends BasicEntity implements Gemarkung {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(GemarkungCustomBean.class);
-    public static final String TABLE = "gemarkung";
+    private static final String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "schluessel" };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
     private Integer schluessel;
-    private String[] PROPERTY_NAMES = new String[] { "id", "bezeichnung", "schluessel" };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -51,9 +51,11 @@ public class GemarkungCustomBean extends BasicEntity implements Gemarkung {
      */
     public static GemarkungCustomBean createNew() {
         try {
-            return (GemarkungCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (GemarkungCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.GEMARKUNG);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.GEMARKUNG + " bean", ex);
             return null;
         }
     }

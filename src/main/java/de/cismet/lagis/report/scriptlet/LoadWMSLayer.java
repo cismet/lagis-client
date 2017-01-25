@@ -28,25 +28,21 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.sf.jasperreports.engine.JRDefaultScriptlet;
 
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Condition;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
-import de.cismet.cismap.commons.BoundingBox;
+import de.cismet.cismap.commons.HeadlessMapProvider;
+import de.cismet.cismap.commons.XBoundingBox;
 import de.cismet.cismap.commons.raster.wms.simple.SimpleWMS;
 import de.cismet.cismap.commons.raster.wms.simple.SimpleWmsGetMapUrl;
-import de.cismet.cismap.commons.retrieval.RetrievalEvent;
-import de.cismet.cismap.commons.retrieval.RetrievalListener;
 
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -78,15 +74,9 @@ public class LoadWMSLayer extends JRDefaultScriptlet {
                 + "&LAYERS=alkomf"
                 + "&STYLES=default";
 
-    private static final int SCALE_FACTOR = 3;
-
-    /*
-     * Wait time for image retrieval in seconds
-     */
-    private static final int RETRIEVAL_WAIT_TIME = 300;
-
-    private static final int IMG_HEIGHT = 296 * SCALE_FACTOR;
-    private static final int IMG_WIDTH = 542 * SCALE_FACTOR;
+    private static final int MAP_DPI = 300;
+    private static final int IMG_HEIGHT = 296;
+    private static final int IMG_WIDTH = 542;
 
     //~ Instance fields --------------------------------------------------------
 
@@ -120,113 +110,24 @@ public class LoadWMSLayer extends JRDefaultScriptlet {
         this.retrieveData();
 
         final Lock lock = new ReentrantLock();
-        final Condition waitForImageRetrieval = lock.newCondition();
 
-        final BoundingBox boundingBox = new BoundingBox(bbox);
         final SimpleWMS swms = new SimpleWMS(new SimpleWmsGetMapUrl(GETMAP_REQUEST));
-        swms.setName("Flurstück");
 
-        swms.setBoundingBox(boundingBox);
-        swms.setSize(IMG_HEIGHT, IMG_WIDTH);
+        final HeadlessMapProvider mapProvider = new HeadlessMapProvider();
+        mapProvider.addLayer(swms);
+        mapProvider.setCenterMapOnResize(true);
 
-        final SignallingRetrievalListener listener = new SignallingRetrievalListener(lock, waitForImageRetrieval);
-        swms.addRetrievalListener(listener);
-
+        final XBoundingBox boundingBox = new XBoundingBox(bbox);
+        mapProvider.setBoundingBox(boundingBox);
+        final Future<Image> f = mapProvider.getImage(72, MAP_DPI, IMG_WIDTH, IMG_HEIGHT);
         lock.lock();
         try {
-            swms.retrieve(true);
-            waitForImageRetrieval.await(RETRIEVAL_WAIT_TIME, TimeUnit.SECONDS);
-        } catch (final Throwable t) {
+            return f.get();
+        } catch (final Exception t) {
             LOG.error("Error occurred while retrieving WMS image", t);
         } finally {
             lock.unlock();
         }
-
-        return listener.getRetrievedImage();
-    }
-
-    //~ Inner Classes ----------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @version  $Revision$, $Date$
-     */
-    public class SignallingRetrievalListener implements RetrievalListener {
-
-        //~ Instance fields ----------------------------------------------------
-
-        private BufferedImage image = null;
-        private Lock lock;
-        private Condition condition;
-
-        //~ Constructors -------------------------------------------------------
-
-        /**
-         * Creates a new SignallingRetrievalListener object.
-         *
-         * @param  lock       DOCUMENT ME!
-         * @param  condition  DOCUMENT ME!
-         */
-        public SignallingRetrievalListener(final Lock lock, final Condition condition) {
-            this.lock = lock;
-            this.condition = condition;
-        }
-
-        //~ Methods ------------------------------------------------------------
-
-        @Override
-        public void retrievalStarted(final RetrievalEvent e) {
-        }
-
-        @Override
-        public void retrievalProgress(final RetrievalEvent e) {
-        }
-
-        @Override
-        public void retrievalComplete(final RetrievalEvent e) {
-            if (e.getRetrievedObject() instanceof Image) {
-                final Image retrievedImage = (Image)e.getRetrievedObject();
-                image = new BufferedImage(
-                        retrievedImage.getWidth(null),
-                        retrievedImage.getHeight(null),
-                        BufferedImage.TYPE_INT_RGB);
-                final Graphics2D g = (Graphics2D)image.getGraphics();
-                g.drawImage(retrievedImage, 0, 0, null);
-                g.dispose();
-            }
-            signalAll();
-        }
-
-        @Override
-        public void retrievalAborted(final RetrievalEvent e) {
-            signalAll();
-        }
-
-        @Override
-        public void retrievalError(final RetrievalEvent e) {
-            signalAll();
-        }
-
-        /**
-         * DOCUMENT ME!
-         *
-         * @return  DOCUMENT ME!
-         */
-        public BufferedImage getRetrievedImage() {
-            return image;
-        }
-
-        /**
-         * DOCUMENT ME!
-         */
-        private void signalAll() {
-            lock.lock();
-            try {
-                condition.signalAll();
-            } finally {
-                lock.unlock();
-            }
-        }
+        return null;
     }
 }

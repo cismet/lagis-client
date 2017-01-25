@@ -38,6 +38,7 @@ public class NKFTable extends AbstractCidsBeanTable_Lagis {
     protected void addNewItem() {
         ((NKFTableModel)getModel()).addNutzung(NutzungCustomBean.createNew());
         LOG.info("New Nutzung added to Model");
+        fireItemAdded();
     }
 
     @Override

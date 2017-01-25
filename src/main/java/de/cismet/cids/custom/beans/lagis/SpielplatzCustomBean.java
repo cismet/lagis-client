@@ -9,7 +9,8 @@ package de.cismet.cids.custom.beans.lagis;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
 import de.cismet.lagisEE.entity.extension.spielplatz.Spielplatz;
@@ -25,7 +26,19 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
     //~ Static fields/initializers ---------------------------------------------
 
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(SpielplatzCustomBean.class);
-    public static final String TABLE = "spielplatz";
+    private static final String[] PROPERTY_NAMES = new String[] {
+            "id",
+            "klettergeruest_vorhanden",
+            "ist_klettergeruest_wartung_erforderlich",
+            "rutsche_vorhanden",
+            "ist_rutsche_wartung_erforderlich",
+            "sandkasten_vorhanden",
+            "ist_sandkasten_wartung_erforderlich",
+            "schaukel_vorhanden",
+            "ist_schaukel_wartung_erforderlich",
+            "wippe_vorhanden",
+            "ist_wippe_wartung_erforderlich"
+        };
 
     //~ Instance fields --------------------------------------------------------
 
@@ -40,19 +53,6 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
     private Boolean ist_schaukel_wartung_erforderlich;
     private Boolean wippe_vorhanden;
     private Boolean ist_wippe_wartung_erforderlich;
-    private String[] PROPERTY_NAMES = new String[] {
-            "id",
-            "klettergeruest_vorhanden",
-            "ist_klettergeruest_wartung_erforderlich",
-            "rutsche_vorhanden",
-            "ist_rutsche_wartung_erforderlich",
-            "sandkasten_vorhanden",
-            "ist_sandkasten_wartung_erforderlich",
-            "schaukel_vorhanden",
-            "ist_schaukel_wartung_erforderlich",
-            "wippe_vorhanden",
-            "ist_wippe_wartung_erforderlich"
-        };
 
     //~ Constructors -----------------------------------------------------------
 
@@ -71,9 +71,11 @@ public class SpielplatzCustomBean extends BasicEntity implements Spielplatz {
      */
     public static SpielplatzCustomBean createNew() {
         try {
-            return (SpielplatzCustomBean)CidsBean.createNewCidsBeanFromTableName(CidsBroker.LAGIS_DOMAIN, TABLE);
+            return (SpielplatzCustomBean)CidsBean.createNewCidsBeanFromTableName(
+                    LagisConstants.DOMAIN_LAGIS,
+                    LagisMetaclassConstants.SPIELPLATZ);
         } catch (Exception ex) {
-            LOG.error("error creating " + TABLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.SPIELPLATZ + " bean", ex);
             return null;
         }
     }

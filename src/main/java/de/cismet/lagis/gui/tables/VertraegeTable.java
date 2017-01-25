@@ -73,6 +73,7 @@ public class VertraegeTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void addNewItem() {
         documentContainer.addNewVertrag();
+        fireItemAdded();
     }
 
     /**

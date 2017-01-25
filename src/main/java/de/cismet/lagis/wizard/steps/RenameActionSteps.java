@@ -92,6 +92,10 @@ public class RenameActionSteps extends WizardPanelProvider {
 
         @Override
         public void start(final Map wizardData, final ResultProgressHandle progress) {
+            if (!LagisBroker.getInstance().checkFlurstueckWizardUserWantsToFinish()) {
+                progress.failed("Die Aktion wurde durch den Benutzer abgebrochen.", true);
+                return;
+            }
             if (log.isDebugEnabled()) {
                 log.debug("WizardFinisher: Flurstueck renamen: ");
             }
