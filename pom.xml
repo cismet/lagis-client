@@ -175,6 +175,19 @@
                 <scope>runtime</scope>
             </dependency>
             <!-- END: managed cids plugin dependencies -->
+                
+                
+            <!--
+                DANGER DANGER DANGER DANGER DANGER DANGER DANGER DANGER DANGER
+                Override managed swingx v1.6 in ext-bom to v0.9.7 to be able to use deprecated JXTable functions
+                See https://github.com/cismet/lagis-client/issues/69 and https://cismet.slack.com/files/pascal.dihe/F4BM2GHST/SwingX_in_lagis-client 
+            -->
+            <dependency>
+                <groupId>org.swinglabs</groupId>
+                <artifactId>swingx</artifactId>
+                <version>0.9.7</version>
+                <type>jar</type>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -358,6 +371,11 @@
                 </plugin>        
             </plugins>
         </pluginManagement>
+        
+        <!--
+            CAUTION ! Ugly Winning bei der Namens-Auswahl !!! siehe Slack =>
+            https://cismet.slack.com/files/jruiz/F3ZC7HX7V/Snapshot_als_finalName_in_pom_xml
+        -->
         <finalName>LagisClient</finalName>
     </build>
 </project>
