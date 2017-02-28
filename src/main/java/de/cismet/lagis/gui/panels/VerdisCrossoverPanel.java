@@ -47,12 +47,9 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.cismap.commons.CrsTransformer;
-
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.KassenzeichenTable;
 
 import de.cismet.layout.FadingCardLayout;
@@ -628,7 +625,7 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                 final int rowAtPoint = tblKassenzeichen.rowAtPoint(new Point(e.getX(), e.getY()));
                 if ((rowAtPoint != -1)
                             && ((tableModel.getKassenzeichenAtIndex(
-                                        ((JXTable)tblKassenzeichen).getFilters().convertRowIndexToModel(
+                                        ((JXTable)tblKassenzeichen).convertRowIndexToModel(
                                             rowAtPoint))) != null)) {
                     if (log.isDebugEnabled()) {
                         log.debug("KassenzeichenEntity found");

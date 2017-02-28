@@ -16,15 +16,12 @@ import org.jdesktop.swingx.JXTable;
 
 import java.awt.Point;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 
 import javax.swing.JTable;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.KassenzeichenCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
@@ -271,10 +268,10 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
             final int rowAtPoint = tKassenzeichen.rowAtPoint(new Point(evt.getX(), evt.getY()));
             if ((rowAtPoint != -1)
                         && ((tableModel.getCidsBeanAtRow(
-                                    ((JXTable)tKassenzeichen).getFilters().convertRowIndexToModel(
+                                    ((JXTable)tKassenzeichen).convertRowIndexToModel(
                                         rowAtPoint))) != null)) {
                 final KassenzeichenCustomBean kassenzeichenEintrag = (tableModel.getCidsBeanAtRow(
-                            ((JXTable)tKassenzeichen).getFilters().convertRowIndexToModel(
+                            ((JXTable)tKassenzeichen).convertRowIndexToModel(
                                 rowAtPoint)));
                 final MetaClass mcKassenzeichen = CidsBroker.getInstance()
                             .getMetaClass("kassenzeichen", "VERDIS_GRUNDIS");

@@ -18,7 +18,6 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.SortOrder;
 
 import org.jdom.Element;
 
@@ -327,8 +326,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     try {
                         if (componentAdapter.getRowCount() > 0) {
                             final int displayedIndex = componentAdapter.row;
-                            final int modelIndex = ((JXTable)tNutzung).getFilters()
-                                        .convertRowIndexToModel(displayedIndex);
+                            final int modelIndex = ((JXTable)tNutzung).convertRowIndexToModel(displayedIndex);
                             final NutzungBuchungCustomBean n = tableModel.getCidsBeanAtRow(modelIndex);
                             // NO Geometry & more than one Verwaltungsbereich
                             return (n != null) && !n.getIstBuchwert();
@@ -354,8 +352,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     try {
                         if (componentAdapter.getRowCount() > 0) {
                             final int displayedIndex = componentAdapter.row;
-                            final int modelIndex = ((JXTable)tNutzung).getFilters()
-                                        .convertRowIndexToModel(displayedIndex);
+                            final int modelIndex = ((JXTable)tNutzung).convertRowIndexToModel(displayedIndex);
                             final NutzungBuchungCustomBean n = tableModel.getCidsBeanAtRow(modelIndex);
                             // NO Geometry & more than one Verwaltungsbereich
                             return ((n != null) && n.getSollGeloeschtWerden());
@@ -885,7 +882,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         // TODO richtigen Member identifiezieren
         jBand1.setSelectedMember((BandMemberSelectable)null);
         final int index = tableModel.getIndexOfCidsBean(nutzung);
-        final int displayedIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToView(index);
+        final int displayedIndex = ((JXTable)tNutzung).convertRowIndexToView(index);
         if (index != -1) {
             tNutzung.getSelectionModel().clearSelection();
             tNutzung.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
@@ -1427,7 +1424,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 NutzungBuchungCustomBean selectedNutzung = null;
                 if ((rowAtPoint != -1)
                             && ((selectedNutzung = tableModel.getCidsBeanAtRow(
-                                            ((JXTable)tNutzung).getFilters().convertRowIndexToModel(rowAtPoint)))
+                                            ((JXTable)tNutzung).convertRowIndexToModel(rowAtPoint)))
                                 != null)
                             && (selectedNutzung.getNutzung() != null)
                             && (selectedNutzung.getNutzung().getPredecessorBuchung(selectedNutzung) != null)) {
