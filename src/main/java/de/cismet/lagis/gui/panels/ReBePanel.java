@@ -19,11 +19,9 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.SortOrder;
 
 import java.awt.Component;
 import java.awt.EventQueue;
-import java.awt.Rectangle;
 import java.awt.event.*;
 
 import java.util.*;
@@ -275,7 +273,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 @Override
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     final int displayedIndex = componentAdapter.row;
-                    final int modelIndex = ((JXTable)tReBe).getFilters().convertRowIndexToModel(displayedIndex);
+                    final int modelIndex = ((JXTable)tReBe).convertRowIndexToModel(displayedIndex);
                     final RebeCustomBean r = tableModel.getCidsBeanAtRow(modelIndex);
                     return (r != null) && (r.getGeometry() == null);
                 }

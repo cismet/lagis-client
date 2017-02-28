@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
 import org.jdesktop.swingx.decorator.*;
-import org.jdesktop.swingx.decorator.SortOrder;
 
 import org.jdom.Element;
 
@@ -675,7 +674,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     try {
                         final int displayedIndex = componentAdapter.row;
-                        final int modelIndex = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(displayedIndex);
+                        final int modelIndex = ((JXTable)tNutzung).convertRowIndexToModel(displayedIndex);
                         final VerwaltungsbereichCustomBean g = tableModel.getCidsBeanAtRow(modelIndex);
                         // TODO warum muss g != null sein muss nicht geodert werden?
                         return (((g == null) || ((g != null) && (g.getGeometry() == null)))

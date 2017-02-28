@@ -14,31 +14,24 @@ package de.cismet.lagis.gui.panels;
 
 import org.jdesktop.swingx.JXTable;
 //import org.jdesktop.swingx.decorator.HighlighterPipeline;
-import org.jdesktop.swingx.decorator.SortOrder;
-
-import org.openide.util.Exceptions;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SortOrder;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
-import de.cismet.lagis.Exception.IllegalNutzungStateException;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.tables.NKFOverviewTable;
-import de.cismet.lagis.gui.tables.NKFTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 

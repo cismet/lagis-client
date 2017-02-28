@@ -10,7 +10,7 @@
 
     <groupId>de.cismet.lagis</groupId>
     <artifactId>lagis-client</artifactId>
-    <version>4.0</version>
+    <version>4.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -35,7 +35,7 @@
         <connection>https://github.com/cismet/lagis-client.git</connection>
         <developerConnection>scm:git:git@github.com:cismet/lagis-client.git</developerConnection>
         <url>https://github.com/cismet/lagis-client</url>
-      <tag>v4.0</tag>
+      <tag>v4.1</tag>
   </scm>
 
     <repositories>
@@ -107,11 +107,6 @@
             <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swingx</artifactId>
-            <version>0.9.7</version>
-        </dependency>
-        <dependency>
             <groupId>org.jdom</groupId>
             <artifactId>jdom</artifactId>
             <version>1.1</version>
@@ -124,7 +119,7 @@
         <dependency>
             <groupId>de.cismet.cids.custom.wupp</groupId>
             <artifactId>cids-custom-wuppertal</artifactId>
-            <version>4.0.1</version>
+            <version>4.1</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs</groupId>

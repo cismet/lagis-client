@@ -256,8 +256,8 @@ public class PlanPanel extends javax.swing.JPanel implements MouseListener {
         final int currentRow = tblPlan.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
-            tableModel.removePlan(((JXTable)tblPlan).getFilters().convertRowIndexToModel(
-                    ((JXTable)tblPlan).getFilters().convertRowIndexToModel(currentRow)));
+            tableModel.removePlan(((JXTable)tblPlan).convertRowIndexToModel(
+                    ((JXTable)tblPlan).convertRowIndexToModel(currentRow)));
             tableModel.fireTableDataChanged();
         }
     } //GEN-LAST:event_btnRemovePlanActionPerformed
