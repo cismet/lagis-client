@@ -57,8 +57,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private DecimalFormat df = LagisBroker.getCurrencyFormatter();
-    private DateFormat dateFormatter = LagisBroker.getDateFormatter();
+    private final DecimalFormat df = LagisBroker.getCurrencyFormatter();
+    private final DateFormat dateFormatter = LagisBroker.getDateFormatter();
     private VertragCustomBean currentSelectedVertrag = null;
     private VertraegeTableModel vertraegeTableModel;
     private AmountDocumentModel kaufpreisDocumentModel;
@@ -245,7 +245,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                 log.debug("Row: " + currentRow);
             }
             if (currentRow != -1) {
-                currentRow = table.getFilters().convertRowIndexToModel(currentRow);
+                currentRow = table.convertRowIndexToModel(currentRow);
                 currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(currentRow);
                 try {
                     kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
@@ -301,7 +301,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                     kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
                     beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
-                    table.changeSelection(table.getFilters().convertRowIndexToView(currentRow),
+                    table.changeSelection(table.convertRowIndexToView(currentRow),
                         currentColumn,
                         false,
                         false);

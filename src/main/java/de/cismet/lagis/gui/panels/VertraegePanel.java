@@ -15,7 +15,6 @@ package de.cismet.lagis.gui.panels;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.SortOrder;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;

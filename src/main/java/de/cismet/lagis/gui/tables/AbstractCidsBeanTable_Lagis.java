@@ -10,27 +10,22 @@ package de.cismet.lagis.gui.tables;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.SortOrder;
 
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
+import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -44,10 +39,6 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
-
-import de.cismet.lagis.widget.AbstractWidget;
-
-import de.cismet.lagisEE.entity.basic.BasicEntity;
 
 /**
  * Parent class of several Tables. It provides a NewItem action, a RemoveItem action and a SortItem Listener. These
@@ -205,7 +196,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
     protected void btnRemoveActionPerformed(final ActionEvent evt) {
         final int selectedRow = this.getSelectedRow();
         if (selectedRow != -1) {
-            final int modelRow = this.getFilters().convertRowIndexToModel(selectedRow);
+            final int modelRow = this.convertRowIndexToModel(selectedRow);
             removeItem(modelRow);
         }
         execAfterItemRemoved();
@@ -322,7 +313,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
         final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
         boolean firstIteration = true;
         for (final int row : this.getSelectedRows()) {
-            final int index = this.getFilters().convertRowIndexToModel(row);
+            final int index = this.convertRowIndexToModel(row);
             if ((index != -1)) {
                 final StyledFeature selectedCidsBean = ((CidsBeanTableModel_Lagis)getModel()).getCidsBeanAtRow(index);
                 if ((selectedCidsBean.getGeometry() != null)) {
@@ -366,7 +357,7 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
             if (cidsbeanClass.isInstance(wrappedFeature)) {
                 // TODO Refactor Name
                 final int index = ((CidsBeanTableModel_Lagis)getModel()).getIndexOfCidsBean((CidsBean)wrappedFeature);
-                final int displayedIndex = this.getFilters().convertRowIndexToView(index);
+                final int displayedIndex = this.convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
                                 feature)) {
