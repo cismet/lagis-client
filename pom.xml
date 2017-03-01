@@ -183,6 +183,20 @@
 
     <dependencies>
         <!-- BEGIN: cids-dependencies -->
+        <!--
+            DANGER  DANGER  DANGER  DANGER  DANGER  DANGER  DANGER  DANGER 
+            cismet-deegree must have precedence over deegree-deegree due to incompatible
+            duplicate class  org.deegree.crs.Identifiable
+            
+            See https://cismet.slack.com/files/pascal.dihe/F454S3R0B/cids-deegree_v2_3_8_vs_deegree_v3_2_x
+        -->
+        <dependency>
+            <groupId>de.cismet.custom</groupId>
+            <artifactId>cismet-deegree</artifactId>
+            <scope>compile</scope>
+            <type>jar</type>
+        </dependency>
+        
         <dependency>
             <groupId>de.cismet.commons</groupId>
             <artifactId>cismet-commons</artifactId>
@@ -230,12 +244,6 @@
             <scope>compile</scope>
             <type>jar</type>
         </dependency> 
-        <dependency>
-            <groupId>de.cismet.custom</groupId>
-            <artifactId>cismet-deegree</artifactId>
-            <scope>compile</scope>
-            <type>jar</type>
-        </dependency>
 
         <!-- BEGIN: provided cids-dependencies -->
         <dependency>
@@ -415,7 +423,6 @@
         <dependency>
             <groupId>com.lowagie</groupId>
             <artifactId>itext</artifactId>
-            <version>2.1.7.js2</version>
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
@@ -428,19 +435,23 @@
             <groupId>de.cismet.todo</groupId>
             <artifactId>grappa</artifactId>
             <version>unknown</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.jhlabs</groupId>
             <artifactId>filters</artifactId>
             <version>2.0.235</version>
+             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-visual</artifactId>
+             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-libs-javacup</artifactId>
+             <scope>runtime</scope>
         </dependency>
         -->
     </dependencies>
