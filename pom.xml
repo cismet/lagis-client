@@ -29,7 +29,7 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/switchonproject/lagis-client/issues</url>
+        <url>https://github.com/cismet/lagis-client/issues</url>
     </issueManagement>
     
     <ciManagement>
