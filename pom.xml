@@ -76,7 +76,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-commons</artifactId>
-                <version>5.0</version>
+                <version>5.0.2</version>
                 <type>jar</type>
                 <!-- lagis-client imports only final CONSTANTS from lagis-commons:
                     -> static final fields will be inlined by the bytecode compiler 
@@ -93,11 +93,11 @@
                 <version>5.0</version>
                 <type>jar</type>
             </dependency>
-            
+                                    
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp</groupId>
                 <artifactId>cids-custom-wuppertal</artifactId>
-                <version>5.0</version>
+                <version>5.0.5</version>
                 <type>jar</type>
             </dependency>
                                     
@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>5.0</version>
+                <version>5.1.1</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -230,10 +230,10 @@
             Required by cismet-legacy-dev direct compile but maven dependency plugin
             complains about unused declared dependencies ??!!
         -->
-        <!--<dependency>
+        <dependency>
             <groupId>de.cismet.cids.custom.wupp.server</groupId>
             <artifactId>cids-custom-server-wuppertal</artifactId>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>de.cismet.lagis</groupId>
             <artifactId>lagis-server</artifactId>
@@ -249,6 +249,11 @@
         <dependency>
             <groupId>de.cismet.lagis</groupId>
             <artifactId>lagis-commons</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
         <!-- END: provided cids-dependencies -->
