@@ -355,7 +355,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @param  widgets  DOCUMENT ME!
      */
-    public void addWidgets(final Vector widgets) {
+    public void addWidgets(final List<Widget> widgets) {
         final Iterator<Widget> it = widgets.iterator();
         while (it.hasNext()) {
             this.widgets.add(it.next());

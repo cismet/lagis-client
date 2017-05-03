@@ -13,12 +13,19 @@
 package de.cismet.lagis.gui.main;
 
 import Sirius.navigator.DefaultNavigatorExceptionHandler;
-import Sirius.navigator.connection.*;
+import Sirius.navigator.connection.Connection;
+import Sirius.navigator.connection.ConnectionFactory;
+import Sirius.navigator.connection.ConnectionInfo;
+import Sirius.navigator.connection.ConnectionSession;
+import Sirius.navigator.connection.SessionManager;
 import Sirius.navigator.connection.proxy.ConnectionProxy;
 import Sirius.navigator.event.CatalogueSelectionListener;
 import Sirius.navigator.exception.ConnectionException;
-import Sirius.navigator.plugin.context.PluginContext;
-import Sirius.navigator.plugin.interfaces.*;
+import Sirius.navigator.plugin.interfaces.FloatingPluginUI;
+import Sirius.navigator.plugin.interfaces.PluginMethod;
+import Sirius.navigator.plugin.interfaces.PluginProperties;
+import Sirius.navigator.plugin.interfaces.PluginSupport;
+import Sirius.navigator.plugin.interfaces.PluginUI;
 import Sirius.navigator.resource.PropertyManager;
 import Sirius.navigator.types.treenode.RootTreeNode;
 import Sirius.navigator.ui.ComponentRegistry;
@@ -72,18 +79,47 @@ import org.jdom.Element;
 
 import org.netbeans.api.wizard.WizardDisplayer;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.Vector;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
@@ -104,7 +140,6 @@ import de.cismet.cids.custom.commons.searchgeometrylistener.NodesSearchCreateSea
 import de.cismet.cids.custom.commons.searchgeometrylistener.RissNodesSearchCreateSearchGeometryListener;
 import de.cismet.cids.custom.navigatorstartuphooks.MotdStartUpHook;
 import de.cismet.cids.custom.objectrenderer.utils.alkis.AlkisUtils;
-import de.cismet.cids.custom.wunda_blau.search.server.CidsVermessungRissSearchStatement;
 import de.cismet.cids.custom.wunda_blau.startuphooks.MotdWundaStartupHook;
 import de.cismet.cids.custom.wunda_blau.toolbaritem.TestSetMotdAction;
 
@@ -143,6 +178,7 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.FlurstueckInfoClipboard;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.dialogs.LagisFortfuehrungsanlaesseDialog;
 import de.cismet.lagis.gui.panels.*;
 import de.cismet.lagis.gui.tables.NKFTable;
 
@@ -198,10 +234,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     //~ Static fields/initializers ---------------------------------------------
 
     private static final Logger LOG = Logger.getLogger(LagisApp.class);
-    private static Image imgMain = new javax.swing.ImageIcon(LagisApp.class.getResource(
+    private static final Image IMAGE_MAIN = new javax.swing.ImageIcon(LagisApp.class.getResource(
                 "/de/cismet/lagis/ressource/icons/main.png")).getImage();
     // sollte eigentlich alles in den LagisBroker ?? Configuration
-    private static final ConfigurationManager configManager = new ConfigurationManager();
     private static final String FILENAME_LAGIS_CONFIGURATION = "defaultLagisProperties.xml";
     private static final String FILENAME_LOCAL_LAGIS_CONFIGURATION = "lagisProperties.xml";
     private static final String CLASSPATH_LAGIS_CONFIGURATION = "/de/cismet/lagis/configuration/";
@@ -217,7 +252,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
 
     private static final String FILEPATH_DEFAULT_LAYOUT = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.layout";
     private static final String FILEPATH_PLUGIN_LAYOUT = DIRECTORYPATH_LAGIS + FILESEPARATOR + "pluginLagis.layout";
-    private static final String FILEPATH_DEFAULT_APP_DATA = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.data";
     private static final String FILEPATH_SCREEN = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.screen";
 
     private static JFrame SPLASH;
@@ -225,47 +259,20 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private static String onlineHelpURL;
     private static String newsURL;
 
+    private static final String WIDGET_NAME = "Lagis Mainframe";
+    private static final Image BANNER = new javax.swing.ImageIcon(LagisApp.class.getResource(
+                "/de/cismet/lagis/ressource/image/login.png")).getImage();
+
+    private static final String HEADER_ERR_MSG = "Fehler";
+
+    private static final ConfigurationManager configManager = new ConfigurationManager();
+
     static {
         configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
         configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
         configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
         configManager.setFolder(DIRECTORYNAME_LAGISHOME);
     }
-
-    // End of variables declaration
-    private static final int ICON_SIZE = 8;
-//    private static final Icon VIEW_ICON = new Icon() {
-//
-//            @Override
-//            public int getIconHeight() {
-//                return ICON_SIZE;
-//            }
-//
-//            @Override
-//            public int getIconWidth() {
-//                return ICON_SIZE;
-//            }
-//
-//            @Override
-//            public void paintIcon(final Component c, final Graphics g, final int x, final int y) {
-//                final Color oldColor = g.getColor();
-//
-//                g.setColor(new Color(70, 70, 70));
-//                g.fillRect(x, y, ICON_SIZE, ICON_SIZE);
-//
-//                g.setColor(new Color(100, 230, 100));
-//                g.fillRect(x + 1, y + 1, ICON_SIZE - 2, ICON_SIZE - 2);
-//
-//                g.setColor(oldColor);
-//            }
-//        };
-
-    private static final String WIDGET_NAME = "Lagis Mainframe";
-    // TODO VERDIS COPY
-    private static Image banner = new javax.swing.ImageIcon(LagisApp.class.getResource(
-                "/de/cismet/lagis/ressource/image/login.png")).getImage();
-
-    private static final String HEADER_ERR_MSG = "Fehler";
 
     //~ Instance fields --------------------------------------------------------
 
@@ -294,8 +301,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private View vInformation;
     private View vKassenzeichen;
     private WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance().getMappingComponent());
-    private Set<View> wfsFormViews = new HashSet<View>();
-    private Vector<View> wfs = new Vector<View>();
+    private Set<View> wfsFormViews = new HashSet<>();
+    private List<View> wfs = new ArrayList<>();
     private DockingWindow[] wfsViews;
     // private View vAktenzeichenSuche;
     private JDialog aktenzeichenDialog;
@@ -328,25 +335,22 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniForward.png"));
     // ICON ÄNDERN
-    private final Icon icoUnknownFlurstueck = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/unkownFlurstueck.png"));
     private MappingComponent mapComponent;
     private ClipboardWaitDialog clipboarder;
     private StringViewMap viewMap = new StringViewMap();
+    private String fortfuehrungLinkFormat;
 
     // TODO Jean
 // private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     // FIXME ugly winning
     private ActiveLayerModel mappingModel = new ActiveLayerModel();
-    private Vector widgets = new Vector();
+    private List<Widget> widgets = new ArrayList<>();
     private boolean isInit = true;
     // Ressort
-    private Set<View> ressortViews = new HashSet<View>();
+    private Set<View> ressortViews = new HashSet<>();
     private DockingWindow[] ressortDockingWindow;
     // Plugin Navigator
-    private final PluginContext context;
-    private ArrayList<JMenuItem> menues = new ArrayList<JMenuItem>();
-    private boolean isPlugin = false;
+    private ArrayList<JMenuItem> menues = new ArrayList<>();
     // the main thread should wait till the result of the login is computated
     private String albURL;
     // Configurable
@@ -374,6 +378,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private javax.swing.JButton btnReloadFlurstueck;
     private javax.swing.JButton btnSwitchInEditmode;
     private javax.swing.JButton btnVerdisCrossover;
+    private javax.swing.JButton cmdFortfuehrung;
     private javax.swing.JButton cmdPrint;
     private javax.swing.JButton cmdSearchBaulasten;
     private javax.swing.JButton cmdSearchRisse;
@@ -448,43 +453,13 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     /**
      * Creates a new LagisApp object.
      */
-    public LagisApp() {
-        this(null);
-    }
-
-    /**
-     * Creates new form Lagis.
-     *
-     * @param  context  DOCUMENT ME!
-     */
-    public LagisApp(final PluginContext context) {
-        this.context = context;
+    private LagisApp() {
         try {
-//            CidsBroker.setMainframe(this);
-            isPlugin = !(context == null);
-
             LOG.info("Starten der LaGIS Applikation");
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ist Plugin: " + isPlugin);
-            }
-
-            try {
-                if ((context != null) && (context.getEnvironment() != null)
-                            && this.context.getEnvironment().isProgressObservable()) {
-                    this.context.getEnvironment().getProgressObserver().setProgress(0, "LagIS Plugin laden...");
-                }
-            } catch (Exception e) {
-                System.err.print("Keine Progressmeldung");
-                e.printStackTrace();
-            }
 
             UIManager.put(
                 "wizard.sidebar.image",
                 ImageIO.read(getClass().getResource("/de/cismet/lagis/ressource/image/wizard.png")));
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment().getProgressObserver().setProgress(50, "Konfiguriere Wizard...");
-            }
             // TODO FIX
             this.addWindowListener(this);
             LOG.info("Laden der Lagis Konfiguration");
@@ -492,91 +467,72 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 LOG.debug("Name des Lagis Server Konfigurationsfiles: " + FILENAME_LAGIS_CONFIGURATION);
             }
 
-            configManager.addConfigurable(this);
-
-            configManager.addConfigurable(OptionsClient.getInstance());
-            configManager.configure(OptionsClient.getInstance());
-
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Konfiguriere Karten Widget");
             }
 
-            if (isPlugin) {
-                try {
-                    final ConnectionSession session = SessionManager.getSession();
-                    final User user = session.getUser();
+            try {
+                final ConnectionSession session = SessionManager.getSession();
+                final User user = session.getUser();
 
-                    LagisBroker.getInstance().setSession(session);
-                    final String userString = user.getName() + "@" + user.getUserGroup().getName();
-                    // usergroup.toString is most likely not what the usergroup represents within the system but a
-                    // human readeable representation suited for logging purposes
-                    // usergroup.getName is probably what you want
-                    final String userGroup = user.getUserGroup().toString();
+                LagisBroker.getInstance().setSession(session);
+                final String userString = user.getName() + "@" + user.getUserGroup().getName();
+                // usergroup.toString is most likely not what the usergroup represents within the system but a
+                // human readeable representation suited for logging purposes
+                // usergroup.getName is probably what you want
+                final String userGroup = user.getUserGroup().toString();
 
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("userstring: " + userString);
-                        LOG.debug("userGroup: " + userGroup);
-                    }
-
-                    LagisBroker.getInstance().setAccountName(userString);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("full qualified username: " + userString + "@" + user.getUserGroup().getDomain());
-                    }
-                    // TODO: I don't get why there are those numerous calls to configure all over the code.
-                    // configuration should be done once (!) and especially the leaking 'this' in this case is higly
-                    // error prone because the configuration manager uses 'this' (currently being built) object. Thus
-                    // the configuration stuff is done on a partially constructed object. VERY NASTY
-                    configManager.configure(LagisApp.this);
-                    final Boolean permission = LagisBroker.getInstance().getPermissions().get(userGroup.toLowerCase());
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
-                    }
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Permission: " + permission);
-                    }
-                    if ((permission != null) && permission) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Authentication successfull user has granted readwrite access");
-                        }
-                        // TODO strange names
-                        LagisBroker.getInstance().setCoreReadOnlyMode(false);
-                        LagisBroker.getInstance().setFullReadOnlyMode(false);
-                    } else {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Authentication successfull user has granted readonly access");
-                        }
-                    }
-                } catch (Throwable t) {
-                    LOG.error("Fehler im PluginKonstruktor", t);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("userstring: " + userString);
+                    LOG.debug("userGroup: " + userGroup);
                 }
-            } else {
-                setIconImage(imgMain);
+
+                LagisBroker.getInstance().setAccountName(userString);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("full qualified username: " + userString + "@" + user.getUserGroup().getDomain());
+                }
+                // TODO: I don't get why there are those numerous calls to configure all over the code.
+                // configuration should be done once (!) and especially the leaking 'this' in this case is higly
+                // error prone because the configuration manager uses 'this' (currently being built) object. Thus
+                // the configuration stuff is done on a partially constructed object. VERY NASTY
+                configManager.configure(LagisApp.this);
+                final Boolean permission = LagisBroker.getInstance().getPermissions().get(userGroup.toLowerCase());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Permission: " + permission);
+                }
+                if ((permission != null) && permission) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Authentication successfull user has granted readwrite access");
+                    }
+                    // TODO strange names
+                    LagisBroker.getInstance().setCoreReadOnlyMode(false);
+                    LagisBroker.getInstance().setFullReadOnlyMode(false);
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Authentication successfull user has granted readonly access");
+                    }
+                }
+            } catch (Throwable t) {
+                LOG.error("Fehler im PluginKonstruktor", t);
             }
 
             if (LagisBroker.getInstance().getSession() != null) {
                 // error prone !!! see above
+                configManager.addConfigurable(this);
+
                 configManager.configure(this);
             } else {
                 LOG.fatal("Es ist kein ordentlich angemeldeter usernamen vorhanden LagIS wird beendet");
                 System.exit(0);
             }
 
-            // TODO !!!Blocker
-            // while(!loginWasSuccessful);
-            // if there is a userdepending config file, the configuration will be overwritten
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(100, "Aufbau der Verbindung zum LagisServer...");
-            }
+            configManager.addConfigurable(OptionsClient.getInstance());
+            configManager.configure(OptionsClient.getInstance());
+
             configManager.configure(LagisBroker.getInstance());
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(200, "Initialisieren der graphischen Oberfläche...");
-            }
 
             initComponents();
 
@@ -606,12 +562,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } else {
                 btnOpenWizard.setEnabled(false);
             }
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(250, "Laden und konfigurieren der Ressorterweiterugnen...");
-            }
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Konfiguriere ALBListener");
             }
@@ -619,26 +569,18 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     MappingComponent.CUSTOM_FEATUREINFO);
             cfil.setFeatureInforetrievalUrl(albURL);
 
-            if (isPlugin) {
-                menues.add(menFile);
-                menues.add(menEdit);
-                menues.add(menHistory);
-                menues.add(menBookmarks);
-                menues.add(menExtras);
-                menues.add(menWindow);
-            }
+            menues.add(menFile);
+            menues.add(menEdit);
+            menues.add(menHistory);
+            menues.add(menBookmarks);
+            menues.add(menExtras);
+            menues.add(menWindow);
 
             // added manually as the GuiBuilder conflicts could not be resolved
             configureReportButton();
             configureCopyPasteFlurstueckInfoComponents();
 
             initRessortPanels();
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(300, "Laden und konfigurieren der Standardfenster...");
-            }
             initDefaultPanels();
 
             // TODO LAGISBROKER KNOWS THAT THIS FLURstück IS A REQUESTER
@@ -648,12 +590,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             btnAcceptChanges.setEnabled(false);
             btnDiscardChanges.setEnabled(false);
             btnSwitchInEditmode.setEnabled(false);
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(350, "Layout der graphischen Benutzeroberflächee");
-            }
 
             configManager.addConfigurable(wfsFormFactory);
             configManager.configure(wfsFormFactory);
@@ -722,13 +658,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             initKeySearchComponents();
             mapComponent.getFeatureCollection().addFeatureCollectionListener(pFlurstueck);
             //
-            // TODO is it wise to change or switch to the inital boundingbox after setting the layout --> more requests
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(550, "Konfigurieren der Kartenkomponente...");
-            }
             setWindowSize();
             mapComponent.setInternalLayerWidgetAvailable(true);
             for (final Scale s : mapComponent.getScales()) {
@@ -737,19 +666,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 }
             }
 
-            if (isPlugin) {
-                loadLayout(FILEPATH_PLUGIN_LAYOUT);
-            } else {
-                loadLayout(FILEPATH_DEFAULT_LAYOUT);
-            }
+            loadLayout(FILEPATH_PLUGIN_LAYOUT);
 
             // }
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(650, "Konfigurieren der Suchkomponente...");
-            }
             configManager.addConfigurable(pFlurstueck);
             configManager.configure(pFlurstueck);
 
@@ -784,12 +703,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             mapComponent.getFeatureCollection().addFeatureCollectionListener(statusBar);
             CismapBroker.getInstance().addStatusListener(statusBar);
             panStatusbar.add(statusBar);
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(850, "Initialisieren und Starten des Hintergrundthreads...");
-            }
 
             final KeyStroke configLoggerKeyStroke = KeyStroke.getKeyStroke('L', InputEvent.CTRL_MASK);
             final Action configAction = new AbstractAction() {
@@ -928,16 +841,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             updateThread.start();
 
             isInit = false;
-            if ((context != null) && (context.getEnvironment() != null)
-                        && this.context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment()
-                        .getProgressObserver()
-                        .setProgress(1000, "LagIS Initalisierung abgeschlossen");
-            }
-            if ((context != null) && (context.getEnvironment() != null)
-                        && context.getEnvironment().isProgressObservable()) {
-                this.context.getEnvironment().getProgressObserver().setFinished(true);
-            }
 
             pKarte.setInteractionMode();
             if (SPLASH != null) {
@@ -1084,6 +987,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     /**
      * DOCUMENT ME!
      *
+     * @return  DOCUMENT ME!
+     */
+    public String getFortfuehrungLinkFormat() {
+        return fortfuehrungLinkFormat;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param   frame  DOCUMENT ME!
      *
      * @throws  Exception  DOCUMENT ME!
@@ -1194,19 +1106,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         this.fsInfoClipboard = new FlurstueckInfoClipboard(this, copyButton, pasteButton);
     }
 
-    @Override
-    public void setVisible(final boolean visible) {
-        if (isPlugin) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Plugin setVisible ignoriert: " + visible);
-            }
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Kein Plugin super.setVisible: " + visible);
-            }
-            super.setVisible(visible);
-        }
-    }
+//    @Override
+//    public void setVisible(final boolean visible) {
+//        if (LOG.isDebugEnabled()) {
+//            LOG.debug("Plugin setVisible ignoriert: " + visible);
+//        }
+//    }
 
     /**
      * DOCUMENT ME!
@@ -1258,14 +1163,14 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                     handleLoginStatus(d.getStatus(), usernames, login);
                 }
             });
-        d.setIconImage(imgMain);
+        d.setIconImage(IMAGE_MAIN);
 
         login.setPassword("".toCharArray());
         try {
             ((JXPanel)((JXPanel)login.getComponent(1)).getComponent(1)).getComponent(3).requestFocus();
         } catch (Exception skip) {
         }
-        d.setIconImage(imgMain);
+        d.setIconImage(IMAGE_MAIN);
         d.setAlwaysOnTop(true);
         d.setVisible(true);
     }
@@ -1500,13 +1405,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 // TODO for Navigator
 // menues.remove(menHelp);
 // menues.add(wfsFormsMenu);
-// menues.add(menHelp);
-                if (isPlugin) {
-                    menues.add(ressortMenue);
-                    menues.add(menHelp);
-                } else {
-                    menues.add(menHelp);
-                }
+                menues.add(ressortMenue);
+                menues.add(menHelp);
                 mnuBar.remove(menHelp);
                 mnuBar.add(ressortMenue);
                 mnuBar.add(menHelp);
@@ -1836,6 +1736,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         btnAktenzeichenSuche = new javax.swing.JButton();
         btnVerdisCrossover = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
+        cmdFortfuehrung = new javax.swing.JButton();
         panAll = new javax.swing.JPanel();
         panMain = new javax.swing.JPanel();
         panStatusbar = new javax.swing.JPanel();
@@ -2102,6 +2003,31 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         jSeparator2.setMinimumSize(new java.awt.Dimension(2, 25));
         jSeparator2.setPreferredSize(new java.awt.Dimension(2, 23));
         toolbar.add(jSeparator2);
+
+        cmdFortfuehrung.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/fortfuehrung.png"))); // NOI18N
+        cmdFortfuehrung.setToolTipText("Fortführung");
+        cmdFortfuehrung.setBorderPainted(false);
+        cmdFortfuehrung.setFocusable(false);
+        cmdFortfuehrung.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdFortfuehrung.setPreferredSize(new java.awt.Dimension(23, 23));
+        cmdFortfuehrung.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdFortfuehrung.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdFortfuehrungActionPerformed(evt);
+                }
+            });
+        try {
+            cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(
+                    SessionManager.getSession().getUser(),
+                    "lagis.fortfuehrungsanlaesse.dialog") != null);
+        } catch (final Exception ex) {
+            LOG.error("error while checking for grundis.fortfuehrungsanlaesse.dialog", ex);
+            cmdFortfuehrung.setVisible(false);
+        }
+        toolbar.add(cmdFortfuehrung);
 
         getContentPane().add(toolbar, java.awt.BorderLayout.NORTH);
 
@@ -3484,6 +3410,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
+    private void cmdFortfuehrungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFortfuehrungActionPerformed
+        StaticSwingTools.showDialog(LagisFortfuehrungsanlaesseDialog.getInstance());
+    }                                                                                   //GEN-LAST:event_cmdFortfuehrungActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
     private void btnVerdisCrossoverActionPerformed(final java.awt.event.ActionEvent evt) {
         try {
             final JDialog dialog = new JDialog(this, "", true);
@@ -3792,6 +3727,12 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             } catch (Exception ex) {
                 LOG.error("Crossover: Fehler beim Konfigurieren.", ex);
             }
+
+            final Element conf = parent.getChild("fortfuehrung");
+            if (conf != null) {
+                final Element child = conf.getChild("linkFormat");
+                fortfuehrungLinkFormat = (child != null) ? conf.getChild("linkFormat").getText() : null;
+            }
         } catch (Exception ex) {
             LOG.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);
         }
@@ -4073,7 +4014,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      * @return  DOCUMENT ME!
      */
     public static Image getBannerImage() {
-        return banner;
+        return BANNER;
     }
     // TODO VERDIS COPY
     // obsolete because for failed logins --> only for saving the username
@@ -4099,7 +4040,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Login erfolgreich");
             }
-            final LagisApp app = new LagisApp();
+            final LagisApp app = LagisApp.getInstance();
             app.setVisible(true);
             app.getMapComponent().unlock();
         } else {
@@ -4291,6 +4232,15 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         this.listenerEnabled = listenerEnabled;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static LagisApp getInstance() {
+        return LazyInitialiser.INSTANCE;
+    }
+
     //~ Inner Classes ----------------------------------------------------------
 
     /**
@@ -4476,5 +4426,17 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 return false;
             }
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class LazyInitialiser {
+
+        //~ Static fields/initializers -----------------------------------------
+
+        private static final LagisApp INSTANCE = new LagisApp();
     }
 }
