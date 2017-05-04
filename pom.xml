@@ -97,7 +97,7 @@
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp</groupId>
                 <artifactId>cids-custom-wuppertal</artifactId>
-                <version>5.0.5</version>
+                <version>5.0.6</version>
                 <type>jar</type>
             </dependency>
                                     
@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>5.1.1</version>
+                <version>5.1.2</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
