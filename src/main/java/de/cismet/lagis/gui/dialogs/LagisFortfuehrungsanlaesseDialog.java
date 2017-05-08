@@ -15,11 +15,14 @@ package de.cismet.lagis.gui.dialogs;
 import Sirius.navigator.connection.SessionManager;
 
 import Sirius.server.middleware.types.MetaClass;
+import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.middleware.types.MetaObjectNode;
 
 import com.vividsolutions.jts.geom.Geometry;
 
 import org.apache.log4j.Logger;
+
+import java.awt.Component;
 
 import java.sql.Timestamp;
 
@@ -29,13 +32,21 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.alkisfortfuehrung.FortfuehrungItem;
+import de.cismet.cids.custom.alkisfortfuehrung.FortfuehrungenTableModel;
 import de.cismet.cids.custom.alkisfortfuehrung.FortfuehrungsanlaesseDialog;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
@@ -55,8 +66,14 @@ import de.cismet.lagis.commons.LagisConstants;
 import de.cismet.lagis.commons.LagisMetaclassConstants;
 
 import de.cismet.lagis.gui.main.LagisApp;
+import de.cismet.lagis.gui.panels.FlurstueckChooser;
+
+import de.cismet.lagis.interfaces.DoneDelegate;
 
 import de.cismet.lagis.server.search.LagisFortfuehrungItemSearch;
+
+import de.cismet.lagis.thread.ExtendedSwingWorker;
+import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 /**
  * DOCUMENT ME!
@@ -69,6 +86,9 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
     //~ Static fields/initializers ---------------------------------------------
 
     private static final Logger LOG = Logger.getLogger(LagisFortfuehrungsanlaesseDialog.class);
+    private static final HashMap<Integer, GemarkungCustomBean> GEMARKUNGEN_MAP = CidsBroker.getInstance()
+                .getGemarkungsHashMap();
+    private static final Map<Geometry, Collection<FlurstueckSchluesselCustomBean>> geomBeansMap = new HashMap<>();
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox cbxAbgearbeitet;
@@ -106,54 +126,37 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
         return LagisApp.getInstance().getFortfuehrungLinkFormat();
     }
 
+    @Override
+    protected void refreshFortfuehrungsList() {
+        geomBeansMap.clear();
+        super.refreshFortfuehrungsList();
+    }
+
     /**
      * DOCUMENT ME!
      */
     private void gotoSelectedFlurstueck() {
-        final String alkisId = (String)lstFlurstuecke.getSelectedValue();
-
-        final String[] alkisIdParts = alkisId.split("-");
-        final String gemarkung = alkisIdParts[0].substring(2);
-        final String flur = alkisIdParts[1];
-        final String[] zaehlerNennerParts = alkisIdParts[2].split("/");
-        final String zaehler = zaehlerNennerParts[0];
-        final String nenner = (zaehlerNennerParts.length > 1) ? zaehlerNennerParts[1] : null;
-        if ((gemarkung != null) && (flur != null) && (zaehler != null)) {
-            GemarkungCustomBean resolvedGemarkung = LagisBroker.getInstance()
-                        .getGemarkungForKey(Integer.parseInt(gemarkung));
-            if (resolvedGemarkung == null) {
-                resolvedGemarkung = GemarkungCustomBean.createNew();
-                resolvedGemarkung.setSchluessel(Integer.parseInt(gemarkung));
-            }
-
-            final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
-            key.setGemarkung(resolvedGemarkung);
-            key.setFlur(Integer.parseInt(flur));
-            key.setFlurstueckZaehler(Integer.parseInt(zaehler));
-            if (nenner != null) {
-                key.setFlurstueckNenner(Integer.parseInt(nenner));
-            } else {
-                key.setFlurstueckNenner(0);
-            }
-            LagisBroker.getInstance().loadFlurstueck(key);
-        }
+        final FlurstueckSchluesselCustomBean flurstueckSchluessel = (FlurstueckSchluesselCustomBean)
+            lstFlurstuecke.getSelectedValue();
+        LagisBroker.getInstance().loadFlurstueck(flurstueckSchluessel);
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  alkisIds  DOCUMENT ME!
+     * @param  flurstueckSchluessels  DOCUMENT ME!
      */
     @Override
-    protected void setObjects(final Collection alkisIds) {
-        if (alkisIds == null) {
+    protected void setObjects(final Collection flurstueckSchluessels) {
+        if (flurstueckSchluessels == null) {
             cbxAbgearbeitet.setSelected(false);
         } else {
-            final DefaultListModel flurstueckListModel = (DefaultListModel)lstFlurstuecke.getModel();
-            flurstueckListModel.removeAllElements();
+            final DefaultListModel flurstueckSchluesselListModel = (DefaultListModel)lstFlurstuecke.getModel();
+            flurstueckSchluesselListModel.removeAllElements();
 
-            for (final String alkisId : (Collection<String>)alkisIds) {
-                flurstueckListModel.addElement(alkisId);
+            for (final FlurstueckSchluesselCustomBean alkisId
+                        : (Collection<FlurstueckSchluesselCustomBean>)flurstueckSchluessels) {
+                flurstueckSchluesselListModel.addElement(alkisId);
             }
         }
     }
@@ -181,36 +184,115 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
             lstFlurstuecke.setEnabled(false);
             cbxAbgearbeitet.setEnabled(false);
         } else {
-            new SwingWorker<Collection<String>, Void>() {
+            final FortfuehrungItem selectedFortfuehrungItem = getSelectedFortfuehrungItem();
+
+            new SwingWorker<Collection<FlurstueckSchluesselCustomBean>, Void>() {
 
                     @Override
-                    protected Collection<String> doInBackground() throws Exception {
-                        final int currentSrid = CrsTransformer.getCurrentSrid();
-                        final Geometry searchGeom = geom.buffer(0);
-                        searchGeom.setSRID(currentSrid);
-                        final BufferingGeosearch search = new BufferingGeosearch();
-                        final MetaClass mc = CidsBean.getMetaClassFromTableName("WUNDA_BLAU", "alkis_landparcel");
-                        search.setValidClasses(Arrays.asList(mc));
-                        search.setGeometry(searchGeom);
+                    protected Collection<FlurstueckSchluesselCustomBean> doInBackground() throws Exception {
+                        if (!geomBeansMap.containsKey(geom)) {
+                            final int currentSrid = CrsTransformer.getCurrentSrid();
+                            final Geometry searchGeom = geom.buffer(0);
+                            searchGeom.setSRID(currentSrid);
+                            final BufferingGeosearch search = new BufferingGeosearch();
+                            final MetaClass mc = CidsBean.getMetaClassFromTableName("WUNDA_BLAU", "alkis_landparcel");
+                            search.setValidClasses(Arrays.asList(mc));
+                            search.setGeometry(searchGeom);
 
-                        final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)SessionManager
-                                    .getProxy().customServerSearch(SessionManager.getSession().getUser(), search);
+                            final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)SessionManager
+                                        .getProxy().customServerSearch(SessionManager.getSession().getUser(), search);
 
-                        final List<String> alkisIds = new ArrayList<>();
-                        for (final MetaObjectNode mon : res) {
-                            alkisIds.add(mon.toString());
+                            final List<String> alkisIds = new ArrayList<>();
+
+                            final FortfuehrungenTableModel model = getTableModel();
+                            for (int index = 0; index < model.getRowCount(); index++) {
+                                final FortfuehrungItem item = model.getItem(index);
+                                if ((item != null) && (item.getFfn() != null)
+                                            && item.getFfn().equals(selectedFortfuehrungItem.getFfn())) {
+                                    final String flurstueckAlt = item.getFlurstueckAlt().replaceAll("_", "0");
+                                    final String gemarkungAlt = flurstueckAlt.substring(0, 6);
+                                    final String flurAlt = flurstueckAlt.substring(6, 9);
+                                    final String zaehlerAlt = flurstueckAlt.substring(9, 14);
+                                    final String nennerAlt = flurstueckAlt.substring(14);
+                                    alkisIds.add(gemarkungAlt + "-" + flurAlt + "-" + zaehlerAlt
+                                                + ((Integer.parseInt(nennerAlt) > 0) ? ("/" + nennerAlt) : ""));
+                                }
+                            }
+
+                            for (final MetaObjectNode mon : res) {
+                                alkisIds.add(mon.toString());
+                            }
+
+                            final Set<FlurstueckSchluesselCustomBean> flurstueckSchluesselBeans = new HashSet<>();
+
+                            for (final String alkisId : alkisIds) {
+                                final String[] alkisIdParts = alkisId.split("-");
+                                final Integer gemarkung = Integer.parseInt(alkisIdParts[0].substring(2));
+                                final Integer flur = Integer.parseInt(alkisIdParts[1]);
+                                final String[] zaehlerNennerParts = alkisIdParts[2].split("/");
+                                final Integer zaehler = Integer.parseInt(zaehlerNennerParts[0]);
+                                final Integer nenner = (zaehlerNennerParts.length > 1)
+                                    ? Integer.parseInt(zaehlerNennerParts[1]) : 0;
+
+                                final MetaClass metaClass = CidsBroker.getInstance()
+                                            .getLagisMetaClass("flurstueck_schluessel");
+                                final String query = "SELECT "
+                                            + "   " + metaClass.getID() + ", "
+                                            + "   " + metaClass.getTableName() + ".id "
+                                            + "FROM " + metaClass.getTableName() + " "
+                                            + "WHERE "
+                                            + "   " + metaClass.getTableName()
+                                            + ".fk_gemarkung = (SELECT id FROM gemarkung WHERE schluessel = "
+                                            + gemarkung
+                                            + ") AND "
+                                            + "   " + metaClass.getTableName() + ".flur = " + flur + " AND "
+                                            + "   " + metaClass.getTableName() + ".flurstueck_zaehler = " + zaehler
+                                            + " AND "
+                                            + "   " + metaClass.getTableName() + ".flurstueck_nenner = " + nenner + ""
+                                            + ";";
+                                final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+
+                                if ((mos != null) && (mos.length > 0)) {
+                                    flurstueckSchluesselBeans.add((FlurstueckSchluesselCustomBean)mos[0].getBean());
+                                } else {
+                                    final FlurstueckSchluesselCustomBean flurstueckSchluesselBean =
+                                        FlurstueckSchluesselCustomBean.createNew();
+                                    flurstueckSchluesselBean.setGemarkung(GEMARKUNGEN_MAP.get(gemarkung));
+                                    flurstueckSchluesselBean.setFlur(flur);
+                                    flurstueckSchluesselBean.setFlurstueckZaehler(zaehler);
+                                    flurstueckSchluesselBean.setFlurstueckNenner(nenner);
+
+                                    final SwingWorker sw = WFSRetrieverFactory.getInstance()
+                                                .getWFSRetriever(
+                                                    flurstueckSchluesselBean,
+                                                    new DoneDelegate() {
+
+                                                        @Override
+                                                        public void jobDone(final ExtendedSwingWorker worker,
+                                                                final HashMap properties) {
+                                                            flurstueckSchluesselBeans.add(
+                                                                (FlurstueckSchluesselCustomBean)worker.getKeyObject());
+                                                        }
+                                                    },
+                                                    new HashMap<Integer, Boolean>());
+                                    sw.execute();
+                                    sw.get();
+                                }
+                            }
+
+                            geomBeansMap.put(geom, flurstueckSchluesselBeans);
                         }
-                        return alkisIds;
+
+                        return geomBeansMap.get(geom);
                     }
 
                     @Override
                     protected void done() {
                         try {
-                            final FortfuehrungItem selectedFortfuehrungItem = getSelectedFortfuehrungItem();
-
-                            final Collection<String> alkisIds = get();
+                            final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessels = new ArrayList<>();
+                            flurstueckSchluessels.addAll(get());
                             setDetailEnabled(true);
-                            setObjects(alkisIds);
+                            setObjects(flurstueckSchluessels);
 
                             cbxAbgearbeitet.setSelected(selectedFortfuehrungItem.isIst_abgearbeitet());
 
@@ -264,6 +346,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
         lstFlurstuecke.setModel(new DefaultListModel());
+        lstFlurstuecke.setCellRenderer(new FlurstueckSchluesselListCellRenderer());
         lstFlurstuecke.setEnabled(false);
         lstFlurstuecke.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -468,5 +551,33 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
         private static final LagisFortfuehrungsanlaesseDialog INSTANCE = new LagisFortfuehrungsanlaesseDialog(LagisApp
                         .getInstance(),
                 false);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    class FlurstueckSchluesselListCellRenderer extends DefaultListCellRenderer {
+
+        //~ Methods ------------------------------------------------------------
+
+        @Override
+        public Component getListCellRendererComponent(final JList<?> list,
+                final Object value,
+                final int index,
+                final boolean isSelected,
+                final boolean cellHasFocus) {
+            final FlurstueckSchluesselCustomBean flurstueckSchluessel = (FlurstueckSchluesselCustomBean)value;
+            final JLabel component = (JLabel)super.getListCellRendererComponent(
+                    list,
+                    value,
+                    index,
+                    isSelected,
+                    cellHasFocus);
+            component.setIcon(FlurstueckChooser.getIcon(FlurstueckChooser.identifyStatus(flurstueckSchluessel)));
+            component.setText(flurstueckSchluessel.getKeyString());
+            return component;
+        }
     }
 }
