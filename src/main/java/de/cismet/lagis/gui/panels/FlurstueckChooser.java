@@ -10,14 +10,9 @@ package de.cismet.lagis.gui.panels;
 import Sirius.navigator.connection.Connection;
 import Sirius.navigator.connection.SessionManager;
 
-import Sirius.server.middleware.types.MetaClass;
-import Sirius.server.middleware.types.MetaObject;
-
 import com.vividsolutions.jts.geom.Geometry;
 
 import org.apache.log4j.Logger;
-
-import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 import org.jdom.Element;
 
@@ -74,7 +69,6 @@ import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.NoWriteError;
 
 import de.cismet.tools.gui.StaticSwingTools;
-import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
 
 /**
  * DOCUMENT ME!
@@ -100,6 +94,19 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     private static final String FILEPATH_ICON_HISTORIC = TOOLBAR_RESPATH + "historic.png";
     private static final String FILEPATH_ICON_UNKNOWNFLURSTUECK = TOOLBAR_RESPATH + "unkownFlurstueck.png";
     private static final String FILEPATH_ICON_WFSWARN = "/de/cismet/lagis/ressource/icons/FlurstueckPanel/16warn.png";
+
+    public static final Icon ICON_STAEDTISCH = new ImageIcon(FlurstueckChooser.class.getResource(
+                FILEPATH_ICON_CURRENT));
+    public static final Icon ICON_STAEDTISCH_HISTORIC = new ImageIcon(FlurstueckChooser.class.getResource(
+                FILEPATH_ICON_HISTORIC));
+    public static final Icon ICON_ABTEILUNGIX = new ImageIcon(FlurstueckChooser.class.getResource(
+                FILEPATH_ICON_ABTEILUNGIX));
+    public static final Icon ICON_ABTEILUNGIX_HISTORIC = new ImageIcon(FlurstueckChooser.class.getResource(
+                FILEPATH_ICON_ABTEILUNGIX_HISTORIC));
+    public static final Icon ICON_UNKNOWNFLURSTUECK = new ImageIcon(FlurstueckChooser.class.getResource(
+                FILEPATH_ICON_UNKNOWNFLURSTUECK));
+    public static final Icon ICON_WFSWARN = new ImageIcon(FlurstueckChooser.class.getResource(FILEPATH_ICON_WFSWARN));
+
     // filters
     private static final String FILTER_CURRENT_NAME = "nur aktuelle";
     private static final String FILTER_HISTORIC_NAME = "nur historische";
@@ -169,19 +176,12 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
     private boolean cboGemarkungListenerEnabled = true;
     private boolean cboFlurListenerEnabled = true;
     private boolean cboFlurstueckListenerEnabled = true;
-    private final Icon icoStaedtisch = new ImageIcon(getClass().getResource(FILEPATH_ICON_CURRENT));
-    private final Icon icoStaedtischHistoric = new ImageIcon(getClass().getResource(FILEPATH_ICON_HISTORIC));
-    private final Icon icoAbteilungIX = new ImageIcon(getClass().getResource(FILEPATH_ICON_ABTEILUNGIX));
-    private final Icon icoAbteilungIXHistoric = new ImageIcon(getClass().getResource(
-                FILEPATH_ICON_ABTEILUNGIX_HISTORIC));
     private final Icon icoFilterAll = new ImageIcon(getClass().getResource(FILEPATH_FILTERICON_ALL));
     private final Icon icoFilterCurrent = new ImageIcon(getClass().getResource(FILEPATH_FILTERICON_CURRENT));
     private final Icon icoFilterHistoric = new ImageIcon(getClass().getResource(FILEPATH_FILTERICON_HISTORIC));
     private final Icon icoFilterStaedtisch = new ImageIcon(getClass().getResource(FILEPATH_FILTERICON_STAEDTISCH));
     private final Icon icoCurrent = new ImageIcon(getClass().getResource(FILEPATH_ICON_CURRENT));
     private final Icon icoHistoric = new ImageIcon(getClass().getResource(FILEPATH_ICON_HISTORIC));
-    private final Icon icoUnknownFlurstueck = new ImageIcon(getClass().getResource(FILEPATH_ICON_UNKNOWNFLURSTUECK));
-    private final Icon icoWFSWarn = new ImageIcon(getClass().getResource(FILEPATH_ICON_WFSWARN));
     // retrievers
     private GemarkungRetriever currentGemarkungsRetriever = null;
     private FlurRetriever currentFlurRetriever = null;
@@ -599,7 +599,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     } else if (value.equals(FILTER_STAEDTISCH)) {
                         label.setIcon(icoFilterStaedtisch);
                     } else if (value.equals(FILTER_ABTEILUNG_IX)) {
-                        label.setIcon(icoAbteilungIX);
+                        label.setIcon(ICON_ABTEILUNGIX);
                     } else {
                         label.setIcon(icoFilterAll);
                     }
@@ -631,7 +631,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                                 FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                                     label.setIcon(icoCurrent);
                                 } else {
-                                    label.setIcon(icoAbteilungIX);
+                                    label.setIcon(ICON_ABTEILUNGIX);
                                 }
                             } else {
                                 label.setIcon(icoHistoric);
@@ -639,7 +639,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             return label;
                         }
                     }
-                    label.setIcon(icoUnknownFlurstueck);
+                    label.setIcon(ICON_UNKNOWNFLURSTUECK);
                     return label;
                 }
             });
@@ -1173,32 +1173,77 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
      * @param  status  DOCUMENT ME!
      */
     public void setStatus(final Status status) {
-        switch (status) {
-            case STAEDTISCH_HISTORIC: {
-                btnAction.setIcon(icoStaedtischHistoric);
+        btnAction.setIcon(getIcon(status));
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   flurstueckSchluessel  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static Status identifyStatus(final FlurstueckSchluesselCustomBean flurstueckSchluessel) {
+        final FlurstueckArtCustomBean flurstuecksArt = flurstueckSchluessel.getFlurstueckArt();
+        if ((flurstuecksArt != null)
+                    && flurstuecksArt.getBezeichnung().equals(
+                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Art des Flurstücks ist Städtisch");
             }
-            break;
-            case STAEDTISCH: {
-                btnAction.setIcon(icoStaedtisch);
+            if (flurstueckSchluessel.getGueltigBis() != null) {
+                return FlurstueckChooser.Status.STAEDTISCH_HISTORIC;
+            } else {
+                return FlurstueckChooser.Status.STAEDTISCH;
             }
-            break;
-            case ABTEILUNG_IX_HISTORIC: {
-                btnAction.setIcon(icoAbteilungIXHistoric);
-            }
-            break;
-            case ABTEILUNG_IX: {
-                btnAction.setIcon(icoAbteilungIX);
-            }
-            break;
-            case UNKNOWN_FLURSTUECK: {
-                btnAction.setIcon(icoUnknownFlurstueck);
-            }
-            break;
-            case WFS_WARN: {
-                btnAction.setIcon(icoWFSWarn);
-            }
-            break;
         }
+        if ((flurstuecksArt != null)
+                    && flurstuecksArt.getBezeichnung().equals(
+                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Art des Flurstücks ist Abteilung IX");
+            }
+            if (flurstueckSchluessel.getGueltigBis() != null) {
+                return FlurstueckChooser.Status.ABTEILUNG_IX_HISTORIC;
+            } else {
+                return FlurstueckChooser.Status.ABTEILUNG_IX;
+            }
+        }
+        LOG.warn("Art des Flurstücks nicht bekannt");
+        return null;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   status  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public static Icon getIcon(final Status status) {
+        if (status != null) {
+            switch (status) {
+                case STAEDTISCH_HISTORIC: {
+                    return ICON_STAEDTISCH_HISTORIC;
+                }
+                case STAEDTISCH: {
+                    return ICON_STAEDTISCH;
+                }
+                case ABTEILUNG_IX_HISTORIC: {
+                    return ICON_ABTEILUNGIX_HISTORIC;
+                }
+                case ABTEILUNG_IX: {
+                    return ICON_ABTEILUNGIX;
+                }
+                case UNKNOWN_FLURSTUECK: {
+                    return ICON_UNKNOWNFLURSTUECK;
+                }
+                case WFS_WARN: {
+                    return ICON_WFSWARN;
+                }
+            }
+        }
+        return ICON_UNKNOWNFLURSTUECK;
     }
 
     //~ Inner Classes ----------------------------------------------------------
