@@ -76,7 +76,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-commons</artifactId>
-                <version>5.1-SNAPSHOT</version>
+                <version>5.0.3</version>
                 <type>jar</type>
                 <!-- lagis-client imports only final CONSTANTS from lagis-commons:
                     -> static final fields will be inlined by the bytecode compiler 
