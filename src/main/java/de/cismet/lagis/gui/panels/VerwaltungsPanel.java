@@ -48,6 +48,8 @@ import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
+import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.ZusatzRolleCustomBean;
 
 import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -62,6 +64,7 @@ import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
 import de.cismet.lagis.gui.dialogs.VerwaltungsbereicheHistorieDialog;
 import de.cismet.lagis.gui.tables.VerwaltungsTable;
+import de.cismet.lagis.gui.tables.ZusatzRolleTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -69,6 +72,7 @@ import de.cismet.lagis.interfaces.FlurstueckSaver;
 import de.cismet.lagis.interfaces.GeometrySlotProvider;
 
 import de.cismet.lagis.models.VerwaltungsTableModel;
+import de.cismet.lagis.models.ZusatzRolleTableModel;
 import de.cismet.lagis.models.documents.SimpleDocumentModel;
 
 import de.cismet.lagis.renderer.FlaecheRenderer;
@@ -149,7 +153,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private FlurstueckCustomBean currentFlurstueck = null;
     private Validator valTxtBemerkung;
     private SimpleDocumentModel bemerkungDocumentModel;
-    private VerwaltungsTableModel tableModel = new VerwaltungsTableModel();
+    private VerwaltungsTableModel verwaltungsTableModel = new VerwaltungsTableModel();
+    private ZusatzRolleTableModel zusatzRolleTableModel = new ZusatzRolleTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private VerwaltendeDienststelleRenderer vdRenderer = new VerwaltendeDienststelleRenderer();
@@ -169,24 +174,35 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddVerwaltung;
+    private javax.swing.JButton btnAddZusatzRolle;
     private javax.swing.JButton btnHistorie;
     private javax.swing.JButton btnRemoveVerwaltung;
+    private javax.swing.JButton btnRemoveZusatzRolle;
     private javax.swing.JButton btnUndo;
     private javax.swing.JCheckBox cbSperre;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
     private javax.swing.JLabel lblBelastungen;
     private javax.swing.JLabel lblBemSperre;
     private javax.swing.JLabel lblRechte;
     private javax.swing.JLabel lblWFSInfo;
     private javax.swing.JTable tNutzung;
+    private javax.swing.JTable tZusatzRolle;
     private javax.swing.JToggleButton tbtnSort;
     private javax.swing.JTextArea txtBemerkung;
     // End of variables declaration//GEN-END:variables
@@ -342,9 +358,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                                                 lblWFSInfo.setIcon(icoWFSWarn);
                                                                 lblWFSInfo.setToolTipText(
                                                                     "Keine WFS Geometrie vorhanden");
-                                                                tableModel.setCurrentWFSSize(0);
+                                                                verwaltungsTableModel.setCurrentWFSSize(0);
                                                             } else {
-                                                                tableModel.setCurrentWFSSize(currentGeometry.getArea());
+                                                                verwaltungsTableModel.setCurrentWFSSize(
+                                                                    currentGeometry.getArea());
                                                             }
                                                         } catch (Exception e) {
                                                             LOG.error("Exception in Background Thread", e);
@@ -357,7 +374,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                                             currentGeometry = null;
                                             lblWFSInfo.setIcon(icoWFSWarn);
                                             lblWFSInfo.setToolTipText("Fehler beim vergleichen der Flächen");
-                                            tableModel.setCurrentWFSSize(0);
+                                            verwaltungsTableModel.setCurrentWFSSize(0);
                                         }
                                     }
                                 }
@@ -412,7 +429,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                             newVerwaltungsbereich.setFk_geom(geomBean);
                             verwaltungsbereiche.add(newVerwaltungsbereich);
                         }
-                        tableModel.refreshTableModel(verwaltungsbereiche);
+                        verwaltungsTableModel.refreshTableModel(verwaltungsbereiche);
+
+                        zusatzRolleTableModel.refreshTableModel((Collection<ZusatzRolleCustomBean>)getCurrentObject()
+                                    .getN_zusatz_rollen());
+
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -423,7 +444,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
                                     @Override
                                     public void run() {
-                                        final ArrayList<Feature> features = tableModel.getAllVerwaltungsFeatures();
+                                        final ArrayList<Feature> features =
+                                            verwaltungsTableModel.getAllVerwaltungsFeatures();
                                         if (features != null) {
                                             for (final Feature currentFeature : features) {
                                                 if (currentFeature != null) {
@@ -469,8 +491,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
      */
     @Override
     public List<BasicEntity> getCopyData() {
-        final ArrayList<VerwaltungsbereichCustomBean> allVBs = (ArrayList<VerwaltungsbereichCustomBean>)this.tableModel
-                    .getCidsBeans();
+        final ArrayList<VerwaltungsbereichCustomBean> allVBs = (ArrayList<VerwaltungsbereichCustomBean>)this
+                    .verwaltungsTableModel.getCidsBeans();
         final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allVBs.size());
 
         for (final VerwaltungsbereichCustomBean vb : allVBs) {
@@ -513,13 +535,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
         if (item instanceof VerwaltungsbereichCustomBean) {
             final ArrayList<VerwaltungsbereichCustomBean> residentVBs = (ArrayList<VerwaltungsbereichCustomBean>)this
-                        .tableModel.getCidsBeans();
+                        .verwaltungsTableModel.getCidsBeans();
 
             if (residentVBs.contains(item)) {
                 LOG.warn("Verwaltungsbereich " + item + " does already exist in Flurstück " + this.currentFlurstueck);
             } else {
-                this.tableModel.addCidsBean((VerwaltungsbereichCustomBean)item);
-                this.tableModel.fireTableDataChanged();
+                this.verwaltungsTableModel.addCidsBean((VerwaltungsbereichCustomBean)item);
+                this.verwaltungsTableModel.fireTableDataChanged();
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
                 final Feature f = new StyledFeatureGroupWrapper((StyledFeature)item, PROVIDER_NAME, PROVIDER_NAME);
@@ -548,8 +570,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         }
 
         final ArrayList<VerwaltungsbereichCustomBean> residentVBs = (ArrayList<VerwaltungsbereichCustomBean>)this
-                    .tableModel.getCidsBeans();
-        final int rowCountBefore = this.tableModel.getRowCount();
+                    .verwaltungsTableModel.getCidsBeans();
+        final int rowCountBefore = this.verwaltungsTableModel.getRowCount();
 
         Feature f;
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -560,17 +582,17 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     LOG.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
                                 + this.currentFlurstueck);
                 } else {
-                    this.tableModel.addCidsBean((VerwaltungsbereichCustomBean)entity);
+                    this.verwaltungsTableModel.addCidsBean((VerwaltungsbereichCustomBean)entity);
                     f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     featCollection.addFeature(f);
                 }
             }
         }
 
-        if (rowCountBefore == this.tableModel.getRowCount()) {
+        if (rowCountBefore == this.verwaltungsTableModel.getRowCount()) {
             LOG.warn("No Verwaltungsbereich items were added from input list " + dataList);
         } else {
-            this.tableModel.fireTableDataChanged();
+            this.verwaltungsTableModel.fireTableDataChanged();
             mc.setGroupLayerVisibility(PROVIDER_NAME, true);
         }
     }
@@ -644,15 +666,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         // TODO NUllSAVe
         // tableModel.setVerwaltendenDienstellenList(allVerwaltendeDienstellen);
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
-        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (VerwaltungsTable)tNutzung);
+        TableSelectionUtils.crossReferenceModelAndTable(verwaltungsTableModel, (VerwaltungsTable)tNutzung);
         final JComboBox cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
                     CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
-        final JComboBox cboVG = new JComboBox(new Vector<VerwaltungsgebrauchCustomBean>(
-                    CidsBroker.getInstance().getAllVerwaltenungsgebraeuche()));
-        tNutzung.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
-        tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboVD));
-        tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
-        tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
+        cboVD.setEditable(true);
         cboVD.addActionListener(new ActionListener() {
 
                 @Override
@@ -660,14 +677,37 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     cboVDActionPerformed();
                 }
             });
-        // JComboBox cboVG = new JComboBox(new Vector<Verwaltungsgebrauch>(allVerwaltungsgebraeuche));
-        cboVD.setEditable(true);
-//        final ComboBoxCellEditor cellEditor = new ComboBoxCellEditor(cboVG);
-        // AutoCompleteDecorator.decorate(cboVG);
+
+        final JComboBox cboVG = new JComboBox(new Vector<VerwaltungsgebrauchCustomBean>(
+                    CidsBroker.getInstance().getAllVerwaltenungsgebraeuche()));
+        tNutzung.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
+        tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
+        tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboVD));
         tNutzung.setDefaultEditor(VerwaltungsgebrauchCustomBean.class, new ComboBoxCellEditor(cboVG));
-        // tNutzung.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cboVG));
+        tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         tNutzung.addMouseListener(this);
-        // (LagisBroker.grey, null, 0, -1)
+        tNutzung.getSelectionModel().addListSelectionListener(this);
+
+        TableSelectionUtils.crossReferenceModelAndTable(zusatzRolleTableModel, (ZusatzRolleTable)tZusatzRolle);
+        final JComboBox cboZRD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
+                    CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
+        cboZRD.setEditable(true);
+        cboZRD.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    cboZRDActionPerformed();
+                }
+            });
+
+        final JComboBox cboZRA = new JComboBox(new Vector<ZusatzRolleArtCustomBean>(
+                    CidsBroker.getInstance().getAllZusatzRolleArten()));
+        tZusatzRolle.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
+        tZusatzRolle.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboZRD));
+        tZusatzRolle.setDefaultEditor(ZusatzRolleArtCustomBean.class, new ComboBoxCellEditor(cboZRA));
+        tZusatzRolle.addMouseListener(this);
+        tZusatzRolle.getSelectionModel().addListSelectionListener(this);
+
         final HighlightPredicate noGeometryPredicate = new HighlightPredicate() {
 
                 @Override
@@ -675,11 +715,11 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     try {
                         final int displayedIndex = componentAdapter.row;
                         final int modelIndex = ((JXTable)tNutzung).convertRowIndexToModel(displayedIndex);
-                        final VerwaltungsbereichCustomBean g = tableModel.getCidsBeanAtRow(modelIndex);
+                        final VerwaltungsbereichCustomBean g = verwaltungsTableModel.getCidsBeanAtRow(modelIndex);
                         // TODO warum muss g != null sein muss nicht geodert werden?
                         return (((g == null) || ((g != null) && (g.getGeometry() == null)))
-                                        && ((tableModel.getCidsBeans() != null)
-                                            && (tableModel.getRowCount() != 1)));
+                                        && ((verwaltungsTableModel.getCidsBeans() != null)
+                                            && (verwaltungsTableModel.getRowCount() != 1)));
                     } catch (Exception ex) {
                         LOG.error("Fehler beim Highlighting test noGeometry", ex);
                         return false;
@@ -717,7 +757,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                         }
                         double geomSum = 0;
                         int counter = 0;
-                        for (final Feature currentFeature : tableModel.getAllVerwaltungsFeatures()) {
+                        for (final Feature currentFeature : verwaltungsTableModel.getAllVerwaltungsFeatures()) {
                             final Geometry tmpGeometry = currentFeature.getGeometry();
                             if (currentGeometry != null) {
                                 geomSum += tmpGeometry.getArea();
@@ -789,10 +829,13 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             noGeometryHighlighter,
             geometrySizeDifferentHighlighter);
         ((JXTable)tNutzung).setSortOrder(0, SortOrder.ASCENDING);
-        tNutzung.getSelectionModel().addListSelectionListener(this);
         ((JXTable)tNutzung).packAll();
         ((VerwaltungsTable)tNutzung).setSortButton(tbtnSort);
         ((VerwaltungsTable)tNutzung).setUndoButton(btnUndo);
+        ((JXTable)tZusatzRolle).setHighlighters(
+            LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
+        ((JXTable)tZusatzRolle).setSortOrder(0, SortOrder.ASCENDING);
+        ((JXTable)tZusatzRolle).packAll();
     }
 
     /**
@@ -827,6 +870,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         try {
             LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
+            zusatzRolleTableModel.setCidsBeans((currentFlurstueck != null)
+                    ? (List)currentFlurstueck.getN_zusatz_rollen() : null);
             btnHistorie.setEnabled(!currentFlurstueck.getVerwaltungsbereicheHistorie().isEmpty());
             updateThread.notifyThread(currentFlurstueck);
         } catch (Exception ex) {
@@ -916,21 +961,37 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Verwaltung --> setComponentEditable");
             }
-            final TableCellEditor currentEditor = tNutzung.getCellEditor();
-            if (currentEditor != null) {
-                currentEditor.cancelCellEditing();
-            }
+
             isInEditMode = isEditable;
             txtBemerkung.setEditable(isEditable);
             cbSperre.setEnabled(isEditable);
+
+            final TableCellEditor currentNutzungEditor = tNutzung.getCellEditor();
+            if (currentNutzungEditor != null) {
+                currentNutzungEditor.cancelCellEditing();
+            }
             btnAddVerwaltung.setEnabled(isEditable);
             if (isEditable && (tNutzung.getSelectedRow() != -1)) {
                 btnRemoveVerwaltung.setEnabled(true);
             } else if (!isEditable) {
                 btnRemoveVerwaltung.setEnabled(false);
             }
-            // tNutzung.setEnabled(isEditable);
-            tableModel.setInEditMode(isEditable);
+            verwaltungsTableModel.setInEditMode(isEditable);
+
+            final TableCellEditor currentRolleEditor = tZusatzRolle.getCellEditor();
+            if (currentRolleEditor != null) {
+                currentRolleEditor.cancelCellEditing();
+            }
+            tZusatzRolle.setEnabled(isEditable);
+
+            btnAddZusatzRolle.setEnabled(isEditable);
+            if (isEditable && (tZusatzRolle.getSelectedRow() != -1)) {
+                btnRemoveZusatzRolle.setEnabled(true);
+            } else if (!isEditable) {
+                btnRemoveZusatzRolle.setEnabled(false);
+            }
+            zusatzRolleTableModel.setInEditMode(isEditable);
+
             btnUndo.setEnabled(false);
             if (LOG.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tNutzung).getHighlighters();
@@ -966,7 +1027,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             LOG.warn("Fehler beim cleanen der Komponente", ex);
         }
         lblBemSperre.setText("");
-        tableModel.refreshTableModel(new HashSet<VerwaltungsbereichCustomBean>());
+        verwaltungsTableModel.refreshTableModel(new HashSet<VerwaltungsbereichCustomBean>());
+        zusatzRolleTableModel.refreshTableModel(new HashSet<ZusatzRolleCustomBean>());
         if (LOG.isDebugEnabled()) {
             LOG.debug("Clear Verwaltungspanel beendet");
         }
@@ -992,16 +1054,10 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     public void mouseClicked(final MouseEvent e) {
         final Object source = e.getSource();
         if (source instanceof JXTable) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Mit maus auf Verwaltungstabelle geklickt");
-            }
-            final int selecetdRow = tNutzung.getSelectedRow();
-            if ((selecetdRow != -1) && isInEditMode) {
-                // if(isInEditMode){
-                btnRemoveVerwaltung.setEnabled(true);
-                // }
-            } else {
-                btnRemoveVerwaltung.setEnabled(false);
+            if (source.equals(tNutzung)) {
+                btnRemoveVerwaltung.setEnabled((tNutzung.getSelectedRow() != -1) && isInEditMode);
+            } else if (source.equals(tZusatzRolle)) {
+                btnRemoveZusatzRolle.setEnabled((tZusatzRolle.getSelectedRow() != -1) && isInEditMode);
             }
         }
     }
@@ -1013,16 +1069,16 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         if (isWidgetReadOnly()) {
             return result;
         } else {
-            final int rowCount = tableModel.getRowCount();
+            final int rowCount = verwaltungsTableModel.getRowCount();
             if ((rowCount == 1) || !isFlurstueckEditable) {
                 return result;
             }
             for (int i = 0; i < rowCount; i++) {
-                final VerwaltungsbereichCustomBean currentBereich = tableModel.getCidsBeanAtRow(i);
+                final VerwaltungsbereichCustomBean currentBereich = verwaltungsTableModel.getCidsBeanAtRow(i);
 
                 if ((currentBereich != null) && (currentBereich.getGeometry() == null)) {
-                    final Object idValue1 = tableModel.getValueAt(i, 0);
-                    final Object idValue2 = tableModel.getValueAt(i, 1);
+                    final Object idValue1 = verwaltungsTableModel.getValueAt(i, 0);
+                    final Object idValue2 = verwaltungsTableModel.getValueAt(i, 1);
                     String identifer;
                     if ((idValue1 != null) && (idValue2 != null)) {
                         identifer = idValue1.toString() + GeometrySlotInformation.getSLOT_IDENTIFIER_SEPARATOR()
@@ -1064,10 +1120,28 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
-        tableModel.fillFlaechen();
-        final Collection<VerwaltungsbereichCustomBean> bereiche = (Collection<VerwaltungsbereichCustomBean>)
-            tableModel.getCidsBeans();
-        flurstueck.setVerwaltungsbereiche(bereiche);
+        verwaltungsTableModel.fillFlaechen();
+        flurstueck.setVerwaltungsbereiche((Collection<VerwaltungsbereichCustomBean>)
+            verwaltungsTableModel.getCidsBeans());
+
+        final Collection<ZusatzRolleCustomBean> oldRollen = new ArrayList<>(flurstueck.getN_zusatz_rollen());
+        final Collection<ZusatzRolleCustomBean> newRollen = (List<ZusatzRolleCustomBean>)
+            zusatzRolleTableModel.getCidsBeans();
+
+        // alle Rollen hinzufügen die vorher noch nicht existiert haben
+        for (final ZusatzRolleCustomBean newRolle : newRollen) {
+            if (!oldRollen.contains(newRolle)) {
+                flurstueck.getN_zusatz_rollen().add(newRolle);
+                oldRollen.remove(newRolle);
+            }
+        }
+
+        // alle Rollen entfernen die nicht mehr exisiteren
+        for (final ZusatzRolleCustomBean oldRolle : oldRollen) {
+            if (!newRollen.contains(oldRolle)) {
+                flurstueck.getN_zusatz_rollen().remove(oldRolle);
+            }
+        }
     }
 
     @Override
@@ -1093,17 +1167,23 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         if (e.getValueIsAdjusting() == true) {
             return;
         }
-        if (tNutzung.getSelectedRow() != -1) {
-            if (isInEditMode) {
-                btnRemoveVerwaltung.setEnabled(true);
+        if (e.getSource().equals(tNutzung)) {
+            if (tNutzung.getSelectedRow() != -1) {
+                btnRemoveVerwaltung.setEnabled(isInEditMode);
+                ((VerwaltungsTable)tNutzung).valueChanged_updateFeatures(this, e);
             } else {
                 btnRemoveVerwaltung.setEnabled(false);
             }
-            ((VerwaltungsTable)tNutzung).valueChanged_updateFeatures(this, e);
-        } else {
-            btnRemoveVerwaltung.setEnabled(false);
+            this.setFeatureSelectionChangedEnabled(true);
+        } else if (e.getSource().equals(tZusatzRolle)) {
+            if (tZusatzRolle.getSelectedRow() != -1) {
+                btnRemoveZusatzRolle.setEnabled(isInEditMode);
+                ((VerwaltungsTable)tZusatzRolle).valueChanged_updateFeatures(this, e);
+            } else {
+                btnRemoveZusatzRolle.setEnabled(false);
+            }
+            this.setFeatureSelectionChangedEnabled(true);
         }
-        this.setFeatureSelectionChangedEnabled(true);
     }
 
     @Override
@@ -1156,7 +1236,7 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                 }
             }
             final ArrayList<VerwaltungsbereichCustomBean> allVerwaltung = (ArrayList<VerwaltungsbereichCustomBean>)
-                tableModel.getCidsBeans();
+                verwaltungsTableModel.getCidsBeans();
             final Iterator<VerwaltungsbereichCustomBean> itVerwaltung = allVerwaltung.iterator();
             while (itVerwaltung.hasNext()) {
                 final VerwaltungsbereichCustomBean current = itVerwaltung.next();
@@ -1241,20 +1321,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        cbSperre = new javax.swing.JCheckBox();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        txtBemerkung = new javax.swing.JTextArea();
-        jSeparator1 = new javax.swing.JSeparator();
-        jSeparator2 = new javax.swing.JSeparator();
-        lblRechte = new javax.swing.JLabel();
-        lblBelastungen = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        tNutzung = new VerwaltungsTable();
-        lblBemSperre = new javax.swing.JLabel();
-        lblWFSInfo = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         btnAddVerwaltung = new javax.swing.JButton();
@@ -1262,53 +1330,35 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         btnUndo = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
         btnHistorie = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tNutzung = new VerwaltungsTable();
+        jSeparator3 = new javax.swing.JSeparator();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tZusatzRolle = new de.cismet.lagis.gui.tables.ZusatzRolleTable();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        btnAddZusatzRolle = new javax.swing.JButton();
+        btnRemoveZusatzRolle = new javax.swing.JButton();
+        jSeparator2 = new javax.swing.JSeparator();
+        jPanel6 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        txtBemerkung = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
+        lblBemSperre = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        cbSperre = new javax.swing.JCheckBox();
+        lblBelastungen = new javax.swing.JLabel();
+        lblWFSInfo = new javax.swing.JLabel();
+        lblRechte = new javax.swing.JLabel();
 
-        cbSperre.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        cbSperre.addActionListener(new java.awt.event.ActionListener() {
+        setLayout(new java.awt.GridBagLayout());
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cbSperreActionPerformed(evt);
-                }
-            });
+        jPanel4.setLayout(new java.awt.GridBagLayout());
 
-        jLabel1.setText("Bemerkung:");
-
-        jLabel4.setText("Sperre:");
-
-        jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        txtBemerkung.setColumns(20);
-        txtBemerkung.setLineWrap(true);
-        txtBemerkung.setRows(1);
-        jScrollPane2.setViewportView(txtBemerkung);
-
-        jSeparator1.setMinimumSize(new java.awt.Dimension(50, 1));
-        jSeparator1.setPreferredSize(new java.awt.Dimension(50, 1));
-
-        lblRechte.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"))); // NOI18N
-        lblRechte.setToolTipText("Es sind Rechte vorhanden");
-
-        lblBelastungen.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"))); // NOI18N
-        lblBelastungen.setToolTipText("Es sind Belastungen vorhanden");
-
-        jPanel1.setLayout(new java.awt.BorderLayout());
-
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(100, 100));
-
-        tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
-        tNutzung.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][] {},
-                new String[] { "Title 1", "Title 2", "Title 3" }));
-        tNutzung.setToolTipText("");
-        tNutzung.setMinimumSize(new java.awt.Dimension(225, 48));
-        jScrollPane1.setViewportView(tNutzung);
-
-        lblWFSInfo.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"))); // NOI18N
+        jPanel5.setLayout(new java.awt.GridBagLayout());
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
@@ -1412,89 +1462,248 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 3);
         jPanel2.add(btnHistorie, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        layout.createSequentialGroup().addContainerGap().add(
-                            jSeparator1,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE)).add(layout.createSequentialGroup().add(16, 16, 16).add(jScrollPane2)).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        layout.createSequentialGroup().addContainerGap().add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                jScrollPane1,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE).add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator2).add(
-                                layout.createSequentialGroup().add(jLabel4).addPreferredGap(
-                                    org.jdesktop.layout.LayoutStyle.RELATED).add(cbSperre).addPreferredGap(
-                                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                                    lblBemSperre,
-                                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                                    lblBelastungen).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                                    lblRechte).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                                    lblWFSInfo)).add(
-                                jPanel1,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
-                        layout.createSequentialGroup().addContainerGap().add(jLabel1)).add(
-                        layout.createSequentialGroup().addContainerGap().add(
-                            jPanel2,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            0,
-                            Short.MAX_VALUE))).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                layout.createSequentialGroup().addContainerGap().add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    109,
-                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jPanel2,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(7, 7, 7).add(
-                    jSeparator1,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(jLabel1).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        jPanel1,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        jScrollPane2,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        98,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jSeparator2,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        layout.createSequentialGroup().add(9, 9, 9).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel4).add(
-                                cbSperre).add(
-                                lblBemSperre,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                                12,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).add(
-                        layout.createSequentialGroup().addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(lblWFSInfo).add(
-                                org.jdesktop.layout.GroupLayout.TRAILING,
-                                lblRechte).add(org.jdesktop.layout.GroupLayout.TRAILING, lblBelastungen))))
-                            .addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel5.add(jPanel2, gridBagConstraints);
+
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
+        tNutzung.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][] {},
+                new String[] { "Title 1", "Title 2", "Title 3" }));
+        jScrollPane1.setViewportView(tNutzung);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel5.add(jScrollPane1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel4.add(jPanel5, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 5, 0);
+        jPanel4.add(jSeparator3, gridBagConstraints);
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        jLabel2.setText("zusätzliche Rollen:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        jPanel1.add(jLabel2, gridBagConstraints);
+
+        jScrollPane3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        tZusatzRolle.setAutoCreateRowSorter(true);
+        tZusatzRolle.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
+        tZusatzRolle.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][] {},
+                new String[] { "Title 1", "Title 2" }));
+        jScrollPane3.setViewportView(tZusatzRolle);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel1.add(jScrollPane3, gridBagConstraints);
+
+        jPanel8.setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel8.add(jLabel3, gridBagConstraints);
+
+        btnAddZusatzRolle.setAction(((de.cismet.lagis.gui.tables.ZusatzRolleTable)tZusatzRolle).getAddAction());
+        btnAddZusatzRolle.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddZusatzRolle.setBorder(null);
+        btnAddZusatzRolle.setBorderPainted(false);
+        btnAddZusatzRolle.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddZusatzRolle.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddZusatzRolle.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnAddZusatzRolle.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddZusatzRolleActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel8.add(btnAddZusatzRolle, gridBagConstraints);
+
+        btnRemoveZusatzRolle.setAction(((de.cismet.lagis.gui.tables.ZusatzRolleTable)tZusatzRolle).getRemoveAction());
+        btnRemoveZusatzRolle.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveZusatzRolle.setBorder(null);
+        btnRemoveZusatzRolle.setBorderPainted(false);
+        btnRemoveZusatzRolle.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveZusatzRolle.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveZusatzRolle.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        jPanel8.add(btnRemoveZusatzRolle, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel1.add(jPanel8, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel4.add(jPanel1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 5, 0);
+        jPanel4.add(jSeparator2, gridBagConstraints);
+
+        jPanel6.setLayout(new java.awt.GridBagLayout());
+
+        jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        txtBemerkung.setColumns(20);
+        txtBemerkung.setLineWrap(true);
+        txtBemerkung.setRows(1);
+        jScrollPane2.setViewportView(txtBemerkung);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel6.add(jScrollPane2, gridBagConstraints);
+
+        jLabel1.setText("Bemerkung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        jPanel6.add(jLabel1, gridBagConstraints);
+
+        jPanel7.setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
+        jPanel7.add(lblBemSperre, gridBagConstraints);
+
+        jLabel4.setText("Sperre:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        jPanel7.add(jLabel4, gridBagConstraints);
+
+        cbSperre.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        cbSperre.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cbSperreActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        jPanel7.add(cbSperre, gridBagConstraints);
+
+        lblBelastungen.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/belastung.png"))); // NOI18N
+        lblBelastungen.setToolTipText("Es sind Belastungen vorhanden");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        jPanel7.add(lblBelastungen, gridBagConstraints);
+
+        lblWFSInfo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/wfs_green.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        jPanel7.add(lblWFSInfo, gridBagConstraints);
+
+        lblRechte.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/FlurstueckPanel/recht.png"))); // NOI18N
+        lblRechte.setToolTipText("Es sind Rechte vorhanden");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        jPanel7.add(lblRechte, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel6.add(jPanel7, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel4.add(jPanel6, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        add(jPanel4, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
 
     /**
@@ -1548,16 +1757,20 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddZusatzRolleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddZusatzRolleActionPerformed
+        // TODO add your handling code here:
+    } //GEN-LAST:event_btnAddZusatzRolleActionPerformed
+
+    /**
+     * DOCUMENT ME!
      */
     private void cboVDActionPerformed() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("cboVerwaltungActionPerformed");
         }
-//        int index = ((JXTable)tNutzung).getFilters().convertRowIndexToModel(tNutzung.getSelectedRow());
-//        if(index != -1){
-//            log.debug("Zeile : "+tNutzung.getSelectedRow()+" wurde ausgewählt");
-//            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().reconsiderFeature(tableModel.getVerwaltungsbereichAtRow(index));
-//        }
         final TableCellEditor currentEditor = tNutzung.getCellEditor();
         if (currentEditor != null) {
             currentEditor.stopCellEditing();
@@ -1567,6 +1780,21 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
                     .getSelectedFeatures()) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().reconsiderFeature(feature);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void cboZRDActionPerformed() {
+        final TableCellEditor currentEditor = tZusatzRolle.getCellEditor();
+        if (currentEditor != null) {
+            currentEditor.stopCellEditing();
+        }
+//        for (final Feature feature
+//                    : (Collection<Feature>)LagisBroker.getInstance().getMappingComponent().getFeatureCollection()
+//                    .getSelectedFeatures()) {
+//            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().reconsiderFeature(feature);
+//        }
     }
 
     @Override
