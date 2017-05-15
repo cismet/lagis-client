@@ -51,7 +51,8 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
             "n_dms_urls",
             "n_nutzungen",
             "n_rebes",
-            "n_kassenzeichen"
+            "n_kassenzeichen",
+            "n_zusatz_rollen"
         };
 
     //~ Instance fields --------------------------------------------------------
@@ -73,6 +74,7 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private Collection<NutzungCustomBean> n_nutzungen;
     private Collection<RebeCustomBean> n_rebes;
     private Collection<KassenzeichenCustomBean> n_kassenzeichen;
+    private Collection<ZusatzRolleCustomBean> n_zusatz_rollen;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -426,6 +428,27 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
         this.n_kassenzeichen = val;
 
         this.propertyChangeSupport.firePropertyChange("n_kassenzeichen", null, this.n_kassenzeichen);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<ZusatzRolleCustomBean> getN_zusatz_rollen() {
+        return this.n_zusatz_rollen;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  n_zusatz_rollen  DOCUMENT ME!
+     */
+    public void setN_zusatz_rollen(final Collection<ZusatzRolleCustomBean> n_zusatz_rollen) {
+        final Object old = this.n_zusatz_rollen;
+        this.n_zusatz_rollen = n_zusatz_rollen;
+
+        this.propertyChangeSupport.firePropertyChange("n_zusatz_rollen", old, this.n_zusatz_rollen);
     }
 
     @Override

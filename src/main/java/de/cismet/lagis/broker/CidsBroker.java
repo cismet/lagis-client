@@ -757,19 +757,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<AnlageklasseCustomBean> getAllAnlageklassen() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("anlageklasse");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<AnlageklasseCustomBean> beans = new HashSet<AnlageklasseCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((AnlageklasseCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<AnlageklasseCustomBean>)getAllOf("anlageklasse");
     }
 
     /**
@@ -778,19 +766,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VertragsartCustomBean> getAllVertragsarten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("vertragsart");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<VertragsartCustomBean> beans = new HashSet<VertragsartCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((VertragsartCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<VertragsartCustomBean>)getAllOf("vertragsart");
     }
 
     /**
@@ -799,19 +775,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<MipaKategorieCustomBean> getAllMiPaKategorien() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("mipa_kategorie");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<MipaKategorieCustomBean> beans = new HashSet<MipaKategorieCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((MipaKategorieCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<MipaKategorieCustomBean>)getAllOf("mipa_kategorie");
     }
 
     /**
@@ -820,19 +784,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BaumKategorieCustomBean> getAllBaumKategorien() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("baum_kategorie");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<BaumKategorieCustomBean> beans = new HashSet<BaumKategorieCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((BaumKategorieCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<BaumKategorieCustomBean>)getAllOf("baum_kategorie");
     }
 
     /**
@@ -974,19 +926,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VerwaltungsgebrauchCustomBean> getAllVerwaltenungsgebraeuche() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("verwaltungsgebrauch");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<VerwaltungsgebrauchCustomBean> beans = new HashSet<VerwaltungsgebrauchCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((VerwaltungsgebrauchCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<VerwaltungsgebrauchCustomBean>)getAllOf("verwaltungsgebrauch");
     }
 
     /**
@@ -995,7 +935,27 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<VerwaltendeDienststelleCustomBean> getAllVerwaltendeDienstellen() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("verwaltende_dienststelle");
+        return (Collection<VerwaltendeDienststelleCustomBean>)getAllOf("verwaltende_dienststelle");
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<ZusatzRolleArtCustomBean> getAllZusatzRolleArten() {
+        return (Collection<ZusatzRolleArtCustomBean>)getAllOf("zusatz_rolle_art");
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   metaClassName  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private Collection getAllOf(final String metaClassName) {
+        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass(metaClassName);
         if (metaclass == null) {
             return null;
         }
@@ -1003,9 +963,9 @@ public final class CidsBroker {
                     .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
                         + metaclass.getPrimaryKey() + " FROM "
                         + metaclass.getTableName());
-        final Collection<VerwaltendeDienststelleCustomBean> beans = new HashSet<VerwaltendeDienststelleCustomBean>();
+        final Collection<CidsBean> beans = new HashSet<>();
         for (final MetaObject metaObject : mos) {
-            beans.add((VerwaltendeDienststelleCustomBean)metaObject.getBean());
+            beans.add(metaObject.getBean());
         }
         return beans;
     }
@@ -1016,19 +976,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<RebeArtCustomBean> getAllRebeArten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("rebe_art");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<RebeArtCustomBean> beans = new HashSet<RebeArtCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((RebeArtCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<RebeArtCustomBean>)getAllOf("rebe_art");
     }
 
     /**
@@ -1037,19 +985,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<NutzungsartCustomBean> getAllNutzungsarten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("nutzungsart");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<NutzungsartCustomBean> beans = new HashSet<NutzungsartCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((NutzungsartCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<NutzungsartCustomBean>)getAllOf("nutzungsart");
     }
 
     /**
@@ -1058,19 +994,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BeschlussartCustomBean> getAllBeschlussarten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("beschlussart");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<BeschlussartCustomBean> beans = new HashSet<BeschlussartCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((BeschlussartCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<BeschlussartCustomBean>)getAllOf("beschlussart");
     }
 
     /**
@@ -1079,19 +1003,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<KostenartCustomBean> getAllKostenarten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("kostenart");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<KostenartCustomBean> beans = new HashSet<KostenartCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((KostenartCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<KostenartCustomBean>)getAllOf("kostenart");
     }
 
     /**
@@ -1100,19 +1012,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlaechennutzungCustomBean> getAllFlaechennutzungen() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flaechennutzung");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<FlaechennutzungCustomBean> beans = new HashSet<FlaechennutzungCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((FlaechennutzungCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<FlaechennutzungCustomBean>)getAllOf("flaechennutzung");
     }
 
     /**
@@ -1121,19 +1021,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<MipaMerkmalCustomBean> getAllMiPaMerkmale() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("mipa_merkmal");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<MipaMerkmalCustomBean> beans = new HashSet<MipaMerkmalCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((MipaMerkmalCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<MipaMerkmalCustomBean>)getAllOf("mipa_merkmal");
     }
 
     /**
@@ -1142,19 +1030,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BaumMerkmalCustomBean> getAllBaumMerkmale() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("baum_merkmal");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<BaumMerkmalCustomBean> beans = new HashSet<BaumMerkmalCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((BaumMerkmalCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<BaumMerkmalCustomBean>)getAllOf("baum_merkmal");
     }
 
     /**
@@ -1163,19 +1039,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<BebauungCustomBean> getAllBebauungen() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("bebauung");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<BebauungCustomBean> beans = new HashSet<BebauungCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((BebauungCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<BebauungCustomBean>)getAllOf("bebauung");
     }
 
     /**
@@ -1184,19 +1048,7 @@ public final class CidsBroker {
      * @return  DOCUMENT ME!
      */
     public Collection<FlurstueckArtCustomBean> getAllFlurstueckArten() {
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_art");
-        if (metaclass == null) {
-            return null;
-        }
-        final MetaObject[] mos = CidsBroker.getInstance()
-                    .getLagisMetaObject("SELECT " + metaclass.getID() + ", " + metaclass.getTableName() + "."
-                        + metaclass.getPrimaryKey() + " FROM "
-                        + metaclass.getTableName());
-        final Collection<FlurstueckArtCustomBean> beans = new HashSet<FlurstueckArtCustomBean>();
-        for (final MetaObject metaObject : mos) {
-            beans.add((FlurstueckArtCustomBean)metaObject.getBean());
-        }
-        return beans;
+        return (Collection<FlurstueckArtCustomBean>)getAllOf("flurstueck_art");
     }
 
     /**
