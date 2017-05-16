@@ -26,8 +26,6 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -38,6 +36,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.text.BadLocationException;
 
@@ -108,8 +107,7 @@ import de.cismet.tools.gui.historybutton.JHistoryButton;
  * @author   Puhl
  * @version  $Revision$, $Date$
  */
-public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
-    GeometrySlotProvider,
+public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProvider,
     FlurstueckSaver,
     FlurstueckChangeListener,
     FeatureSelectionChangedListener,
@@ -685,7 +683,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboVD));
         tNutzung.setDefaultEditor(VerwaltungsgebrauchCustomBean.class, new ComboBoxCellEditor(cboVG));
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
-        tNutzung.addMouseListener(this);
         tNutzung.getSelectionModel().addListSelectionListener(this);
 
         TableSelectionUtils.crossReferenceModelAndTable(zusatzRolleTableModel, (ZusatzRolleTable)tZusatzRolle);
@@ -703,9 +700,28 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         final JComboBox cboZRA = new JComboBox(new Vector<ZusatzRolleArtCustomBean>(
                     CidsBroker.getInstance().getAllZusatzRolleArten()));
         tZusatzRolle.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
+        tZusatzRolle.setDefaultRenderer(ZusatzRolleArtCustomBean.class, new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final JLabel component = (JLabel)super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column);
+                    component.setEnabled(true);
+                    return component;
+                }
+            });
         tZusatzRolle.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboZRD));
         tZusatzRolle.setDefaultEditor(ZusatzRolleArtCustomBean.class, new ComboBoxCellEditor(cboZRA));
-        tZusatzRolle.addMouseListener(this);
         tZusatzRolle.getSelectionModel().addListSelectionListener(this);
 
         final HighlightPredicate noGeometryPredicate = new HighlightPredicate() {
@@ -894,8 +910,8 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
             final Date currentDate = new Date();
             while (it.hasNext()) {
                 final RebeCustomBean curReBe = it.next();
-                final Boolean curReBeArt = curReBe.getIstRecht();
-                if ((curReBeArt != null) && (curReBeArt.booleanValue() == true)) {
+                final boolean curReBeArt = curReBe.getIstRecht();
+                if (curReBeArt) {
                     if ((curReBe.getDatumLoeschung() == null)
                                 || ((curReBe.getDatumLoeschung() != null)
                                     && (currentDate.compareTo(curReBe.getDatumLoeschung()) <= 0))) {
@@ -1035,34 +1051,6 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
     }
 
     @Override
-    public void mouseReleased(final MouseEvent e) {
-    }
-
-    @Override
-    public void mousePressed(final MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(final MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(final MouseEvent e) {
-    }
-
-    @Override
-    public void mouseClicked(final MouseEvent e) {
-        final Object source = e.getSource();
-        if (source instanceof JXTable) {
-            if (source.equals(tNutzung)) {
-                btnRemoveVerwaltung.setEnabled((tNutzung.getSelectedRow() != -1) && isInEditMode);
-            } else if (source.equals(tZusatzRolle)) {
-                btnRemoveZusatzRolle.setEnabled((tZusatzRolle.getSelectedRow() != -1) && isInEditMode);
-            }
-        }
-    }
-
-    @Override
     public Vector<GeometrySlotInformation> getSlotInformation() {
         // VerwaltungsTableModel tmp = (VerwaltungsTableModel) tNutzung.getModel();
         final Vector<GeometrySlotInformation> result = new Vector<GeometrySlotInformation>();
@@ -1167,20 +1155,16 @@ public class VerwaltungsPanel extends AbstractWidget implements MouseListener,
         if (e.getValueIsAdjusting() == true) {
             return;
         }
-        if (e.getSource().equals(tNutzung)) {
+        if (e.getSource().equals(tNutzung.getSelectionModel())) {
+            btnRemoveVerwaltung.setEnabled((tNutzung.getSelectedRow() != -1) && isInEditMode);
             if (tNutzung.getSelectedRow() != -1) {
-                btnRemoveVerwaltung.setEnabled(isInEditMode);
                 ((VerwaltungsTable)tNutzung).valueChanged_updateFeatures(this, e);
-            } else {
-                btnRemoveVerwaltung.setEnabled(false);
             }
             this.setFeatureSelectionChangedEnabled(true);
-        } else if (e.getSource().equals(tZusatzRolle)) {
+        } else if (e.getSource().equals(tZusatzRolle.getSelectionModel())) {
+            btnRemoveZusatzRolle.setEnabled((tZusatzRolle.getSelectedRow() != -1) && isInEditMode);
             if (tZusatzRolle.getSelectedRow() != -1) {
-                btnRemoveZusatzRolle.setEnabled(isInEditMode);
                 ((VerwaltungsTable)tZusatzRolle).valueChanged_updateFeatures(this, e);
-            } else {
-                btnRemoveZusatzRolle.setEnabled(false);
             }
             this.setFeatureSelectionChangedEnabled(true);
         }
