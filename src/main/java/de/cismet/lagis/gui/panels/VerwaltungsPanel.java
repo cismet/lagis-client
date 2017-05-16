@@ -676,8 +676,8 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 }
             });
 
-        final JComboBox cboVG = new JComboBox(new Vector<VerwaltungsgebrauchCustomBean>(
-                    CidsBroker.getInstance().getAllVerwaltenungsgebraeuche()));
+        final JComboBox cboVG = new JComboBox(CidsBroker.getInstance().getAllVerwaltenungsgebraeuche().toArray(
+                    new VerwaltungsgebrauchCustomBean[0]));
         tNutzung.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboVD));
@@ -686,8 +686,8 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         tNutzung.getSelectionModel().addListSelectionListener(this);
 
         TableSelectionUtils.crossReferenceModelAndTable(zusatzRolleTableModel, (ZusatzRolleTable)tZusatzRolle);
-        final JComboBox cboZRD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
-                    CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
+        final JComboBox cboZRD = new JComboBox(CidsBroker.getInstance().getAllVerwaltendeDienstellen().toArray(
+                    new VerwaltendeDienststelleCustomBean[0]));
         cboZRD.setEditable(true);
         cboZRD.addActionListener(new ActionListener() {
 
@@ -699,6 +699,13 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
 
         final JComboBox cboZRA = new JComboBox(new Vector<ZusatzRolleArtCustomBean>(
                     CidsBroker.getInstance().getAllZusatzRolleArten()));
+        cboZRA.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+                    cboZRAActionPerformed();
+                }
+            });
         tZusatzRolle.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
         tZusatzRolle.setDefaultRenderer(ZusatzRolleArtCustomBean.class, new DefaultTableCellRenderer() {
 
@@ -1163,9 +1170,6 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
             this.setFeatureSelectionChangedEnabled(true);
         } else if (e.getSource().equals(tZusatzRolle.getSelectionModel())) {
             btnRemoveZusatzRolle.setEnabled((tZusatzRolle.getSelectedRow() != -1) && isInEditMode);
-            if (tZusatzRolle.getSelectedRow() != -1) {
-                ((VerwaltungsTable)tZusatzRolle).valueChanged_updateFeatures(this, e);
-            }
             this.setFeatureSelectionChangedEnabled(true);
         }
     }
@@ -1774,11 +1778,16 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         if (currentEditor != null) {
             currentEditor.stopCellEditing();
         }
-//        for (final Feature feature
-//                    : (Collection<Feature>)LagisBroker.getInstance().getMappingComponent().getFeatureCollection()
-//                    .getSelectedFeatures()) {
-//            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().reconsiderFeature(feature);
-//        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void cboZRAActionPerformed() {
+        final TableCellEditor currentEditor = tZusatzRolle.getCellEditor();
+        if (currentEditor != null) {
+            currentEditor.stopCellEditing();
+        }
     }
 
     @Override
