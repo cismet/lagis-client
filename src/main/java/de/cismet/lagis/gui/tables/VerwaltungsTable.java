@@ -10,6 +10,9 @@ package de.cismet.lagis.gui.tables;
 import org.apache.log4j.Logger;
 
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
+
+import de.cismet.lagis.broker.CidsBroker;
 
 import de.cismet.lagis.models.VerwaltungsTableModel;
 
@@ -34,6 +37,12 @@ public class VerwaltungsTable extends AbstractCidsBeanTable_Lagis {
             final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Verwalungsbereich Gebrauch: " + tmp.getGebrauch());
+            }
+
+            for (final VerwaltungsgebrauchCustomBean vg : CidsBroker.getInstance().getAllVerwaltenungsgebraeuche()) {
+                if ("0/0/0".equals(vg.toString())) {
+                    tmp.setFk_verwaltungsgebrauch(vg);
+                }
             }
 
             ((VerwaltungsTableModel)getModel()).addCidsBean(tmp);
