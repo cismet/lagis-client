@@ -289,10 +289,6 @@
             <artifactId>swingx</artifactId>
         </dependency>
         <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <scope>compile</scope>
@@ -397,6 +393,14 @@
         </dependency>
         <!-- BEGIN: runtime dependencies -->
         
+        <!--
+            Unused declared dependencies found:
+        -->
+        <!--
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+        </dependency>
         <dependency>
             <groupId>batik</groupId>
             <artifactId>batik-swing</artifactId>
@@ -415,12 +419,7 @@
             <version>1.6-1</version>
             <scope>compile</scope>
             <type>jar</type>
-        </dependency>
-
-        <!--
-            Unused declared dependencies found:
-        -->
-        <!--
+        </dependency>        
         <dependency>
             <groupId>de.cismet.todo</groupId>
             <artifactId>grappa</artifactId>
