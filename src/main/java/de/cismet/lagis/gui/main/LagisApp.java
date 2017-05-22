@@ -285,7 +285,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private NKFPanel pNKF;
     private ReBePanel pRechteDetail;
     private VertraegePanel pVertraege;
-    private InformationPanel pInformation;
+    private BaulastenPanel pBaulasten;
     private KassenzeichenPanel pKassenzeichen;
 
     // Views
@@ -297,7 +297,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private View vNKF;
     private View vReBe;
     private View vHistory;
-    private View vInformation;
+    private View vBaulasten;
     private View vKassenzeichen;
     private WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance().getMappingComponent());
     private Set<View> wfsFormViews = new HashSet<>();
@@ -323,8 +323,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 "/de/cismet/lagis/ressource/icons/verwaltungsbereich.png"));
     private Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/documents.png"));
-    private Icon icoInformation = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/info.png"));
+    private Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
+                "/de/cismet/cids/custom/commons/gui/Baulast.png"));
     private Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/info.png"));
     private Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
@@ -405,6 +405,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private javax.swing.JMenuItem mniAddBookmark;
     private javax.swing.JMenuItem mniAddNutzung;
     private javax.swing.JMenuItem mniBack;
+    private javax.swing.JMenuItem mniBaulasten;
     private javax.swing.JMenuItem mniBookmarkManager;
     private javax.swing.JMenuItem mniBookmarkSidebar;
     private javax.swing.JMenuItem mniClippboard;
@@ -416,8 +417,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private javax.swing.JMenuItem mniHistory;
     private javax.swing.JMenuItem mniHistorySidebar;
     private javax.swing.JMenuItem mniHome;
-    private javax.swing.JMenuItem mniInformation;
-    private javax.swing.JMenuItem mniInformation1;
+    private javax.swing.JMenuItem mniKassenzeichenInformation;
     private javax.swing.JMenuItem mniLisences;
     private javax.swing.JMenuItem mniLoadLayout;
     private javax.swing.JMenuItem mniLockLayout;
@@ -1426,7 +1426,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         } else {
             LOG.error("Error. No Histroy Component available");
         }
-        pInformation = new InformationPanel();
+        pBaulasten = new BaulastenPanel();
         pKassenzeichen = KassenzeichenPanel.getInstance();
 
         if (pHistory != null) {
@@ -1439,7 +1439,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         widgets.add(pKarte);
         widgets.add(pNKF);
         widgets.add(pRechteDetail);
-        widgets.add(pInformation);
+        widgets.add(pBaulasten);
         widgets.add(pKassenzeichen);
         widgets.add(pFlurstueckChooser);
 
@@ -1483,8 +1483,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             vHistory = new View("Historie", icoRessort, p);
         }
         viewMap.addView("Historie", vHistory);
-        vInformation = new View("Information", icoInformation, pInformation);
-        viewMap.addView("Information", vInformation);
+        vBaulasten = new View("Baulasten", icoBaulasten, pBaulasten);
+        viewMap.addView("Baulasten", vBaulasten);
 
         vKassenzeichen = new View("Kassenzeicheninformation", icoKassenzeichen, pKassenzeichen);
         viewMap.addView("Kassenzeicheninformation", vKassenzeichen);
@@ -1542,7 +1542,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vInformation, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
                         new SplitWindow(
                             false,
                             0.21391752f,
@@ -1564,7 +1564,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vInformation, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
                         new TabWindow(
                             new DockingWindow[] { vKarte, vReBe, vVertraege, vNKF, vHistory })));
             }
@@ -1582,7 +1582,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vInformation, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
                         new SplitWindow(
                             false,
                             0.21391752f,
@@ -1602,7 +1602,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vInformation, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
                         new TabWindow(
                             new DockingWindow[] { vKarte, vReBe, vVertraege, vNKF, vHistory })));
             }
@@ -1763,8 +1763,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mniReBe = new javax.swing.JMenuItem();
         mniDMS = new javax.swing.JMenuItem();
         mniHistory = new javax.swing.JMenuItem();
-        mniInformation = new javax.swing.JMenuItem();
-        mniInformation1 = new javax.swing.JMenuItem();
+        mniBaulasten = new javax.swing.JMenuItem();
+        mniKassenzeichenInformation = new javax.swing.JMenuItem();
         jSeparator14 = new javax.swing.JSeparator();
         mniResetWindowLayout = new javax.swing.JMenuItem();
         menHelp = new javax.swing.JMenu();
@@ -2439,34 +2439,34 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             });
         menWindow.add(mniHistory);
 
-        mniInformation.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
+        mniBaulasten.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
                 java.awt.event.KeyEvent.VK_0,
                 java.awt.event.InputEvent.CTRL_MASK));
-        mniInformation.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/info.png"))); // NOI18N
-        mniInformation.setText("Information");
-        mniInformation.setToolTipText("Informationen zum aktuellen Flurstück");
-        mniInformation.addActionListener(new java.awt.event.ActionListener() {
+        mniBaulasten.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/cids/custom/commons/gui/Baulast.png")));
+        mniBaulasten.setText("Baulasten");
+        mniBaulasten.setToolTipText("Dem Flurstück zugehörige Baulasten");
+        mniBaulasten.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
                 public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    mniInformationActionPerformed(evt);
+                    mniBaulastenActionPerformed(evt);
                 }
             });
-        menWindow.add(mniInformation);
+        menWindow.add(mniBaulasten);
 
-        mniInformation1.setIcon(new javax.swing.ImageIcon(
+        mniKassenzeichenInformation.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/info.png"))); // NOI18N
-        mniInformation1.setText("Kassenzeicheninformation");
-        mniInformation1.setToolTipText("Informationen zum aktuellen Flurstück");
-        mniInformation1.addActionListener(new java.awt.event.ActionListener() {
+        mniKassenzeichenInformation.setText("Kassenzeicheninformation");
+        mniKassenzeichenInformation.setToolTipText("Informationen zum aktuellen Flurstück");
+        mniKassenzeichenInformation.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
                 public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    mniInformation1ActionPerformed(evt);
+                    mniKassenzeichenInformationActionPerformed(evt);
                 }
             });
-        menWindow.add(mniInformation1);
+        menWindow.add(mniKassenzeichenInformation);
 
         jSeparator14.setEnabled(false);
         menWindow.add(jSeparator14);
@@ -3219,9 +3219,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniInformationActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniInformationActionPerformed
-        showOrHideView(vInformation);
-    }                                                                                  //GEN-LAST:event_mniInformationActionPerformed
+    private void mniBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniBaulastenActionPerformed
+        showOrHideView(vBaulasten);
+    }                                                                                //GEN-LAST:event_mniBaulastenActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -3364,9 +3364,9 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniInformation1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniInformation1ActionPerformed
+    private void mniKassenzeichenInformationActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniKassenzeichenInformationActionPerformed
         showOrHideView(vKassenzeichen);
-    }                                                                                   //GEN-LAST:event_mniInformation1ActionPerformed
+    }                                                                                               //GEN-LAST:event_mniKassenzeichenInformationActionPerformed
 
     /**
      * DOCUMENT ME!

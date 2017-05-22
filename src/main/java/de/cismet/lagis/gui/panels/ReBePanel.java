@@ -308,6 +308,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 final int colIndex = this.tableModel.findColumn(DEF_TARGET_COL);
                 final int rowIndex = this.tReBe.getSelectedRow();
 
+                final TableCellEditor currentEditor = tReBe.getCellEditor();
+                if (currentEditor != null) {
+                    currentEditor.stopCellEditing();
+                }
+
                 final String currentValueObj = rebeJXTable.getStringAt(rowIndex, colIndex);
 
                 if ((currentValueObj == null) || currentValueObj.trim().isEmpty()) {
