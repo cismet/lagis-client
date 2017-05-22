@@ -104,7 +104,7 @@
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server</artifactId>
-                <version>5.0</version>
+                <version>5.0.1</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>5.1.2</version>
+                <version>5.2</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -197,6 +197,12 @@
             <type>jar</type>
         </dependency>
         
+        <dependency>
+            <groupId>org.deegree</groupId>
+            <artifactId>deegree-core-style</artifactId>
+            <scope>compile</scope>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>de.cismet.commons</groupId>
             <artifactId>cismet-commons</artifactId>
