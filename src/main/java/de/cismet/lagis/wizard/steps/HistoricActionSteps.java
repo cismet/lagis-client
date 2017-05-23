@@ -125,50 +125,45 @@ public class HistoricActionSteps extends WizardPanelProvider {
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         System.out.println("datum:" + histDate);
-                        if (CidsBroker.getInstance().setFlurstueckHistoric(historicKey, histDate)) {
-                            final Summary summary;
-                            CidsBroker.getInstance().releaseLock(sperre);
-                            if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
-                                        && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
-                                            LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
-                                            historicKey)) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Aktuelles flurstück wurde historisch --> update");
-                                }
-                                try {
-                                    LagisBroker.getInstance().loadFlurstueck(historicKey);
-                                } catch (Exception ex) {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Fehler beim updaten/laden der FlurstueckSchluessel/Flurstücks", ex);
-                                    }
-                                }
-                            } else {
-                                final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                                .getParentComponent(),
-                                        "Möchten Sie zu dem Flurstück wechseln?",
-                                        "Flurstückwechsel",
-                                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
-                                EventQueue.invokeLater(new Runnable() {
-
-                                        @Override
-                                        public void run() {
-                                            if (changeFlurstueck) {
-                                                LagisBroker.getInstance().loadFlurstueck(historicKey);
-                                            } else {
-                                                LagisBroker.getInstance().reloadFlurstueckKeys();
-                                            }
-                                        }
-                                    });
+                        CidsBroker.getInstance().setFlurstueckHistoric(historicKey, histDate);
+                        final Summary summary;
+                        CidsBroker.getInstance().releaseLock(sperre);
+                        if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
+                                    && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
+                                        LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
+                                        historicKey)) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Aktuelles flurstück wurde historisch --> update");
                             }
-                            summary = Summary.create("Flurstück: \n\t" + "\"" + historicKey.getKeyString()
-                                            + "\" \n\nkonnte erfolgreich historisch gesetzt werden",
-                                    historicKey);
-                            progress.finished(summary);
+                            try {
+                                LagisBroker.getInstance().loadFlurstueck(historicKey);
+                            } catch (Exception ex) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Fehler beim updaten/laden der FlurstueckSchluessel/Flurstücks", ex);
+                                }
+                            }
                         } else {
-                            progress.failed("Es war nicht möglich das Flurstück:\n\t\"" + historicKey.getKeyString()
-                                        + "\"\nhistorisch zu setzen, bitte wenden Sie sich an Ihren Systemadministrator",
-                                false);
+                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
+                                            .getParentComponent(),
+                                    "Möchten Sie zu dem Flurstück wechseln?",
+                                    "Flurstückwechsel",
+                                    JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
+                            EventQueue.invokeLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        if (changeFlurstueck) {
+                                            LagisBroker.getInstance().loadFlurstueck(historicKey);
+                                        } else {
+                                            LagisBroker.getInstance().reloadFlurstueckKeys();
+                                        }
+                                    }
+                                });
                         }
+                        summary = Summary.create("Flurstück: \n\t" + "\"" + historicKey.getKeyString()
+                                        + "\" \n\nkonnte erfolgreich historisch gesetzt werden",
+                                historicKey);
+                        progress.finished(summary);
                     } else {
                         progress.failed("Es war nicht möglich das Flurstück:\n\t\"" + historicKey.getKeyString()
                                     + "\"\nhistorisch zu setzen, es konnte keine Sperre angelegt werden.",
