@@ -16,7 +16,11 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.newuser.User;
 
+import java.sql.Timestamp;
+
 import java.util.*;
+
+import javax.swing.SwingUtilities;
 
 import de.cismet.cids.custom.beans.lagis.*;
 
@@ -33,9 +37,13 @@ import de.cismet.lagis.commons.LagisMetaclassConstants;
 import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearch;
 import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearchResultItem;
 
+import de.cismet.lagis.wizard.panels.HistoricNoSucessorDialog;
+
 import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.lagisEE.util.FlurKey;
+
+import de.cismet.tools.gui.StaticSwingTools;
 
 /**
  * DOCUMENT ME!
@@ -1185,43 +1193,43 @@ public final class CidsBroker {
                 }
 //HistoricResult result = ;
 
-                if (setFlurstueckHistoric(oldFlurstueckSchluessel)) {
+                setFlurstueckHistoric(oldFlurstueckSchluessel);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück wurde Historisch gesetzt");
+                }
+                // TODO Better FlurstückHistoryEntry??
+                // FlurstueckHistorie fHistorie = new FlurstueckHistorieCustomBean();
+                // TODO Flurstückaktion/Historie
+                // TODO NO UNIQUE RESULT EXCEPTION --> möglich ?
+                // FlurstueckHistorie fHistorie = new FlurstueckHistorieCustomBean();
+                if (!existHistoryEntry(oldFlurstueck)) {
+                    newFlurstueck = createFlurstueck(newFlurstueckSchluessel);
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Flurstück wurde Historisch gesetzt");
+                        LOG.debug("Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück");
+                        LOG.debug("Kein nachfolger für das Flurstück vorhanden --> Lege neues Flurstueck an");
+                        LOG.debug("Erzeuge History Eintrag für altes Flurstück");
                     }
-                    // TODO Better FlurstückHistoryEntry??
-                    // FlurstueckHistorie fHistorie = new FlurstueckHistorieCustomBean();
-                    // TODO Flurstückaktion/Historie
-                    // TODO NO UNIQUE RESULT EXCEPTION --> möglich ?
-                    // FlurstueckHistorie fHistorie = new FlurstueckHistorieCustomBean();
-                    if (!existHistoryEntry(oldFlurstueck)) {
-                        newFlurstueck = createFlurstueck(newFlurstueckSchluessel);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück");
-                            LOG.debug("Kein nachfolger für das Flurstück vorhanden --> Lege neues Flurstueck an");
-                            LOG.debug("Erzeuge History Eintrag für altes Flurstück");
-                        }
-                        createHistoryEdge(oldFlurstueck, newFlurstueck);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Neuer History Eintrag für Flurstück erzeugt");
-                        }
-                    } else {
-                        if (LOG.isDebugEnabled()) {
-                            // Exception ex =  new ActionNotSuccessfulException("Flurstück");
-                            LOG.debug("Renamen des Flurstücks nicht möglich");
-                        }
-                        releaseLock(lock);
-                        throw new ActionNotSuccessfulException(
-                            "Es existieren bereits Historieneinträge für dieses Flurstück");
+                    createHistoryEdge(oldFlurstueck, newFlurstueck);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Neuer History Eintrag für Flurstück erzeugt");
                     }
+                } else {
+                    if (LOG.isDebugEnabled()) {
+                        // Exception ex =  new ActionNotSuccessfulException("Flurstück");
+                        LOG.debug("Renamen des Flurstücks nicht möglich");
+                    }
+                    releaseLock(lock);
+                    throw new ActionNotSuccessfulException(
+                        "Es existieren bereits Historieneinträge für dieses Flurstück");
+                }
 
 //                    if(historyEntry != null){
 //
 //                    } else {
 //
 //                    }
-                    if (newFlurstueck != null) {
-                        if (LOG.isDebugEnabled()) {
+                if (newFlurstueck != null) {
+                    if (LOG.isDebugEnabled()) {
 //                        System.out.println("Das Flurstück wurde erfogreich angelegt --> Setze Nachfolger des Alten Flurstücks");
 //                        historyEntry.setNachfolger(newFlurstueck);
 //                        em.merge(historyEntry);
@@ -1230,95 +1238,88 @@ public final class CidsBroker {
 //                        historyEntry.setVorgaenger(oldFlurstueck);
 //                        historyEntry.setFlurstueck(newFlurstueck);
 //                        createFlurstueckHistoryEntry(historyEntry);
-                            LOG.debug("Alle Aktionen für das umbenennen erfolgreich abgeschlossen.");
-                        }
-
-                        final User user = SessionManager.getSession().getUser();
-                        final MetaClass mcDmsUrl = ClassCacheMultiple.getMetaClass(
-                                LagisConstants.DOMAIN_LAGIS,
-                                LagisMetaclassConstants.DMS_URL);
-                        final MetaClass mcNutzung = ClassCacheMultiple.getMetaClass(
-                                LagisConstants.DOMAIN_LAGIS,
-                                LagisMetaclassConstants.NUTZUNG);
-                        final MetaClass mcRebe = ClassCacheMultiple.getMetaClass(
-                                LagisConstants.DOMAIN_LAGIS,
-                                LagisMetaclassConstants.REBE);
-                        final MetaClass mcVerwaltungsbereichEintrag = ClassCacheMultiple.getMetaClass(
-                                LagisConstants.DOMAIN_LAGIS,
-                                LagisMetaclassConstants.VERWALTUNGSBEREICHE_EINTRAG);
-
-                        final String queryDmsUrl = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
-                                    + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " fk_flurstueck = "
-                                    + oldFlurstueck.getId().toString();
-                        final String queryNutzung = "SELECT " + mcNutzung.getID() + ", " + mcNutzung.getPrimaryKey()
-                                    + " FROM " + mcNutzung.getTableName() + " WHERE " + " fk_flurstueck = "
-                                    + oldFlurstueck.getId().toString();
-                        final String queryRebe = "SELECT " + mcRebe.getID() + ", " + mcRebe.getPrimaryKey() + " FROM "
-                                    + mcRebe.getTableName() + " WHERE " + " fk_flurstueck = "
-                                    + oldFlurstueck.getId().toString();
-                        final String queryVerwaltungsbereichEintrag = "SELECT " + mcVerwaltungsbereichEintrag.getID()
-                                    + ", "
-                                    + mcVerwaltungsbereichEintrag.getPrimaryKey() + " FROM "
-                                    + mcVerwaltungsbereichEintrag.getTableName() + " WHERE " + " fk_flurstueck = "
-                                    + oldFlurstueck.getId().toString();
-
-                        newFlurstueck.getAr_baeume().addAll(oldFlurstueck.getAr_baeume());
-                        oldFlurstueck.getAr_baeume().clear();
-
-                        newFlurstueck.getAr_mipas().addAll(oldFlurstueck.getAr_mipas());
-                        oldFlurstueck.getAr_mipas().clear();
-
-                        newFlurstueck.getAr_vertraege().addAll(oldFlurstueck.getAr_vertraege());
-                        oldFlurstueck.getAr_vertraege().clear();
-
-                        for (final MetaObject moDmsUrl
-                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryDmsUrl)) {
-                            moDmsUrl.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                            moDmsUrl.getBean().persist();
-                        }
-
-                        for (final MetaObject moNutzung
-                                    : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) {
-                            moNutzung.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                            moNutzung.getBean().persist();
-                        }
-
-                        for (final MetaObject moRebe : SessionManager.getProxy().getMetaObjectByQuery(user, queryRebe)) {
-                            moRebe.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                            moRebe.getBean().persist();
-                        }
-
-                        for (final MetaObject moVerwaltungsbereichEintrag
-                                    : SessionManager.getProxy().getMetaObjectByQuery(
-                                        user,
-                                        queryVerwaltungsbereichEintrag)) {
-                            moVerwaltungsbereichEintrag.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                            moVerwaltungsbereichEintrag.getBean().persist();
-                        }
-
-                        newFlurstueck.setFk_spielplatz(oldFlurstueck.getFk_spielplatz());
-                        newFlurstueck.setBemerkung(oldFlurstueck.getBemerkung());
-                        newFlurstueck.setIn_stadtbesitz(oldFlurstueck.getIn_stadtbesitz());
-                        newFlurstueck = (FlurstueckCustomBean)newFlurstueck.persist();
-                        oldFlurstueck.persist();
-                    } else {
-                        if (LOG.isDebugEnabled()) {
-                            // TODO IF THIS CASE IS POSSIBLE ROLLBACK TRANSACTION
-                            LOG.debug("Das neue Flurstück konnte nicht angelegt werden.");
-                        }
-                        releaseLock(lock);
-                        throw new ActionNotSuccessfulException("Das neue Flurstück konnte nicht angelegt werden.");
+                        LOG.debug("Alle Aktionen für das umbenennen erfolgreich abgeschlossen.");
                     }
 
-                    releaseLock(lock);
-                    return newFlurstueck;
+                    final User user = SessionManager.getSession().getUser();
+                    final MetaClass mcDmsUrl = ClassCacheMultiple.getMetaClass(
+                            LagisConstants.DOMAIN_LAGIS,
+                            LagisMetaclassConstants.DMS_URL);
+                    final MetaClass mcNutzung = ClassCacheMultiple.getMetaClass(
+                            LagisConstants.DOMAIN_LAGIS,
+                            LagisMetaclassConstants.NUTZUNG);
+                    final MetaClass mcRebe = ClassCacheMultiple.getMetaClass(
+                            LagisConstants.DOMAIN_LAGIS,
+                            LagisMetaclassConstants.REBE);
+                    final MetaClass mcVerwaltungsbereichEintrag = ClassCacheMultiple.getMetaClass(
+                            LagisConstants.DOMAIN_LAGIS,
+                            LagisMetaclassConstants.VERWALTUNGSBEREICHE_EINTRAG);
+
+                    final String queryDmsUrl = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
+                                + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " fk_flurstueck = "
+                                + oldFlurstueck.getId().toString();
+                    final String queryNutzung = "SELECT " + mcNutzung.getID() + ", " + mcNutzung.getPrimaryKey()
+                                + " FROM " + mcNutzung.getTableName() + " WHERE " + " fk_flurstueck = "
+                                + oldFlurstueck.getId().toString();
+                    final String queryRebe = "SELECT " + mcRebe.getID() + ", " + mcRebe.getPrimaryKey() + " FROM "
+                                + mcRebe.getTableName() + " WHERE " + " fk_flurstueck = "
+                                + oldFlurstueck.getId().toString();
+                    final String queryVerwaltungsbereichEintrag = "SELECT " + mcVerwaltungsbereichEintrag.getID()
+                                + ", "
+                                + mcVerwaltungsbereichEintrag.getPrimaryKey() + " FROM "
+                                + mcVerwaltungsbereichEintrag.getTableName() + " WHERE " + " fk_flurstueck = "
+                                + oldFlurstueck.getId().toString();
+
+                    newFlurstueck.getAr_baeume().addAll(oldFlurstueck.getAr_baeume());
+                    oldFlurstueck.getAr_baeume().clear();
+
+                    newFlurstueck.getAr_mipas().addAll(oldFlurstueck.getAr_mipas());
+                    oldFlurstueck.getAr_mipas().clear();
+
+                    newFlurstueck.getAr_vertraege().addAll(oldFlurstueck.getAr_vertraege());
+                    oldFlurstueck.getAr_vertraege().clear();
+
+                    for (final MetaObject moDmsUrl
+                                : SessionManager.getProxy().getMetaObjectByQuery(user, queryDmsUrl)) {
+                        moDmsUrl.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                        moDmsUrl.getBean().persist();
+                    }
+
+                    for (final MetaObject moNutzung
+                                : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) {
+                        moNutzung.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                        moNutzung.getBean().persist();
+                    }
+
+                    for (final MetaObject moRebe : SessionManager.getProxy().getMetaObjectByQuery(user, queryRebe)) {
+                        moRebe.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                        moRebe.getBean().persist();
+                    }
+
+                    for (final MetaObject moVerwaltungsbereichEintrag
+                                : SessionManager.getProxy().getMetaObjectByQuery(
+                                    user,
+                                    queryVerwaltungsbereichEintrag)) {
+                        moVerwaltungsbereichEintrag.getBean().setProperty("fk_flurstueck", newFlurstueck);
+                        moVerwaltungsbereichEintrag.getBean().persist();
+                    }
+
+                    newFlurstueck.setFk_spielplatz(oldFlurstueck.getFk_spielplatz());
+                    newFlurstueck.setBemerkung(oldFlurstueck.getBemerkung());
+                    newFlurstueck.setIn_stadtbesitz(oldFlurstueck.getIn_stadtbesitz());
+                    newFlurstueck = (FlurstueckCustomBean)newFlurstueck.persist();
+                    oldFlurstueck.persist();
                 } else {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Flurstück konnte nicht historisch gesetzt werden.");
+                        // TODO IF THIS CASE IS POSSIBLE ROLLBACK TRANSACTION
+                        LOG.debug("Das neue Flurstück konnte nicht angelegt werden.");
                     }
                     releaseLock(lock);
-                    throw new ActionNotSuccessfulException("Flurstück konnte nicht historisch gesetzt werden.");
+                    throw new ActionNotSuccessfulException("Das neue Flurstück konnte nicht angelegt werden.");
                 }
+
+                releaseLock(lock);
+                return newFlurstueck;
             } else {
                 throw new ActionNotSuccessfulException("Altes Flurstück existiert nicht.");
             }
@@ -1449,42 +1450,32 @@ public final class CidsBroker {
                     while (it.hasNext()) {
                         final FlurstueckCustomBean oldFlurstueck = retrieveFlurstueck(it.next());
                         // HistoricResult result = setFlurstueckHistoric(oldFlurstueck.getFlurstueckSchluessel());
-                        if (setFlurstueckHistoric(oldFlurstueck.getFlurstueckSchluessel())) {
+                        setFlurstueckHistoric(oldFlurstueck.getFlurstueckSchluessel());
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Flurstück wurde Historisch gesetzt.");
+                        }
+                        // TODO IS THIS CASE POSSIBLE ?? --> MEANS ACTIVE FLURSTUECK
+                        if (!existHistoryEntry(oldFlurstueck)) {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück wurde Historisch gesetzt.");
+                                LOG.debug(
+                                    "Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück.");
+                                LOG.debug("Erzeuge History Eintrag für alte Flurstücke.");
                             }
-                            // TODO IS THIS CASE POSSIBLE ?? --> MEANS ACTIVE FLURSTUECK
-                            if (!existHistoryEntry(oldFlurstueck)) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug(
-                                        "Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück.");
-                                    LOG.debug("Erzeuge History Eintrag für alte Flurstücke.");
-                                }
-                                createHistoryEdge(oldFlurstueck, newFlurstueck);
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Neuer History Eintrag für Flurstück erzeugt.");
-                                }
-                            } else {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Es sind bereits Historieneinträge für das Flurstück "
-                                                + oldFlurstueck.getFlurstueckSchluessel().getKeyString()
-                                                + " vorhanden.");
-                                }
-                                releaseLocks(locks);
-                                throw new ActionNotSuccessfulException(
-                                    "Es sind bereits Historieneinträge für das Flurstück "
-                                            + oldFlurstueck.getFlurstueckSchluessel().getKeyString()
-                                            + " vorhanden.");
+                            createHistoryEdge(oldFlurstueck, newFlurstueck);
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Neuer History Eintrag für Flurstück erzeugt.");
                             }
                         } else {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück " + oldFlurstueck.getFlurstueckSchluessel().getKeyString()
-                                            + " konnte nicht historisch gesetzt werden.");
+                                LOG.debug("Es sind bereits Historieneinträge für das Flurstück "
+                                            + oldFlurstueck.getFlurstueckSchluessel().getKeyString()
+                                            + " vorhanden.");
                             }
                             releaseLocks(locks);
-                            throw new ActionNotSuccessfulException("Flurstück "
+                            throw new ActionNotSuccessfulException(
+                                "Es sind bereits Historieneinträge für das Flurstück "
                                         + oldFlurstueck.getFlurstueckSchluessel().getKeyString()
-                                        + " konnte nicht historisch gesetzt werden.");
+                                        + " vorhanden.");
                         }
                     }
                     if (LOG.isDebugEnabled()) {
@@ -1561,19 +1552,15 @@ public final class CidsBroker {
                 final Iterator<FlurstueckSchluesselCustomBean> it = splitMembers.iterator();
                 final FlurstueckCustomBean oldFlurstueck = retrieveFlurstueck(oldFlurstueckSchluessel);
                 // HistoricResult result = setFlurstueckHistoric(oldFlurstueck.getFlurstueckSchluessel());
-                if (setFlurstueckHistoric(oldFlurstueck.getFlurstueckSchluessel())) {
-                    if (!existHistoryEntry(oldFlurstueck)) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück");
-                        }
-                    } else {
-                        releaseLock(lock);
-                        throw new ActionNotSuccessfulException(
-                            "Spliten des Flurstücks nicht möglich, es gibt schon einen Nachfolger");
+                setFlurstueckHistoric(oldFlurstueck.getFlurstueckSchluessel());
+                if (!existHistoryEntry(oldFlurstueck)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Es exitieren kein History Eintrag --> keine Kante zu einem anderen Flurstück");
                     }
                 } else {
                     releaseLock(lock);
-                    throw new ActionNotSuccessfulException("Flurstück konnte nicht historisch gesetzt werden");
+                    throw new ActionNotSuccessfulException(
+                        "Spliten des Flurstücks nicht möglich, es gibt schon einen Nachfolger");
                 }
 
                 while (it.hasNext()) {
@@ -2189,14 +2176,12 @@ public final class CidsBroker {
      *
      * @param   key  DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
-     *
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
-    public boolean setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key) throws ActionNotSuccessfulException {
+    public void setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key) throws ActionNotSuccessfulException {
         key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
-        return setFlurstueckHistoric(key, new Date());
+        setFlurstueckHistoric(key, new Date());
     }
 
     /**
@@ -2205,22 +2190,58 @@ public final class CidsBroker {
      * @param   key   DOCUMENT ME!
      * @param   date  DOCUMENT ME!
      *
-     * @return  DOCUMENT ME!
-     *
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
-    public boolean setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key, final Date date)
+    public void setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key, final Date date)
             throws ActionNotSuccessfulException {
         key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
+
+        final Collection<FlurstueckHistorieCustomBean> historieSucessor = CidsBroker.getInstance()
+                    .getHistorySuccessor(key);
+        boolean hasNachfolger = false;
+        if (historieSucessor != null) {
+            for (final FlurstueckHistorieCustomBean historie : historieSucessor) {
+                if ((historie != null) && (historie.getNachfolger() != null)) {
+                    hasNachfolger = true;
+                    break;
+                }
+            }
+        }
+
+        final Date rebeLoeschDatum;
+        final Date mipaVertragsendeDatum;
+        if (!hasNachfolger) {
+            HistoricNoSucessorDialog.getInstance().setHistorischDatum(date);
+            StaticSwingTools.showDialog(HistoricNoSucessorDialog.getInstance());
+            if (HistoricNoSucessorDialog.getInstance().isAbort()) {
+                throw new ActionNotSuccessfulException("Die Aktion wurde vom Benutzer abgebrochen.");
+            }
+            rebeLoeschDatum = HistoricNoSucessorDialog.getInstance().getRebeLoeschDatum();
+            mipaVertragsendeDatum = HistoricNoSucessorDialog.getInstance().getMipaVertragsendeDatum();
+        } else {
+            rebeLoeschDatum = null;
+            mipaVertragsendeDatum = null;
+        }
+
         try {
             if (key.getWarStaedtisch()) {
+                final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
+                flurstueck.setFlurstueckSchluessel(key);
+
+                if (rebeLoeschDatum != null) {
+                    for (final MipaCustomBean mipa : flurstueck.getMiPas()) {
+                        mipa.setVertragsende(mipaVertragsendeDatum);
+                    }
+                    for (final RebeCustomBean rebe : flurstueck.getRechteUndBelastungen()) {
+                        rebe.setDatumLoeschung(rebeLoeschDatum);
+                    }
+                }
+
                 if (LOG.isDebugEnabled()) {
-                    // TODO hier muss wieder städtisch gesetzt werden und die ReBe gelöscht werden
                     LOG.debug("Flurstueck war schon mal staedtisch wird historisch gesetzt");
                 }
-                // Flurstueck flurstueck = retrieveFlurstueck(key);
-                // if(flurstueck.getGueltigBis() == null){
+                // if (flurstueck.getGueltigBis() == null) {
                 if (key.getGueltigBis() == null) {
                     if (
                         !FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
@@ -2245,8 +2266,6 @@ public final class CidsBroker {
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug("Flurstück ist Abteilung IX  --> alle Rechte werden entfernt");
                             }
-                            final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
-
                             flurstueck.getFlurstueckSchluessel().setFlurstueckArt(abteilungIX);
                             if (flurstueck.getFlurstueckSchluessel().getDatumLetzterStadtbesitz() != null) {
                                 if (LOG.isDebugEnabled()) {
@@ -2263,28 +2282,19 @@ public final class CidsBroker {
                                     "Das Flurstück war schon mal in Stadtbesitz, aber es existiert kein Datum wann");
                             }
                             flurstueck.persist();
-                            return true;
+                        } else {
+                            throw new ActionNotSuccessfulException("Die Flurstückart "
+                                        + FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH
+                                        + " ist nicht in der Datenbank");
                         }
-                        throw new ActionNotSuccessfulException("Die Flurstückart "
-                                    + FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH
-                                    + " ist nicht in der Datenbank");
                     } else {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Flurstück ist städtisch und wird historisch gesetzt");
                         }
                         key.setDatumLetzterStadtbesitz(date);
                         key.setGueltigBis(date);
-                        final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
-                        if (flurstueck != null) {
-//TODO Nutzungsrefactoring
-                            flurstueck.setFlurstueckSchluessel(key);
-                            flurstueck.persist();
-                        }
-
-                        return true;
+                        flurstueck.persist();
                     }
-                } else {
-                    return true;
                 }
             } else {
                 if (LOG.isDebugEnabled()) {
@@ -2292,8 +2302,6 @@ public final class CidsBroker {
                 }
                 key.setGueltigBis(date);
                 key.persist();
-
-                return true;
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim historisch setzen eines Flurstücks", ex);
@@ -2564,7 +2572,7 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    private Collection<FlurstueckHistorieCustomBean> getHistorySuccessor(
+    public Collection<FlurstueckHistorieCustomBean> getHistorySuccessor(
             final FlurstueckSchluesselCustomBean flurstueckSchluessel) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Suche Nachfolger für Flurstück");
