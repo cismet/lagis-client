@@ -82,14 +82,20 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
         jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle(org.openide.util.NbBundle.getMessage(HistoricNoSucessorDialog.class, "HistoricNoSucessorDialog.title")); // NOI18N
+        setTitle(org.openide.util.NbBundle.getMessage(
+                HistoricNoSucessorDialog.class,
+                "HistoricNoSucessorDialog.title")); // NOI18N
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(HistoricNoSucessorDialog.class, "HistoricNoSucessorDialog.jLabel4.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jLabel4,
+            org.openide.util.NbBundle.getMessage(
+                HistoricNoSucessorDialog.class,
+                "HistoricNoSucessorDialog.jLabel4.text")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -101,14 +107,21 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
 
         jxdMipaVertragsendeDatum.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jCheckBox1, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jxdMipaVertragsendeDatum, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
+                jCheckBox1,
+                org.jdesktop.beansbinding.ELProperty.create("${selected}"),
+                jxdMipaVertragsendeDatum,
+                org.jdesktop.beansbinding.BeanProperty.create("enabled"));
         bindingGroup.addBinding(binding);
 
         jxdMipaVertragsendeDatum.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                jxdMipaVertragsendeDatumPropertyChange(evt);
-            }
-        });
+
+                @Override
+                public void propertyChange(final java.beans.PropertyChangeEvent evt) {
+                    jxdMipaVertragsendeDatumPropertyChange(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -116,12 +129,18 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         jPanel4.add(jxdMipaVertragsendeDatum, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, org.openide.util.NbBundle.getMessage(HistoricNoSucessorDialog.class, "HistoricNoSucessorDialog.jCheckBox1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jCheckBox1,
+            org.openide.util.NbBundle.getMessage(
+                HistoricNoSucessorDialog.class,
+                "HistoricNoSucessorDialog.jCheckBox1.text")); // NOI18N
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox1ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jCheckBox1ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -132,14 +151,21 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
 
         jxdRebeLoeschDatum.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 5));
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, jCheckBox2, org.jdesktop.beansbinding.ELProperty.create("${selected}"), jxdRebeLoeschDatum, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
+                jCheckBox2,
+                org.jdesktop.beansbinding.ELProperty.create("${selected}"),
+                jxdRebeLoeschDatum,
+                org.jdesktop.beansbinding.BeanProperty.create("enabled"));
         bindingGroup.addBinding(binding);
 
         jxdRebeLoeschDatum.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                jxdRebeLoeschDatumPropertyChange(evt);
-            }
-        });
+
+                @Override
+                public void propertyChange(final java.beans.PropertyChangeEvent evt) {
+                    jxdRebeLoeschDatumPropertyChange(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 3;
@@ -147,12 +173,18 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 0);
         jPanel4.add(jxdRebeLoeschDatum, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jCheckBox2, org.openide.util.NbBundle.getMessage(HistoricNoSucessorDialog.class, "HistoricNoSucessorDialog.jCheckBox2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jCheckBox2,
+            org.openide.util.NbBundle.getMessage(
+                HistoricNoSucessorDialog.class,
+                "HistoricNoSucessorDialog.jCheckBox2.text")); // NOI18N
         jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBox2ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jCheckBox2ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -170,20 +202,32 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
         gridBagConstraints.weighty = 1.0;
         jPanel2.add(jPanel4, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(HistoricNoSucessorDialog.class, "HistoricNoSucessorDialog.jButton1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jButton1,
+            org.openide.util.NbBundle.getMessage(
+                HistoricNoSucessorDialog.class,
+                "HistoricNoSucessorDialog.jButton1.text")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton1ActionPerformed(evt);
+                }
+            });
         jPanel1.add(jButton1);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(HistoricNoSucessorDialog.class, "HistoricNoSucessorDialog.jButton2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(
+            jButton2,
+            org.openide.util.NbBundle.getMessage(
+                HistoricNoSucessorDialog.class,
+                "HistoricNoSucessorDialog.jButton2.text")); // NOI18N
         jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton2ActionPerformed(evt);
+                }
+            });
         jPanel1.add(jButton2);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -199,7 +243,7 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
         bindingGroup.bind();
 
         pack();
-    }// </editor-fold>//GEN-END:initComponents
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
@@ -224,60 +268,60 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jxdMipaVertragsendeDatumPropertyChange(final java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jxdMipaVertragsendeDatumPropertyChange
-    }//GEN-LAST:event_jxdMipaVertragsendeDatumPropertyChange
+    private void jxdMipaVertragsendeDatumPropertyChange(final java.beans.PropertyChangeEvent evt) { //GEN-FIRST:event_jxdMipaVertragsendeDatumPropertyChange
+    }                                                                                               //GEN-LAST:event_jxdMipaVertragsendeDatumPropertyChange
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jCheckBox1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+    private void jCheckBox1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jCheckBox1ActionPerformed
         final boolean loeschen = jCheckBox1.isSelected();
         jxdMipaVertragsendeDatum.setDate(loeschen ? historischDatum : null);
-    }//GEN-LAST:event_jCheckBox1ActionPerformed
+    }                                                                              //GEN-LAST:event_jCheckBox1ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
         rebeLoeschDatum = jxdRebeLoeschDatum.getDate();
         mipaVertragsendeDatum = jxdMipaVertragsendeDatum.getDate();
         setVisible(false);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton2ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jButton2ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton2ActionPerformed
         abort = true;
         rebeLoeschDatum = null;
         mipaVertragsendeDatum = null;
         setVisible(false);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jxdRebeLoeschDatumPropertyChange(final java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jxdRebeLoeschDatumPropertyChange
+    private void jxdRebeLoeschDatumPropertyChange(final java.beans.PropertyChangeEvent evt) { //GEN-FIRST:event_jxdRebeLoeschDatumPropertyChange
         // TODO add your handling code here:
-    }//GEN-LAST:event_jxdRebeLoeschDatumPropertyChange
+    } //GEN-LAST:event_jxdRebeLoeschDatumPropertyChange
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jCheckBox2ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
+    private void jCheckBox2ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jCheckBox2ActionPerformed
         final boolean loeschen = jCheckBox1.isSelected();
         jxdRebeLoeschDatum.setDate(loeschen ? historischDatum : null);
-    }//GEN-LAST:event_jCheckBox2ActionPerformed
+    }                                                                              //GEN-LAST:event_jCheckBox2ActionPerformed
 
     @Override
     public void setVisible(final boolean b) {
@@ -331,7 +375,8 @@ public class HistoricNoSucessorDialog extends javax.swing.JDialog {
 
         //~ Static fields/initializers -----------------------------------------
 
-        private static final HistoricNoSucessorDialog INSTANCE = new HistoricNoSucessorDialog(LagisApp.getInstance(), true);
+        private static final HistoricNoSucessorDialog INSTANCE = new HistoricNoSucessorDialog(LagisApp.getInstance(),
+                true);
 
         //~ Constructors -------------------------------------------------------
 
