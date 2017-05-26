@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Toolkit;
 
 import java.util.*;
 
@@ -104,6 +103,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     private javax.swing.JLabel lblDatumEntWert;
     private javax.swing.JLabel lblDatumHist;
     private javax.swing.JLabel lblDatumHistWert;
+    private javax.swing.JLabel lblDatumLSB;
+    private javax.swing.JLabel lblDatumLSBWert;
     private javax.swing.JLabel lblVisulaization;
     private javax.swing.JPanel panHistInfo;
     private javax.swing.JPanel panInformation;
@@ -461,12 +462,12 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
     private void updateInformation() {
         if ((currentFlurstueck != null) && (currentFlurstueck.getFlurstueckSchluessel() != null)) {
             final FlurstueckSchluesselCustomBean currentKey = currentFlurstueck.getFlurstueckSchluessel();
-            if (currentKey.getDatumLetzterStadtbesitz() != null) {
-//                lblDatumLSBWert.setText(LagisBroker.getDateFormatter().format(currentKey.getDatumLetzterStadtbesitz()));
-//                lblDatumLSBWert.setToolTipText(currentKey.getDatumLetzterStadtbesitz().toString());
+            if ((currentKey.getGueltigBis() == null) && (currentKey.getDatumLetzterStadtbesitz() != null)) {
+                lblDatumLSBWert.setText(LagisBroker.getDateFormatter().format(currentKey.getDatumLetzterStadtbesitz()));
+                lblDatumLSBWert.setToolTipText(currentKey.getDatumLetzterStadtbesitz().toString());
             } else {
-//                lblDatumLSBWert.setText("Keine Angabe");
-//                lblDatumLSBWert.setToolTipText("");
+                lblDatumLSBWert.setText("Keine Angabe");
+                lblDatumLSBWert.setToolTipText("");
             }
 
             if (currentKey.getGueltigBis() != null) {
@@ -543,6 +544,8 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
                 new java.awt.Dimension(0, 0),
                 new java.awt.Dimension(32767, 0));
+        lblDatumLSB = new javax.swing.JLabel();
+        lblDatumLSBWert = new javax.swing.JLabel();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -764,7 +767,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         jPanel4.add(jLabel3, gridBagConstraints);
 
-        lblDatumEnt.setText("Datum Entstehung:");
+        lblDatumEnt.setText("Entstehung:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -782,7 +785,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
         jPanel4.add(lblDatumEntWert, gridBagConstraints);
 
-        lblDatumHist.setText("Datum Historisch seit:");
+        lblDatumHist.setText("Historisch seit:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -801,7 +804,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         jPanel4.add(lblDatumHistWert, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weighty = 1.0;
@@ -812,6 +815,24 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         jPanel4.add(filler2, gridBagConstraints);
+
+        lblDatumLSB.setText("Letzter Statdbesitz:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel4.add(lblDatumLSB, gridBagConstraints);
+
+        lblDatumLSBWert.setText("Keine Angabe");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        jPanel4.add(lblDatumLSBWert, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
