@@ -125,7 +125,7 @@ public class HistoricActionSteps extends WizardPanelProvider {
                                             LagisBroker.getInstance().getAccountName()));
                     if (sperre != null) {
                         System.out.println("datum:" + histDate);
-                        CidsBroker.getInstance().setFlurstueckHistoric(historicKey, histDate);
+                        CidsBroker.getInstance().setFlurstueckHistoric(historicKey, histDate, true);
                         final Summary summary;
                         CidsBroker.getInstance().releaseLock(sperre);
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
