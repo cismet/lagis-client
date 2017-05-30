@@ -2194,47 +2194,66 @@ public final class CidsBroker {
      */
     public void setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key, final Date date)
             throws ActionNotSuccessfulException {
+        setFlurstueckHistoric(key, date, false);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   key          DOCUMENT ME!
+     * @param   date         DOCUMENT ME!
+     * @param   delRebeMipa  DOCUMENT ME!
+     *
+     * @throws  ActionNotSuccessfulException  DOCUMENT ME!
+     */
+    public void setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key,
+            final Date date,
+            final boolean delRebeMipa) throws ActionNotSuccessfulException {
         key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
-
-        final Collection<FlurstueckHistorieCustomBean> historieSucessor = CidsBroker.getInstance()
-                    .getHistorySuccessor(key);
-        boolean hasNachfolger = false;
-        if (historieSucessor != null) {
-            for (final FlurstueckHistorieCustomBean historie : historieSucessor) {
-                if ((historie != null) && (historie.getNachfolger() != null)) {
-                    hasNachfolger = true;
-                    break;
-                }
-            }
-        }
-
-        final Date rebeLoeschDatum;
-        final Date mipaVertragsendeDatum;
-        if (!hasNachfolger) {
-            HistoricNoSucessorDialog.getInstance().setHistorischDatum(date);
-            StaticSwingTools.showDialog(HistoricNoSucessorDialog.getInstance());
-            if (HistoricNoSucessorDialog.getInstance().isAbort()) {
-                throw new ActionNotSuccessfulException("Die Aktion wurde vom Benutzer abgebrochen.");
-            }
-            rebeLoeschDatum = HistoricNoSucessorDialog.getInstance().getRebeLoeschDatum();
-            mipaVertragsendeDatum = HistoricNoSucessorDialog.getInstance().getMipaVertragsendeDatum();
-        } else {
-            rebeLoeschDatum = null;
-            mipaVertragsendeDatum = null;
-        }
 
         try {
             if (key.getWarStaedtisch()) {
                 final FlurstueckCustomBean flurstueck = retrieveFlurstueck(key);
                 flurstueck.setFlurstueckSchluessel(key);
 
-                if (rebeLoeschDatum != null) {
-                    for (final MipaCustomBean mipa : flurstueck.getMiPas()) {
-                        mipa.setVertragsende(mipaVertragsendeDatum);
+                if (delRebeMipa) {
+//                    final Collection<FlurstueckHistorieCustomBean> historieSucessor = CidsBroker.getInstance()
+//                                .getHistorySuccessor(key);
+//                    boolean hasNachfolger = false;
+//                    if (historieSucessor != null) {
+//                        for (final FlurstueckHistorieCustomBean historie : historieSucessor) {
+//                            if ((historie != null) && (historie.getNachfolger() != null)) {
+//                                hasNachfolger = true;
+//                                break;
+//                            }
+//                        }
+//                    }
+                    final boolean hasReBe = !flurstueck.getRechteUndBelastungen().isEmpty();
+                    final boolean hasMiPa = !flurstueck.getMiPas().isEmpty();
+
+                    final Date rebeLoeschDatum;
+                    final Date mipaVertragsendeDatum;
+                    if ((hasReBe || hasMiPa) /* && !hasNachfolger*/) {
+                        HistoricNoSucessorDialog.getInstance().setHistorischDatum(date);
+                        StaticSwingTools.showDialog(HistoricNoSucessorDialog.getInstance());
+                        if (HistoricNoSucessorDialog.getInstance().isAbort()) {
+                            throw new ActionNotSuccessfulException("Die Aktion wurde vom Benutzer abgebrochen.");
+                        }
+                        rebeLoeschDatum = HistoricNoSucessorDialog.getInstance().getRebeLoeschDatum();
+                        mipaVertragsendeDatum = HistoricNoSucessorDialog.getInstance().getMipaVertragsendeDatum();
+                    } else {
+                        rebeLoeschDatum = null;
+                        mipaVertragsendeDatum = null;
                     }
-                    for (final RebeCustomBean rebe : flurstueck.getRechteUndBelastungen()) {
-                        rebe.setDatumLoeschung(rebeLoeschDatum);
+
+                    if (rebeLoeschDatum != null) {
+                        for (final MipaCustomBean mipa : flurstueck.getMiPas()) {
+                            mipa.setVertragsende(mipaVertragsendeDatum);
+                        }
+                        for (final RebeCustomBean rebe : flurstueck.getRechteUndBelastungen()) {
+                            rebe.setDatumLoeschung(rebeLoeschDatum);
+                        }
                     }
                 }
 
