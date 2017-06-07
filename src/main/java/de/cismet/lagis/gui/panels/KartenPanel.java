@@ -23,6 +23,7 @@ import edu.umd.cs.piccolox.event.PSelectionEventHandler;
 import org.jdom.Element;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,13 +54,14 @@ import de.cismet.cids.custom.commons.searchgeometrylistener.BaulastblattNodesSea
 import de.cismet.cids.custom.commons.searchgeometrylistener.FlurstueckNodesSearchCreateSearchGeometryListener;
 import de.cismet.cids.custom.commons.searchgeometrylistener.RissNodesSearchCreateSearchGeometryListener;
 
+import de.cismet.cismap.cidslayer.CidsLayerFeature;
+
 import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollectionEvent;
 import de.cismet.cismap.commons.features.FeatureCollectionListener;
 import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
-import de.cismet.cismap.commons.features.WFSFeature;
 import de.cismet.cismap.commons.gui.FeatureGroupMember;
 import de.cismet.cismap.commons.gui.FeatureLayerTransparencyButton;
 import de.cismet.cismap.commons.gui.MappingComponent;
@@ -301,32 +303,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     //~ Methods ----------------------------------------------------------------
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  feature  DOCUMENT ME!
-     */
-    public void doStuff(final WFSFeature feature) {
-        final HashMap props = feature.getProperties();
-        final String gem = (String)props.get(gemarkungIdentifier);
-        final String flur = (String)props.get(flurIdentifier);
-        final String flurstz = (String)props.get(
-                flurstueckZaehlerIdentifier);
-        final String flurstn = (String)props.get(
-                flurstueckNennerIdentifier);
-        final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
-        key.setGemarkung(
-            LagisBroker.getInstance().getGemarkungForKey(
-                Integer.parseInt(gem)));
-        key.setFlur(Integer.parseInt(flur));
-        key.setFlurstueckZaehler(Integer.parseInt(flurstz));
-        if (flurstn != null) {
-            key.setFlurstueckNenner(Integer.parseInt(flurstn));
-        } else {
-            key.setFlurstueckNenner(0);
-        }
-        feature.setName("Flurstück " + key.toString());
-    }
     /**
      * DOCUMENT ME!
      */
@@ -1888,16 +1864,19 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         if (pf != this.lastOverFeature) {
             this.lastOverFeature = pf;
-
-            if ((pf != null) && (pf.getFeature() instanceof DefaultFeatureServiceFeature)
+            ((DefaultFeatureServiceFeature)pf.getFeature()).getFillingPaint();
+            if ((pf != null) && (pf.getFeature() instanceof CidsLayerFeature)
                         && pf.getVisible()
                         && (pf.getParent() != null) && pf.getParent().getVisible()) {
-                final DefaultFeatureServiceFeature sf = (DefaultFeatureServiceFeature)pf.getFeature();
+                final CidsLayerFeature feature = (CidsLayerFeature)pf.getFeature();
+                final String alkisId = (String)feature.getBean().getProperty("alkis_id");
+                final String[] parts = alkisId.split("-");
+                final String[] znParts = parts[2].split("/");
 
-                final String gemarkung = (String)sf.getProperty("app:gem");
-                final String flur = (String)sf.getProperty("app:flur");
-                final String flurstz = (String)sf.getProperty("app:flurstz");
-                final String flurstn = (String)sf.getProperty("app:flurstn");
+                final String gemarkung = parts[0].substring(2);
+                final String flur = Integer.toString(Integer.parseInt(parts[1]));
+                final String flurstz = Integer.toString(Integer.parseInt(znParts[0]));
+                final String flurstn = (znParts.length > 1) ? Integer.toString(Integer.parseInt(znParts[1])) : "0";
 
                 final GemarkungCustomBean gem = LagisBroker.getInstance()
                             .getGemarkungForKey(Integer.parseInt(gemarkung));
@@ -1938,12 +1917,11 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 // }
                 // } else
                 if (cmdSelect.isSelected() && (((SelectionListener)o).getClickCount() > 1)
-                            && (pf.getFeature() instanceof WFSFeature)) {
+                            && (pf.getFeature() instanceof CidsLayerFeature)) {
                     if (log.isDebugEnabled()) {
-                        log.debug("WFSFeature selected");
-                        // log.debug("test"+((DefaultWFSFeature)pf.getFeature()).getProperties());
+                        log.debug("CidsLayerFeature selected");
                     }
-                    final WFSFeature dwf = ((WFSFeature)pf.getFeature());
+                    final CidsLayerFeature clf = ((CidsLayerFeature)pf.getFeature());
                     if (LagisBroker.getInstance().isInEditMode()) {
                         if (log.isDebugEnabled()) {
                             log.debug("Flurstück kann nicht gewechselt werden --> Editmode");
@@ -1954,55 +1932,49 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+
+                    final String alkisId = (String)clf.getBean().getProperty("alkis_id");
+                    final String[] parts = alkisId.split("-");
+                    final String[] znParts = parts[2].split("/");
+
 //
-                    final HashMap props = dwf.getProperties();
-                    if (log.isDebugEnabled()) {
-                        log.debug("WFSFeature properties: " + props);
-                    }
                     try {
-                        if ((props != null) && checkIfIdentifiersAreSetProperly()) {
-                            final String gem = (String)props.get(gemarkungIdentifier);
-                            final String flur = (String)props.get(flurIdentifier);
-                            final String flurstz = (String)props.get(flurstueckZaehlerIdentifier);
-                            final String flurstn = (String)props.get(flurstueckNennerIdentifier);
-                            if ((gem != null) && (flur != null) && (flurstz != null)) {
-                                GemarkungCustomBean resolvedGemarkung = LagisBroker.getInstance()
-                                            .getGemarkungForKey(Integer.parseInt(gem));
-                                // TODO if this case happens it leads to bug XXX
-                                if (resolvedGemarkung == null) {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Gemarkung konnte nicht entschlüsselt werden");
-                                    }
-                                    resolvedGemarkung = GemarkungCustomBean.createNew();
-                                    resolvedGemarkung.setSchluessel(Integer.parseInt(gem));
-                                } else {
-                                    if (log.isDebugEnabled()) {
-                                        log.debug("Gemarkung konnte entschlüsselt werden");
-                                    }
-                                }
-                                // GemarkungCustomBean cplGemarkung =
-                                // EJBroker.getInstance().completeGemarkung(gemarkung); if (cplGemarkung != null){
-                                // log.debug("gemarkung bekannt"); gemarkung = cplGemarkung; }
-                                final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
-                                key.setGemarkung(resolvedGemarkung);
-                                key.setFlur(Integer.parseInt(flur));
-                                key.setFlurstueckZaehler(Integer.parseInt(flurstz));
-                                if (flurstn != null) {
-                                    key.setFlurstueckNenner(Integer.parseInt(flurstn));
-                                } else {
-                                    key.setFlurstueckNenner(0);
-                                }
+                        final String gem = parts[0].substring(2);
+                        final String flur = Integer.toString(Integer.parseInt(parts[1]));
+                        final String flurstz = Integer.toString(Integer.parseInt(znParts[0]));
+                        final String flurstn = (znParts.length > 1) ? Integer.toString(Integer.parseInt(znParts[1]))
+                                                                    : "0";
+                        if ((gem != null) && (flur != null) && (flurstz != null)) {
+                            GemarkungCustomBean resolvedGemarkung = LagisBroker.getInstance()
+                                        .getGemarkungForKey(Integer.parseInt(gem));
+                            // TODO if this case happens it leads to bug XXX
+                            if (resolvedGemarkung == null) {
                                 if (log.isDebugEnabled()) {
-                                    log.debug("Schlüssel konnte konstruiert werden");
+                                    log.debug("Gemarkung konnte nicht entschlüsselt werden");
                                 }
-                                LagisBroker.getInstance().loadFlurstueck(key);
-                                dwf.setName("Flurstück " + key.toString());
+                                resolvedGemarkung = GemarkungCustomBean.createNew();
+                                resolvedGemarkung.setSchluessel(Integer.parseInt(gem));
                             } else {
                                 if (log.isDebugEnabled()) {
-                                    log.debug(
-                                        "Mindestens ein Property == null Flurstueck kann nicht ausgewählt werden");
+                                    log.debug("Gemarkung konnte entschlüsselt werden");
                                 }
                             }
+                            // GemarkungCustomBean cplGemarkung =
+                            // EJBroker.getInstance().completeGemarkung(gemarkung); if (cplGemarkung != null){
+                            // log.debug("gemarkung bekannt"); gemarkung = cplGemarkung; }
+                            final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
+                            key.setGemarkung(resolvedGemarkung);
+                            key.setFlur(Integer.parseInt(flur));
+                            key.setFlurstueckZaehler(Integer.parseInt(flurstz));
+                            if (flurstn != null) {
+                                key.setFlurstueckNenner(Integer.parseInt(flurstn));
+                            } else {
+                                key.setFlurstueckNenner(0);
+                            }
+                            if (log.isDebugEnabled()) {
+                                log.debug("Schlüssel konnte konstruiert werden");
+                            }
+                            LagisBroker.getInstance().loadFlurstueck(key);
                         } else {
                             log.error(
                                 "Properties == null Flurstueck oder Identifier im Konfigfile nicht richtig gesetzt --> kann nicht ausgewählt werden");

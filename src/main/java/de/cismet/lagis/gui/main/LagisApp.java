@@ -151,12 +151,7 @@ import de.cismet.cids.servermessage.CidsServerMessageNotifierListener;
 import de.cismet.cids.servermessage.CidsServerMessageNotifierListenerEvent;
 
 import de.cismet.cismap.commons.BoundingBox;
-import de.cismet.cismap.commons.MappingModelEvent;
-import de.cismet.cismap.commons.MappingModelListener;
-import de.cismet.cismap.commons.ModeLayer;
 import de.cismet.cismap.commons.features.Feature;
-import de.cismet.cismap.commons.features.WFSFeature;
-import de.cismet.cismap.commons.featureservice.WebFeatureService;
 import de.cismet.cismap.commons.gui.ClipboardWaitDialog;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.layerwidget.ActiveLayerModel;
@@ -165,9 +160,6 @@ import de.cismet.cismap.commons.gui.piccolo.eventlistener.CustomFeatureInfoListe
 import de.cismet.cismap.commons.gui.printing.Scale;
 import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 import de.cismet.cismap.commons.interaction.CismapBroker;
-import de.cismet.cismap.commons.rasterservice.MapService;
-import de.cismet.cismap.commons.retrieval.RetrievalEvent;
-import de.cismet.cismap.commons.retrieval.RetrievalListener;
 import de.cismet.cismap.commons.wfsforms.AbstractWFSForm;
 import de.cismet.cismap.commons.wfsforms.WFSFormFactory;
 
@@ -1191,88 +1183,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         mapComponent.setMappingModel(mappingModel);
         configManager.configure(WFSRetrieverFactory.getInstance());
         LagisBroker.getInstance().checkNKFAdminPermissionsOnServer();
-
-        mappingModel.addMappingModelListener(new MappingModelListener() {
-
-                @Override
-                public void mapServiceLayerStructureChanged(final MappingModelEvent mme) {
-                }
-
-                @Override
-                public void mapServiceAdded(final MapService mapService) {
-                    if (mapService instanceof ModeLayer) {
-                        mapService.addRetrievalListener(new RetrievalListener() {
-
-                                @Override
-                                public void retrievalStarted(final RetrievalEvent e) {
-                                }
-
-                                @Override
-                                public void retrievalProgress(final RetrievalEvent e) {
-                                }
-
-                                @Override
-                                public void retrievalComplete(final RetrievalEvent e) {
-                                    if (((ModeLayer)mapService).getCurrentLayer() instanceof WebFeatureService) {
-                                        if (e.getRetrievedObject() != null) {
-                                            for (final WFSFeature feature
-                                                        : (Collection<WFSFeature>)e.getRetrievedObject()) {
-                                                pKarte.doStuff(feature);
-                                            }
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void retrievalAborted(final RetrievalEvent e) {
-                                }
-
-                                @Override
-                                public void retrievalError(final RetrievalEvent e) {
-                                }
-                            });
-                    }
-                }
-
-                @Override
-                public void mapServiceRemoved(final MapService mapService) {
-                }
-            });
-
-        for (final MapService mapService : mappingModel.getMapServices().values()) {
-            if (mapService instanceof ModeLayer) {
-                mapService.addRetrievalListener(new RetrievalListener() {
-
-                        @Override
-                        public void retrievalStarted(final RetrievalEvent e) {
-                        }
-
-                        @Override
-                        public void retrievalProgress(final RetrievalEvent e) {
-                        }
-
-                        @Override
-                        public void retrievalComplete(final RetrievalEvent e) {
-                            if (((ModeLayer)mapService).getCurrentLayer() instanceof WebFeatureService) {
-                                if (e.getRetrievedObject() != null) {
-                                    for (final WFSFeature feature
-                                                : (Collection<WFSFeature>)e.getRetrievedObject()) {
-                                        pKarte.doStuff(feature);
-                                    }
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void retrievalAborted(final RetrievalEvent e) {
-                        }
-
-                        @Override
-                        public void retrievalError(final RetrievalEvent e) {
-                        }
-                    });
-            }
-        }
     }
 
     /**
