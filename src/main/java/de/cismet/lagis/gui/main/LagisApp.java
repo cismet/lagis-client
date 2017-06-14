@@ -462,56 +462,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 LOG.debug("Konfiguriere Karten Widget");
             }
 
-            try {
-                final ConnectionSession session = SessionManager.getSession();
-                final User user = session.getUser();
-
-                LagisBroker.getInstance().setSession(session);
-                final String userString = user.getName() + "@" + user.getUserGroup().getName();
-                // usergroup.toString is most likely not what the usergroup represents within the system but a
-                // human readeable representation suited for logging purposes
-                // usergroup.getName is probably what you want
-                final String userGroup = user.getUserGroup().toString();
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("userstring: " + userString);
-                    LOG.debug("userGroup: " + userGroup);
-                }
-
-                LagisBroker.getInstance().setAccountName(userString);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("full qualified username: " + userString + "@" + user.getUserGroup().getDomain());
-                }
-                // TODO: I don't get why there are those numerous calls to configure all over the code.
-                // configuration should be done once (!) and especially the leaking 'this' in this case is higly
-                // error prone because the configuration manager uses 'this' (currently being built) object. Thus
-                // the configuration stuff is done on a partially constructed object. VERY NASTY
-                configManager.configure(LagisApp.this);
-                final Boolean permission = LagisBroker.getInstance().getPermissions().get(userGroup.toLowerCase());
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
-                }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Permission: " + permission);
-                }
-                if ((permission != null) && permission) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Authentication successfull user has granted readwrite access");
-                    }
-                    // TODO strange names
-                    LagisBroker.getInstance().setCoreReadOnlyMode(false);
-                    LagisBroker.getInstance().setFullReadOnlyMode(false);
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Authentication successfull user has granted readonly access");
-                    }
-                }
-            } catch (Throwable t) {
-                LOG.error("Fehler im PluginKonstruktor", t);
-            }
-
             if (LagisBroker.getInstance().getSession() != null) {
-                // error prone !!! see above
                 configManager.addConfigurable(this);
 
                 configManager.configure(this);
@@ -4224,8 +4175,8 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
             if (log.isDebugEnabled()) {
                 log.debug("Authentication:");
             }
-            final String user = name.split("@")[0];
-            final String group = name.split("@")[1];
+            final String username = name.split("@")[0];
+            final String usergroup = name.split("@")[1];
             LagisBroker.getInstance().setAccountName(name);
             final String domain = standaloneDomain;
             userString = name;
@@ -4240,78 +4191,43 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 connectionInfo.setCallserverURL(callserverUrl);
                 connectionInfo.setPassword(new String(password));
                 connectionInfo.setUserDomain(domain);
-                connectionInfo.setUsergroup(group);
+                connectionInfo.setUsergroup(usergroup);
                 connectionInfo.setUsergroupDomain(domain);
-                connectionInfo.setUsername(user);
+                connectionInfo.setUsername(username);
 
                 final ConnectionSession session = ConnectionFactory.getFactory()
                             .createSession(connection, connectionInfo, true);
                 final ConnectionProxy proxy = ConnectionFactory.getFactory()
                             .createProxy(CONNECTION_PROXY_CLASS, session);
                 SessionManager.init(proxy);
-                LagisBroker.getInstance().setSession(SessionManager.getSession());
-                final String tester = (group + "@" + domain).toLowerCase();
-                if (log.isDebugEnabled()) {
-                    log.debug("authentication: tester = " + tester);
-                    log.debug("authentication: name = " + name);
-                    log.debug("authentication: RM Plugin key = " + name + "@" + domain);
-                    // setUserString(name); TODO update Configuration depending on username --> formaly after the
-                    // handlelogin method --> test if its work!!!!
+
+                LagisBroker.getInstance().setSession(session);
+
+                final User user = session.getUser();
+
+                LagisBroker.getInstance().setSession(session);
+                final String userString = user.getName() + "@" + user.getUserGroup().getName();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("userstring: " + userString);
                 }
 
-                // zweimal wegen userdepending konfiguration
-                configManager.addConfigurable(LagisBroker.getInstance());
-                configManager.configure(LagisBroker.getInstance());
-                final Boolean permission = LagisBroker.getInstance().getPermissions().get(tester);
-                if (log.isDebugEnabled()) {
-                    log.debug("Permissions Hashmap: " + LagisBroker.getInstance().getPermissions());
-                }
-                if (log.isDebugEnabled()) {
-                    log.debug("Permission: " + permission);
-                }
-                if ((permission != null) && permission) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Authentication successfull user has granted readwrite access");
-                    }
+                LagisBroker.getInstance().setAccountName(userString);
+                if (SessionManager.getProxy().hasConfigAttr(user, "lagis.permission.readwrite")) {
                     LagisBroker.getInstance().setCoreReadOnlyMode(false);
                     LagisBroker.getInstance().setFullReadOnlyMode(false);
-                    // loginWasSuccessful = true;
                     return true;
-                } else if (permission != null) {
+                } else if (SessionManager.getProxy().hasConfigAttr(user, "lagis.permission.read")) {
                     if (log.isDebugEnabled()) {
                         log.debug("Authentication successfull user has granted readonly access");
                     }
-                    // loginWasSuccessful = true;
                     return true;
                 } else {
                     if (log.isDebugEnabled()) {
                         log.debug("authentication else false: no permission available");
                     }
-                    // loginWasSuccessful = false;
                     return false;
                 }
-//                if (prefs.getRwGroups().contains(tester)) {
-//                    //Main.this.readonly=false;
-//                    setUserString(name);
-//                    //log.debug("RMPlugin: wird initialisiert (VerdisStandalone)");
-//                    //log.debug("RMPlugin: Mainframe "+Main.this);
-//                    //log.debug("RMPlugin: PrimaryPort "+prefs.getPrimaryPort());
-//                    //log.debug("RMPlugin: SecondaryPort "+prefs.getSecondaryPort());
-//                    //log.debug("RMPlugin: Username "+(name+"@"+prefs.getStandaloneDomainname()));
-//                    //log.debug("RMPlugin: RegistryPath "+prefs.getRmRegistryServerPath());
-//                    //rmPlugin = new RMPlugin(Main.this,prefs.getPrimaryPort(),prefs.getSecondaryPort(),prefs.getRmRegistryServerPath(),name+"@"+prefs.getStandaloneDomainname());
-//                    //log.debug("RMPlugin: erfolgreich initialisiert (VerdisStandalone)");
-//                    return true;
-//                } else if (prefs.getUsergroups().contains(tester)) {
-//                    //Main.this.readonly=true;
-//                    setUserString(name);
-//                    //rmPlugin = new RMPlugin(Main.this,prefs.getPrimaryPort(),prefs.getSecondaryPort(),prefs.getRmRegistryServerPath(),name+"@"+prefs.getStandaloneDomainname());
-//                    return true;
-//                } else {
-//                    log.debug("authentication else false");
-//                    return false;
-//                }
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 log.error("call server url: " + callserverUrl);
                 log.error("Fehler beim Anmelden ", t);
                 return false;
