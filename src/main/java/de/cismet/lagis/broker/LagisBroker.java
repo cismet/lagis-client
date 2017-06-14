@@ -186,7 +186,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // Permissions
     private boolean isFullReadOnlyMode = true;
     private boolean isCoreReadOnlyMode = true;
-    private HashMap<String, Boolean> permissions = new HashMap<String, Boolean>();
     /** Creates a new instance of LagisBroker. */
     private StatusBar statusBar;
     private ExecutorService execService = null;
@@ -379,12 +378,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Lagis Broker : Reset widgets");
                         }
-//         Iterator<Resettable> it = clearAndDisableListeners.iterator();
-//         while(it.hasNext()){
-//             Resettable tmp = it.next();
-//             tmp.clearComponent();
-//             tmp.setComponentEditable(false);
-//         }
                         final Iterator<Widget> it = widgets.iterator();
                         while (it.hasNext()) {
                             final Widget tmp = it.next();
@@ -400,12 +393,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Lagis Broker : Reset widgets");
         }
-//         Iterator<Resettable> it = clearAndDisableListeners.iterator();
-//         while(it.hasNext()){
-//             Resettable tmp = it.next();
-//             tmp.clearComponent();
-//             tmp.setComponentEditable(false);
-//         }
         final Iterator<Widget> it = widgets.iterator();
         while (it.hasNext()) {
             final Widget tmp = it.next();
@@ -456,34 +443,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             }
                             if (isEditable) {
                                 final Widget currentWidget = it.next();
-//                            ///overdozed it doesn't change at runtime
-//                            HashMap<Widget, Boolean> ressortPermissions = RessortFactory.getInstance().getRessortPermissions();
-//                            if (ressortPermissions != null) {
-//                                log.debug("Widget Ressortpermissions vorhanden : " + ressortPermissions);
-//                                Boolean isReadOnly = ressortPermissions.get(currentWidget);
-//                                if (isReadOnly != null) {
-//                                    log.debug("Widget Ressortpermissions vorhanden.: " + isReadOnly);
-//                                    if (!isReadOnly) {
-//                                        currentWidget.setComponentEditable(isEditable);
-//                                    } else {
-//                                        log.debug("Widget" + currentWidget + " wird kann nicht editiert werden: RessortWidget ist readonly");
-//                                    }
-//                                } else {
-//                                    log.debug("Keine Ressortpermission für Widget vorhanden vorhanden.");
-//                                    if (!isCoreReadOnlyMode()) {
-//                                        currentWidget.setComponentEditable(isEditable);
-//                                    } else {
-//                                        log.debug("Widget" + currentWidget + " wird kann nicht editiert werden: BasisWidgets sind nur readonly");
-//                                    }
-//                                }
-//                            } else {
-//                                log.debug("Keine Widget Ressortpermissions vorhanden.");
-//                                if (!isCoreReadOnlyMode()) {
-//                                    currentWidget.setComponentEditable(isEditable);
-//                                } else {
-//                                    log.debug("Widget" + currentWidget + " wird kann nicht editiert werden: BasisWidgets sind nur readonly");
-//                                }
-//                            }
                                 if (!currentWidget.isWidgetReadOnly()) {
                                     currentWidget.setComponentEditable(isEditable);
                                 }
@@ -515,34 +474,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 }
                 if (isEditable) {
                     final Widget currentWidget = it.next();
-//                    HashMap<Widget, Boolean> ressortPermissions = RessortFactory.getInstance().getRessortPermissions();
-//                    if (ressortPermissions != null) {
-//                        log.debug("Widget permissions vorhanden : " + ressortPermissions);
-//                        Boolean isReadOnly = ressortPermissions.get(currentWidget);
-//                        if (isReadOnly != null) {
-//                            log.debug("Widget permissions vorhanden.: " + isReadOnly);
-//                            if (!isReadOnly) {
-//                                currentWidget.setComponentEditable(isEditable);
-//                            } else {
-//                                log.debug("Widget" + currentWidget + " wird kann nicht editiert werden: RessortWidget ist readonly");
-//                            }
-//
-//                        } else {
-//                            log.debug("Keine Ressortpermission für Widget vorhanden vorhanden.");
-//                            if (!isCoreReadOnlyMode()) {
-//                                currentWidget.setComponentEditable(isEditable);
-//                            } else {
-//                                log.debug("Widget" + currentWidget + " wird kann nicht editiert werden: BasisWidgets sind nur readonly");
-//                            }
-//                        }
-//                    } else {
-//                        log.debug("Keine Widget Ressortpermissions vorhanden.");
-//                        if (!isCoreReadOnlyMode()) {
-//                            currentWidget.setComponentEditable(isEditable);
-//                        } else {
-//                            log.debug("Widget" + currentWidget + " wird kann nicht editiert werden: BasisWidgets sind nur readonly");
-//                        }
-//                    }
                     if (!currentWidget.isWidgetReadOnly()) {
                         currentWidget.setComponentEditable(isEditable);
                     }
@@ -1682,24 +1613,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         this.isCoreReadOnlyMode = isCoreReadOnlyMode;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public HashMap<String, Boolean> getPermissions() {
-        return permissions;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  permissions  DOCUMENT ME!
-     */
-    public void setPermissions(final HashMap<String, Boolean> permissions) {
-        this.permissions = permissions;
-    }
-
     @Override
     public Element getConfiguration() {
         return null;
@@ -1707,12 +1620,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
     @Override
     public void masterConfigure(final Element parent) {
-        /*
-         * <emailConfiguration username="" password="" senderAddress="sebastian.puhl@cismet.de"
-         * smtpHost="smtp.uni-saarland.de"> <neuesKommunalesFinanzmanagement>
-         * <receiver>sebastian.puhl@cismet.de</receiver> </neuesKommunalesFinanzmanagement> <failures>
-         * <receiver>sebastian.puhl@cismet.de</receiver> </failures> </emailConfiguration>
-         */
         try {
             final Element email = parent.getChild("emailConfiguration");
             developerMailaddresses = new Vector<String>();
@@ -1768,38 +1675,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         } catch (Exception ex) {
             LOG.error("Fehler beim konfigurieren des Lagis Brokers: ", ex);
         }
-        try {
-            final HashMap<String, Boolean> perms = new HashMap<String, Boolean>();
-            final Element userPermissions = parent.getChild("permissions");
-            final List<Element> xmlPermissions = userPermissions.getChildren();
-            for (final Element currentPermission : xmlPermissions) {
-                try {
-                    final String isReadWriteAllowedString = currentPermission.getChildText("readWrite");
-                    boolean isReadWriteAllowed = false;
-                    if (isReadWriteAllowedString != null) {
-                        if (isReadWriteAllowedString.equals("true")) {
-                            isReadWriteAllowed = true;
-                        }
-                    }
-                    final String userGroup = currentPermission.getChildText("userGroup");
-                    final String userDomain = currentPermission.getChildText("userDomain");
-                    final String permissionString = userGroup + "@" + userDomain;
-                    LOG.info("Permissions für: login=*@" + permissionString + " readWriteAllowed=" + isReadWriteAllowed
-                                + "(boolean)/" + isReadWriteAllowedString + "(String)");
-                    if (permissionString != null) {
-                        perms.put(permissionString.toLowerCase(), isReadWriteAllowed);
-                    }
-                } catch (Exception ex) {
-                    LOG.fatal("Fehler beim lesen eines Userechtes", ex);
-                }
-            }
-            setPermissions(perms);
-        } catch (Exception ex) {
-            LOG.fatal("Fehler beim lesen der Userrechte (Permissions)", ex);
-            setPermissions(new HashMap<String, Boolean>());
-            // TODO wenigstens den Nutzer benachrichtigen sonst ist es zu hard oder nur lesen modus --> besser!!!
-            // System.exit(1);
-        }
         final Element prefsCids = parent.getChild("cidsAppBackend");
         if (prefsCids != null) {
             try {
@@ -1816,25 +1691,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     @Override
     public void configure(final Element parent) {
     }
-
-    // TODO: Jean
-// /**
-// * DOCUMENT ME!
-// *
-// * @param  verdisServer  DOCUMENT ME!
-// */
-// public void setVerdisServer(final KassenzeichenFacadeRemote verdisServer) {
-// this.verdisServer = verdisServer;
-// }
-//
-// /**
-// * DOCUMENT ME!
-// *
-// * @return  DOCUMENT ME!
-// */
-// public KassenzeichenFacadeRemote getVerdisServer() {
-// return verdisServer;
-// }
 
     /**
      * DOCUMENT ME!
