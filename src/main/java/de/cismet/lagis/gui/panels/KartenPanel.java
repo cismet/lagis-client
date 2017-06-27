@@ -1864,7 +1864,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         if (pf != this.lastOverFeature) {
             this.lastOverFeature = pf;
-            ((DefaultFeatureServiceFeature)pf.getFeature()).getFillingPaint();
             if ((pf != null) && (pf.getFeature() instanceof CidsLayerFeature)
                         && pf.getVisible()
                         && (pf.getParent() != null) && pf.getParent().getVisible()) {

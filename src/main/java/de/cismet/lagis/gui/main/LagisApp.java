@@ -22,10 +22,6 @@ import Sirius.navigator.connection.proxy.ConnectionProxy;
 import Sirius.navigator.event.CatalogueSelectionListener;
 import Sirius.navigator.exception.ConnectionException;
 import Sirius.navigator.plugin.interfaces.FloatingPluginUI;
-import Sirius.navigator.plugin.interfaces.PluginMethod;
-import Sirius.navigator.plugin.interfaces.PluginProperties;
-import Sirius.navigator.plugin.interfaces.PluginSupport;
-import Sirius.navigator.plugin.interfaces.PluginUI;
 import Sirius.navigator.resource.PropertyManager;
 import Sirius.navigator.types.treenode.RootTreeNode;
 import Sirius.navigator.ui.ComponentRegistry;
@@ -115,8 +111,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -213,8 +207,7 @@ import de.cismet.tools.gui.startup.StaticStartupTools;
  * @author   Puhl
  * @version  $Revision$, $Date$
  */
-public class LagisApp extends javax.swing.JFrame implements PluginSupport,
-    FloatingPluginUI,
+public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     Configurable,
     WindowListener,
     HistoryModelListener,
@@ -242,7 +235,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
     private static final String DIRECTORYPATH_LAGIS = DIRECTORYPATH_HOME + FILESEPARATOR + DIRECTORYNAME_LAGISHOME;
 
     private static final String FILEPATH_DEFAULT_LAYOUT = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.layout";
-    private static final String FILEPATH_PLUGIN_LAYOUT = DIRECTORYPATH_LAGIS + FILESEPARATOR + "pluginLagis.layout";
     private static final String FILEPATH_SCREEN = DIRECTORYPATH_LAGIS + FILESEPARATOR + "lagis.screen";
 
     private static JFrame SPLASH;
@@ -608,7 +600,7 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
                 }
             }
 
-            loadLayout(FILEPATH_PLUGIN_LAYOUT);
+            loadLayout(FILEPATH_DEFAULT_LAYOUT);
 
             // }
             configManager.addConfigurable(pFlurstueck);
@@ -3892,45 +3884,6 @@ public class LagisApp extends javax.swing.JFrame implements PluginSupport,
         }
     }
 
-    // Navigator Methods
-    @Override
-    public Iterator getUIs() {
-        final LinkedList ll = new LinkedList();
-        ll.add(this);
-        return ll.iterator();
-    }
-
-    @Override
-    public PluginProperties getProperties() {
-        return null;
-    }
-
-    @Override
-    public Iterator getMethods() {
-        final LinkedList ll = new LinkedList();
-        return ll.iterator();
-    }
-
-    @Override
-    public PluginUI getUI(final String id) {
-        return this;
-    }
-
-    @Override
-    public PluginMethod getMethod(final String id) {
-        return null;
-    }
-
-    @Override
-    public void setActive(final boolean active) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("setActive:" + active);
-        }
-        if (!active) {
-            cleanUp();
-            saveLayout(FILEPATH_PLUGIN_LAYOUT);
-        }
-    }
     // FloatingPluginUI
 
     @Override
