@@ -1107,115 +1107,115 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdMovePolygonActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdMovePolygonActionPerformed
+    private void cmdMovePolygonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdMovePolygonActionPerformed
         removeMainGroupSelection();
         cmdMovePolygon.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.MOVE_POLYGON);
-    }                                                                                  //GEN-LAST:event_cmdMovePolygonActionPerformed
+    }//GEN-LAST:event_cmdMovePolygonActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdAddActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdAddActionPerformed
+    private void cmdAddActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAddActionPerformed
         mappingComponent.showInternalLayerWidget(!mappingComponent.isInternalLayerWidgetVisible(), 500);
-    }                                                                          //GEN-LAST:event_cmdAddActionPerformed
+    }//GEN-LAST:event_cmdAddActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdRemoveHandleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdRemoveHandleActionPerformed
+    private void cmdRemoveHandleActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdRemoveHandleActionPerformed
         removeHandleGroupSelection();
         cmdRemoveHandle.setSelected(true);
         mappingComponent.setHandleInteractionMode(MappingComponent.REMOVE_HANDLE);
-    }                                                                                   //GEN-LAST:event_cmdRemoveHandleActionPerformed
+    }//GEN-LAST:event_cmdRemoveHandleActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdAddHandleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdAddHandleActionPerformed
+    private void cmdAddHandleActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAddHandleActionPerformed
         removeHandleGroupSelection();
         cmdAddHandle.setSelected(true);
         mappingComponent.setHandleInteractionMode(MappingComponent.ADD_HANDLE);
-    }                                                                                //GEN-LAST:event_cmdAddHandleActionPerformed
+    }//GEN-LAST:event_cmdAddHandleActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdMoveHandleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdMoveHandleActionPerformed
+    private void cmdMoveHandleActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdMoveHandleActionPerformed
         removeHandleGroupSelection();
         cmdMoveHandle.setSelected(true);
         mappingComponent.setHandleInteractionMode(MappingComponent.MOVE_HANDLE);
-    }                                                                                 //GEN-LAST:event_cmdMoveHandleActionPerformed
+    }//GEN-LAST:event_cmdMoveHandleActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSplitPolyActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSplitPolyActionPerformed
+    private void cmdSplitPolyActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSplitPolyActionPerformed
         removeMainGroupSelection();
         cmdSplitPoly.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.SPLIT_POLYGON);
-    }                                                                                //GEN-LAST:event_cmdSplitPolyActionPerformed
+    }//GEN-LAST:event_cmdSplitPolyActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdJoinPolyActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdJoinPolyActionPerformed
+    private void cmdJoinPolyActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdJoinPolyActionPerformed
         removeMainGroupSelection();
         cmdJoinPoly.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.JOIN_POLYGONS);
-    }                                                                               //GEN-LAST:event_cmdJoinPolyActionPerformed
+    }//GEN-LAST:event_cmdJoinPolyActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdAttachPolyToAlphadataActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdAttachPolyToAlphadataActionPerformed
+    private void cmdAttachPolyToAlphadataActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdAttachPolyToAlphadataActionPerformed
         removeMainGroupSelection();
         cmdAttachPolyToAlphadata.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.ATTACH_POLYGON_TO_ALPHADATA);
-    }                                                                                            //GEN-LAST:event_cmdAttachPolyToAlphadataActionPerformed
+    }//GEN-LAST:event_cmdAttachPolyToAlphadataActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdRemovePolygonActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdRemovePolygonActionPerformed
+    private void cmdRemovePolygonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdRemovePolygonActionPerformed
         removeMainGroupSelection();
         cmdRemovePolygon.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.REMOVE_POLYGON);
-    }                                                                                    //GEN-LAST:event_cmdRemovePolygonActionPerformed
+    }//GEN-LAST:event_cmdRemovePolygonActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdRaisePolygonActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdRaisePolygonActionPerformed
+    private void cmdRaisePolygonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdRaisePolygonActionPerformed
         removeMainGroupSelection();
         cmdRaisePolygon.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.RAISE_POLYGON);
-    }                                                                                   //GEN-LAST:event_cmdRaisePolygonActionPerformed
+    }//GEN-LAST:event_cmdRaisePolygonActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdNewPointActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdNewPointActionPerformed
+    private void cmdNewPointActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewPointActionPerformed
         removeMainGroupSelection();
         // TODO READING THE SNAPENAB --> FAILURE
         // boolean snapEnab=cismapPrefs.getGlobalPrefs().isSnappingEnabled();
@@ -1229,14 +1229,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         mappingComponent.setInteractionMode(MappingComponent.NEW_POLYGON);
         ((CreateGeometryListener)mappingComponent.getInputListener(MappingComponent.NEW_POLYGON)).setMode(
             CreateGeometryListener.POINT);
-    } //GEN-LAST:event_cmdNewPointActionPerformed
+    }//GEN-LAST:event_cmdNewPointActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdNewPolygonActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdNewPolygonActionPerformed
+    private void cmdNewPolygonActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewPolygonActionPerformed
         removeMainGroupSelection();
         // TODO READING THE SNAPENAB --> FAILURE
         // boolean snapEnab=cismapPrefs.getGlobalPrefs().isSnappingEnabled();
@@ -1250,19 +1250,19 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         mappingComponent.setInteractionMode(MappingComponent.NEW_POLYGON);
         ((CreateGeometryListener)mappingComponent.getInputListener(MappingComponent.NEW_POLYGON)).setMode(
             CreateGeometryListener.POLYGON);
-    } //GEN-LAST:event_cmdNewPolygonActionPerformed
+    }//GEN-LAST:event_cmdNewPolygonActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSelectActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSelectActionPerformed
+    private void cmdSelectActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSelectActionPerformed
         removeMainGroupSelection();
         cmdSelect.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.SELECT);
         cmdMoveHandleActionPerformed(null);
-    }                                                                             //GEN-LAST:event_cmdSelectActionPerformed
+    }//GEN-LAST:event_cmdSelectActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1278,11 +1278,11 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdPanActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdPanActionPerformed
+    private void cmdPanActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdPanActionPerformed
         removeMainGroupSelection();
         cmdPan.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.PAN);
-    }                                                                          //GEN-LAST:event_cmdPanActionPerformed
+    }//GEN-LAST:event_cmdPanActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1420,18 +1420,18 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdZoomActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdZoomActionPerformed
+    private void cmdZoomActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdZoomActionPerformed
         removeMainGroupSelection();
         cmdZoom.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.ZOOM);
-    }                                                                           //GEN-LAST:event_cmdZoomActionPerformed
+    }//GEN-LAST:event_cmdZoomActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSnapActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSnapActionPerformed
+    private void cmdSnapActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSnapActionPerformed
         if (log.isDebugEnabled()) {
             log.debug("Set snapping Enabled: " + cmdSnap.isSelected());
         }
@@ -1442,14 +1442,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         mappingComponent.setSnappingEnabled(cmdSnap.isSelected());
         mappingComponent.setVisualizeSnappingEnabled(cmdSnap.isSelected());
         mappingComponent.setInGlueIdenticalPointsMode(cmdSnap.isSelected());
-    } //GEN-LAST:event_cmdSnapActionPerformed
+    }//GEN-LAST:event_cmdSnapActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdWmsBackgroundActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdWmsBackgroundActionPerformed
+    private void cmdWmsBackgroundActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdWmsBackgroundActionPerformed
         if (mappingComponent.isBackgroundEnabled()) {
             mappingComponent.setBackgroundEnabled(false);
             cmdWmsBackground.setSelected(false);
@@ -1458,61 +1458,61 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             cmdWmsBackground.setSelected(true);
             mappingComponent.queryServices();
         }
-    }                                                                                    //GEN-LAST:event_cmdWmsBackgroundActionPerformed
+    }//GEN-LAST:event_cmdWmsBackgroundActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdForwardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdForwardActionPerformed
+    private void cmdForwardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdForwardActionPerformed
         // TODO add your handling code here:
-    } //GEN-LAST:event_cmdForwardActionPerformed
+    }//GEN-LAST:event_cmdForwardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdBackActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdBackActionPerformed
-    }                                                                           //GEN-LAST:event_cmdBackActionPerformed
+    private void cmdBackActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdBackActionPerformed
+    }//GEN-LAST:event_cmdBackActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdFullPoly1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFullPoly1ActionPerformed
+    private void cmdFullPoly1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdFullPoly1ActionPerformed
         mappingComponent.zoomToSelectedNode();
-    }                                                                                //GEN-LAST:event_cmdFullPoly1ActionPerformed
+    }//GEN-LAST:event_cmdFullPoly1ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdFullPolyActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFullPolyActionPerformed
+    private void cmdFullPolyActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdFullPolyActionPerformed
         mappingComponent.zoomToFullFeatureCollectionBounds();
-    }                                                                               //GEN-LAST:event_cmdFullPolyActionPerformed
+    }//GEN-LAST:event_cmdFullPolyActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdALBActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdALBActionPerformed
+    private void cmdALBActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdALBActionPerformed
         log.info("ALB");
         removeMainGroupSelection();
         cmdALB.setSelected(true);
         mappingComponent.setInteractionMode(MappingComponent.CUSTOM_FEATUREINFO);
-    }                                                                          //GEN-LAST:event_cmdALBActionPerformed
+    }//GEN-LAST:event_cmdALBActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdForegroundActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdForegroundActionPerformed
+    private void cmdForegroundActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdForegroundActionPerformed
         if (mappingComponent.isFeatureCollectionVisible()) {
             mappingComponent.setFeatureCollectionVisibility(false);
             cmdForeground.setSelected(false);
@@ -1520,14 +1520,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             mappingComponent.setFeatureCollectionVisibility(true);
             cmdForeground.setSelected(true);
         }
-    }                                                                                 //GEN-LAST:event_cmdForegroundActionPerformed
+    }//GEN-LAST:event_cmdForegroundActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdUndoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdUndoActionPerformed
+    private void cmdUndoActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdUndoActionPerformed
         log.info("UNDO");
         final CustomAction a = mappingComponent.getMemUndo().getLastAction();
         if (log.isDebugEnabled()) {
@@ -1544,14 +1544,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             log.debug("... neue Aktion auf REDO-Stack: " + inverse);
             log.debug("... fertig");
         }
-    }                                                                           //GEN-LAST:event_cmdUndoActionPerformed
+    }//GEN-LAST:event_cmdUndoActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdRedoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdRedoActionPerformed
+    private void cmdRedoActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdRedoActionPerformed
         log.info("REDO");
         final CustomAction a = mappingComponent.getMemRedo().getLastAction();
         if (log.isDebugEnabled()) {
@@ -1568,40 +1568,40 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             log.debug("... neue Aktion auf UNDO-Stack: " + inverse);
             log.debug("... fertig");
         }
-    }                                                                           //GEN-LAST:event_cmdRedoActionPerformed
+    }//GEN-LAST:event_cmdRedoActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSearchAlkisLandparcelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchAlkisLandparcelActionPerformed
+    private void cmdSearchAlkisLandparcelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSearchAlkisLandparcelActionPerformed
         removeMainGroupSelection();
         cmdSearchAlkisLandparcel.setSelected(true);
         mappingComponent.setInteractionMode(FlurstueckNodesSearchCreateSearchGeometryListener.NAME);
-    }                                                                                            //GEN-LAST:event_cmdSearchAlkisLandparcelActionPerformed
+    }//GEN-LAST:event_cmdSearchAlkisLandparcelActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSearchVermessungRissActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchVermessungRissActionPerformed
+    private void cmdSearchVermessungRissActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSearchVermessungRissActionPerformed
         removeMainGroupSelection();
         cmdSearchVermessungRiss.setSelected(true);
         mappingComponent.setInteractionMode(RissNodesSearchCreateSearchGeometryListener.NAME);
-    }                                                                                           //GEN-LAST:event_cmdSearchVermessungRissActionPerformed
+    }//GEN-LAST:event_cmdSearchVermessungRissActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchBaulastenActionPerformed
+    private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSearchBaulastenActionPerformed
         removeMainGroupSelection();
         cmdSearchBaulasten.setSelected(true);
         mappingComponent.setInteractionMode(BaulastblattNodesSearchCreateSearchGeometryListener.NAME);
-    }                                                                                      //GEN-LAST:event_cmdSearchBaulastenActionPerformed
+    }//GEN-LAST:event_cmdSearchBaulastenActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1864,7 +1864,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         if (pf != this.lastOverFeature) {
             this.lastOverFeature = pf;
-            ((DefaultFeatureServiceFeature)pf.getFeature()).getFillingPaint();
             if ((pf != null) && (pf.getFeature() instanceof CidsLayerFeature)
                         && pf.getVisible()
                         && (pf.getParent() != null) && pf.getParent().getVisible()) {
