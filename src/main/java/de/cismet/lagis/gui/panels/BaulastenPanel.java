@@ -251,20 +251,20 @@ public class BaulastenPanel extends AbstractWidget implements FlurstueckChangeLi
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
         showRenderer();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jList1MouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
+    private void jList1MouseClicked(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_jList1MouseClicked
         if (evt.getClickCount() == 2) {
             showRenderer();
         }
-    }//GEN-LAST:event_jList1MouseClicked
+    }                                                                      //GEN-LAST:event_jList1MouseClicked
 
     /**
      * DOCUMENT ME!
