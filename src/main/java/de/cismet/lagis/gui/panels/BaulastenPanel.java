@@ -15,21 +15,13 @@ package de.cismet.lagis.gui.panels;
 import Sirius.navigator.connection.SessionManager;
 
 import Sirius.server.middleware.types.MetaClass;
-import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.middleware.types.MetaObjectNode;
 
-import com.vividsolutions.jts.geom.Geometry;
-
-import de.aedsicad.aaaweb.client.alkis.AlkisUtil;
-
 import org.apache.log4j.Logger;
-
-import org.openide.util.Exceptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultListModel;
 import javax.swing.SwingWorker;
