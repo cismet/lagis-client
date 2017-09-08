@@ -1044,7 +1044,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         final LagisApp.WundaAuthentification wa = new LagisApp.WundaAuthentification(
                 LagisBroker.getInstance().getDomain(),
                 LagisBroker.getInstance().getCallserverUrl(),
-                LagisBroker.getInstance().getConnectionClass());
+                LagisBroker.getInstance().getConnectionClass(),
+                LagisBroker.getInstance().isCompressionEnabled());
 
         final JXLoginPane login = new JXLoginPane(wa, null, usernames) {
 
@@ -3285,6 +3286,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     try {
                         final Options options = new Options();
                         options.addOption("u", true, "CallserverUrl");
+                        options.addOption("z", true, "CompressionEnabled");
                         options.addOption("c", true, "ConnectionClass");
                         options.addOption("d", true, "Domain");
                         final PosixParser parser = new PosixParser();
@@ -3294,6 +3296,10 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         } else {
                             LOG.warn("Kein Callserverhost spezifiziert, bitte mit -u setzen.");
                             System.exit(1);
+                        }
+                        if (cmd.hasOption("z")) {
+                            LagisBroker.getInstance()
+                                    .setCompressionEnabled(Boolean.parseBoolean(cmd.getOptionValue("z")));
                         }
                         if (cmd.hasOption("c")) {
                             LagisBroker.getInstance().setConnectionClass(cmd.getOptionValue("c"));
@@ -4102,6 +4108,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         private final String standaloneDomain;
         private final String callserverUrl;
         private final String connectionClass;
+        private final boolean compressionEnabled;
         private String userString;
 
         //~ Constructors -------------------------------------------------------
@@ -4109,16 +4116,19 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         /**
          * Creates a new WundaAuthentification object.
          *
-         * @param  standaloneDomain  DOCUMENT ME!
-         * @param  callserverUrl     DOCUMENT ME!
-         * @param  connectionClass   DOCUMENT ME!
+         * @param  standaloneDomain    DOCUMENT ME!
+         * @param  callserverUrl       DOCUMENT ME!
+         * @param  connectionClass     DOCUMENT ME!
+         * @param  compressionEnabled  DOCUMENT ME!
          */
         public WundaAuthentification(final String standaloneDomain,
                 final String callserverUrl,
-                final String connectionClass) {
+                final String connectionClass,
+                final boolean compressionEnabled) {
             this.standaloneDomain = standaloneDomain;
             this.callserverUrl = callserverUrl;
             this.connectionClass = connectionClass;
+            this.compressionEnabled = compressionEnabled;
         }
 
         //~ Methods ------------------------------------------------------------
@@ -4138,7 +4148,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             }
             try {
                 final Connection connection = ConnectionFactory.getFactory()
-                            .createConnection(connectionClass, callserverUrl);
+                            .createConnection(connectionClass, callserverUrl, compressionEnabled);
 
                 final ConnectionInfo connectionInfo = new ConnectionInfo();
                 connectionInfo.setCallserverURL(callserverUrl);
