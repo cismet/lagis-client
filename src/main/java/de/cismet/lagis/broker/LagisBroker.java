@@ -179,6 +179,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private String callserverUrl;
     private String domain;
     private String connectionClass;
+    private boolean compressionEnabled = false;
     private String account;
     private FlurstueckRequester requester;
     private JFrame parentComponent;
@@ -255,6 +256,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             broker = new LagisBroker();
         }
         return broker;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public boolean isCompressionEnabled() {
+        return compressionEnabled;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  compressionEnabled  DOCUMENT ME!
+     */
+    public void setCompressionEnabled(final boolean compressionEnabled) {
+        this.compressionEnabled = compressionEnabled;
     }
 
     /**
@@ -1674,17 +1693,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim konfigurieren des Lagis Brokers: ", ex);
-        }
-        final Element prefsCids = parent.getChild("cidsAppBackend");
-        if (prefsCids != null) {
-            try {
-                LagisBroker.getInstance().setDomain(prefsCids.getChildText("domain"));
-                LagisBroker.getInstance().setCallserverUrl(prefsCids.getChildText("callserverurl"));
-                LagisBroker.getInstance().setConnectionClass(prefsCids.getChildText("connectionclass"));
-            } catch (Exception ex) {
-                LOG.fatal("Fehler beim lesen der cidsAppBackendcSettings", ex);
-                System.exit(1);
-            }
         }
     }
 
