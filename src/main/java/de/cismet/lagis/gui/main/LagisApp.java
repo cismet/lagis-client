@@ -334,8 +334,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private DockingWindow[] ressortDockingWindow;
     // Plugin Navigator
     private ArrayList<JMenuItem> menues = new ArrayList<>();
-    // the main thread should wait till the result of the login is computated
-    private String albURL;
     // Configurable
     private Dimension windowSize = null;
     private Point windowLocation = null;
@@ -499,9 +497,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Konfiguriere ALBListener");
             }
-            final CustomFeatureInfoListener cfil = (CustomFeatureInfoListener)mapComponent.getInputListener(
-                    MappingComponent.CUSTOM_FEATUREINFO);
-            cfil.setFeatureInforetrievalUrl(albURL);
 
             menues.add(menFile);
             menues.add(menEdit);
@@ -3508,17 +3503,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 onlineHelpURL = urls.getChildText("onlineHelp");
             } catch (Exception ex) {
                 LOG.warn("Fehler beim lesen der OnlineHilfe URL", ex);
-            }
-            try {
-                albURL = albConfiguration.getChildText("albURL");
-                if (albURL != null) {
-                    albURL = albURL.trim();
-                }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("ALBURL: " + albURL.trim());
-                }
-            } catch (Exception ex) {
-                LOG.warn("Fehler beim lesen der ALB Konfiguration", ex);
             }
             try {
                 if (LOG.isDebugEnabled()) {

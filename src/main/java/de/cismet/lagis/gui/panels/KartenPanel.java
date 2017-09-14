@@ -135,7 +135,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     // Variables declaration - do not modify
     // NOI18N
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton cmdALB;
     private javax.swing.JButton cmdAdd;
     private javax.swing.JButton cmdAddHandle;
     private javax.swing.JButton cmdAttachPolyToAlphadata;
@@ -472,15 +471,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         if (currentInteractionMode != null) {
             if (currentInteractionMode.equals(MappingComponent.SELECT)) {
                 if (log.isDebugEnabled()) {
-                    log.debug("InteractionMode set to SELCET");
+                    log.debug("InteractionMode set to SELECT");
                 }
                 cmdSelectActionPerformed(null);
-            } else if (currentInteractionMode.equals(MappingComponent.CUSTOM_FEATUREINFO)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("InteractionMode set to CUSTOM_FEATUREINFO");
-                }
-                // cmdALB.setSelected(true);
-                cmdALBActionPerformed(null);
             } else if (currentInteractionMode.equals(MappingComponent.PAN)) {
                 if (log.isDebugEnabled()) {
                     log.debug("InteractionMode set to PAN");
@@ -527,7 +520,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         cmdZoom = new javax.swing.JButton();
         cmdPan = new javax.swing.JButton();
         cmdSelect = new javax.swing.JButton();
-        cmdALB = new javax.swing.JButton();
         jSeparator10 = new javax.swing.JSeparator();
         cmdSearchAlkisLandparcel = new javax.swing.JToggleButton();
         cmdSearchBaulasten = new javax.swing.JToggleButton();
@@ -720,27 +712,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 }
             });
         jToolBar1.add(cmdSelect);
-
-        cmdALB.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/alb.png")));          // NOI18N
-        cmdALB.setToolTipText("Auswählen");
-        cmdALB.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        cmdALB.setFocusPainted(false);
-        cmdALB.setFocusable(false);
-        cmdALB.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        cmdALB.setRolloverSelectedIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/alb_selected.png"))); // NOI18N
-        cmdALB.setSelectedIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/alb_selected.png"))); // NOI18N
-        cmdALB.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        cmdALB.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cmdALBActionPerformed(evt);
-                }
-            });
-        jToolBar1.add(cmdALB);
 
         jSeparator10.setOrientation(javax.swing.SwingConstants.VERTICAL);
         jSeparator10.setMaximumSize(new java.awt.Dimension(2, 32767));
@@ -1290,7 +1261,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private void removeMainGroupSelection() {
         cmdSelect.setSelected(false);
         cmdPan.setSelected(false);
-        cmdALB.setSelected(false);
         cmdZoom.setSelected(false);
         cmdMovePolygon.setSelected(false);
         cmdNewPolygon.setSelected(false);
@@ -1494,18 +1464,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private void cmdFullPolyActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFullPolyActionPerformed
         mappingComponent.zoomToFullFeatureCollectionBounds();
     }                                                                               //GEN-LAST:event_cmdFullPolyActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void cmdALBActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdALBActionPerformed
-        log.info("ALB");
-        removeMainGroupSelection();
-        cmdALB.setSelected(true);
-        mappingComponent.setInteractionMode(MappingComponent.CUSTOM_FEATUREINFO);
-    }                                                                          //GEN-LAST:event_cmdALBActionPerformed
 
     /**
      * DOCUMENT ME!
