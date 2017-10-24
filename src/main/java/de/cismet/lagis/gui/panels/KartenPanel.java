@@ -298,6 +298,9 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         ((Observable)mappingComponent.getMemRedo()).addObserver(this);
 
         mappingComponent.getFeatureLayer().setTransparency(150 / 255f);
+
+        ((SimpleMoveListener)mappingComponent.getInputListener(
+                MappingComponent.MOTION)).setDeepSeekEnabled(true);
     }
 
     //~ Methods ----------------------------------------------------------------
