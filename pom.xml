@@ -17,7 +17,7 @@
         <names.lagis-client>LagIS Client</names.lagis-client>
     </properties>
     
-    <name>${names.lagis-client}</name>
+    <name>${names.lagis-client} [${project.version}]</name>
     <description>!!! description pending !!!</description>
     
     <scm>
