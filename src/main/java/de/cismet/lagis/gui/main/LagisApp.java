@@ -157,6 +157,8 @@ import de.cismet.cismap.commons.interaction.CismapBroker;
 import de.cismet.cismap.commons.wfsforms.AbstractWFSForm;
 import de.cismet.cismap.commons.wfsforms.WFSFormFactory;
 
+import de.cismet.connectioncontext.ConnectionContext;
+
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -834,11 +836,13 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
             final RissNodesSearchCreateSearchGeometryListener rissCreateSearchGeomListener =
                 new RissNodesSearchCreateSearchGeometryListener(LagisBroker.getInstance().getMappingComponent(),
-                    propChangeListener);
+                    propChangeListener,
+                    ConnectionContext.createDeprecated());
             final FlurstueckNodesSearchCreateSearchGeometryListener flurstueckCreateSearchGeomListener =
                 new FlurstueckNodesSearchCreateSearchGeometryListener(LagisBroker.getInstance().getInstance()
                             .getMappingComponent(),
-                    propChangeListener);
+                    propChangeListener,
+                    ConnectionContext.createDeprecated());
             LagisBroker.getInstance()
                     .getMappingComponent()
                     .addCustomInputListener(
@@ -862,7 +866,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
             final BaulastblattNodesSearchCreateSearchGeometryListener baulastblattCreateSearchGeomListener =
                 new BaulastblattNodesSearchCreateSearchGeometryListener(LagisBroker.getInstance().getMappingComponent(),
-                    propChangeListener);
+                    propChangeListener,
+                    ConnectionContext.createDeprecated());
             LagisBroker.getInstance()
                     .getMappingComponent()
                     .addCustomInputListener(
@@ -3223,7 +3228,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * @param  evt  DOCUMENT ME!
      */
     private void cmdSearchRisseActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchRisseActionPerformed
-        StaticSwingTools.showDialog(new VermessungsrissSuchDialog(this, false));
+        StaticSwingTools.showDialog(new VermessungsrissSuchDialog(this, false, ConnectionContext.createDeprecated()));
     }                                                                                  //GEN-LAST:event_cmdSearchRisseActionPerformed
 
     /**
@@ -3232,7 +3237,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * @param  evt  DOCUMENT ME!
      */
     private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchBaulastenActionPerformed
-        StaticSwingTools.showDialog(new BaulastSuchDialog(this, false));
+        StaticSwingTools.showDialog(new BaulastSuchDialog(this, false, ConnectionContext.createDeprecated()));
     }                                                                                      //GEN-LAST:event_cmdSearchBaulastenActionPerformed
 
     /**

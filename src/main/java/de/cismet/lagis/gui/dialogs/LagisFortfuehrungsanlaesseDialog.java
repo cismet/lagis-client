@@ -58,6 +58,8 @@ import de.cismet.cids.server.search.CidsServerSearch;
 
 import de.cismet.cismap.commons.CrsTransformer;
 
+import de.cismet.connectioncontext.ConnectionContext;
+
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -108,7 +110,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
      * @param  modal   DOCUMENT ME!
      */
     public LagisFortfuehrungsanlaesseDialog(final java.awt.Frame parent, final boolean modal) {
-        super(parent, modal);
+        super(parent, modal, ConnectionContext.createDeprecated());
     }
 
     //~ Methods ----------------------------------------------------------------
