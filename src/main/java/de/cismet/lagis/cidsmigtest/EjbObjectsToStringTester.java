@@ -22,11 +22,9 @@ import de.cismet.cids.custom.beans.lagis.BaumKategorieAuspraegungCustomBean;
 import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.BaumMerkmalCustomBean;
 import de.cismet.cids.custom.beans.lagis.BaumNutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
 import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
 import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
 import de.cismet.cids.custom.beans.lagis.FarbeCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckAktionCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
@@ -172,25 +170,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final BebauungCustomBean object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Bebauung |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "PlanArt: " + getStringOf(object.getPlanArt())
-                    + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "toString: " + getStringOf(object.toString())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public static String getStringOf(final BeschlussartCustomBean object) {
         if (object == null) {
             return "null";
@@ -198,24 +177,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
         return "\n" + tab() + "[Beschlussart |"
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "toString: " + getStringOf(object.toString())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static String getStringOf(final FlaechennutzungCustomBean object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Flaechennutzung |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "PlanArt: " + getStringOf(object.getPlanArt())
                     + "\n" + t() + "toString: " + getStringOf(object.toString())
                     + "\n" + untab() + "]";
     }
@@ -475,10 +436,8 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
         }
         return "\n" + tab() + "[NutzungsBuchung |"
                     + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Bebauung: " + getStringOf(object.getBebauung())
                     + "\n" + t() + "Bemerkung: " + getStringOf(object.getBemerkung())
                     + "\n" + t() + "Flaeche: " + getStringOf(object.getFlaeche())
-                    + "\n" + t() + "Flaechennutzung: " + getStringOf(object.getFlaechennutzung())
                     + "\n" + t() + "Gesamtpreis: " + getStringOf(object.getGesamtpreis())
                     + "\n" + t() + "Gueltigbis: " + getStringOf(object.getGueltigbis())
                     + "\n" + t() + "Gueltigvon: " + getStringOf(object.getGueltigvon())
@@ -1055,12 +1014,8 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                 string = getStringOf((BaumKategorieCustomBean)object);
             } else if (object instanceof BaumMerkmalCustomBean) {
                 string = getStringOf((BaumMerkmalCustomBean)object);
-            } else if (object instanceof BebauungCustomBean) {
-                string = getStringOf((BebauungCustomBean)object);
             } else if (object instanceof BeschlussartCustomBean) {
                 string = getStringOf((BeschlussartCustomBean)object);
-            } else if (object instanceof FlaechennutzungCustomBean) {
-                string = getStringOf((FlaechennutzungCustomBean)object);
             } else if (object instanceof FlurstueckArtCustomBean) {
                 string = getStringOf((FlurstueckArtCustomBean)object);
             } else if (object instanceof FlurstueckHistorieCustomBean) {

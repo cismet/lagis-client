@@ -16,8 +16,6 @@ package de.cismet.lagis.cidsmigtest;
 ****************************************************/
 import Sirius.server.middleware.types.MetaObject;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.util.*;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -34,11 +32,9 @@ import de.cismet.lagisEE.entity.core.UrlBase;
 import de.cismet.lagisEE.entity.core.Vertrag;
 import de.cismet.lagisEE.entity.core.Verwaltungsbereich;
 import de.cismet.lagisEE.entity.core.hardwired.Anlageklasse;
-import de.cismet.lagisEE.entity.core.hardwired.Bebauung;
 import de.cismet.lagisEE.entity.core.hardwired.Beschlussart;
 import de.cismet.lagisEE.entity.core.hardwired.DmsUrl;
 import de.cismet.lagisEE.entity.core.hardwired.Farbe;
-import de.cismet.lagisEE.entity.core.hardwired.Flaechennutzung;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
 import de.cismet.lagisEE.entity.core.hardwired.Kategorie;
@@ -178,25 +174,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Bebauung object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Bebauung |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "PlanArt: " + getStringOf(object.getPlanArt())
-                    + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "toString: " + getStringOf(object.toString())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public static String getStringOf(final Beschlussart object) {
         if (object == null) {
             return "null";
@@ -204,24 +181,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
         return "\n" + tab() + "[Beschlussart |"
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "toString: " + getStringOf(object.toString())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static String getStringOf(final Flaechennutzung object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Flaechennutzung |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "PlanArt: " + getStringOf(object.getPlanArt())
                     + "\n" + t() + "toString: " + getStringOf(object.toString())
                     + "\n" + untab() + "]";
     }
@@ -481,10 +440,8 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
         }
         return "\n" + tab() + "[NutzungsBuchung |"
                     + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Bebauung: " + getStringOf(object.getBebauung())
                     + "\n" + t() + "Bemerkung: " + getStringOf(object.getBemerkung())
                     + "\n" + t() + "Flaeche: " + getStringOf(object.getFlaeche())
-                    + "\n" + t() + "Flaechennutzung: " + getStringOf(object.getFlaechennutzung())
                     + "\n" + t() + "Gesamtpreis: " + getStringOf(object.getGesamtpreis())
                     + "\n" + t() + "Gueltigbis: " + getStringOf(object.getGueltigbis())
                     + "\n" + t() + "Gueltigvon: " + getStringOf(object.getGueltigvon())
@@ -1055,12 +1012,8 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
                 string = getStringOf((BaumKategorie)object);
             } else if (object instanceof BaumMerkmal) {
                 string = getStringOf((BaumMerkmal)object);
-            } else if (object instanceof Bebauung) {
-                string = getStringOf((Bebauung)object);
             } else if (object instanceof Beschlussart) {
                 string = getStringOf((Beschlussart)object);
-            } else if (object instanceof Flaechennutzung) {
-                string = getStringOf((Flaechennutzung)object);
             } else if (object instanceof FlurstueckArt) {
                 string = getStringOf((FlurstueckArt)object);
             } else if (object instanceof FlurstueckHistorie) {
