@@ -26,8 +26,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
-import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
@@ -37,14 +35,6 @@ import de.cismet.cids.dynamics.CidsBean;
 import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
 import de.cismet.lagis.broker.LagisBroker;
-
-import de.cismet.lagis.gui.panels.NKFPanel;
-import de.cismet.lagis.gui.tables.NKFRemoveNutzungDialog;
-
-import de.cismet.lagis.util.TableSelectionUtils;
-
-import de.cismet.lagis.utillity.BebauungsVector;
-import de.cismet.lagis.utillity.FlaechennutzungsVector;
 
 import de.cismet.tools.CurrentStackTrace;
 
@@ -64,8 +54,6 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             "Anlageklasse",
             "Nutzungsartenschlüssel",
             "Nutzungsart",
-            "Flächennutzungsplan",
-            "Bebauungsplan",
             "Fläche m²",
             "Quadratmeterpreis",
             "Gesamtpreis",
@@ -79,8 +67,6 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             AnlageklasseCustomBean.class,
             NutzungsartCustomBean.class,
             String.class,
-            Vector.class,
-            Vector.class,
             Integer.class,
             Double.class,
             Double.class,
@@ -96,12 +82,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                 "/de/cismet/lagis/ressource/icons/nutzung/booked.png"));
     private Icon notBooked = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/notBooked.png"));
-    private Icon statusUnknown = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/nutzung/statusUnknown.png"));
     private ArrayList<NutzungCustomBean> allNutzungen;
-    // ToDo Selection über Datum noch nicht ganz optimal weil sehr oft im EDT benutzt und kostspielig
-    // private ArrayList<NutzungBuchungCustomBean> currentBuchungen;
-    private DecimalFormat df = LagisBroker.getCurrencyFormatter();
     private Date currentDate = null;
 
     //~ Constructors -----------------------------------------------------------
@@ -111,7 +92,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
      */
     public NKFTableModel() {
         super(COLUMN_NAMES, COLUMN_CLASSES, NutzungBuchungCustomBean.class);
-        allNutzungen = new ArrayList<NutzungCustomBean>();
+        allNutzungen = new ArrayList<>();
     }
 
     /**
@@ -122,7 +103,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     public NKFTableModel(final Collection<NutzungBuchungCustomBean> buchungen) {
         super(COLUMN_NAMES, COLUMN_CLASSES, buchungen);
         try {
-            allNutzungen = new ArrayList<NutzungCustomBean>();
+            allNutzungen = new ArrayList<>();
             for (final NutzungBuchungCustomBean buchung : buchungen) {
                 allNutzungen.add(buchung.getNutzung());
             }
@@ -133,7 +114,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             setModelToHistoryDate(currentDate);
         } catch (Exception ex) {
             LOG.error("Fehler beim anlegen des Models", ex);
-            this.allNutzungen = new ArrayList<NutzungCustomBean>();
+            this.allNutzungen = new ArrayList<>();
         }
     }
 
@@ -147,7 +128,6 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             }
 
             final NutzungBuchungCustomBean selectedBuchung = getCidsBeanAtRow(rowIndex);
-//            final NutzungBuchungCustomBean selectedBuchung = nutzung.getBuchungForExactDate(currentDate);
             final NutzungCustomBean nutzung = (selectedBuchung != null) ? selectedBuchung.getNutzung() : null;
             final Double stilleReserve = (nutzung != null) ? nutzung.getStilleReserveForBuchung(selectedBuchung) : null;
             switch (columnIndex) {
@@ -180,27 +160,12 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                     }
                 }
                 case 5: {
-                    // TODO Special GUI for editing
-                    if (selectedBuchung.getFlaechennutzung() != null) {
-                        return new FlaechennutzungsVector(selectedBuchung.getFlaechennutzung());
-                    } else {
-                        return new FlaechennutzungsVector();
-                    }
-                }
-                case 6: {
-                    if (selectedBuchung.getBebauung() != null) {
-                        return new BebauungsVector(selectedBuchung.getBebauung());
-                    } else {
-                        return new BebauungsVector();
-                    }
-                }
-                case 7: {
                     return selectedBuchung.getFlaeche();
                 }
-                case 8: {
+                case 6: {
                     return selectedBuchung.getQuadratmeterpreis();
                 }
-                case 9: {
+                case 7: {
                     if (stilleReserve != null) {
                         return selectedBuchung.getGesamtpreis() - stilleReserve;
                     } else {
@@ -208,7 +173,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                         return selectedBuchung.getGesamtpreis();
                     }
                 }
-                case 10: {
+                case 8: {
                     // ToDo NKF
                     if (stilleReserve != null) {
                         return stilleReserve;
@@ -216,7 +181,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                         return 0.0;
                     }
                 }
-                case 11: {
+                case 9: {
                     // ToDo gibt so wenig Buchwerte extra Spalte dafür ?
                     if (selectedBuchung.getIstBuchwert()) {
                         return booked;
@@ -224,7 +189,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                         return notBooked;
                     }
                 }
-                case 12: {
+                case 10: {
                     return selectedBuchung.getBemerkung();
                 }
                 default: {
@@ -293,59 +258,20 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                     break;
                 }
                 case 5: {
-                    Collection<FlaechennutzungCustomBean> tmpNutz = selectedBuchung.getFlaechennutzung();
-                    if (tmpNutz != null) {
-                        tmpNutz.clear();
-                    } else {
-                        selectedBuchung.setFlaechennutzung(new HashSet<FlaechennutzungCustomBean>());
-                        tmpNutz = selectedBuchung.getFlaechennutzung();
-                    }
-                    // tmpNutz.addAll((Collection<Flaechennutzung>) aValue);
-                    final Iterator<FlaechennutzungCustomBean> itF = ((Collection<FlaechennutzungCustomBean>)aValue)
-                                .iterator();
-                    while (itF.hasNext()) {
-                        final FlaechennutzungCustomBean fNutzung = itF.next();
-                        if (fNutzung.getBezeichnung() != null) {
-                            tmpNutz.add(fNutzung);
-                        }
-                    }
-                    selectedBuchung.setFlaechennutzung(tmpNutz);
-                    break;
-                }
-                case 6: {
-                    Collection<BebauungCustomBean> tmpBebauung = selectedBuchung.getBebauung();
-                    if (tmpBebauung != null) {
-                        tmpBebauung.clear();
-                    } else {
-                        selectedBuchung.setBebauung(new HashSet<BebauungCustomBean>());
-                        tmpBebauung = selectedBuchung.getBebauung();
-                    }
-                    // tmpNutz.addAll((Collection<Flaechennutzung>) aValue);
-                    final Iterator<BebauungCustomBean> itB = ((Collection<BebauungCustomBean>)aValue).iterator();
-                    while (itB.hasNext()) {
-                        final BebauungCustomBean bebauung = itB.next();
-                        if (bebauung.getBezeichnung() != null) {
-                            tmpBebauung.add(bebauung);
-                        }
-                    }
-                    selectedBuchung.setBebauung(tmpBebauung);
-                    break;
-                }
-                case 7: {
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
                     selectedBuchung.setFlaeche((Integer)aValue);
                     break;
                 }
-                case 8: {
+                case 6: {
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
                     selectedBuchung.setQuadratmeterpreis((Double)aValue);
                     break;
                 }
-                case 12: {
+                case 10: {
                     if ((aValue != null) && (aValue instanceof String) && (((String)aValue).length() == 0)) {
                         selectedBuchung.setBemerkung(null);
                         return;

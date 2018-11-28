@@ -10,8 +10,6 @@ package de.cismet.lagisEE.entity.core;
 import java.util.*;
 
 import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
-import de.cismet.cids.custom.beans.lagis.BebauungCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlaechennutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
@@ -39,8 +37,7 @@ public interface NutzungsBuchung extends Cloneable {
 
         //~ Enum constants -----------------------------------------------------
 
-        ANLAGEKLASSE, NUTZUNG, NUTZUNGSART, FLAECHE, GUELTIG_BIS, QUADRADMETERPREIS, FLAECHENNUTZUNG, BEBAUUNG,
-        BEMERKUNG
+        ANLAGEKLASSE, NUTZUNG, NUTZUNGSART, FLAECHE, GUELTIG_BIS, QUADRADMETERPREIS, BEMERKUNG
     }
 
     //~ Instance fields --------------------------------------------------------
@@ -182,34 +179,6 @@ public interface NutzungsBuchung extends Cloneable {
      *
      * @return  DOCUMENT ME!
      */
-    Collection<FlaechennutzungCustomBean> getFlaechennutzung();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  flaechennutzung  DOCUMENT ME!
-     */
-    void setFlaechennutzung(final Collection<FlaechennutzungCustomBean> flaechennutzung);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    Collection<BebauungCustomBean> getBebauung();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  bebauung  DOCUMENT ME!
-     */
-    void setBebauung(final Collection<BebauungCustomBean> bebauung);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     Double getGesamtpreis();
 
     /**
@@ -296,11 +265,7 @@ public interface NutzungsBuchung extends Cloneable {
 
         @Override
         public boolean pedanticEquals(final NutzungBuchungCustomBean n1, final NutzungBuchungCustomBean n2) {
-            if (!determineUnequalFields(n1, n2).isEmpty()) {
-                return false;
-            } else {
-                return true;
-            }
+            return determineUnequalFields(n1, n2).isEmpty();
         }
 
         /**
@@ -313,7 +278,7 @@ public interface NutzungsBuchung extends Cloneable {
          */
         public Collection<NUTZUNG_BUCHUNG_FIELDS> determineUnequalFields(final NutzungBuchungCustomBean n1,
                 final NutzungBuchungCustomBean n2) {
-            final Collection<NUTZUNG_BUCHUNG_FIELDS> result = new HashSet<NUTZUNG_BUCHUNG_FIELDS>();
+            final Collection<NUTZUNG_BUCHUNG_FIELDS> result = new HashSet<>();
             if ((n1 != null) && (n2 != null)) {
                 if (!((((n1.getAnlageklasse() != null) && (n2.getAnlageklasse() != null)
                                         && n1.getAnlageklasse().equals(n2.getAnlageklasse()))
@@ -351,17 +316,7 @@ public interface NutzungsBuchung extends Cloneable {
                 } else {
                     System.out.println("Nutzung pedanticEquals(): Alle einfachen Felder sind gleich");
                 }
-                if (!(((n1.getFlaechennutzung() != null) && (n2.getFlaechennutzung() != null)
-                                    && n1.getFlaechennutzung().equals(n2.getFlaechennutzung()))
-                                || ((n1.getFlaechennutzung() == null) && (n2.getFlaechennutzung() == null)))) {
-                    result.add(NUTZUNG_BUCHUNG_FIELDS.FLAECHENNUTZUNG);
-                }
-                if (!(((n1.getBebauung() != null) && (n2.getBebauung() != null)
-                                    && n1.getBebauung().equals(n2.getBebauung()))
-                                || ((n1.getBebauung() == null) && (n2.getBebauung() == null)))) {
-                    result.add(NUTZUNG_BUCHUNG_FIELDS.BEBAUUNG);
-                }
-                if (result.size() == 0) {
+                if (result.isEmpty()) {
                     System.out.println("Nutzung pedanticEquals(): Nutzungen sind gleich");
                 } else {
                     System.out.println("Nutzung pedanticEquals(): Nutzungen sind ungleich: "
@@ -384,7 +339,7 @@ public interface NutzungsBuchung extends Cloneable {
          * @return  DOCUMENT ME!
          */
         private Collection<NUTZUNG_BUCHUNG_FIELDS> checkNotZeroFields(final NutzungsBuchung buchung) {
-            final Collection<NUTZUNG_BUCHUNG_FIELDS> result = new HashSet<NUTZUNG_BUCHUNG_FIELDS>();
+            final Collection<NUTZUNG_BUCHUNG_FIELDS> result = new HashSet<>();
             if (buchung != null) {
                 if (buchung.getAnlageklasse() != null) {
                     result.add(NUTZUNG_BUCHUNG_FIELDS.ANLAGEKLASSE);
@@ -400,12 +355,6 @@ public interface NutzungsBuchung extends Cloneable {
                 }
                 if (buchung.getQuadratmeterpreis() != null) {
                     result.add(NUTZUNG_BUCHUNG_FIELDS.QUADRADMETERPREIS);
-                }
-                if ((buchung.getFlaechennutzung() != null) && (buchung.getFlaechennutzung().size() > 0)) {
-                    result.add(NUTZUNG_BUCHUNG_FIELDS.FLAECHENNUTZUNG);
-                }
-                if ((buchung.getBebauung() != null) && (buchung.getBebauung().size() > 0)) {
-                    result.add(NUTZUNG_BUCHUNG_FIELDS.BEBAUUNG);
                 }
             }
             return result;

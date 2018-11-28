@@ -9,9 +9,7 @@ package de.cismet.cids.custom.beans.lagis;
 
 import java.sql.Timestamp;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -46,9 +44,7 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
             "quadratmeterpreis",
             "fk_anlageklasse",
             "fk_nutzung",
-            "fk_nutzungsart",
-            "ar_bebauungen",
-            "ar_flaechennutzungen"
+            "fk_nutzungsart"
         };
 
     //~ Instance fields --------------------------------------------------------
@@ -63,8 +59,6 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
     private AnlageklasseCustomBean fk_anlageklasse;
     private NutzungCustomBean fk_nutzung;
     private NutzungsartCustomBean fk_nutzungsart;
-    private Collection<BebauungCustomBean> ar_bebauungen;
-    private Collection<FlaechennutzungCustomBean> ar_flaechennutzungen;
 
     private boolean sollGeloeschtWerden = false;
 
@@ -313,49 +307,9 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
         this.propertyChangeSupport.firePropertyChange("fk_nutzungsart", null, this.fk_nutzungsart);
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<BebauungCustomBean> getAr_bebauungen() {
-        return this.ar_bebauungen;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setAr_bebauungen(final Collection<BebauungCustomBean> val) {
-        this.ar_bebauungen = val;
-
-        this.propertyChangeSupport.firePropertyChange("ar_bebauungen", null, this.ar_bebauungen);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<FlaechennutzungCustomBean> getAr_flaechennutzungen() {
-        return this.ar_flaechennutzungen;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setAr_flaechennutzungen(final Collection<FlaechennutzungCustomBean> val) {
-        this.ar_flaechennutzungen = val;
-
-        this.propertyChangeSupport.firePropertyChange("ar_flaechennutzungen", null, this.ar_flaechennutzungen);
-    }
-
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return PROPERTY_NAMES;
     }
 
     @Override
@@ -404,26 +358,6 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
         } else {
             setGueltig_von(new Timestamp(val.getTime()));
         }
-    }
-
-    @Override
-    public Collection<FlaechennutzungCustomBean> getFlaechennutzung() {
-        return getAr_flaechennutzungen();
-    }
-
-    @Override
-    public void setFlaechennutzung(final Collection<FlaechennutzungCustomBean> val) {
-        setAr_flaechennutzungen(val);
-    }
-
-    @Override
-    public Collection<BebauungCustomBean> getBebauung() {
-        return getAr_bebauungen();
-    }
-
-    @Override
-    public void setBebauung(final Collection<BebauungCustomBean> val) {
-        setAr_bebauungen(val);
     }
 
     @Override
@@ -498,19 +432,13 @@ public class NutzungBuchungCustomBean extends BasicEntity implements NutzungsBuc
         newBuchung.setAnlageklasse(getAnlageklasse());
         newBuchung.setNutzungsart(getNutzungsart());
         if (getFlaeche() != null) {
-            newBuchung.setFlaeche(Integer.valueOf(getFlaeche()));
-        }
-        if (getBebauung() != null) {
-            newBuchung.setBebauung(new HashSet<BebauungCustomBean>(getBebauung()));
-        }
-        if (getFlaechennutzung() != null) {
-            newBuchung.setFlaechennutzung(new HashSet<FlaechennutzungCustomBean>(getFlaechennutzung()));
+            newBuchung.setFlaeche(getFlaeche());
         }
         if (getBemerkung() != null) {
             newBuchung.setBemerkung(getBemerkung());
         }
         if (getQuadratmeterpreis() != null) {
-            newBuchung.setQuadratmeterpreis(new Double(getQuadratmeterpreis()));
+            newBuchung.setQuadratmeterpreis(getQuadratmeterpreis());
         }
         return newBuchung;
     }
