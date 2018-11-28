@@ -42,7 +42,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
             "id",
             "nutzer",
             "lage",
-            "nutzung",
             "vertragsbeginn",
             "vertragsende",
             "flaeche",
@@ -61,7 +60,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
     private Integer id;
     private String nutzer;
     private String lage;
-    private String nutzung;
     private Timestamp vertragsbeginn;
     private Timestamp vertragsende;
     private Double flaeche;
@@ -162,28 +160,6 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
         this.lage = val;
 
         this.propertyChangeSupport.firePropertyChange("lage", null, this.lage);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    @Override
-    public String getNutzung() {
-        return this.nutzung;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    @Override
-    public void setNutzung(final String val) {
-        this.nutzung = val;
-
-        this.propertyChangeSupport.firePropertyChange("nutzung", null, this.nutzung);
     }
 
     /**
@@ -356,7 +332,7 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return PROPERTY_NAMES;
     }
 
     @Override
