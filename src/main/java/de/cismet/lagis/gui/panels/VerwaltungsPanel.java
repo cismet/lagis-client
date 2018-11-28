@@ -1691,7 +1691,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSperreActionPerformed
+    private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
@@ -1721,28 +1721,28 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         } else {
             LOG.error("Kann Sperre nicht setzen Flurstueck ist null");
         }
-    }//GEN-LAST:event_cbSperreActionPerformed
+    } //GEN-LAST:event_cbSperreActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnHistorieActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorieActionPerformed
+    private void btnHistorieActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnHistorieActionPerformed
         final VerwaltungsbereicheHistorieDialog verwaltungsHistorieDialog = new VerwaltungsbereicheHistorieDialog(
                 currentFlurstueck);
         verwaltungsHistorieDialog.pack();
         StaticSwingTools.showDialog(verwaltungsHistorieDialog);
-    }//GEN-LAST:event_btnHistorieActionPerformed
+    }                                                                               //GEN-LAST:event_btnHistorieActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddZusatzRolleActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddZusatzRolleActionPerformed
+    private void btnAddZusatzRolleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddZusatzRolleActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnAddZusatzRolleActionPerformed
+    } //GEN-LAST:event_btnAddZusatzRolleActionPerformed
 
     /**
      * DOCUMENT ME!
