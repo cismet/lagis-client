@@ -343,7 +343,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "MiPaMerkmal: " + getStringOf(object.getMiPaMerkmal())
                     + "\n" + t() + "MiPaNutzung: " + getStringOf(object.getMiPaNutzung())
                     + "\n" + t() + "Nutzer: " + getStringOf(object.getNutzer())
-                    + "\n" + t() + "Nutzung: " + getStringOf(object.getNutzung())
                     + "\n" + t() + "Vertragsbeginn: " + getStringOf(object.getVertragsbeginn())
                     + "\n" + t() + "Vertragsende: " + getStringOf(object.getVertragsende())
                     + "\n" + untab() + "]";
