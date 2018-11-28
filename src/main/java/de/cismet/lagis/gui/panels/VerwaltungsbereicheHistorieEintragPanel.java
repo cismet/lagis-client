@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.lagis.gui.panels;
 
-import java.awt.Dimension;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -17,7 +15,6 @@ import javax.swing.event.ListSelectionListener;
 
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereicheEintragCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.lagis.models.VerwaltungsTableModel;
 

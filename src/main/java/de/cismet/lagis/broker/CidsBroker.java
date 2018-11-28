@@ -929,15 +929,6 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<VerwaltungsgebrauchCustomBean> getAllVerwaltenungsgebraeuche() {
-        return (Collection<VerwaltungsgebrauchCustomBean>)getAllOf("verwaltungsgebrauch");
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public Collection<VerwaltendeDienststelleCustomBean> getAllVerwaltendeDienstellen() {
         return (Collection<VerwaltendeDienststelleCustomBean>)getAllOf("verwaltende_dienststelle");
     }

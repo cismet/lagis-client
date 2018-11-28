@@ -7,11 +7,8 @@
 ****************************************************/
 package de.cismet.lagisEE.entity.core;
 
-import java.awt.Stroke;
-
 import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.cismap.commons.features.StyledFeature;
 
@@ -53,20 +50,6 @@ public interface Verwaltungsbereich extends GeometrySlot, StyledFeature, Cloneab
      * @param  modifiable  DOCUMENT ME!
      */
     void setModifiable(final boolean modifiable);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    VerwaltungsgebrauchCustomBean getGebrauch();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    void setGebrauch(final VerwaltungsgebrauchCustomBean val);
 
     /**
      * DOCUMENT ME!

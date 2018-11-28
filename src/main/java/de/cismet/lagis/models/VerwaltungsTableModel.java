@@ -25,7 +25,6 @@ import java.util.Set;
 
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.cismap.commons.features.Feature;
 
@@ -41,10 +40,9 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final String[] COLUMN_NAMES = { "Dienststelle", "Gebrauch", "Fläche m²" };
+    private static final String[] COLUMN_NAMES = { "Dienststelle", "Fläche m²" };
     private static final Class[] COLUMN_CLASSES = {
             VerwaltendeDienststelleCustomBean.class,
-            VerwaltungsgebrauchCustomBean.class,
             Integer.class
         };
 
@@ -106,13 +104,6 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
                 }
 
                 case 1: {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("aktueller Gebrauch: " + vBereich.getGebrauch());
-                    }
-                    return vBereich.getGebrauch();
-                }
-
-                case 2: {
                     // if there is only one VerwaltungsbereichCustomBean & the WFS Geometry is used
                     final Integer flaeche;
                     if (isHistory()) {
@@ -177,16 +168,6 @@ public class VerwaltungsTableModel extends CidsBeanTableModel_Lagis {
                     vBereich.setDienststelle((VerwaltendeDienststelleCustomBean)aValue);
                     break;
                 }
-                case 1: {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Setze Wert: " + aValue);
-                    }
-                    vBereich.setGebrauch((VerwaltungsgebrauchCustomBean)aValue);
-                    break;
-                }
-//                case 2:
-//                    vBereich.setFlaeche((Integer)aValue);
-//                    break;
                 default: {
                     LOG.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;

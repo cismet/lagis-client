@@ -55,7 +55,6 @@ import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 
 import de.cismet.lagisEE.interfaces.Key;
 
@@ -525,7 +524,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Dienststelle: " + getStringOf(object.getDienststelle())
                     + "\n" + t() + "Flaeche: " + getStringOf(object.getFlaeche())
-                    + "\n" + t() + "Gebrauch: " + getStringOf(object.getGebrauch())
                     + "\n" + t() + "Geometrie: " + getStringOf(object.getGeometrie())
                     + "\n" + untab() + "]";
     }
@@ -547,27 +545,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "BezeichnungAbteilung: " + getStringOf(object.getBezeichnungAbteilung())
                     + "\n" + t() + "EmailAdresse: " + getStringOf(object.getEmailAdresse())
                     + "\n" + t() + "Ressort: " + getStringOf(object.getRessort())
-                    + "\n" + t() + "toString: " + getStringOf(object.toString())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static String getStringOf(final VerwaltungsgebrauchCustomBean object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Verwaltungsgebrauch |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
-                    + "\n" + t() + "UnterAbschnitt: " + getStringOf(object.getUnterAbschnitt())
-                    + "\n" + t() + "Kategorie: " + getStringOf(object.getKategorie())
                     + "\n" + t() + "toString: " + getStringOf(object.toString())
                     + "\n" + untab() + "]";
     }
@@ -1051,8 +1028,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                 string = getStringOf((VerwaltungsbereichCustomBean)object);
             } else if (object instanceof VerwaltendeDienststelleCustomBean) {
                 string = getStringOf((VerwaltendeDienststelleCustomBean)object);
-            } else if (object instanceof VerwaltungsgebrauchCustomBean) {
-                string = getStringOf((VerwaltungsgebrauchCustomBean)object);
             } else if (object instanceof BaumCustomBean) {
                 string = getStringOf((BaumCustomBean)object);
             } else if (object instanceof BaumNutzungCustomBean) {
