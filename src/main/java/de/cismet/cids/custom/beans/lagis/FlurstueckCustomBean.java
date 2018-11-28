@@ -531,9 +531,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
                 if (lastBereich.getFk_verwaltende_dienststelle() != currentBereich.getFk_verwaltende_dienststelle()) {
                     oneOrMoreChanged = true;
                 }
-                if (lastBereich.getFk_verwaltungsgebrauch() != currentBereich.getFk_verwaltungsgebrauch()) {
-                    oneOrMoreChanged = true;
-                }
                 if (lastBereich.getFlaeche() != null) { // null ignorieren weil vor der umstellung flaeche immer null
                                                         // ist
                     // und erst gefüllt werden muss

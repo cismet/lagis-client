@@ -573,7 +573,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Dienststelle: " + getStringOf(object.getDienststelle())
                     + "\n" + t() + "Flaeche: " + getStringOf(object.getFlaeche())
-                    + "\n" + t() + "Gebrauch: " + getStringOf(object.getGebrauch())
                     + "\n" + t() + "Geometrie: " + getStringOf(object.getGeometrie())
                     + "\n" + untab() + "]";
     }
