@@ -29,8 +29,7 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
     private static final String[] PROPERTY_NAMES = new String[] {
             "id",
             "rgb_farbwert",
-            "fk_stil",
-            "fk_verwaltungsgebrauch"
+            "fk_stil"
         };
 
     //~ Instance fields --------------------------------------------------------
@@ -38,7 +37,6 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
     private Integer id;
     private Integer rgb_farbwert;
     private StilCustomBean fk_stil;
-    private VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -128,29 +126,9 @@ public class FarbeCustomBean extends BasicEntity implements Farbe {
         this.propertyChangeSupport.firePropertyChange("fk_stil", null, this.fk_stil);
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public VerwaltungsgebrauchCustomBean getFk_verwaltungsgebrauch() {
-        return this.fk_verwaltungsgebrauch;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setFk_verwaltungsgebrauch(final VerwaltungsgebrauchCustomBean val) {
-        this.fk_verwaltungsgebrauch = val;
-
-        this.propertyChangeSupport.firePropertyChange("fk_verwaltungsgebrauch", null, this.fk_verwaltungsgebrauch);
-    }
-
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return PROPERTY_NAMES;
     }
 
     @Override

@@ -16,11 +16,7 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.newuser.User;
 
-import java.sql.Timestamp;
-
 import java.util.*;
-
-import javax.swing.SwingUtilities;
 
 import de.cismet.cids.custom.beans.lagis.*;
 
@@ -933,15 +929,6 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<VerwaltungsgebrauchCustomBean> getAllVerwaltenungsgebraeuche() {
-        return (Collection<VerwaltungsgebrauchCustomBean>)getAllOf("verwaltungsgebrauch");
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public Collection<VerwaltendeDienststelleCustomBean> getAllVerwaltendeDienstellen() {
         return (Collection<VerwaltendeDienststelleCustomBean>)getAllOf("verwaltende_dienststelle");
     }
@@ -1019,15 +1006,6 @@ public final class CidsBroker {
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<FlaechennutzungCustomBean> getAllFlaechennutzungen() {
-        return (Collection<FlaechennutzungCustomBean>)getAllOf("flaechennutzung");
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public Collection<MipaMerkmalCustomBean> getAllMiPaMerkmale() {
         return (Collection<MipaMerkmalCustomBean>)getAllOf("mipa_merkmal");
     }
@@ -1039,15 +1017,6 @@ public final class CidsBroker {
      */
     public Collection<BaumMerkmalCustomBean> getAllBaumMerkmale() {
         return (Collection<BaumMerkmalCustomBean>)getAllOf("baum_merkmal");
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<BebauungCustomBean> getAllBebauungen() {
-        return (Collection<BebauungCustomBean>)getAllOf("bebauung");
     }
 
     /**

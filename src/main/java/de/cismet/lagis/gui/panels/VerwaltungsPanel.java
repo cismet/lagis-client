@@ -46,7 +46,6 @@ import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsgebrauchCustomBean;
 import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.ZusatzRolleCustomBean;
 
@@ -125,7 +124,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     private static final String WIDGET_NAME = "Verwaltungspanel";
 
     private static final String COPY_DISPLAY_ICON = "/de/cismet/lagis/ressource/icons/verwaltungsbereich16.png";
-    private static final VerwaltungsPanel instance = new VerwaltungsPanel();
+    private static final VerwaltungsPanel INSTANCE = new VerwaltungsPanel();
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(VerwaltungsPanel.class);
 
     //~ Instance fields --------------------------------------------------------
@@ -235,7 +234,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
      * @return  DOCUMENT ME!
      */
     public static VerwaltungsPanel getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -422,8 +421,6 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                                         .createNew();
                             newVerwaltungsbereich.setFk_verwaltende_dienststelle(
                                 verwaltungsbereich.getFk_verwaltende_dienststelle());
-                            newVerwaltungsbereich.setFk_verwaltungsgebrauch(
-                                verwaltungsbereich.getFk_verwaltungsgebrauch());
                             newVerwaltungsbereich.setFk_geom(geomBean);
                             verwaltungsbereiche.add(newVerwaltungsbereich);
                         }
@@ -491,13 +488,12 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     public List<BasicEntity> getCopyData() {
         final ArrayList<VerwaltungsbereichCustomBean> allVBs = (ArrayList<VerwaltungsbereichCustomBean>)this
                     .verwaltungsTableModel.getCidsBeans();
-        final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allVBs.size());
+        final ArrayList<BasicEntity> result = new ArrayList<>(allVBs.size());
 
         for (final VerwaltungsbereichCustomBean vb : allVBs) {
             try {
                 final VerwaltungsbereichCustomBean tmp = VerwaltungsbereichCustomBean.createNew();
 
-                tmp.setGebrauch(vb.getGebrauch());
                 tmp.setDienststelle(vb.getDienststelle());
 
                 final Geometry geom = vb.getGeometry();
@@ -676,12 +672,9 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 }
             });
 
-        final JComboBox cboVG = new JComboBox(CidsBroker.getInstance().getAllVerwaltenungsgebraeuche().toArray(
-                    new VerwaltungsgebrauchCustomBean[0]));
         tNutzung.setDefaultRenderer(VerwaltendeDienststelleCustomBean.class, vdRenderer);
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(VerwaltendeDienststelleCustomBean.class, new ComboBoxCellEditor(cboVD));
-        tNutzung.setDefaultEditor(VerwaltungsgebrauchCustomBean.class, new ComboBoxCellEditor(cboVG));
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         tNutzung.getSelectionModel().addListSelectionListener(this);
 
@@ -1233,10 +1226,9 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                                 + "diesem keine Geometrie zugeordnet sein.";
                     return Validatable.ERROR;
                 }
-                if ((current.getDienststelle() == null) || (current.getGebrauch() == null)) {
+                if ((current.getDienststelle() == null)) {
                     // TODO use validator
-                    validationMessage =
-                        "Für jeden Verwaltungsbereich müssen Dienstelle und Verwaltungsgebrauch festgelegt werden.";
+                    validationMessage = "Für jeden Verwaltungsbereich muss die Dienstellefestgelegt werden.";
                     return Validatable.ERROR;
                 }
                 if ((allVerwaltung.size() > 1) && ((current == null) || (current.getGeometry() == null))) {
@@ -1796,8 +1788,6 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
             final VerwaltungsbereichCustomBean vb = (VerwaltungsbereichCustomBean)entity;
             return "Verwaltende Dienststelle - "
                         + vb.getDienststelle().toString()
-                        + " - "
-                        + vb.getGebrauch().toString()
                         + " - "
                         + vb.getFlaeche() + "m²";
         }

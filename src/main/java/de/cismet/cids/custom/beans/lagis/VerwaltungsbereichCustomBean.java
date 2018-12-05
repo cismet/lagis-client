@@ -39,7 +39,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
             VerwaltungsbereichCustomBean.class);
     private static final String[] PROPERTY_NAMES = new String[] {
             "id",
-            "fk_verwaltungsgebrauch",
             "fk_verwaltende_dienststelle",
             "fk_verwaltungsbereiche_eintrag",
             "flaeche",
@@ -52,7 +51,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     private boolean isEditable;
 
     private Integer id;
-    private VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch;
     private VerwaltendeDienststelleCustomBean fk_verwaltende_dienststelle;
     private VerwaltungsbereicheEintragCustomBean fk_verwaltungsbereiche_eintrag;
     private GeomCustomBean fk_geom;
@@ -106,26 +104,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
         final Object old = this.id;
         this.id = id;
         this.propertyChangeSupport.firePropertyChange("id", old, this.id);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public VerwaltungsgebrauchCustomBean getFk_verwaltungsgebrauch() {
-        return this.fk_verwaltungsgebrauch;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  fk_verwaltungsgebrauch  DOCUMENT ME!
-     */
-    public void setFk_verwaltungsgebrauch(final VerwaltungsgebrauchCustomBean fk_verwaltungsgebrauch) {
-        final Object old = this.fk_verwaltungsgebrauch;
-        this.fk_verwaltungsgebrauch = fk_verwaltungsgebrauch;
-        this.propertyChangeSupport.firePropertyChange("fk_verwaltungsgebrauch", old, this.fk_verwaltungsgebrauch);
     }
 
     /**
@@ -208,16 +186,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     @Override
     public void setModifiable(final boolean val) {
         modifiable = val;
-    }
-
-    @Override
-    public VerwaltungsgebrauchCustomBean getGebrauch() {
-        return getFk_verwaltungsgebrauch();
-    }
-
-    @Override
-    public void setGebrauch(final VerwaltungsgebrauchCustomBean val) {
-        setFk_verwaltungsgebrauch(val);
     }
 
     @Override
@@ -378,6 +346,6 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     @Override
     public String toString() {
-        return "D: " + getDienststelle() + " - G: " + getGebrauch();
+        return "D: " + getDienststelle();
     }
 }
