@@ -44,7 +44,6 @@ import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.EuroEditor;
 import de.cismet.lagis.editor.FlaecheEditor;
-import de.cismet.lagis.editor.PlanEditor;
 
 import de.cismet.lagis.gui.tables.NKFTable;
 
@@ -56,7 +55,6 @@ import de.cismet.lagis.models.NKFTableModel;
 
 import de.cismet.lagis.renderer.EuroRenderer;
 import de.cismet.lagis.renderer.FlaecheRenderer;
-import de.cismet.lagis.renderer.PlanRenderer;
 
 import de.cismet.lagis.thread.BackgroundUpdateThread;
 
@@ -140,8 +138,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private javax.swing.JTable tNutzung;
     private javax.swing.JToggleButton tbtnSort;
     // End of variables declaration//GEN-END:variables
-    // TODO nicht die Methode überschreiben sondern ein Feld in der Superklasse anlegen und dieses Feld in der erbenden
-    // Klasse überschreiben
 
     //~ Constructors -----------------------------------------------------------
 
@@ -154,9 +150,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         final SimpleBandModel bandModel = new SimpleBandModel();
         bandNutzungen = new PlainBand();
         bandMonth = new PlainBand();
-//                final PlainBand bandYear = new PlainBand();
-
-//                bandModel.addBand(bandYear);
         bandModel.addBand(bandMonth);
         bandModel.addBand(bandNutzungen);
         jBand1.setModel(bandModel);
@@ -299,21 +292,18 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private void configureTable() {
         TableSelectionUtils.crossReferenceModelAndTable(tableModel, (NKFTable)tNutzung);
         tNutzung.getSelectionModel().addListSelectionListener(this);
-        final JComboBox cboAK = new JComboBox(new Vector<AnlageklasseCustomBean>(
-                    CidsBroker.getInstance().getAllAnlageklassen()));
+        final JComboBox cboAK = new JComboBox(new Vector<>(CidsBroker.getInstance().getAllAnlageklassen()));
         cboAK.addItem("");
         tNutzung.setDefaultEditor(AnlageklasseCustomBean.class, new DefaultCellEditor(cboAK));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
-        final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<NutzungsartCustomBean>(CidsBroker.getInstance()
+        final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<>(CidsBroker.getInstance()
                         .getAllNutzungsarten());
         Collections.sort(nutzungsarten);
         final JComboBox cboNA = new JComboBox(nutzungsarten);
         cboNA.addItem("");
         cboNA.setEditable(true);
         tNutzung.setDefaultEditor(NutzungsartCustomBean.class, new ComboBoxCellEditor(cboNA));
-        tNutzung.setDefaultEditor(Vector.class, new PlanEditor());
-        tNutzung.setDefaultRenderer(Vector.class, new PlanRenderer());
         tNutzung.setDefaultEditor(Double.class, new EuroEditor());
         tNutzung.setDefaultRenderer(Double.class, new EuroRenderer());
         tNutzung.addMouseListener(this);
@@ -377,7 +367,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         ((JXTable)tNutzung).packAll();
         ((NKFTable)tNutzung).setSortButton(tbtnSort);
     }
-    // private Thread panelRefresherThread;
 
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
@@ -485,23 +474,19 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tNutzung.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][] {
-                    { "21-510", "Straße", "k0211100", "Grünfläche,Grünfläche,Wohnbaufläche", "", "842", "1€", "842€" },
-                    { "21-740", "Gehölz", "k0211100", null, "", "2325", "1€", "2325" }
+                    { "21-510", "Straße", "k0211100", "842", "1€", "842€" },
+                    { "21-740", "Gehölz", "k0211100", "2325", "1€", "2325" }
                 },
                 new String[] {
                     "Nutzungsartenschlüssel",
                     "Nutzungsart",
                     "Anlageklasse",
-                    "Flächennutzungsplan",
-                    "Bebauungsplan",
                     "Fläche m²",
                     "Preis qm²",
                     "Berechnung"
                 }) {
 
                 Class[] types = new Class[] {
-                        java.lang.String.class,
-                        java.lang.String.class,
                         java.lang.String.class,
                         java.lang.String.class,
                         java.lang.String.class,
@@ -1209,32 +1194,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     previousDate = curDate;
                     previousDayDiff = curDayDiff;
                 }
-
-//                            // YEARS
-//                            previousDate = firstDate;
-//                            previousDayDiff = 0;
-//                            while (previousDayDiff < endDayDiff) {
-//                                c.setTime(previousDate);
-//
-//                                final boolean firstOfYear = c.get(Calendar.DAY_OF_YEAR) == 1;
-//
-//                                final String curYear = Integer.toString(c.get(Calendar.YEAR));
-//                                c.add(Calendar.YEAR, 1);
-//                                c.set(Calendar.DAY_OF_YEAR, 1);
-//                                final Date curDate = c.getTime();
-//
-//                                final int curDayDiff = previousDayDiff + diffInDays(curDate, previousDate);
-//                                final boolean lastOfYear = curDayDiff < endDayDiff;
-//                                bandYear.addMember(new SimpleTextSection(
-//                                        curYear,
-//                                        previousDayDiff,
-//                                        (curDayDiff <= endDayDiff) ? curDayDiff : endDayDiff,
-//                                        !firstOfYear,
-//                                        !lastOfYear));
-//
-//                                previousDate = curDate;
-//                                previousDayDiff = curDayDiff;
-//                            }
 
                 if (endDayDiff > 75) {
                     jBand1.setZoomFactor(endDayDiff / 75d);

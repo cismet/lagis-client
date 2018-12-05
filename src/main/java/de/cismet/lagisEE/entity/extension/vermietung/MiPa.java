@@ -138,20 +138,6 @@ public interface MiPa extends GeometrySlot, StyledFeature, Serializable {
      *
      * @return  DOCUMENT ME!
      */
-    String getNutzung();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  nutzung  DOCUMENT ME!
-     */
-    void setNutzung(final String nutzung);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     String getNutzer();
 
     /**

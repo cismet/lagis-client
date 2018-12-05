@@ -68,7 +68,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
             final Class<T> cidsBeanClass) {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
-        this.cidsBeans = new ArrayList<T>();
+        this.cidsBeans = new ArrayList<>();
     }
 
     /**
@@ -85,13 +85,13 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
         this.columnNames = columnNames;
         this.columnClasses = columnClasses;
         try {
-            this.cidsBeans = new ArrayList<T>(cidsBeans);
+            this.cidsBeans = new ArrayList<>(cidsBeans);
             for (final T bean : cidsBeans) {
                 backupBean(bean);
             }
         } catch (Exception ex) {
             LOG.error("Fehler beim anlegen des Models", ex);
-            this.cidsBeans = new ArrayList<T>();
+            this.cidsBeans = new ArrayList<>();
         }
     }
 
@@ -264,7 +264,7 @@ public abstract class CidsBeanTableModel_Lagis extends AbstractTableModel {
                 LOG.debug("Refresh des BeschlussTableModell");
             }
             if (cidsbeans != null) {
-                setCidsBeans(new ArrayList<T>(cidsbeans));
+                setCidsBeans(new ArrayList<>(cidsbeans));
             } else {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Beschlüssevektor == null --> Erstelle Vektor.");
