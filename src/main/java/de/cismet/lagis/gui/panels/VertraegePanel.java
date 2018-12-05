@@ -113,9 +113,12 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private javax.swing.JButton btnRemoveKosten;
     private javax.swing.JButton btnRemoveVertrag;
     private javax.swing.JComboBox cboVertragsart;
+    private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
@@ -169,7 +172,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         // tblVertraege.addMouseListener(this);
         documentContainer = new VertragDocumentModelContainer(vTableModel);
         ((VertraegeTable)tblVertraege).setDocumentContainer(documentContainer);
-        tblVertraege.addMouseListener(documentContainer);
         ((VertraegeTable)tblVertraege).setRemoveActionHelper(this);
         // log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
 
@@ -303,6 +305,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                             isFlurstueckEditable = false;
                         }
                         vTableModel.refreshTableModel(getCurrentObject().getVertraege());
+                        documentContainer.select(getCurrentObject().getVertraege().isEmpty() ? -1 : 0);
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -514,6 +517,8 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblVertraege = new de.cismet.lagis.gui.tables.VertraegeTable();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jPanel1 = new javax.swing.JPanel();
         panBemerkung = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         txtBemerkung = new javax.swing.JTextArea();
@@ -533,6 +538,9 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         txtAuflassung = new javax.swing.JTextField();
         txtVoreigentuemer = new javax.swing.JTextField();
         lblVoreigentuemer = new javax.swing.JLabel();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 32767));
         panTab = new javax.swing.JPanel();
         tabKB = new javax.swing.JTabbedPane();
         panQuerverweise = new javax.swing.JPanel();
@@ -555,7 +563,11 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
         setLayout(new java.awt.BorderLayout());
 
-        panVertraege.setMinimumSize(new java.awt.Dimension(300, 0));
+        pnlDetail.setLayout(new java.awt.GridBagLayout());
+
+        panVertraege.setMinimumSize(new java.awt.Dimension(10, 120));
+        panVertraege.setPreferredSize(new java.awt.Dimension(10, 140));
+        panVertraege.setLayout(new java.awt.GridBagLayout());
 
         pnlKostenControls1.setLayout(new java.awt.GridBagLayout());
 
@@ -627,9 +639,19 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         pnlKostenControls1.add(btnAddExitingContract, gridBagConstraints);
 
-        jLabel1.setText("Verträge:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        panVertraege.add(pnlKostenControls1, gridBagConstraints);
 
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 0));
+        jLabel1.setText("Verträge:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        panVertraege.add(jLabel1, gridBagConstraints);
 
         tblVertraege.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tblVertraege.setModel(new javax.swing.table.DefaultTableModel(
@@ -656,82 +678,79 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     return canEdit[columnIndex];
                 }
             });
-        tblVertraege.setPreferredSize(new java.awt.Dimension(100, 16));
+        tblVertraege.setPreferredSize(new java.awt.Dimension(150, 18));
         ((VertraegeTable)tblVertraege).setSortButton(tbtnSortVertrag);
         jScrollPane1.setViewportView(tblVertraege);
 
-        final org.jdesktop.layout.GroupLayout panVertraegeLayout = new org.jdesktop.layout.GroupLayout(panVertraege);
-        panVertraege.setLayout(panVertraegeLayout);
-        panVertraegeLayout.setHorizontalGroup(
-            panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panVertraegeLayout.createSequentialGroup().addContainerGap().add(
-                    panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panVertraegeLayout.createSequentialGroup().add(jLabel1).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(
-                            pnlKostenControls1,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()).add(
-                        org.jdesktop.layout.GroupLayout.TRAILING,
-                        panVertraegeLayout.createSequentialGroup().add(
-                            jScrollPane1,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(10, 10, 10)))));
-        panVertraegeLayout.setVerticalGroup(
-            panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panVertraegeLayout.createSequentialGroup().addContainerGap().add(
-                    panVertraegeLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(
-                        pnlKostenControls1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        jLabel1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    203,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 0);
+        panVertraege.add(jScrollPane1, gridBagConstraints);
 
-        jScrollPane4.setPreferredSize(new java.awt.Dimension(0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 12);
+        pnlDetail.add(panVertraege, gridBagConstraints);
+
+        jScrollPane3.setBorder(null);
+        jScrollPane3.setViewportBorder(null);
+
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
+        panBemerkung.setLayout(new java.awt.GridBagLayout());
 
         txtBemerkung.setColumns(20);
         txtBemerkung.setLineWrap(true);
         txtBemerkung.setRows(5);
-        txtBemerkung.setPreferredSize(new java.awt.Dimension(0, 0));
         jScrollPane4.setViewportView(txtBemerkung);
 
-        lblBemerkung.setText("Bemerkung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        panBemerkung.add(jScrollPane4, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout panBemerkungLayout = new org.jdesktop.layout.GroupLayout(panBemerkung);
-        panBemerkung.setLayout(panBemerkungLayout);
-        panBemerkungLayout.setHorizontalGroup(
-            panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panBemerkungLayout.createSequentialGroup().addContainerGap().add(
-                    panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        lblBemerkung).add(
-                        jScrollPane4,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addContainerGap()));
-        panBemerkungLayout.setVerticalGroup(
-            panBemerkungLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panBemerkungLayout.createSequentialGroup().addContainerGap().add(
-                    lblBemerkung,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    24,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane4,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    88,
-                    Short.MAX_VALUE).addContainerGap()));
+        lblBemerkung.setText("Bemerkung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        panBemerkung.add(lblBemerkung, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 0);
+        jPanel1.add(panBemerkung, gridBagConstraints);
+
+        panData.setLayout(new java.awt.GridBagLayout());
 
         lblEintragung.setText("Eintragung");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(7, 12, 0, 0);
+        panData.add(lblEintragung, gridBagConstraints);
 
         txtEintragung.setText("16.03.05");
         txtEintragung.addActionListener(new java.awt.event.ActionListener() {
@@ -741,12 +760,41 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     txtEintragungActionPerformed(evt);
                 }
             });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        panData.add(txtEintragung, gridBagConstraints);
 
         lblAktenzeichen.setText("Aktenzeichen");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        panData.add(lblAktenzeichen, gridBagConstraints);
 
         txtAktenzeichen.setText("21.06.04");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        panData.add(txtAktenzeichen, gridBagConstraints);
 
         lblVertragsart.setText("Vertragsart");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(9, 0, 0, 0);
+        panData.add(lblVertragsart, gridBagConstraints);
 
         cboVertragsart.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Kauf" }));
         cboVertragsart.setMinimumSize(new java.awt.Dimension(6, 20));
@@ -757,190 +805,125 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     cboVertragsartActionPerformed(evt);
                 }
             });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(7, 0, 0, 0);
+        panData.add(cboVertragsart, gridBagConstraints);
 
         lblQuadPreis.setText("Quadradmeterpreis");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        panData.add(lblQuadPreis, gridBagConstraints);
 
         txtQuadPreis.setText("14,00€");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        panData.add(txtQuadPreis, gridBagConstraints);
 
         lblKaufpreis.setText("Kaufpreis (inkl. Nebenkosten)");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        panData.add(lblKaufpreis, gridBagConstraints);
 
         txtKaufpreis.setText("8.946€");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        panData.add(txtKaufpreis, gridBagConstraints);
 
         lblAuflassung.setText("Auflassung");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        panData.add(lblAuflassung, gridBagConstraints);
 
         txtAuflassung.setText("04.03.05");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        panData.add(txtAuflassung, gridBagConstraints);
 
         txtVoreigentuemer.setText("Stadgemeinde Wuppertal");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        panData.add(txtVoreigentuemer, gridBagConstraints);
 
         lblVoreigentuemer.setText("Voreigentümer");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        panData.add(lblVoreigentuemer, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weighty = 1.0;
+        panData.add(filler1, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout panDataLayout = new org.jdesktop.layout.GroupLayout(panData);
-        panData.setLayout(panDataLayout);
-        panDataLayout.setHorizontalGroup(
-            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panDataLayout.createSequentialGroup().addContainerGap().add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        txtVoreigentuemer,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        252,
-                        Short.MAX_VALUE).add(
-                        lblVoreigentuemer,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        83,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        panDataLayout.createSequentialGroup().add(
-                            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                txtQuadPreis,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                161,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                txtKaufpreis,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                161,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                lblQuadPreis,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                161,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                lblKaufpreis,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                                161,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                lblVertragsart,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                161,
-                                Short.MAX_VALUE).add(
-                                org.jdesktop.layout.GroupLayout.LEADING,
-                                cboVertragsart,
-                                0,
-                                161,
-                                Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                                lblAuflassung,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                85,
-                                Short.MAX_VALUE).add(
-                                txtAuflassung,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                85,
-                                Short.MAX_VALUE).add(
-                                lblEintragung,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                85,
-                                Short.MAX_VALUE).add(
-                                txtEintragung,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                85,
-                                Short.MAX_VALUE).add(
-                                lblAktenzeichen,
-                                org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                                85,
-                                Short.MAX_VALUE).add(
-                                txtAktenzeichen,
-                                org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                                85,
-                                Short.MAX_VALUE)))).addContainerGap()));
-        panDataLayout.setVerticalGroup(
-            panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panDataLayout.createSequentialGroup().addContainerGap().add(
-                    lblVoreigentuemer,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    22,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    txtVoreigentuemer,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    20,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        lblAuflassung,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        22,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        lblKaufpreis,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        22,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        txtAuflassung,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        txtKaufpreis,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        lblEintragung,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        22,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        lblQuadPreis,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        24,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        txtEintragung,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        txtQuadPreis,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        lblAktenzeichen,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        22,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        lblVertragsart,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panDataLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(
-                        txtAktenzeichen,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        22,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(
-                        cboVertragsart,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        21,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        jPanel1.add(panData, gridBagConstraints);
+
+        panTab.setLayout(new java.awt.GridBagLayout());
 
         tabKB.setToolTipText("Sortierung An / Aus");
 
+        panQuerverweise.setLayout(new java.awt.GridBagLayout());
+
         jScrollPane2.setViewportView(lstCrossRefs);
 
-        final org.jdesktop.layout.GroupLayout panQuerverweiseLayout = new org.jdesktop.layout.GroupLayout(
-                panQuerverweise);
-        panQuerverweise.setLayout(panQuerverweiseLayout);
-        panQuerverweiseLayout.setHorizontalGroup(
-            panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
-                    jScrollPane2,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    367,
-                    Short.MAX_VALUE).addContainerGap()));
-        panQuerverweiseLayout.setVerticalGroup(
-            panQuerverweiseLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                panQuerverweiseLayout.createSequentialGroup().addContainerGap().add(
-                    jScrollPane2,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    167,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        panQuerverweise.add(jScrollPane2, gridBagConstraints);
 
         tabKB.addTab("Querverweise", panQuerverweise);
+
+        panKosten.setLayout(new java.awt.GridBagLayout());
 
         pnlKostenControls.setLayout(new java.awt.GridBagLayout());
 
@@ -990,6 +973,14 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         pnlKostenControls.add(tbtnSortKosten, gridBagConstraints);
         tbtnSortKosten.addItemListener(((KostenTable)tblKosten).getSortItemListener());
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+        panKosten.add(pnlKostenControls, gridBagConstraints);
+
         jScrollPane5.setPreferredSize(new java.awt.Dimension(0, 0));
 
         tblKosten.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
@@ -1010,36 +1001,19 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         ((KostenTable)tblKosten).setSortButton(tbtnSortKosten);
         jScrollPane5.setViewportView(tblKosten);
 
-        final org.jdesktop.layout.GroupLayout panKostenLayout = new org.jdesktop.layout.GroupLayout(panKosten);
-        panKosten.setLayout(panKostenLayout);
-        panKostenLayout.setHorizontalGroup(
-            panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                panKostenLayout.createSequentialGroup().addContainerGap().add(
-                    panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        jScrollPane5,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        370,
-                        Short.MAX_VALUE).add(
-                        panKostenLayout.createSequentialGroup().add(0, 280, Short.MAX_VALUE).add(
-                            pnlKostenControls,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))).addContainerGap()));
-        panKostenLayout.setVerticalGroup(
-            panKostenLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panKostenLayout.createSequentialGroup().addContainerGap().add(
-                    pnlKostenControls,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane5,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    136,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
+        panKosten.add(jScrollPane5, gridBagConstraints);
 
         tabKB.addTab("Kosten", panKosten);
+
+        panBeschluss.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane6.setPreferredSize(new java.awt.Dimension(0, 0));
 
@@ -1060,12 +1034,23 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         ((BeschluesseTable)tblBeschluesse).setSortButton(tbtnSortBeschluss);
         jScrollPane6.setViewportView(tblBeschluesse);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
+        panBeschluss.add(jScrollPane6, gridBagConstraints);
+
         pnlBeschluesseControls.setLayout(new java.awt.GridBagLayout());
 
         btnAddBeschluss.setAction(((BeschluesseTable)tblBeschluesse).getAddAction());
         btnAddBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBeschluss.setBorder(null);
+        btnAddBeschluss.setBorderPainted(false);
         btnAddBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1079,6 +1064,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         btnRemoveBeschluss.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBeschluss.setBorder(null);
+        btnRemoveBeschluss.setBorderPainted(false);
         btnRemoveBeschluss.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveBeschluss.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveBeschluss.setPreferredSize(new java.awt.Dimension(25, 25));
@@ -1105,104 +1091,45 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         pnlBeschluesseControls.add(tbtnSortBeschluss, gridBagConstraints);
         tbtnSortBeschluss.addItemListener(((BeschluesseTable)tblBeschluesse).getSortItemListener());
 
-        final org.jdesktop.layout.GroupLayout panBeschlussLayout = new org.jdesktop.layout.GroupLayout(panBeschluss);
-        panBeschluss.setLayout(panBeschlussLayout);
-        panBeschlussLayout.setHorizontalGroup(
-            panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                panBeschlussLayout.createSequentialGroup().addContainerGap().add(
-                    panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        jScrollPane6,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        367,
-                        Short.MAX_VALUE).add(
-                        pnlBeschluesseControls,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addContainerGap()));
-        panBeschlussLayout.setVerticalGroup(
-            panBeschlussLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panBeschlussLayout.createSequentialGroup().addContainerGap().add(
-                    pnlBeschluesseControls,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    26,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane6,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    135,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+        panBeschluss.add(pnlBeschluesseControls, gridBagConstraints);
 
         tabKB.addTab("Beschlüsse", panBeschluss);
 
-        final org.jdesktop.layout.GroupLayout panTabLayout = new org.jdesktop.layout.GroupLayout(panTab);
-        panTab.setLayout(panTabLayout);
-        panTabLayout.setHorizontalGroup(
-            panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                org.jdesktop.layout.GroupLayout.TRAILING,
-                panTabLayout.createSequentialGroup().addContainerGap().add(
-                    tabKB,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    399,
-                    Short.MAX_VALUE).addContainerGap()));
-        panTabLayout.setVerticalGroup(
-            panTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                panTabLayout.createSequentialGroup().addContainerGap().add(
-                    tabKB,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    0,
-                    Short.MAX_VALUE).addContainerGap()));
-
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        panTab.add(tabKB, gridBagConstraints);
         tabKB.getAccessibleContext().setAccessibleName("Beschluesse");
 
-        final org.jdesktop.layout.GroupLayout pnlDetailLayout = new org.jdesktop.layout.GroupLayout(pnlDetail);
-        pnlDetail.setLayout(pnlDetailLayout);
-        pnlDetailLayout.setHorizontalGroup(
-            pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                pnlDetailLayout.createSequentialGroup().addContainerGap().add(
-                    pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        panBemerkung,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        pnlDetailLayout.createSequentialGroup().add(
-                            panData,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED).add(
-                            panTab,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE)).add(
-                        org.jdesktop.layout.GroupLayout.LEADING,
-                        panVertraege,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addContainerGap()));
-        pnlDetailLayout.setVerticalGroup(
-            pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                pnlDetailLayout.createSequentialGroup().addContainerGap().add(
-                    panVertraege,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    pnlDetailLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        panTab,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).add(
-                        panData,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    panBemerkung,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        jPanel1.add(panTab, gridBagConstraints);
+
+        jScrollPane3.setViewportView(jPanel1);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
+        pnlDetail.add(jScrollPane3, gridBagConstraints);
 
         add(pnlDetail, java.awt.BorderLayout.CENTER);
     } // </editor-fold>//GEN-END:initComponents
@@ -1231,7 +1158,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                     break;
                 }
                 case 2: {
-                    lblVoreigentuemer.setText("Erweber");
+                    lblVoreigentuemer.setText("Erwerber");
                     break;
                 }
                 default: {

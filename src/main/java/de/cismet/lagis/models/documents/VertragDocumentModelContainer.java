@@ -32,6 +32,8 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
@@ -239,83 +241,99 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
         }
         if (source instanceof JXTable) {
             final JXTable table = (JXTable)source;
-            int currentRow = table.getSelectedRow();
-            final int currentColumn = table.getSelectedColumn();
+            final int currentRow = table.getSelectedRow();
+            select(currentRow);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  row  DOCUMENT ME!
+     */
+    public void select(final int row) {
+        final JTable table = vertraegeTableModel.getTable();
+        final int currentColumn = table.getSelectedColumn();
+        if (log.isDebugEnabled()) {
+            log.debug("Row: " + row);
+        }
+        if (row != -1) {
+            final int convertedRow = table.convertRowIndexToModel(row);
+            currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(convertedRow);
+            try {
+                kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
+                if (currentSelectedVertrag.getGesamtpreis() != null) {
+                    kaufpreisDocumentModel.insertString(
+                        0,
+                        df.format(currentSelectedVertrag.getGesamtpreis()),
+                        null);
+                } else {
+                    kaufpreisDocumentModel.insertString(0, "", null);
+                }
+
+                auflassungDocumentModel.clear(0, auflassungDocumentModel.getLength());
+                if (currentSelectedVertrag.getDatumAuflassung() != null) {
+                    auflassungDocumentModel.insertString(
+                        0,
+                        dateFormatter.format(currentSelectedVertrag.getDatumAuflassung()),
+                        null);
+                } else {
+                    auflassungDocumentModel.insertString(0, "", null);
+                }
+
+                eintragungDocumentModel.clear(0, eintragungDocumentModel.getLength());
+                if (currentSelectedVertrag.getDatumEintragung() != null) {
+                    eintragungDocumentModel.insertString(
+                        0,
+                        dateFormatter.format(currentSelectedVertrag.getDatumEintragung()),
+                        null);
+                } else {
+                    eintragungDocumentModel.insertString(0, "", null);
+                }
+
+                voreigentuemerDocumentModel.clear(0, voreigentuemerDocumentModel.getLength());
+                voreigentuemerDocumentModel.insertString(0, currentSelectedVertrag.getVertragspartner(), null);
+
+                aktenzeichenDocumentModel.clear(0, aktenzeichenDocumentModel.getLength());
+                aktenzeichenDocumentModel.insertString(0, currentSelectedVertrag.getAktenzeichen(), null);
+
+                bemerkungDocumentModel.clear(0, bemerkungDocumentModel.getLength());
+                bemerkungDocumentModel.insertString(0, currentSelectedVertrag.getBemerkung(), null);
+
+                quadPreisDocumentModel.clear(0, quadPreisDocumentModel.getLength());
+                if (currentSelectedVertrag.getQuadratmeterpreis() != null) {
+                    quadPreisDocumentModel.insertString(
+                        0,
+                        df.format(currentSelectedVertrag.getQuadratmeterpreis()),
+                        null);
+                } else {
+                    quadPreisDocumentModel.insertString(0, "", null);
+                }
+
+                vertragsartComboBoxModel.setSelectedItem(currentSelectedVertrag.getVertragsart());
+
+                kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
+                beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
+                SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            table.changeSelection(
+                                table.convertRowIndexToView(convertedRow),
+                                currentColumn,
+                                false,
+                                false);
+                        }
+                    });
+            } catch (final BadLocationException ex) {
+                log.error(ex, ex);
+            }
+        } else {
             if (log.isDebugEnabled()) {
-                log.debug("Row: " + currentRow);
+                log.debug("nichts selektiert lösche Felder");
             }
-            if (currentRow != -1) {
-                currentRow = table.convertRowIndexToModel(currentRow);
-                currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(currentRow);
-                try {
-                    kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
-                    if (currentSelectedVertrag.getGesamtpreis() != null) {
-                        kaufpreisDocumentModel.insertString(
-                            0,
-                            df.format(currentSelectedVertrag.getGesamtpreis()),
-                            null);
-                    } else {
-                        kaufpreisDocumentModel.insertString(0, "", null);
-                    }
-
-                    auflassungDocumentModel.clear(0, auflassungDocumentModel.getLength());
-                    if (currentSelectedVertrag.getDatumAuflassung() != null) {
-                        auflassungDocumentModel.insertString(
-                            0,
-                            dateFormatter.format(currentSelectedVertrag.getDatumAuflassung()),
-                            null);
-                    } else {
-                        auflassungDocumentModel.insertString(0, "", null);
-                    }
-
-                    eintragungDocumentModel.clear(0, eintragungDocumentModel.getLength());
-                    if (currentSelectedVertrag.getDatumEintragung() != null) {
-                        eintragungDocumentModel.insertString(
-                            0,
-                            dateFormatter.format(currentSelectedVertrag.getDatumEintragung()),
-                            null);
-                    } else {
-                        eintragungDocumentModel.insertString(0, "", null);
-                    }
-
-                    voreigentuemerDocumentModel.clear(0, voreigentuemerDocumentModel.getLength());
-                    voreigentuemerDocumentModel.insertString(0, currentSelectedVertrag.getVertragspartner(), null);
-
-                    aktenzeichenDocumentModel.clear(0, aktenzeichenDocumentModel.getLength());
-                    aktenzeichenDocumentModel.insertString(0, currentSelectedVertrag.getAktenzeichen(), null);
-
-                    bemerkungDocumentModel.clear(0, bemerkungDocumentModel.getLength());
-                    bemerkungDocumentModel.insertString(0, currentSelectedVertrag.getBemerkung(), null);
-
-                    quadPreisDocumentModel.clear(0, quadPreisDocumentModel.getLength());
-                    if (currentSelectedVertrag.getQuadratmeterpreis() != null) {
-                        quadPreisDocumentModel.insertString(
-                            0,
-                            df.format(currentSelectedVertrag.getQuadratmeterpreis()),
-                            null);
-                    } else {
-                        quadPreisDocumentModel.insertString(0, "", null);
-                    }
-
-                    vertragsartComboBoxModel.setSelectedItem(currentSelectedVertrag.getVertragsart());
-
-                    kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
-                    beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
-                    table.changeSelection(table.convertRowIndexToView(currentRow),
-                        currentColumn,
-                        false,
-                        false);
-                } catch (BadLocationException ex) {
-                    // TODO Böse
-                    ex.printStackTrace();
-                }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("nichts selektiert lösche Felder");
-                }
-                currentSelectedVertrag = null;
-                clearComponents();
-            }
+            currentSelectedVertrag = null;
+            clearComponents();
         }
     }
 
