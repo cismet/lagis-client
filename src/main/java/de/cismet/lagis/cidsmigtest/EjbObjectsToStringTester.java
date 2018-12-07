@@ -32,7 +32,6 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckHistorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
-import de.cismet.cids.custom.beans.lagis.KategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
 import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
@@ -516,25 +515,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final VerwaltungsbereichCustomBean object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Verwaltungsbereich |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Dienststelle: " + getStringOf(object.getDienststelle())
-                    + "\n" + t() + "Flaeche: " + getStringOf(object.getFlaeche())
-                    + "\n" + t() + "Geometrie: " + getStringOf(object.getGeometrie())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public static String getStringOf(final VerwaltendeDienststelleCustomBean object) {
         if (object == null) {
             return "null";
@@ -756,25 +736,6 @@ public class EjbObjectsToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static String getStringOf(final KategorieCustomBean object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Kategorie |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
-                    + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "Oberkategorie: " + getStringOf(object.getOberkategorie())
                     + "\n" + untab() + "]";
     }
 
