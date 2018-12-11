@@ -172,6 +172,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         // tblVertraege.addMouseListener(this);
         documentContainer = new VertragDocumentModelContainer(vTableModel);
         ((VertraegeTable)tblVertraege).setDocumentContainer(documentContainer);
+        tblVertraege.addMouseListener(documentContainer);
         ((VertraegeTable)tblVertraege).setRemoveActionHelper(this);
         // log.debug("AmountDocumentModel"+((VertraegeTableModel)tblVertraege.getModel()).getKaufpreisModel());
 
@@ -305,7 +306,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                             isFlurstueckEditable = false;
                         }
                         vTableModel.refreshTableModel(getCurrentObject().getVertraege());
-                        documentContainer.select(getCurrentObject().getVertraege().isEmpty() ? -1 : 0);
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;

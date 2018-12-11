@@ -233,62 +233,7 @@ public class BrokerTester {
 
         return (stopTimeEjb - startTimeEjb) / 1000000000f;
     }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private float testPerfMos() {
-        final MetaClass mc = ClassCacheMultiple.getMetaClass(CALLSERVER_DOMAIN, "flurstueck");
-
-        LOG.fatal("performance Start MOS");
-        final long startTimeMos = System.nanoTime();
-        try {
-            for (final Key flurstueckKey : allFlurstueckKeys) {
-                final Integer flId = ((FlurstueckSchluesselCustomBean)flurstueckKey).getId();
-//            final Integer flId = 1776;
-                final String query = "SELECT " + mc.getID() + "," + mc.getPrimaryKey() + " FROM " + mc.getTableName()
-                            + " WHERE fk_flurstueck_schluessel = " + flId + ";";
-                final MetaObject[] mos = SessionManager.getConnection()
-                            .getMetaObjectByQuery(SessionManager.getSession().getUser(), query);
-                if (mos.length > 0) {
-                    final FlurstueckCustomBean flurstueckCustomBean = (FlurstueckCustomBean)createCB(
-                            "flurstueck",
-                            mos[0].getId());
-//                    final FlurstueckCustomBean flurstueckCustomBean = (FlurstueckCustomBean)mos[0].getBean();
-                    final String flurstueckString = CustomBeanToStringTester.getStringOf(flurstueckCustomBean);
-                    LOG.fatal(mosFlurstueckStrings.size() + 1 + "/" + allFlurstueckKeys.size() + ": "
-                                + flurstueckCustomBean.toString());
-                    mosFlurstueckStrings.put(flurstueckCustomBean.getId(), flurstueckString);
-//                    print(CustomBeanToStringTester.getStringOf(flurstueckString));
-                }
-            }
-        } catch (final ConnectionException ex) {
-            LOG.fatal("fehler bei testPerfCids", ex);
-        }
-        final long stopTimeMos = System.nanoTime();
-        return (stopTimeMos - startTimeMos) / 1000000000f;
-    }
-
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @param  cidsBean  DOCUMENT ME!
-//     */
-//    private void printCidsBeanInfos(final CidsBean cidsBean) {
-//        if (cidsBean != null) {
-//            LOG.fatal(cidsBean.getClass().getSimpleName());
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug(cidsBean.getMOString());
-//            }
-//        } else {
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug("cidsbean is null");
-//            }
-//        }
-//    }
-
+    
     /**
      * DOCUMENT ME!
      *
