@@ -37,7 +37,6 @@ import de.cismet.lagisEE.entity.core.hardwired.DmsUrl;
 import de.cismet.lagisEE.entity.core.hardwired.Farbe;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.core.hardwired.Gemarkung;
-import de.cismet.lagisEE.entity.core.hardwired.Kategorie;
 import de.cismet.lagisEE.entity.core.hardwired.Kostenart;
 import de.cismet.lagisEE.entity.core.hardwired.Nutzungsart;
 import de.cismet.lagisEE.entity.core.hardwired.Oberkategorie;
@@ -46,7 +45,6 @@ import de.cismet.lagisEE.entity.core.hardwired.Ressort;
 import de.cismet.lagisEE.entity.core.hardwired.Stil;
 import de.cismet.lagisEE.entity.core.hardwired.Vertragsart;
 import de.cismet.lagisEE.entity.core.hardwired.VerwaltendeDienststelle;
-import de.cismet.lagisEE.entity.core.hardwired.Verwaltungsgebrauch;
 import de.cismet.lagisEE.entity.extension.baum.Baum;
 import de.cismet.lagisEE.entity.extension.baum.BaumKategorie;
 import de.cismet.lagisEE.entity.extension.baum.BaumKategorieAuspraegung;
@@ -561,27 +559,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
      *
      * @return  DOCUMENT ME!
      */
-    public static String getStringOf(final Verwaltungsgebrauch object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Verwaltungsgebrauch |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
-                    + "\n" + t() + "UnterAbschnitt: " + getStringOf(object.getUnterAbschnitt())
-                    + "\n" + t() + "Kategorie: " + getStringOf(object.getKategorie())
-                    + "\n" + t() + "toString: " + getStringOf(object.toString())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public static String getStringOf(final Farbe object) {
         if (object == null) {
             return "null";
@@ -782,25 +759,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
                     + "\n" + t() + "id: " + getStringOf(object.getId())
                     + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
                     + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + untab() + "]";
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   object  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public static String getStringOf(final Kategorie object) {
-        if (object == null) {
-            return "null";
-        }
-        return "\n" + tab() + "[Kategorie |"
-                    + "\n" + t() + "id: " + getStringOf(object.getId())
-                    + "\n" + t() + "Abkuerzung: " + getStringOf(object.getAbkuerzung())
-                    + "\n" + t() + "Bezeichnung: " + getStringOf(object.getBezeichnung())
-                    + "\n" + t() + "Oberkategorie: " + getStringOf(object.getOberkategorie())
                     + "\n" + untab() + "]";
     }
 
@@ -1050,8 +1008,6 @@ public class CustomBeanToStringTester extends StandartTypToStringTester {
                 string = getStringOf((Verwaltungsbereich)object);
             } else if (object instanceof VerwaltendeDienststelle) {
                 string = getStringOf((VerwaltendeDienststelle)object);
-            } else if (object instanceof Verwaltungsgebrauch) {
-                string = getStringOf((Verwaltungsgebrauch)object);
             } else if (object instanceof Baum) {
                 string = getStringOf((Baum)object);
             } else if (object instanceof BaumNutzung) {
