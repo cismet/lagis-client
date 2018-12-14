@@ -84,21 +84,20 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     //~ Instance fields --------------------------------------------------------
 
     private FlurstueckCustomBean currentFlurstueck = null;
-    private VertraegeTableModel vTableModel = new VertraegeTableModel();
+    private final VertraegeTableModel vTableModel = new VertraegeTableModel();
     // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
     // private KostenTableModel kTableModel = new KostenTableModel();
-    private VertragCustomBean currentSelectedVertrag;
-    private VertragDocumentModelContainer documentContainer;
-    private Validator valTxtVoreigentuemer;
-    private Validator valTxtAuflassung;
-    private Validator valTxtKaufpreis;
-    private Validator valTxtQuadPreis;
-    private Validator valTxtAktenzeichen;
-    private Validator valTxtBemerkung;
-    private Validator valTxtEintragung;
-    private Vector<Validator> validators = new Vector<Validator>();
+    private final VertragDocumentModelContainer documentContainer;
+    private final Validator valTxtVoreigentuemer;
+    private final Validator valTxtAuflassung;
+    private final Validator valTxtKaufpreis;
+    private final Validator valTxtQuadPreis;
+    private final Validator valTxtAktenzeichen;
+    private final Validator valTxtBemerkung;
+    private final Validator valTxtEintragung;
+    private final Vector<Validator> validators = new Vector<>();
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
+    private final ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
     private boolean isInEditMode = false;
     private boolean isFlurstueckEditable = true;
