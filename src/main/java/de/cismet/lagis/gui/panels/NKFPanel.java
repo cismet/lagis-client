@@ -15,26 +15,64 @@ package de.cismet.lagis.gui.panels;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ComboBoxCellEditor;
-import org.jdesktop.swingx.decorator.*;
+import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.Highlighter;
 
 import org.jdom.Element;
 
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import java.text.SimpleDateFormat;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTable;
+import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
-import de.cismet.cids.custom.beans.lagis.*;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.Exception.BuchungNotInNutzungException;
 import de.cismet.lagis.Exception.IllegalNutzungStateException;
@@ -93,7 +131,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     private static final String WIDGET_NAME = "NKF Datenpanel";
     private static final String FIND_PREDECESSOR_MENU_NAME = "Vorgänger finden";
-    private static final NKFPanel instance = new NKFPanel();
+    private static final NKFPanel INSTANCE = new NKFPanel();
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(NKFPanel.class);
 
     //~ Instance fields --------------------------------------------------------
@@ -101,7 +139,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     // perhaps not good
     boolean isOnlyHistoric = false;
     private FlurstueckCustomBean currentFlurstueck;
-    private final NKFTableModel tableModel = new NKFTableModel();
     private boolean isInEditMode = false;
     private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isFlurstueckEditable = true;
@@ -147,6 +184,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private NKFPanel() {
         setIsCoreWidget(true);
         initComponents();
+
         final SimpleBandModel bandModel = new SimpleBandModel();
         bandNutzungen = new PlainBand();
         bandMonth = new PlainBand();
@@ -172,6 +210,15 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      *
      * @return  DOCUMENT ME!
      */
+    private NKFTableModel getTableModel() {
+        return (NKFTableModel)tNutzung.getModel();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
     public JTable getNutzungTable() {
         return tNutzung;
     }
@@ -182,7 +229,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * @return  DOCUMENT ME!
      */
     public static NKFPanel getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -219,7 +266,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                             isFlurstueckEditable = false;
                         }
                         final Collection<NutzungCustomBean> newNutzungen = getCurrentObject().getNutzungen();
-                        tableModel.refreshTableModel(newNutzungen);
+                        getTableModel().refreshTableModel(newNutzungen);
                         if (isUpdateAvailable()) {
                             cleanup();
                             return;
@@ -290,25 +337,96 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      * DOCUMENT ME!
      */
     private void configureTable() {
-        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (NKFTable)tNutzung);
+        TableSelectionUtils.crossReferenceModelAndTable(getTableModel(), (NKFTable)tNutzung);
         tNutzung.getSelectionModel().addListSelectionListener(this);
-        final JComboBox cboAK = new JComboBox(new Vector<>(CidsBroker.getInstance().getAllAnlageklassen()));
+        final JComboBox cboAK = new JComboBox(CidsBroker.getInstance().getAllAnlageklassen().toArray());
         cboAK.addItem("");
         tNutzung.setDefaultEditor(AnlageklasseCustomBean.class, new DefaultCellEditor(cboAK));
         tNutzung.setDefaultRenderer(Integer.class, new FlaecheRenderer());
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
-        final Vector<NutzungsartCustomBean> nutzungsarten = new Vector<>(CidsBroker.getInstance()
+        final List<NutzungsartCustomBean> nutzungsarten = new ArrayList<>(CidsBroker.getInstance()
                         .getAllNutzungsarten());
         Collections.sort(nutzungsarten);
-        final JComboBox cboNA = new JComboBox(nutzungsarten);
+        final JComboBox cboNA = new JComboBox(nutzungsarten.toArray());
         cboNA.addItem("");
         cboNA.setEditable(true);
-        tNutzung.setDefaultEditor(NutzungsartCustomBean.class, new ComboBoxCellEditor(cboNA));
+        cboNA.setRenderer(new DefaultListCellRenderer() {
+
+                @Override
+                public Component getListCellRendererComponent(final JList list,
+                        final Object value,
+                        final int index,
+                        final boolean isSelected,
+                        final boolean cellHasFocus) {
+                    final Component component = super.getListCellRendererComponent(
+                            list,
+                            value,
+                            index,
+                            isSelected,
+                            cellHasFocus);
+                    if (component != null) {
+                        if (value instanceof NutzungsartCustomBean) {
+                            ((JLabel)component).setText(((NutzungsartCustomBean)value).getBezeichnung());
+                        }
+                    }
+                    return component;
+                }
+            });
+
+        AutoCompleteDecorator.decorate(cboNA, new ObjectToStringConverter() {
+
+                @Override
+                public String getPreferredStringForItem(final Object object) {
+                    if (object == null) {
+                        return null;
+                    } else if (object instanceof CidsBean) {
+                        return (String)((CidsBean)object).getProperty("bezeichnung");
+                    } else {
+                        return object.toString();
+                    }
+                }
+            });
+
+        final ComboBoxCellEditor cce = new ComboBoxCellEditor(cboNA) {
+            };
+
+        tNutzung.setDefaultEditor(NutzungsartCustomBean.class, cce);
+        tNutzung.setDefaultRenderer(NutzungsartCustomBean.class, new DefaultTableCellRenderer() {
+
+                @Override
+                protected void setValue(final Object value) {
+                    setText(
+                        (value instanceof NutzungsartCustomBean) ? ((NutzungsartCustomBean)value).getBezeichnung()
+                                                                 : "");
+                }
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final Component component = super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column);
+                    if (component != null) {
+                        if (value instanceof NutzungsartCustomBean) {
+                            ((JLabel)component).setText(((NutzungsartCustomBean)value).getBezeichnung());
+                        }
+                    }
+                    return component;
+                }
+            });
         tNutzung.setDefaultEditor(Double.class, new EuroEditor());
         tNutzung.setDefaultRenderer(Double.class, new EuroRenderer());
         tNutzung.addMouseListener(this);
         tNutzung.addMouseListener(new PopupListener());
-        tableModel.addTableModelListener(this);
+        getTableModel().addTableModelListener(this);
         final HighlightPredicate buchungsStatusPredicate = new HighlightPredicate() {
 
                 @Override
@@ -317,7 +435,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         if (componentAdapter.getRowCount() > 0) {
                             final int displayedIndex = componentAdapter.row;
                             final int modelIndex = ((JXTable)tNutzung).convertRowIndexToModel(displayedIndex);
-                            final NutzungBuchungCustomBean n = tableModel.getCidsBeanAtRow(modelIndex);
+                            final NutzungBuchungCustomBean n = getTableModel().getCidsBeanAtRow(modelIndex);
                             // NO Geometry & more than one Verwaltungsbereich
                             return (n != null) && !n.getIstBuchwert();
                         } else {
@@ -343,7 +461,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         if (componentAdapter.getRowCount() > 0) {
                             final int displayedIndex = componentAdapter.row;
                             final int modelIndex = ((JXTable)tNutzung).convertRowIndexToModel(displayedIndex);
-                            final NutzungBuchungCustomBean n = tableModel.getCidsBeanAtRow(modelIndex);
+                            final NutzungBuchungCustomBean n = getTableModel().getCidsBeanAtRow(modelIndex);
                             // NO Geometry & more than one Verwaltungsbereich
                             return ((n != null) && n.getSollGeloeschtWerden());
                         } else {
@@ -387,7 +505,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 LOG.debug("NKFPanel --> setComponentEditable");
             }
             isInEditMode = isEditable;
-            tableModel.setInEditMode(isEditable);
+            getTableModel().setInEditMode(isEditable);
             if (isEditable) {
                 memberUnselect();
                 ((NKFTable)tNutzung).getAddAction().setEnabled(true);
@@ -395,7 +513,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 if (tNutzung.getSelectedRow() != -1) {
                     btnCopyNutzung.setEnabled(true);
                     final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-                    final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
+                    final NutzungBuchungCustomBean selectedBuchung = getTableModel().getCidsBeanAtRow(index);
 
                     if (selectedBuchung.isBuchwertFlippable() && LagisBroker.getInstance().isNkfAdminPermission()) {
                         btnFlipBuchung.setEnabled(true);
@@ -434,7 +552,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     @Override
     public synchronized void clearComponent() {
-        tableModel.refreshTableModel(null);
+        getTableModel().refreshTableModel(null);
     }
 
     // TODO validate the single cell of the tables
@@ -472,34 +590,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
         tNutzung.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
-        tNutzung.setModel(new javax.swing.table.DefaultTableModel(
-                new Object[][] {
-                    { "21-510", "Straße", "k0211100", "842", "1€", "842€" },
-                    { "21-740", "Gehölz", "k0211100", "2325", "1€", "2325" }
-                },
-                new String[] {
-                    "Nutzungsartenschlüssel",
-                    "Nutzungsart",
-                    "Anlageklasse",
-                    "Fläche m²",
-                    "Preis qm²",
-                    "Berechnung"
-                }) {
-
-                Class[] types = new Class[] {
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class,
-                        java.lang.String.class
-                    };
-
-                @Override
-                public Class getColumnClass(final int columnIndex) {
-                    return types[columnIndex];
-                }
-            });
+        tNutzung.setModel(new NKFTableModel());
         jScrollPane1.setViewportView(tNutzung);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -705,7 +796,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             for (int i = 0; i < selectedRows.length; i++) {
                 tNutzung.getSelectedRow();
                 final int index = ((JXTable)tNutzung).convertRowIndexToModel(selectedRows[i]);
-                final NutzungBuchungCustomBean curNutzungToCopy = tableModel.getCidsBeanAtRow(index);
+                final NutzungBuchungCustomBean curNutzungToCopy = getTableModel().getCidsBeanAtRow(index);
                 if (curNutzungToCopy != null) {
                     try {
                         copyPasteList.add(NutzungCustomBean.createNew(curNutzungToCopy.cloneBuchung()));
@@ -735,7 +826,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (copyPasteList.size() > 0) {
             NutzungCustomBean lastNutzung = null;
             for (final NutzungCustomBean curNutzung : copyPasteList) {
-                tableModel.addNutzung(curNutzung);
+                getTableModel().addNutzung(curNutzung);
                 lastNutzung = curNutzung;
             }
             selectNutzungInHistory(lastNutzung.getNutzungsBuchungen().get(0));
@@ -753,11 +844,11 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         }
         final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
         if (index != -1) {
-            final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
+            final NutzungBuchungCustomBean selectedBuchung = getTableModel().getCidsBeanAtRow(index);
             if (selectedBuchung.isBuchwertFlippable()) {
                 try {
                     selectedBuchung.flipBuchungsBuchwert();
-                    tableModel.fireTableDataChanged();
+                    getTableModel().fireTableDataChanged();
                     tNutzung.repaint();
                 } catch (IllegalNutzungStateException ex) {
                     LOG.error("Buchwert kann nicht geflipped werden, Nutzung in illegalem Zustand: ", ex);
@@ -779,7 +870,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     private void jComboBox1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jComboBox1ActionPerformed
         final Date date = (Date)jComboBox1.getSelectedItem();
-        tableModel.setModelToHistoryDate(date);
+        getTableModel().setModelToHistoryDate(date);
     }                                                                              //GEN-LAST:event_jComboBox1ActionPerformed
 
     @Override
@@ -816,16 +907,18 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             }
             final int selecetdRow = tNutzung.getSelectedRow();
             if (selecetdRow != -1) {
-                final NutzungBuchungCustomBean nutzung = tableModel.getCidsBeanAtRow(((JXTable)tNutzung)
+                final NutzungBuchungCustomBean nutzung = getTableModel().getCidsBeanAtRow(((JXTable)tNutzung)
                                 .convertRowIndexToModel(
                                     selecetdRow));
                 if ((nutzung != null) && (e.getClickCount() == 2)
                             && (!isInEditMode
-                                || ((tNutzung.getSelectedColumn() == 1) || (tNutzung.getSelectedColumn() == 9)
-                                    || (tNutzung.getSelectedColumn() == 10)
-                                    || (tNutzung.getSelectedColumn() == 0)
-                                    || (tNutzung.getSelectedColumn() == 4)
-                                    || (tNutzung.getSelectedColumn() == 11)))) {
+                                || ((tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_BUCHUNGS_NUMMER)
+                                    || (tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_BUCHWERT)
+                                    || (tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_NUTZUNGSART_SCHLUESSEL)
+                                    || (tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_BEMERKUNG)
+                                    || (tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_NUTZUNGS_NUMMER)
+                                    || (tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_NUTZUNGSART_BEZEICHNUNG)
+                                    || (tNutzung.getSelectedColumn() == NKFTableModel.COLUMN_LAST)))) {
                     jumpToPredecessorNutzung(nutzung);
                 }
             }
@@ -866,7 +959,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     private void selectNutzungInHistory(final NutzungBuchungCustomBean nutzung) {
         // TODO richtigen Member identifiezieren
         jBand1.setSelectedMember((BandMemberSelectable)null);
-        final int index = tableModel.getIndexOfCidsBean(nutzung);
+        final int index = getTableModel().getIndexOfCidsBean(nutzung);
         final int displayedIndex = ((JXTable)tNutzung).convertRowIndexToView(index);
         if (index != -1) {
             tNutzung.getSelectionModel().clearSelection();
@@ -882,10 +975,10 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
         final Collection<NutzungCustomBean> vNutzungen = flurstueck.getNutzungen();
         if (vNutzungen != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(vNutzungen, tableModel.getAllNutzungen());
+            LagISUtils.makeCollectionContainSameAsOtherCollection(vNutzungen, getTableModel().getAllNutzungen());
         } else { // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
             final HashSet newSet = new HashSet();
-            newSet.addAll(tableModel.getAllNutzungen());
+            newSet.addAll(getTableModel().getAllNutzungen());
             flurstueck.setNutzungen(newSet);
         }
     }
@@ -895,7 +988,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         // check if selection is still valid
         if (tNutzung.getSelectedRow() != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-            final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
+            final NutzungBuchungCustomBean selectedBuchung = getTableModel().getCidsBeanAtRow(index);
             if (selectedBuchung == null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("selectedBuchung nicht länger verfügbar lösche selektierung");
@@ -909,16 +1002,16 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         }
         final Refreshable refresh = LagisBroker.getInstance().getRefreshableByClass(NKFOverviewPanel.class);
         if (refresh != null) {
-            refresh.refresh(new NutzungsContainer(tableModel.getAllNutzungen(), tableModel.getCurrentDate()));
+            refresh.refresh(new NutzungsContainer(getTableModel().getAllNutzungen(), getTableModel().getCurrentDate()));
         }
-//        if (tableModel.getRowCount() != 0) {
-//            log.debug("Rowcount ist: "+tableModel.getRowCount());
+//        if (getTableModel().getRowCount() != 0) {
+//            log.debug("Rowcount ist: "+getTableModel().getRowCount());
 //            ((JXTable) tNutzung).packAll();
 //        }
         if (tNutzung.getSelectedRow() != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
             if (index != -1) {
-                final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
+                final NutzungBuchungCustomBean selectedBuchung = getTableModel().getCidsBeanAtRow(index);
                 if (selectedBuchung.getIstBuchwert() == true) {
                     btnFlipBuchung.setIcon(icoNotBooked);
                 } else {
@@ -960,7 +1053,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             if (date != null) {
                 lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(date));
 
-                final HashSet<Date> dates = new HashSet<Date>();
+                final HashSet<Date> dates = new HashSet<>();
                 for (final NutzungCustomBean nutzung_ : currentFlurstueck.getNutzungen()) {
                     dates.addAll(nutzung_.getDatesForDay(bandMember.getDate()));
                 }
@@ -968,7 +1061,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 for (final Date date_ : dates) {
                     jComboBox1.addItem(date_);
                 }
-//                tableModel.setModelToHistoryDate(dates.iterator().next());
+//                getTableModel().setModelToHistoryDate(dates.iterator().next());
                 lblHistoricIcon.setIcon(icoHistoricIcon);
                 if (isInEditMode) {
                     ((NKFTable)tNutzung).getAddAction().setEnabled(false);
@@ -980,7 +1073,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
                 jComboBox1.addItem(null);
 
-//                tableModel.setModelToHistoryDate(null);
+//                getTableModel().setModelToHistoryDate(null);
                 if (isInEditMode) {
                     ((NKFTable)tNutzung).getAddAction().setEnabled(true);
                     // TODO WHY DOES THIS NOT WORK
@@ -1017,7 +1110,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     private List<NutzungBuchungCustomBean> getSortedHistoricsortedNutzungen(
             final List<NutzungBuchungCustomBean> sortedNutzungen) {
-        final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen = new ArrayList<NutzungBuchungCustomBean>();
+        final ArrayList<NutzungBuchungCustomBean> sortedHistoricNutzungen = new ArrayList<>();
         for (final NutzungBuchungCustomBean curBuchung : sortedNutzungen) {
             if (curBuchung.getGueltigbis() == null) {
                 break;
@@ -1034,7 +1127,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         if (LOG.isDebugEnabled()) {
             LOG.debug("update Slider", new CurrentStackTrace());
         }
-        final ArrayList<NutzungBuchungCustomBean> sortedNutzungen = tableModel.getAllBuchungen();
+        final ArrayList<NutzungBuchungCustomBean> sortedNutzungen = getTableModel().getAllBuchungen();
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("nach Änderungen");
@@ -1219,7 +1312,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             LOG.error("Fehler beim updaten des NKF History Sliders (Change Filter)", ex);
         }
         if (LOG.isDebugEnabled()) {
-            LOG.debug("tablemodel rowcount: " + tableModel.getRowCount());
+            LOG.debug("tablemodel rowcount: " + getTableModel().getRowCount());
         }
     }
 
@@ -1227,9 +1320,9 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     public void valueChanged(final ListSelectionEvent e) {
         if (tNutzung.getSelectedRow() != -1) {
             final int index = ((JXTable)tNutzung).convertRowIndexToModel(tNutzung.getSelectedRow());
-            // if(index != -1 && tableModel.getcurrentNutzungen().get(index).getId() == null && isInEditMode){
+            // if(index != -1 && getTableModel().getcurrentNutzungen().get(index).getId() == null && isInEditMode){
             if (index != -1) {
-                final NutzungBuchungCustomBean selectedBuchung = tableModel.getCidsBeanAtRow(index);
+                final NutzungBuchungCustomBean selectedBuchung = getTableModel().getCidsBeanAtRow(index);
                 btnCopyNutzung.setEnabled(true);
                 if (selectedBuchung.getIstBuchwert() == true) {
                     btnFlipBuchung.setIcon(icoNotBooked);
@@ -1292,8 +1385,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
             boolean existsAtLeastOneValidCurrentNutzung = false;
 //            boolean existingUnbookedDeletedNutzung = false;
 
-            final ArrayList<NutzungCustomBean> currentNutzungen = tableModel.getAllNutzungen();
-            final ArrayList<NutzungBuchungCustomBean> currentBuchungen = tableModel.getOpenBuchungen();
+            final ArrayList<NutzungCustomBean> currentNutzungen = getTableModel().getAllNutzungen();
+            final ArrayList<NutzungBuchungCustomBean> currentBuchungen = getTableModel().getOpenBuchungen();
 
             if ((currentNutzungen != null) || (currentNutzungen.size() > 0)) {
                 for (final NutzungBuchungCustomBean currentBuchung : currentBuchungen) {
@@ -1382,7 +1475,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 final int rowAtPoint = tNutzung.rowAtPoint(new Point(e.getX(), e.getY()));
                 NutzungBuchungCustomBean selectedNutzung = null;
                 if ((rowAtPoint != -1)
-                            && ((selectedNutzung = tableModel.getCidsBeanAtRow(
+                            && ((selectedNutzung = getTableModel().getCidsBeanAtRow(
                                             ((JXTable)tNutzung).convertRowIndexToModel(rowAtPoint)))
                                 != null)
                             && (selectedNutzung.getNutzung() != null)
