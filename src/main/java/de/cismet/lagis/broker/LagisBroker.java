@@ -16,8 +16,11 @@
 package de.cismet.lagis.broker;
 
 import Sirius.navigator.connection.ConnectionSession;
+import Sirius.navigator.exception.ConnectionException;
 
 import Sirius.server.middleware.types.MetaClass;
+import Sirius.server.middleware.types.MetaObject;
+import Sirius.server.middleware.types.MetaObjectNode;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -35,13 +38,22 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.image.RenderedImage;
 
+import java.beans.PropertyChangeEvent;
+
 import java.net.URL;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,7 +62,13 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import de.cismet.cids.custom.beans.lagis.*;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -62,7 +80,18 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
 import de.cismet.lagis.gui.main.LagisApp;
 
-import de.cismet.lagis.interfaces.*;
+import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
+import de.cismet.lagis.interfaces.FlurstueckChangeListener;
+import de.cismet.lagis.interfaces.FlurstueckChangeObserver;
+import de.cismet.lagis.interfaces.FlurstueckRequester;
+import de.cismet.lagis.interfaces.FlurstueckSaver;
+import de.cismet.lagis.interfaces.GeometrySlotProvider;
+import de.cismet.lagis.interfaces.LagisBrokerPropertyChangeListener;
+import de.cismet.lagis.interfaces.Refreshable;
+import de.cismet.lagis.interfaces.Resettable;
+import de.cismet.lagis.interfaces.Widget;
+
+import de.cismet.lagis.server.search.ReBeGeomSearch;
 
 import de.cismet.lagis.utillity.EmailConfig;
 import de.cismet.lagis.utillity.GeometrySlotInformation;
@@ -90,13 +119,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static LagisBroker broker = null;
+    private static LagisBroker INSTANCE = null;
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(LagisBroker.class);
-    private static Vector<Resettable> clearAndDisableListeners = new Vector<Resettable>();
-    private static DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
+    private static final Vector<Resettable> clearAndDisableListeners = new Vector<Resettable>();
+    private static final DecimalFormat currencyFormatter = new DecimalFormat(",##0.00 \u00A4");
     // private static DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.GERMANY);
-    private static DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
-    private static Vector<Widget> widgets = new Vector<Widget>();
+    private static final DateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+    private static final Vector<Widget> widgets = new Vector<Widget>();
     private static FlurstueckCustomBean currentFlurstueck = null;
     private static SperreCustomBean currentSperre = null;
     // COLORS
@@ -109,7 +138,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public static final int alphaValue = 255;
     // TODO Perhaps a bit (blasser) brighter public static Color ODD_ROW_DEFAULT_COLOR = new
     // Color(blue.getRed()+119,blue.getGreen()+88,blue.getBlue()+33,alphaValue);
-    public static Color ODD_ROW_DEFAULT_COLOR = new Color(blue.getRed() + 113,
+    public static final Color ODD_ROW_DEFAULT_COLOR = new Color(blue.getRed() + 113,
             blue.getGreen()
                     + 79,
             blue.getBlue()
@@ -124,13 +153,12 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             red.getBlue()
                     + 143,
             alphaValue);
-    public static Color ODD_ROW_LOCK_COLOR = new Color(yellow.getRed() + 23,
+    public static final Color ODD_ROW_LOCK_COLOR = new Color(yellow.getRed() + 23,
             yellow.getGreen()
                     + 31,
             yellow.getBlue()
                     + 134,
             alphaValue);
-    // FlurstueckSearch
     public static final Color ERROR_COLOR = red;
     public static final Color ACCEPTED_COLOR = Color.WHITE;
     public static final Color UNKOWN_COLOR = ODD_ROW_LOCK_COLOR;
@@ -158,12 +186,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public static final Color DEFAULT_MODE_COLOR = blue;
     // resolving Gemarkungen
     private static HashMap<Integer, GemarkungCustomBean> gemarkungsHashMap;
-    private static GregorianCalendar calender = new GregorianCalendar();
+    private static GregorianCalendar CALENDAR = new GregorianCalendar();
 
     //~ Instance fields --------------------------------------------------------
 
-    HighlighterFactory highlighterFac = new HighlighterFactory();
-    Vector<FlurstueckChangeListener> observedFlurstueckChangedListeners = new Vector<FlurstueckChangeListener>();
+    private final Vector<FlurstueckChangeListener> observedFlurstueckChangedListeners = new Vector<>();
 
     private String title;
     private String totd;
@@ -172,10 +199,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private MappingComponent mappingComponent;
     private RootWindow rootWindow;
     private FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = null;
-    // private static String accountName = "sebastian.puhl@cismet.de";
-    // private String username;
-    // private String group;
-    // private String domain;
     private String callserverUrl;
     private String domain;
     private String connectionClass;
@@ -194,6 +217,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // TODO Jean
     // private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
+    private double rebeBuffer = -0.2;
     private double kassenzeichenBuffer = -0.2;
     private double kassenzeichenBuffer100 = -0.5;
     private boolean skipSecurityCheckFlurstueckAssistent = false;
@@ -203,7 +227,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private transient ConnectionSession session;
     private String currentValidationErrorMessage = null;
     // TODO optimize ugly code in my opinion old/new terror
-    private Vector<Message> messages = new Vector<Message>();
+    private Vector<Message> messages = new Vector<>();
     private boolean flustueckChangeInProgress = false;
     private boolean isUnkown = false;
     private EmailConfig emailConfig;
@@ -216,6 +240,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private StringBuffer maintenanceRecipients;
 
     private RenderedImage historyImage;
+    private final Collection<LagisBrokerPropertyChangeListener> wfsFlurstueckChangeListeners = new ArrayList<>();
+
+    private List<RebeCustomBean> currentRebes = null;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -252,10 +279,10 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @return  DOCUMENT ME!
      */
     public static LagisBroker getInstance() {
-        if (broker == null) {
-            broker = new LagisBroker();
+        if (INSTANCE == null) {
+            INSTANCE = new LagisBroker();
         }
-        return broker;
+        return INSTANCE;
     }
 
     /**
@@ -274,6 +301,38 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public void setCompressionEnabled(final boolean compressionEnabled) {
         this.compressionEnabled = compressionEnabled;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   flurstueckGeometry  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public List<RebeCustomBean> getRechteUndBelastungen(final Geometry flurstueckGeometry) {
+        try {
+            final List<RebeCustomBean> rebes = new ArrayList<>();
+            final Geometry bufferedGeom = flurstueckGeometry.buffer(rebeBuffer);
+            bufferedGeom.setSRID(flurstueckGeometry.getSRID());
+            final Collection<MetaObjectNode> mons = CidsBroker.getInstance().search(new ReBeGeomSearch(bufferedGeom));
+            if (mons != null) {
+                for (final MetaObjectNode mon : mons) {
+                    if (mon != null) {
+                        final MetaObject mo = CidsBroker.getInstance()
+                                    .getMetaObject(mon.getObjectId(), mon.getClassId(), mon.getDomain());
+                        final CidsBean cidsBean = mo.getBean();
+                        if (cidsBean instanceof RebeCustomBean) {
+                            rebes.add((RebeCustomBean)cidsBean);
+                        }
+                    }
+                }
+            }
+            return rebes;
+        } catch (final ConnectionException ex) {
+            LOG.fatal(ex, ex);
+            return null;
+        }
     }
 
     /**
@@ -1411,6 +1470,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public boolean isFlurstueckChangeInProgress() {
         return flustueckChangeInProgress;
     }
+//
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @return  DOCUMENT ME!
+//     */
+//    public WFSRetrieverFactory.WFSWorkerThread getCurrentWFSRetriever() {
+//        return currentWFSRetriever;
+//    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  listener  DOCUMENT ME!
+     */
+    public void addWfsFlurstueckGeometryChangeListener(final LagisBrokerPropertyChangeListener listener) {
+        wfsFlurstueckChangeListeners.add(listener);
+    }
 
     // TODO REFACTOR --> gerneralize
     @Override
@@ -1420,10 +1497,12 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             LOG.debug("FlurstueckChangeEvent");
         }
         warnIfThreadIsNotEDT();
-//        Iterator<ChangeListener> it = flurstueckChangedListeners.iterator();
-//        while(it.hasNext()){
-//            it.next().FlurstueckChanged(newFlurstueck);
+//
+//        if ((currentWFSRetriever != null) && !currentWFSRetriever.isDone()) {
+//            currentWFSRetriever.cancel(true);
+//            currentWFSRetriever = null;
 //        }
+
         resetWidgets();
         getMappingComponent().getFeatureCollection().removeAllFeatures();
         if (newFlurstueck != null) {
@@ -1457,6 +1536,25 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             setCurrentFlurstueckSchluessel(null, true);
             flustueckChangeInProgress = true;
         }
+//        if (newFlurstueck != null) {
+//                final WFSRetrieverFactory.WFSWorkerThread wfsRetriever = (WFSRetrieverFactory.WFSWorkerThread)
+//                    WFSRetrieverFactory.getInstance().getWFSRetriever(newFlurstueck.getFlurstueckSchluessel(), null, null);
+//                currentWFSRetriever = wfsRetriever;
+//                currentWFSRetriever.addPropertyChangeListener(new PropertyChangeListener() {
+//
+//                        @Override
+//                        public void propertyChange(final PropertyChangeEvent evt) {
+//                            for (final WfsFlurstueckGeometryChangeListener listener : wfsFlurstueckChangeListeners) {
+//                                try {
+//                                    listener.wfsFlurstueckGeometryChanged(evt);
+//                                } catch (final Exception ex) {
+//                                    LOG.error("Exception in Background Thread", ex);
+//                                }
+//                            }
+//                        }
+//                    });
+//                currentWFSRetriever.execute();
+//        }
     }
 
     /**
@@ -1564,13 +1662,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @return  DOCUMENT ME!
      */
     public static Date getDateWithoutTime(final Date date) {
-        calender.setTime(date);
-        calender.set(GregorianCalendar.HOUR, 0);
-        calender.set(GregorianCalendar.MINUTE, 0);
-        calender.set(GregorianCalendar.SECOND, 0);
-        calender.set(GregorianCalendar.MILLISECOND, 0);
-        calender.set(GregorianCalendar.AM_PM, GregorianCalendar.AM);
-        return calender.getTime();
+        CALENDAR.setTime(date);
+        CALENDAR.set(GregorianCalendar.HOUR, 0);
+        CALENDAR.set(GregorianCalendar.MINUTE, 0);
+        CALENDAR.set(GregorianCalendar.SECOND, 0);
+        CALENDAR.set(GregorianCalendar.MILLISECOND, 0);
+        CALENDAR.set(GregorianCalendar.AM_PM, GregorianCalendar.AM);
+        return CALENDAR.getTime();
     }
     /**
      * TODO nächsten 6 methoden Sinnvoll ?? public String getUsername() { return username; } public void
@@ -1703,10 +1801,67 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /**
      * DOCUMENT ME!
      *
+     * @return  DOCUMENT ME!
+     */
+    public List<RebeCustomBean> getCurrentRebes() {
+        return currentRebes;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param  geom  DOCUMENT ME!
      */
     public void setCurrentWFSGeometry(final Geometry geom) {
+        final Geometry oldWFSGeometry = geom;
         this.currentWFSGeometry = geom;
+
+        for (final LagisBrokerPropertyChangeListener listener : wfsFlurstueckChangeListeners) {
+            try {
+                listener.propertyChange(new PropertyChangeEvent(
+                        this,
+                        LagisBrokerPropertyChangeListener.PROP__CURRENT_WFS_GEOMETRY,
+                        oldWFSGeometry,
+                        currentWFSGeometry));
+            } catch (final Exception ex) {
+                LOG.error("Exception in PropertyChange propagation", ex);
+            }
+        }
+
+        new SwingWorker<List, Void>() {
+
+                @Override
+                protected List doInBackground() throws Exception {
+                    if (currentWFSGeometry != null) {
+                        return LagisBroker.getInstance().getRechteUndBelastungen(currentWFSGeometry);
+                    } else {
+                        return null;
+                    }
+                }
+
+                @Override
+                protected void done() {
+                    final Collection oldRebes = currentRebes;
+                    try {
+                        currentRebes = get();
+                    } catch (final Exception ex) {
+                        LOG.error(ex, ex);
+                        currentRebes = null;
+                    } finally {
+                        for (final LagisBrokerPropertyChangeListener listener : wfsFlurstueckChangeListeners) {
+                            try {
+                                listener.propertyChange(new PropertyChangeEvent(
+                                        this,
+                                        LagisBrokerPropertyChangeListener.PROP__CURRENT_REBES,
+                                        oldRebes,
+                                        currentRebes));
+                            } catch (final Exception ex) {
+                                LOG.error("Exception in PropertyChange propagation", ex);
+                            }
+                        }
+                    }
+                }
+            }.execute();
     }
 
     /**
@@ -1862,6 +2017,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public double getKassenzeichenBuffer100() {
         return kassenzeichenBuffer100;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  rebeBuffer  DOCUMENT ME!
+     */
+    public void setRebeBuffer(final double rebeBuffer) {
+        this.rebeBuffer = rebeBuffer;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public double getRebeBuffer() {
+        return rebeBuffer;
     }
 
     /**

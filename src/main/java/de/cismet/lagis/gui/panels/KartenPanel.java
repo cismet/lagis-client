@@ -23,7 +23,6 @@ import edu.umd.cs.piccolox.event.PSelectionEventHandler;
 import org.jdom.Element;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,7 +55,6 @@ import de.cismet.cids.custom.commons.searchgeometrylistener.RissNodesSearchCreat
 
 import de.cismet.cismap.cidslayer.CidsLayerFeature;
 
-import de.cismet.cismap.commons.features.DefaultFeatureServiceFeature;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollectionEvent;
 import de.cismet.cismap.commons.features.FeatureCollectionListener;

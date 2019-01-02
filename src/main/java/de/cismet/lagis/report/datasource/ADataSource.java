@@ -18,10 +18,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import de.cismet.lagis.broker.LagisBroker;
-
 /**
  * DOCUMENT ME!
+ *
+ * @param    <T>
  *
  * @author   bfriedrich
  * @version  $Revision$, $Date$
@@ -35,9 +35,7 @@ public abstract class ADataSource<T> implements JRDataSource {
 
     protected static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat(",##0.00");
     protected static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("#,##0");
-//    protected static final DecimalFormat INTEGER_FORMAT = new DecimalFormat("#,#00");
 
-    protected static final LagisBroker LAGIS_BROKER = LagisBroker.getInstance();
     protected static final DateFormat DF = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.GERMANY);
 
     //~ Instance fields --------------------------------------------------------

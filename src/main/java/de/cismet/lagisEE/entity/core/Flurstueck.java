@@ -14,7 +14,6 @@ import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.SpielplatzCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
@@ -139,20 +138,6 @@ public interface Flurstueck {
      * @param  val  DOCUMENT ME!
      */
     void setNutzungen(final Collection<NutzungCustomBean> val);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    Collection<RebeCustomBean> getRechteUndBelastungen();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    void setRechteUndBelastungen(final Collection<RebeCustomBean> val);
 
     /**
      * DOCUMENT ME!

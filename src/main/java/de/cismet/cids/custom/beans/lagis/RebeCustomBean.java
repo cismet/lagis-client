@@ -47,7 +47,6 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
             "beschreibung",
             "fk_rebe_art",
             "fk_geom",
-            "fk_flurstueck",
             "bemerkung"
         };
 
@@ -64,7 +63,6 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
     private String beschreibung;
     private RebeArtCustomBean fk_rebe_art;
     private GeomCustomBean fk_geom;
-    private FlurstueckCustomBean fk_flurstueck;
     private String bemerkung;
 
     //~ Constructors -----------------------------------------------------------
@@ -269,26 +267,6 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
         this.fk_geom = val;
 
         this.propertyChangeSupport.firePropertyChange("fk_geom", null, this.fk_geom);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public FlurstueckCustomBean getFk_flurstueck() {
-        return this.fk_flurstueck;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setFk_flurstueck(final FlurstueckCustomBean val) {
-        this.fk_flurstueck = val;
-
-        this.propertyChangeSupport.firePropertyChange("fk_flurstueck", null, this.fk_flurstueck);
     }
 
     /**

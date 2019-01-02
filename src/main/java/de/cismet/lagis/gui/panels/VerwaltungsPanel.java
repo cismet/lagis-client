@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import java.util.*;
 
@@ -68,6 +67,7 @@ import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 import de.cismet.lagis.interfaces.GeometrySlotProvider;
+import de.cismet.lagis.interfaces.LagisBrokerPropertyChangeListener;
 
 import de.cismet.lagis.models.VerwaltungsTableModel;
 import de.cismet.lagis.models.ZusatzRolleTableModel;
@@ -75,9 +75,6 @@ import de.cismet.lagis.models.documents.SimpleDocumentModel;
 
 import de.cismet.lagis.renderer.FlaecheRenderer;
 import de.cismet.lagis.renderer.VerwaltendeDienststelleRenderer;
-
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 import de.cismet.lagis.util.TableSelectionUtils;
 
@@ -90,8 +87,6 @@ import de.cismet.lagis.validation.Validator;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
-
-import de.cismet.tools.CismetThreadPool;
 
 import de.cismet.tools.configuration.Configurable;
 
@@ -147,24 +142,20 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     private final Icon icoRebeExpired = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/FlurstueckPanel/rebeExpired.png"));
 
-    private FlurstueckCustomBean currentFlurstueck = null;
-    private Validator valTxtBemerkung;
+    private final Validator valTxtBemerkung;
     private SimpleDocumentModel bemerkungDocumentModel;
-    private VerwaltungsTableModel verwaltungsTableModel = new VerwaltungsTableModel();
-    private ZusatzRolleTableModel zusatzRolleTableModel = new ZusatzRolleTableModel();
+    private final VerwaltungsTableModel verwaltungsTableModel = new VerwaltungsTableModel();
+    private final ZusatzRolleTableModel zusatzRolleTableModel = new ZusatzRolleTableModel();
     private boolean isInEditMode = false;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private VerwaltendeDienststelleRenderer vdRenderer = new VerwaltendeDienststelleRenderer();
-    private WFSRetrieverFactory.WFSWorkerThread currentWFSRetriever;
-    private Geometry currentGeometry = null;
+    private final VerwaltendeDienststelleRenderer vdRenderer = new VerwaltendeDienststelleRenderer();
     // hierüber kann man ausfindig machen was bei AbteilungIX oder Städtisch passiert (falls gerefactored wird)
     private boolean isFlurstueckEditable = true;
-    private JLabel lblLastModification;
+    private final JLabel lblLastModification;
     private JHistoryButton hbBack;
     private JHistoryButton hbFwd;
-    private DefaultHistoryModel historyModel = new DefaultHistoryModel();
+    private final DefaultHistoryModel historyModel = new DefaultHistoryModel();
     // ToDo Comboboxen selbst in Validatoren stecken und auswerten
-    private Vector<Validator> validators = new Vector<Validator>();
+    private Vector<Validator> validators = new Vector<>();
     private final Icon copyDisplayIcon;
 
     private boolean listenerEnabled = true;
@@ -217,13 +208,59 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         configureTable();
         valTxtBemerkung = new Validator(txtBemerkung);
         initModels();
-        configBackgroundThread();
         lblLastModification = new JLabel();
         lblLastModification.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/goto.png")));
         lblLastModification.setOpaque(false);
         historyModel.addHistoryModelListener(this);
         configureButtons();
+
+        LagisBroker.getInstance().addWfsFlurstueckGeometryChangeListener(new LagisBrokerPropertyChangeListener() {
+
+                @Override
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if (LagisBrokerPropertyChangeListener.PROP__CURRENT_WFS_GEOMETRY.equals(evt.getPropertyName())) {
+                        final Geometry currentGeometry = (Geometry)evt.getNewValue();
+                        SwingUtilities.invokeLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    if (currentGeometry == null) {
+                                        lblWFSInfo.setIcon(icoWFSWarn);
+                                        lblWFSInfo.setToolTipText(
+                                            "Keine WFS Geometrie vorhanden");
+                                        verwaltungsTableModel.setCurrentWFSSize(0);
+                                    } else {
+                                        verwaltungsTableModel.setCurrentWFSSize(
+                                            currentGeometry.getArea());
+                                    }
+                                }
+                            });
+                    } else if (LagisBrokerPropertyChangeListener.PROP__CURRENT_WFS_GEOMETRY_ERROR.equals(
+                                    evt.getPropertyName())) {
+                        final Exception ex = (Exception)evt.getNewValue();
+                        SwingUtilities.invokeLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    LOG.error("Fehler beim abrufen der Geometrie", ex);
+                                    lblWFSInfo.setIcon(icoWFSWarn);
+                                    lblWFSInfo.setToolTipText("Fehler beim vergleichen der Flächen");
+                                    verwaltungsTableModel.setCurrentWFSSize(0);
+                                }
+                            });
+                    } else if (LagisBrokerPropertyChangeListener.PROP__CURRENT_REBES.equals(evt.getPropertyName())) {
+                        final Collection<RebeCustomBean> currentRebes = (Collection)evt.getNewValue();
+                        SwingUtilities.invokeLater(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    refreshReBeIcons(currentRebes);
+                                }
+                            });
+                    }
+                }
+            });
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -244,239 +281,6 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
      */
     public JTable getNutzungTable() {
         return tNutzung;
-    }
-
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        if ((getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter() != null)
-                                    && (getCurrentObject().getFlurstueckSchluessel().getLetzte_bearbeitung() != null)) {
-                            lblLastModification.setToolTipText(getCurrentObject().getFlurstueckSchluessel()
-                                        .getLetzter_bearbeiter() + " am "
-                                        + LagisBroker.getDateFormatter().format(
-                                            getCurrentObject().getFlurstueckSchluessel().getLetzte_bearbeitung()));
-                        } else if (getCurrentObject().getFlurstueckSchluessel().getLetzter_bearbeiter() != null) {
-                            lblLastModification.setToolTipText(getCurrentObject().getFlurstueckSchluessel()
-                                        .getLetzter_bearbeiter());
-                        } else {
-                            lblLastModification.setToolTipText("Unbekannt");
-                        }
-                        if (getCurrentObject().getFlurstueckSchluessel() != null) {
-                            historyModel.addToHistory(getCurrentObject());
-                        }
-                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                                    .getFlurstueckArt();
-                        if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück ist städtisch und kann editiert werden");
-                            }
-                            isFlurstueckEditable = true;
-//                        cbKind.setIcon(icoStaedtisch);
-//                        cbKind.setVisible(true);
-                        } else if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug(
-                                    "Flurstück ist nicht städtisch und kann nicht editiert werden (Abteilung IX)");
-                            }
-                            isFlurstueckEditable = false;
-//                        cbKind.setIcon(icoAbteilungIX);
-//                        cbKind.setVisible(true);
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
-                            }
-                            isFlurstueckEditable = false;
-                            // cbKind.setVisible(false);
-                        }
-                        if ((getCurrentObject().getVerwaltungsbereiche() != null)
-                                    || ((getCurrentObject().getVerwaltungsbereiche() != null)
-                                        && (getCurrentObject().getVerwaltungsbereiche().size() == 0))) {
-                            lblWFSInfo.setIcon(icoWFSSizeGood);
-                            lblWFSInfo.setToolTipText("Keine Verwaltungsbereiche vorhanden");
-                        }
-                        // Soll als Abteilungs IX Flurstück nicht angezeigt werden
-                        if (isFlurstueckEditable) {
-                            tNutzung.setVisible(true);
-                        } else {
-                            tNutzung.setVisible(false);
-                        }
-
-                        refreshReBeIcons();
-                        if ((currentWFSRetriever != null) && !currentWFSRetriever.isDone()) {
-                            currentWFSRetriever.cancel(true);
-                            currentWFSRetriever = null;
-                            currentGeometry = null;
-                        }
-                        currentWFSRetriever = (WFSRetrieverFactory.WFSWorkerThread)WFSRetrieverFactory
-                                    .getInstance()
-                                    .getWFSRetriever(getCurrentObject().getFlurstueckSchluessel(), null, null);
-                        currentWFSRetriever.addPropertyChangeListener(new PropertyChangeListener() {
-
-                                @Override
-                                public void propertyChange(final PropertyChangeEvent evt) {
-                                    if ((evt.getSource() instanceof WFSRetrieverFactory.WFSWorkerThread)
-                                                && evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
-                                        if (LOG.isDebugEnabled()) {
-                                            LOG.debug("Gemarkungsretriever done --> setzte geometrie");
-                                        }
-                                        try {
-                                            final SwingWorker worker = new SwingWorker<Geometry, Void>() {
-
-                                                    @Override
-                                                    protected Geometry doInBackground() throws Exception {
-                                                        return currentWFSRetriever.get();
-                                                    }
-
-                                                    @Override
-                                                    protected void done() {
-                                                        try {
-                                                            final Geometry result = get();
-                                                            currentGeometry = result;
-                                                            if (result == null) {
-                                                                lblWFSInfo.setIcon(icoWFSWarn);
-                                                                lblWFSInfo.setToolTipText(
-                                                                    "Keine WFS Geometrie vorhanden");
-                                                                verwaltungsTableModel.setCurrentWFSSize(0);
-                                                            } else {
-                                                                verwaltungsTableModel.setCurrentWFSSize(
-                                                                    currentGeometry.getArea());
-                                                            }
-                                                        } catch (Exception e) {
-                                                            LOG.error("Exception in Background Thread", e);
-                                                        }
-                                                    }
-                                                };
-                                            CismetThreadPool.execute(worker);
-                                        } catch (Exception ex) {
-                                            LOG.error("Fehler beim abrufen der Geometrie", ex);
-                                            currentGeometry = null;
-                                            lblWFSInfo.setIcon(icoWFSWarn);
-                                            lblWFSInfo.setToolTipText("Fehler beim vergleichen der Flächen");
-                                            verwaltungsTableModel.setCurrentWFSSize(0);
-                                        }
-                                    }
-                                }
-                            });
-                        currentWFSRetriever.execute();
-                        final String bemerkung = getCurrentObject().getBemerkung();
-                        if (bemerkung != null) {
-                            // txtBemerkung.setText(bemerkung);
-                            bemerkungDocumentModel.insertString(0, bemerkung, null);
-                        }
-                        // datamodell refactoring 22.10.07
-                        final Boolean isGesperrt = getCurrentObject().getFlurstueckSchluessel().getIstGesperrt();
-                        if (isGesperrt != null) {
-                            cbSperre.setSelected(isGesperrt);
-                            final String sperrentext = getCurrentObject().getFlurstueckSchluessel()
-                                        .getBemerkungSperre();
-                            if (sperrentext != null) {
-                                lblBemSperre.setText(sperrentext);
-                            } else {
-                                lblBemSperre.setText("");
-                            }
-                        } else {
-                            cbSperre.setSelected(false);
-                        }
-
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Anzahl verwaltungsbereiche: "
-                                        + getCurrentObject().getVerwaltungsbereiche().size());
-                        }
-                        final Collection<VerwaltungsbereichCustomBean> verwaltungsbereiche =
-                            new ArrayList<VerwaltungsbereichCustomBean>();
-                        for (final VerwaltungsbereichCustomBean verwaltungsbereich
-                                    : getCurrentObject().getVerwaltungsbereiche()) {
-                            final GeomCustomBean geomBean;
-                            if (verwaltungsbereich.getFk_geom() == null) {
-                                geomBean = null;
-                            } else {
-                                geomBean = GeomCustomBean.createNew();
-                                geomBean.setGeo_field(verwaltungsbereich.getFk_geom().getGeo_field());
-                            }
-
-                            final VerwaltungsbereichCustomBean newVerwaltungsbereich = VerwaltungsbereichCustomBean
-                                        .createNew();
-                            newVerwaltungsbereich.setFk_verwaltende_dienststelle(
-                                verwaltungsbereich.getFk_verwaltende_dienststelle());
-                            newVerwaltungsbereich.setFk_geom(geomBean);
-                            verwaltungsbereiche.add(newVerwaltungsbereich);
-                        }
-                        verwaltungsTableModel.refreshTableModel(verwaltungsbereiche);
-
-                        zusatzRolleTableModel.refreshTableModel((Collection<ZusatzRolleCustomBean>)getCurrentObject()
-                                    .getN_zusatz_rollen());
-
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        // Wenn Flurstück nicht städtisch ist werden keine Geometrien der Karte hinzugefügt
-                        if (isFlurstueckEditable) {
-                            EventQueue.invokeLater(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        final ArrayList<Feature> features =
-                                            verwaltungsTableModel.getAllVerwaltungsFeatures();
-                                        if (features != null) {
-                                            for (final Feature currentFeature : features) {
-                                                if (currentFeature != null) {
-                                                    if (isWidgetReadOnly()) {
-                                                        ((VerwaltungsbereichCustomBean)currentFeature).setModifiable(
-                                                            false);
-                                                    }
-
-                                                    final Feature tmp = new StyledFeatureGroupWrapper(
-                                                            (StyledFeature)currentFeature,
-                                                            PROVIDER_NAME,
-                                                            PROVIDER_NAME);
-
-                                                    LagisBroker.getInstance()
-                                                            .getMappingComponent()
-                                                            .getFeatureCollection()
-                                                            .addFeature(tmp);
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(VerwaltungsPanel.this);
-                    } catch (Exception ex) {
-                        LOG.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(VerwaltungsPanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
     }
 
     /**
@@ -532,7 +336,8 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                         .verwaltungsTableModel.getCidsBeans();
 
             if (residentVBs.contains(item)) {
-                LOG.warn("Verwaltungsbereich " + item + " does already exist in Flurstück " + this.currentFlurstueck);
+                LOG.warn("Verwaltungsbereich " + item + " does already exist in Flurstück "
+                            + LagisBroker.getInstance().getCurrentFlurstueck());
             } else {
                 this.verwaltungsTableModel.addCidsBean((VerwaltungsbereichCustomBean)item);
                 this.verwaltungsTableModel.fireTableDataChanged();
@@ -574,7 +379,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
             if (entity instanceof VerwaltungsbereichCustomBean) {
                 if (residentVBs.contains(entity)) {
                     LOG.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
-                                + this.currentFlurstueck);
+                                + LagisBroker.getInstance().getCurrentFlurstueck());
                 } else {
                     this.verwaltungsTableModel.addCidsBean((VerwaltungsbereichCustomBean)entity);
                     f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
@@ -756,7 +561,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                             LOG.debug("Teste Geometriegröße");
                         }
                         final double currentGeometrySize;
-                        if (currentGeometry == null) {
+                        if (LagisBroker.getInstance().getCurrentWFSGeometry() == null) {
                             if (!lblWFSInfo.getIcon().equals(icoWFSWarn)) {
                                 lblWFSInfo.setIcon(icoWFSLoad);
                                 lblWFSInfo.setToolTipText("WFS Geometrie wird geladen");
@@ -766,7 +571,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                             return true;
                         } else {
                             // currentGeometrySize= (int)Math.round(currentGeometry.getArea());
-                            currentGeometrySize = currentGeometry.getArea();
+                            currentGeometrySize = LagisBroker.getInstance().getCurrentWFSGeometry().getArea();
                         }
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Größe WFS Geometrie: " + currentGeometrySize);
@@ -775,7 +580,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                         int counter = 0;
                         for (final Feature currentFeature : verwaltungsTableModel.getAllVerwaltungsFeatures()) {
                             final Geometry tmpGeometry = currentFeature.getGeometry();
-                            if (currentGeometry != null) {
+                            if (LagisBroker.getInstance().getCurrentWFSGeometry() != null) {
                                 geomSum += tmpGeometry.getArea();
                             }
                             counter++;
@@ -868,10 +673,11 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                     }
                     valueToCheck = newValue;
                     fireValidationStateChanged(this);
-                    if (((currentFlurstueck != null) && (getStatus() == Validatable.VALID))
+                    if (((LagisBroker.getInstance().getCurrentFlurstueck() != null)
+                                    && (getStatus() == Validatable.VALID))
                                 || (getStatus() == Validatable.WARNING)) {
                         LOG.info("Entität wirklich geändert");
-                        currentFlurstueck.setBemerkung(newValue);
+                        LagisBroker.getInstance().getCurrentFlurstueck().setBemerkung(newValue);
                     }
                 }
             };
@@ -885,24 +691,156 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
-            currentFlurstueck = newFlurstueck;
-            zusatzRolleTableModel.setCidsBeans((currentFlurstueck != null)
-                    ? (List)currentFlurstueck.getN_zusatz_rollen() : null);
-            btnHistorie.setEnabled(!currentFlurstueck.getVerwaltungsbereicheHistorie().isEmpty());
-            updateThread.notifyThread(currentFlurstueck);
+            zusatzRolleTableModel.setCidsBeans((newFlurstueck != null) ? (List)newFlurstueck.getN_zusatz_rollen()
+                                                                       : null);
+            btnHistorie.setEnabled(!newFlurstueck.getVerwaltungsbereicheHistorie().isEmpty());
+
+            clearComponent();
+
+            if ((newFlurstueck.getFlurstueckSchluessel().getLetzter_bearbeiter() != null)
+                        && (newFlurstueck.getFlurstueckSchluessel().getLetzte_bearbeitung() != null)) {
+                lblLastModification.setToolTipText(newFlurstueck.getFlurstueckSchluessel().getLetzter_bearbeiter()
+                            + " am "
+                            + LagisBroker.getDateFormatter().format(
+                                newFlurstueck.getFlurstueckSchluessel().getLetzte_bearbeitung()));
+            } else if (newFlurstueck.getFlurstueckSchluessel().getLetzter_bearbeiter() != null) {
+                lblLastModification.setToolTipText(newFlurstueck.getFlurstueckSchluessel().getLetzter_bearbeiter());
+            } else {
+                lblLastModification.setToolTipText("Unbekannt");
+            }
+            if (newFlurstueck.getFlurstueckSchluessel() != null) {
+                historyModel.addToHistory(newFlurstueck);
+            }
+            final FlurstueckArtCustomBean flurstueckArt = newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt();
+            if ((flurstueckArt != null)
+                        && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück ist städtisch und kann editiert werden");
+                }
+                isFlurstueckEditable = true;
+//                        cbKind.setIcon(icoStaedtisch);
+//                        cbKind.setVisible(true);
+            } else if ((flurstueckArt != null)
+                        && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(
+                        "Flurstück ist nicht städtisch und kann nicht editiert werden (Abteilung IX)");
+                }
+                isFlurstueckEditable = false;
+//                        cbKind.setIcon(icoAbteilungIX);
+//                        cbKind.setVisible(true);
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                }
+                isFlurstueckEditable = false;
+                // cbKind.setVisible(false);
+            }
+            if ((newFlurstueck.getVerwaltungsbereiche() != null)
+                        || ((newFlurstueck.getVerwaltungsbereiche() != null)
+                            && (newFlurstueck.getVerwaltungsbereiche().size() == 0))) {
+                lblWFSInfo.setIcon(icoWFSSizeGood);
+                lblWFSInfo.setToolTipText("Keine Verwaltungsbereiche vorhanden");
+            }
+            // Soll als Abteilungs IX Flurstück nicht angezeigt werden
+            if (isFlurstueckEditable) {
+                tNutzung.setVisible(true);
+            } else {
+                tNutzung.setVisible(false);
+            }
+
+            final String bemerkung = newFlurstueck.getBemerkung();
+            if (bemerkung != null) {
+                // txtBemerkung.setText(bemerkung);
+                bemerkungDocumentModel.insertString(0, bemerkung, null);
+            }
+            // datamodell refactoring 22.10.07
+            final Boolean isGesperrt = newFlurstueck.getFlurstueckSchluessel().getIstGesperrt();
+            if (isGesperrt != null) {
+                cbSperre.setSelected(isGesperrt);
+                final String sperrentext = newFlurstueck.getFlurstueckSchluessel().getBemerkungSperre();
+                if (sperrentext != null) {
+                    lblBemSperre.setText(sperrentext);
+                } else {
+                    lblBemSperre.setText("");
+                }
+            } else {
+                cbSperre.setSelected(false);
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Anzahl verwaltungsbereiche: "
+                            + newFlurstueck.getVerwaltungsbereiche().size());
+            }
+            final Collection<VerwaltungsbereichCustomBean> verwaltungsbereiche = new ArrayList<>();
+            for (final VerwaltungsbereichCustomBean verwaltungsbereich
+                        : newFlurstueck.getVerwaltungsbereiche()) {
+                final GeomCustomBean geomBean;
+                if (verwaltungsbereich.getFk_geom() == null) {
+                    geomBean = null;
+                } else {
+                    geomBean = GeomCustomBean.createNew();
+                    geomBean.setGeo_field(verwaltungsbereich.getFk_geom().getGeo_field());
+                }
+
+                final VerwaltungsbereichCustomBean newVerwaltungsbereich = VerwaltungsbereichCustomBean.createNew();
+                newVerwaltungsbereich.setFk_verwaltende_dienststelle(
+                    verwaltungsbereich.getFk_verwaltende_dienststelle());
+                newVerwaltungsbereich.setFk_geom(geomBean);
+                verwaltungsbereiche.add(newVerwaltungsbereich);
+            }
+            verwaltungsTableModel.refreshTableModel(verwaltungsbereiche);
+
+            zusatzRolleTableModel.refreshTableModel((Collection<ZusatzRolleCustomBean>)
+                newFlurstueck.getN_zusatz_rollen());
+
+            // Wenn Flurstück nicht städtisch ist werden keine Geometrien der Karte hinzugefügt
+            if (isFlurstueckEditable) {
+                EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            final ArrayList<Feature> features = verwaltungsTableModel.getAllVerwaltungsFeatures();
+                            if (features != null) {
+                                for (final Feature currentFeature : features) {
+                                    if (currentFeature != null) {
+                                        if (isWidgetReadOnly()) {
+                                            ((VerwaltungsbereichCustomBean)currentFeature).setModifiable(
+                                                false);
+                                        }
+
+                                        final Feature tmp = new StyledFeatureGroupWrapper(
+                                                (StyledFeature)currentFeature,
+                                                PROVIDER_NAME,
+                                                PROVIDER_NAME);
+
+                                        LagisBroker.getInstance()
+                                                .getMappingComponent()
+                                                .getFeatureCollection()
+                                                .addFeature(tmp);
+                                    }
+                                }
+                            }
+                        }
+                    });
+            }
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(VerwaltungsPanel.this);
         }
     }
 
     /**
      * DOCUMENT ME!
+     *
+     * @param  rebes  DOCUMENT ME!
      */
-    private void refreshReBeIcons() {
+    private void refreshReBeIcons(final Collection<RebeCustomBean> rebes) {
         try {
-            final Collection<RebeCustomBean> reBe = currentFlurstueck.getRechteUndBelastungen();
-            final Iterator<RebeCustomBean> it = reBe.iterator();
+            final Iterator<RebeCustomBean> it = rebes.iterator();
             boolean allRechteExpired = true;
             boolean oneRechtExisiting = false;
             boolean allBelastungenExpired = true;
@@ -1693,6 +1631,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
      */
     private void cbSperreActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cbSperreActionPerformed
 // TODO add your handling code here:
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         if (currentFlurstueck != null) {
             final boolean isGesperrt = cbSperre.isSelected();
             if (isGesperrt) {
@@ -1730,7 +1669,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
      */
     private void btnHistorieActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnHistorieActionPerformed
         final VerwaltungsbereicheHistorieDialog verwaltungsHistorieDialog = new VerwaltungsbereicheHistorieDialog(
-                currentFlurstueck);
+                LagisBroker.getInstance().getCurrentFlurstueck());
         verwaltungsHistorieDialog.pack();
         StaticSwingTools.showDialog(verwaltungsHistorieDialog);
     }                                                                               //GEN-LAST:event_btnHistorieActionPerformed

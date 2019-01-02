@@ -16,13 +16,49 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.newuser.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
-import de.cismet.cids.custom.beans.lagis.*;
+import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.BaumMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckHistorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
+import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
+import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
+import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
+import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
+import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
+import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
+import de.cismet.cids.server.search.CidsServerSearch;
+
+import de.cismet.connectioncontext.AbstractConnectionContext;
+import de.cismet.connectioncontext.ConnectionContext;
+import de.cismet.connectioncontext.ConnectionContextProvider;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
@@ -46,7 +82,7 @@ import de.cismet.tools.gui.StaticSwingTools;
  *
  * @version  $Revision$, $Date$
  */
-public final class CidsBroker {
+public final class CidsBroker implements ConnectionContextProvider {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -94,6 +130,10 @@ public final class CidsBroker {
 
     //~ Instance fields --------------------------------------------------------
 
+    private final ConnectionContext connectionContext = ConnectionContext.create(
+            AbstractConnectionContext.Category.OTHER,
+            getClass().getCanonicalName());
+
     private ConnectionProxy proxy = null;
 
     //~ Constructors -----------------------------------------------------------
@@ -116,6 +156,11 @@ public final class CidsBroker {
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    @Override
+    public ConnectionContext getConnectionContext() {
+        return connectionContext;
+    }
 
     /**
      * DOCUMENT ME!
@@ -1642,7 +1687,7 @@ public final class CidsBroker {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Sammle Alle Knoten (Rekursiv) für: " + schluessel);
         }
-        final Collection<FlurstueckHistorieCustomBean> allEdges = new HashSet<FlurstueckHistorieCustomBean>();
+        final Collection<FlurstueckHistorieCustomBean> allEdges = new HashSet<>();
         try {
             Collection<FlurstueckHistorieCustomBean> childEdges = getHistoryPredecessors(schluessel);
             if (childEdges != null) {
@@ -1673,6 +1718,19 @@ public final class CidsBroker {
         }
 
         return allEdges;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   search  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  ConnectionException  DOCUMENT ME!
+     */
+    public Collection search(final CidsServerSearch search) throws ConnectionException {
+        return proxy.customServerSearch(search);
     }
 
     /**
@@ -1752,8 +1810,8 @@ public final class CidsBroker {
                     predecessorLevelCount,
                     successorLevelCount,
                     sibblingLevelCount);
-            final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = proxy.customServerSearch(search);
-            final HashMap<String, String> pseudoKeys = new HashMap<String, String>();
+            final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = search(search);
+            final HashMap<String, String> pseudoKeys = new HashMap<>();
 
             final HashMap<String, Integer> nodeToKeyMap = (nodeToKeyMapIn == null) ? new HashMap<String, Integer>()
                                                                                    : nodeToKeyMapIn;
@@ -2198,7 +2256,8 @@ public final class CidsBroker {
 //                            }
 //                        }
 //                    }
-                    final boolean hasReBe = !flurstueck.getRechteUndBelastungen().isEmpty();
+                    final List<RebeCustomBean> rechteUndBelastungen = LagisBroker.getInstance().getCurrentRebes();
+                    final boolean hasReBe = !rechteUndBelastungen.isEmpty();
                     final boolean hasMiPa = !flurstueck.getMiPas().isEmpty();
 
                     final Date rebeLoeschDatum;
@@ -2220,7 +2279,7 @@ public final class CidsBroker {
                         for (final MipaCustomBean mipa : flurstueck.getMiPas()) {
                             mipa.setVertragsende(mipaVertragsendeDatum);
                         }
-                        for (final RebeCustomBean rebe : flurstueck.getRechteUndBelastungen()) {
+                        for (final RebeCustomBean rebe : rechteUndBelastungen) {
                             rebe.setDatumLoeschung(rebeLoeschDatum);
                         }
                     }

@@ -51,8 +51,6 @@ import de.cismet.lagis.renderer.DateRenderer;
 import de.cismet.lagis.renderer.EuroRenderer;
 import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
 import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.TableSelectionUtils;
 
@@ -83,10 +81,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
 
     //~ Instance fields --------------------------------------------------------
 
-    private FlurstueckCustomBean currentFlurstueck = null;
     private final VertraegeTableModel vTableModel = new VertraegeTableModel();
-    // private BeschluesseTableModel bTableModel = new BeschluesseTableModel();
-    // private KostenTableModel kTableModel = new KostenTableModel();
     private final VertragDocumentModelContainer documentContainer;
     private final Validator valTxtVoreigentuemer;
     private final Validator valTxtAuflassung;
@@ -96,7 +91,6 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
     private final Validator valTxtBemerkung;
     private final Validator valTxtEintragung;
     private final Vector<Validator> validators = new Vector<>();
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private final ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
     private boolean isInEditMode = false;
@@ -266,89 +260,42 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         ((JXTable)tblBeschluesse).packAll();
         ((JXTable)tblKosten).packAll();
         ((JXTable)tblVertraege).packAll();
-        configBackgroundThread();
     }
 
     //~ Methods ----------------------------------------------------------------
 
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                                    .getFlurstueckArt();
-                        if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück ist städtisch und kann editiert werden");
-                            }
-                            isFlurstueckEditable = true;
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
-                            }
-                            isFlurstueckEditable = false;
-                        }
-                        vTableModel.refreshTableModel(getCurrentObject().getVertraege());
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        documentContainer.updateTableModel(vTableModel);
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        final Collection<FlurstueckSchluesselCustomBean> crossRefs = getCurrentObject()
-                                    .getVertraegeQuerverweise();
-                        if ((crossRefs != null) && (crossRefs.size() > 0)) {
-                            lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
-                            tabKB.setForegroundAt(0, Color.RED);
-                        } else {
-                            tabKB.setForegroundAt(0, null);
-                        }
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
-                    } catch (Exception ex) {
-                        LOG.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
-    }
     // private Thread panelRefresherThread;
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
-            currentFlurstueck = newFlurstueck;
-            updateThread.notifyThread(currentFlurstueck);
+            clearComponent();
+            final FlurstueckArtCustomBean flurstueckArt = newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt();
+            if ((flurstueckArt != null)
+                        && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück ist städtisch und kann editiert werden");
+                }
+                isFlurstueckEditable = true;
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                }
+                isFlurstueckEditable = false;
+            }
+            vTableModel.refreshTableModel(newFlurstueck.getVertraege());
+            documentContainer.updateTableModel(vTableModel);
+            final Collection<FlurstueckSchluesselCustomBean> crossRefs = newFlurstueck.getVertraegeQuerverweise();
+            if ((crossRefs != null) && (crossRefs.size() > 0)) {
+                lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
+                tabKB.setForegroundAt(0, Color.RED);
+            } else {
+                tabKB.setForegroundAt(0, null);
+            }
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(VertraegePanel.this);
         }
     }
@@ -1174,7 +1121,10 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      */
     private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingContractActionPerformed
         final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
-        dialog.add(new AddExistingVorgangPanel(currentFlurstueck, vTableModel, lstCrossRefs.getModel()));
+        dialog.add(new AddExistingVorgangPanel(
+                LagisBroker.getInstance().getCurrentFlurstueck(),
+                vTableModel,
+                lstCrossRefs.getModel()));
         dialog.pack();
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
@@ -1201,7 +1151,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 tabKB.setForegroundAt(0, null);
             }
 
-            currentFlurstueck.setVertraegeQuerverweise(crossRefs);
+            LagisBroker.getInstance().getCurrentFlurstueck().setVertraegeQuerverweise(crossRefs);
             final Iterator<FlurstueckSchluesselCustomBean> it = crossRefs.iterator();
             while (it.hasNext()) {
                 if (LOG.isDebugEnabled()) {
@@ -1209,7 +1159,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
                 }
                 newModel.addElement(it.next());
             }
-            newModel.removeElement(currentFlurstueck.getFlurstueckSchluessel());
+            newModel.removeElement(LagisBroker.getInstance().getCurrentFlurstueck().getFlurstueckSchluessel());
         }
         lstCrossRefs.setModel(newModel);
     }
