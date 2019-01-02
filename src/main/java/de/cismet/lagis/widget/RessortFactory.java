@@ -26,7 +26,6 @@ import java.util.List;
 import de.cismet.lagis.interfaces.Widget;
 
 import de.cismet.tools.configuration.Configurable;
-import de.cismet.tools.configuration.NoWriteError;
 
 /**
  * DOCUMENT ME!
@@ -38,13 +37,13 @@ public class RessortFactory implements Configurable {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RessortFactory.class);
-    private static RessortFactory instance;
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RessortFactory.class);
+    private static RessortFactory INSTANCE;
 
     //~ Instance fields --------------------------------------------------------
 
-    private HashMap<String, AbstractWidget> ressorts = new HashMap<String, AbstractWidget>();
-    private HashMap<Widget, Boolean> ressortPermissions = new HashMap<Widget, Boolean>();
+    private final HashMap<String, AbstractWidget> ressorts = new HashMap<>();
+    private final HashMap<Widget, Boolean> ressortPermissions = new HashMap<>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -62,13 +61,13 @@ public class RessortFactory implements Configurable {
      * @return  DOCUMENT ME!
      */
     public static RessortFactory getInstance() {
-        if (instance == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("RessortFactory initalized");
+        if (INSTANCE == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("RessortFactory initalized");
             }
-            instance = new RessortFactory();
+            INSTANCE = new RessortFactory();
         }
-        return instance;
+        return INSTANCE;
     }
 
     // TODO warum etwas zurück geben könnte doch auch null ausgeben oder wegen config im Client ???
@@ -81,17 +80,17 @@ public class RessortFactory implements Configurable {
     // TODO
     @Override
     public void masterConfigure(final Element parent) {
-        if (log.isDebugEnabled()) {
-            log.debug("RessortFactory MasterConfigure");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("RessortFactory MasterConfigure");
         }
         try {
             final Element ressortWidgets = (Element)((Element)parent.clone()).getChild("RessortWidgets").detach();
             final List<Element> list = ressortWidgets.getChildren("RessortWidget");
             for (final Element e : list) {
                 try {
-                    if (log.isDebugEnabled()) {
+                    if (LOG.isDebugEnabled()) {
                         // Element e=(Element)o;
-                        log.debug("Versuche Widget anzulegen: " + e.getChild("widgetName").getText());
+                        LOG.debug("Versuche Widget anzulegen: " + e.getChild("widgetName").getText());
                     }
                     final String className = e.getChild("className").getText();
                     final Class formClass = Class.forName(className);
@@ -125,27 +124,27 @@ public class RessortFactory implements Configurable {
                     // TODO MENUE EINTRAG KONFIGURIERBAR MACHEN
                     // ressort.setMenuString(e.getAttribute("menu").getValue());
                     ressorts.put(ressort.getWidgetName(), ressort);
-                    if (log.isDebugEnabled()) {
-                        log.debug("Ressort Widget " + ressort.getWidgetName() + " hinzugefügt");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Ressort Widget " + ressort.getWidgetName() + " hinzugefügt");
                     }
-                } catch (Throwable t) {
-                    log.warn("Fehler beim erstellen eines Widgets", t);
+                } catch (final Throwable t) {
+                    LOG.warn("Fehler beim erstellen eines Widgets", t);
                 }
             }
         } catch (Exception ex) {
-            log.warn("Fehler beim MasterConfigure Ressort (z.B. keine Widgets vorhanden)", ex);
+            LOG.warn("Fehler beim MasterConfigure Ressort (z.B. keine Widgets vorhanden)", ex);
         }
     }
 
     // TODO
     @Override
     public void configure(final Element parent) {
-        if (log.isDebugEnabled()) {
-            log.debug("RessortFactory configure");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("RessortFactory configure");
         }
         try {
         } catch (Exception ex) {
-            log.warn("Fehler beim configure Ressort", ex);
+            LOG.warn("Fehler beim configure Ressort", ex);
         }
     }
 
