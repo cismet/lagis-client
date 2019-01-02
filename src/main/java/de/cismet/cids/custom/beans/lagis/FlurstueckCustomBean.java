@@ -72,7 +72,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private Collection<VerwaltungsbereicheEintragCustomBean> n_verwaltungsbereiche_eintraege;
     private Collection<DmsUrlCustomBean> n_dms_urls;
     private Collection<NutzungCustomBean> n_nutzungen;
-    private Collection<RebeCustomBean> n_rebes;
     private Collection<KassenzeichenCustomBean> n_kassenzeichen;
     private Collection<ZusatzRolleCustomBean> n_zusatz_rollen;
 
@@ -371,43 +370,9 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
      * @param  val  paramCollection DOCUMENT ME!
      */
     public void setN_nutzungen(final Collection<NutzungCustomBean> val) {
-//        Collections.sort((List<NutzungCustomBean>)val, new Comparator<NutzungCustomBean>() {
-//
-//                @Override
-//                public int compare(final NutzungCustomBean o1, final NutzungCustomBean o2) {
-//                    return (int)(o1.getId() - o2.getId());
-//                }
-//            });
         this.n_nutzungen = val;
 
         this.propertyChangeSupport.firePropertyChange("n_nutzungen", null, this.n_nutzungen);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<RebeCustomBean> getN_rebes() {
-        return this.n_rebes;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setN_rebes(final Collection<RebeCustomBean> val) {
-//        Collections.sort((List<RebeCustomBean>)val, new Comparator<RebeCustomBean>() {
-//
-//                @Override
-//                public int compare(final RebeCustomBean o1, final RebeCustomBean o2) {
-//                    return (int)(o1.getId() - o2.getId());
-//                }
-//            });
-        this.n_rebes = val;
-
-        this.propertyChangeSupport.firePropertyChange("n_rebes", null, this.n_rebes);
     }
 
     /**
@@ -453,7 +418,7 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
 
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return FlurstueckCustomBean.PROPERTY_NAMES;
     }
 
     @Override
@@ -579,16 +544,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     @Override
     public void setNutzungen(final Collection<NutzungCustomBean> val) {
         setN_nutzungen(val);
-    }
-
-    @Override
-    public Collection<RebeCustomBean> getRechteUndBelastungen() {
-        return getN_rebes();
-    }
-
-    @Override
-    public void setRechteUndBelastungen(final Collection<RebeCustomBean> val) {
-        setN_rebes(val);
     }
 
     @Override

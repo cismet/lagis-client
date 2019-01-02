@@ -37,8 +37,6 @@ import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagis.models.NKFOverviewTableModel;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
 import de.cismet.lagis.util.NutzungsContainer;
 
 import de.cismet.lagis.widget.AbstractWidget;
@@ -61,10 +59,9 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
     private FlurstueckCustomBean currentFlurstueck;
     private NKFOverviewTableModel tableModel = new NKFOverviewTableModel();
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/history.png"));
-    private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"));
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuchen;
@@ -87,14 +84,12 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         setIsCoreWidget(true);
         initComponents();
         tSummeNutzungen.setModel(tableModel);
-        final JComboBox box = new JComboBox();
         // HighlighterPipeline hPipline = new HighlighterPipeline(new
         // Highlighter[]{LagisBroker.ALTERNATE_ROW_HIGHLIGHTER});
         ((JXTable)tSummeNutzungen).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
         ((JXTable)tSummeNutzungen).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable)tSummeNutzungen).packAll();
         ((NKFOverviewTable)tSummeNutzungen).setSortButton(tbtnSort);
-        configBackgroundThread();
         btnBuchen.setEnabled(false);
     }
 
@@ -118,53 +113,21 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         return instance;
     }
 
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        tableModel.setCurrentDate(null);
-                        tableModel.refreshModel(getCurrentObject().getNutzungen());
-                        updateStilleReservenBetrag();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
-                    } catch (Exception ex) {
-                        LOG.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
-    }
-    // private Thread panelRefresherThread;
-
     @Override
     public synchronized void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
-            updateThread.notifyThread(currentFlurstueck);
+            try {
+                clearComponent();
+                tableModel.setCurrentDate(null);
+                tableModel.refreshModel(currentFlurstueck.getNutzungen());
+                updateStilleReservenBetrag();
+            } catch (Exception ex) {
+                LOG.error("Fehler im refresh thread: ", ex);
+            } finally {
+                LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
+            }
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);

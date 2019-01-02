@@ -38,8 +38,6 @@ import de.cismet.lagis.models.KassenzeichenTableModel;
 import de.cismet.lagis.renderer.DateRenderer;
 import de.cismet.lagis.renderer.KassenzeichenRenderer;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
 import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.TableSelectionUtils;
 
@@ -61,7 +59,6 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
     //~ Instance fields --------------------------------------------------------
 
     private final KassenzeichenTableModel tableModel = new KassenzeichenTableModel();
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddKassenzeichen;
@@ -87,8 +84,6 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         tKassenzeichen.setDefaultRenderer(Date.class, new DateRenderer());
         ((KassenzeichenTable)tKassenzeichen).setSortButton(btnSort);
         ((JXTable)tKassenzeichen).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
-
-        configBackgroundThread();
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -346,49 +341,13 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
-            updateThread.notifyThread(newFlurstueck);
+            clearComponent();
+            tableModel.refreshTableModel(newFlurstueck.getN_kassenzeichen());
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(KassenzeichenPanel.this);
         }
-    }
-
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-
-                        tableModel.refreshTableModel(getCurrentObject().getN_kassenzeichen());
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                    } catch (Exception ex) {
-                        LOG.error("Fehler im refresh thread: ", ex);
-                    }
-                    LagisBroker.getInstance().flurstueckChangeFinished(KassenzeichenPanel.this);
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
     }
 
     @Override

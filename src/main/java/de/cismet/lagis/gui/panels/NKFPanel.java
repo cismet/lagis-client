@@ -56,8 +56,6 @@ import de.cismet.lagis.models.NKFTableModel;
 import de.cismet.lagis.renderer.EuroRenderer;
 import de.cismet.lagis.renderer.FlaecheRenderer;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
 import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.NutzungsContainer;
 import de.cismet.lagis.util.TableSelectionUtils;
@@ -100,10 +98,8 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     // perhaps not good
     boolean isOnlyHistoric = false;
-    private FlurstueckCustomBean currentFlurstueck;
     private final NKFTableModel tableModel = new NKFTableModel();
     private boolean isInEditMode = false;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private boolean isFlurstueckEditable = true;
     private final Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/history64.png"));
@@ -158,7 +154,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
         ((NKFTable)tNutzung).getAddAction().setEnabled(false);
         btnFlipBuchung.setEnabled(false);
         configureTable();
-        configBackgroundThread();
         configurePopupMenue();
 
         jBand1.setSelectionMode(JBand.SelectionMode.SINGLE_SELECTION);
@@ -183,74 +178,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
      */
     public static NKFPanel getInstance() {
         return instance;
-    }
-
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                                    .getFlurstueckArt();
-                        if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück ist städtisch und kann editiert werden");
-                            }
-                            isFlurstueckEditable = true;
-                        } else {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
-                            }
-                            isFlurstueckEditable = false;
-                        }
-                        final Collection<NutzungCustomBean> newNutzungen = getCurrentObject().getNutzungen();
-                        tableModel.refreshTableModel(newNutzungen);
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        if (newNutzungen != null) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
-                            }
-                        }
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        updateBands();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
-                    } catch (Exception ex) {
-                        LOG.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
     }
 
     /**
@@ -372,10 +299,33 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
-            currentFlurstueck = newFlurstueck;
-            updateThread.notifyThread(currentFlurstueck);
+            clearComponent();
+            final FlurstueckArtCustomBean flurstueckArt = newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt();
+            if ((flurstueckArt != null)
+                        && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück ist städtisch und kann editiert werden");
+                }
+                isFlurstueckEditable = true;
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Flurstück ist nicht städtisch und kann nicht editiert werden");
+                }
+                isFlurstueckEditable = false;
+            }
+            final Collection<NutzungCustomBean> newNutzungen = newFlurstueck.getNutzungen();
+            tableModel.refreshTableModel(newNutzungen);
+            if (newNutzungen != null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
+                }
+            }
+            updateBands();
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
+            LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(NKFPanel.this);
         }
     }
@@ -961,7 +911,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 lblCurrentHistoryPostion.setText(LagisBroker.getDateFormatter().format(date));
 
                 final HashSet<Date> dates = new HashSet<Date>();
-                for (final NutzungCustomBean nutzung_ : currentFlurstueck.getNutzungen()) {
+                for (final NutzungCustomBean nutzung_ : LagisBroker.getInstance().getCurrentFlurstueck().getNutzungen()) {
                     dates.addAll(nutzung_.getDatesForDay(bandMember.getDate()));
                 }
 

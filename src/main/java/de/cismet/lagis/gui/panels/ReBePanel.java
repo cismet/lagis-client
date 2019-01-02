@@ -21,8 +21,9 @@ import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.event.*;
+
+import java.beans.PropertyChangeEvent;
 
 import java.util.*;
 
@@ -56,14 +57,12 @@ import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 import de.cismet.lagis.interfaces.GeometrySlotProvider;
+import de.cismet.lagis.interfaces.LagisBrokerPropertyChangeListener;
 
 import de.cismet.lagis.models.ReBeTableModel;
 
 import de.cismet.lagis.renderer.DateRenderer;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
-import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
@@ -82,6 +81,7 @@ import de.cismet.lagisEE.entity.basic.BasicEntity;
  */
 public class ReBePanel extends AbstractWidget implements MouseListener,
     FlurstueckChangeListener,
+    LagisBrokerPropertyChangeListener,
     GeometrySlotProvider,
     FlurstueckSaver,
     FeatureSelectionChangedListener,
@@ -105,9 +105,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private ReBeTableModel tableModel = new ReBeTableModel();
+    private final ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private final Icon copyDisplayIcon;
 
     private boolean listenerEnabled = true;
@@ -134,96 +133,10 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         initComponents();
         btnRemoveReBe.setEnabled(false);
         configureTable();
-        configBackgroundThread();
+        LagisBroker.getInstance().addWfsFlurstueckGeometryChangeListener(this);
     }
 
     //~ Methods ----------------------------------------------------------------
-
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                                    .getFlurstueckArt();
-                        if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist nicht Abteilung IX");
-                            }
-                            tableModel.setIsReBeKindSwitchAllowed(true);
-                        } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist Abteilung IX");
-                            }
-                            tableModel.setIsReBeKindSwitchAllowed(false);
-                        }
-
-                        tableModel.refreshTableModel(getCurrentObject().getRechteUndBelastungen());
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        EventQueue.invokeLater(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    // LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeatures(tableModel.getAllReBeFeatures());
-                                    final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
-                                    if (features != null) {
-                                        for (final Feature currentFeature : features) {
-                                            if (currentFeature != null) {
-                                                if (isWidgetReadOnly()) {
-                                                    ((RebeCustomBean)currentFeature).setModifiable(false);
-                                                }
-
-                                                final StyledFeature sf = new StyledFeatureGroupWrapper(
-                                                        (StyledFeature)currentFeature,
-                                                        PROVIDER_NAME,
-                                                        PROVIDER_NAME);
-
-                                                LagisBroker.getInstance()
-                                                        .getMappingComponent()
-                                                        .getFeatureCollection()
-                                                        .addFeature(sf);
-//                                                        .addFeature(currentFeature);
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(ReBePanel.this);
-                    } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(ReBePanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
-    }
 
     /**
      * DOCUMENT ME!
@@ -233,7 +146,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         final Collection<RebeArtCustomBean> reBeArten = CidsBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {
-            final JComboBox cboRebeArt = new JComboBox(new Vector<RebeArtCustomBean>(reBeArten));
+            final JComboBox cboRebeArt = new JComboBox(new Vector<>(reBeArten));
             tReBe.setDefaultEditor(RebeArtCustomBean.class, new DefaultCellEditor(cboRebeArt));
 
             cboRebeArt.addItemListener(new ItemListener() {
@@ -465,11 +378,26 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
+        log.info("FlurstueckChanged");
         try {
-            log.info("FlurstueckChanged");
-            updateThread.notifyThread(newFlurstueck);
+            clearComponent();
+            final FlurstueckArtCustomBean flurstueckArt = newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt();
+            if ((flurstueckArt != null)
+                        && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Flurstück ist nicht Abteilung IX");
+                }
+                tableModel.setIsReBeKindSwitchAllowed(true);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Flurstück ist Abteilung IX");
+                }
+                tableModel.setIsReBeKindSwitchAllowed(false);
+            }
         } catch (Exception ex) {
             log.error("Fehler beim Flurstückswechsel: ", ex);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(ReBePanel.this);
         }
     }
@@ -509,7 +437,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public synchronized void clearComponent() {
-//tReBe.setModel(new ReBeTableModel());
         tableModel.refreshTableModel(new HashSet());
     }
 
@@ -768,12 +695,13 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
-        final Collection<RebeCustomBean> resBes = flurstueck.getRechteUndBelastungen();
-        if (resBes != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getCidsBeans());
-        } else {
-            // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
-        }
+//        final Collection<RebeCustomBean> resBes = LagisBroker.getInstance()
+//                    .getRechteUndBelastungen(LagisBroker.getInstance().getCurrentWFSGeometry());
+//        if (resBes != null) {
+//            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getCidsBeans());
+//        } else {
+//            // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
+//        }
     }
 
     // TODO multiple Selection
@@ -867,5 +795,28 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
         this.listenerEnabled = listenerEnabled;
+    }
+
+    @Override
+    public void propertyChange(final PropertyChangeEvent evt) {
+        if (LagisBrokerPropertyChangeListener.PROP__CURRENT_REBES.equals(evt.getPropertyName())) {
+            tableModel.refreshTableModel(LagisBroker.getInstance().getCurrentRebes());
+            final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
+            if (features != null) {
+                for (final Feature currentFeature : features) {
+                    if (currentFeature != null) {
+                        if (isWidgetReadOnly()) {
+                            ((RebeCustomBean)currentFeature).setModifiable(false);
+                        }
+
+                        final StyledFeature sf = new StyledFeatureGroupWrapper((StyledFeature)currentFeature,
+                                PROVIDER_NAME,
+                                PROVIDER_NAME);
+
+                        LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(sf);
+                    }
+                }
+            }
+        }
     }
 }

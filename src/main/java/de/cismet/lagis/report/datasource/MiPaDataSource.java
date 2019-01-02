@@ -19,6 +19,8 @@ import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaNutzungCustomBean;
 
+import de.cismet.lagis.broker.LagisBroker;
+
 /**
  * DOCUMENT ME!
  *
@@ -58,10 +60,10 @@ public class MiPaDataSource extends ADataSource<MipaCustomBean> implements JRDat
 
     @Override
     protected List<MipaCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Collection<MipaCustomBean> mipaSet = currentFlurstueck.getMiPas();
 
-        return new ArrayList<MipaCustomBean>(mipaSet);
+        return new ArrayList<>(mipaSet);
     }
 
     @Override

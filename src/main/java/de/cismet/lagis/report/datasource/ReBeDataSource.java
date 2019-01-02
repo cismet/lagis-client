@@ -10,12 +10,11 @@ package de.cismet.lagis.report.datasource;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -57,10 +56,7 @@ public class ReBeDataSource extends ADataSource<RebeCustomBean> implements JRDat
 
     @Override
     protected List<RebeCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
-        final Collection<RebeCustomBean> rebeSet = currentFlurstueck.getRechteUndBelastungen();
-
-        return new ArrayList<RebeCustomBean>(rebeSet);
+        return LagisBroker.getInstance().getCurrentRebes();
     }
 
     @Override

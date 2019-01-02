@@ -12,8 +12,6 @@
  */
 package de.cismet.lagis.gui.panels;
 
-import Sirius.navigator.connection.SessionManager;
-
 import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObjectNode;
 
@@ -36,6 +34,7 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
+import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.main.LagisApp;
@@ -164,9 +163,7 @@ public class BaulastenPanel extends AbstractWidget implements FlurstueckChangeLi
                                 mcBaulast.getId(),
                                 -1);
 
-                        final Collection<MetaObjectNode> baulastenMons = SessionManager.getProxy()
-                                    .customServerSearch(search);
-                        return baulastenMons;
+                        return CidsBroker.getInstance().search(search);
                     }
 
                     @Override

@@ -201,8 +201,8 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
                             search.setValidClasses(Arrays.asList(mc));
                             search.setGeometry(searchGeom);
 
-                            final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)SessionManager
-                                        .getProxy().customServerSearch(SessionManager.getSession().getUser(), search);
+                            final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)CidsBroker
+                                        .getInstance().search(search);
 
                             final List<String> alkisIds = new ArrayList<>();
 
