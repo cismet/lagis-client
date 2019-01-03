@@ -40,7 +40,6 @@ import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.BeschluesseTableModel;
@@ -201,7 +200,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                 }
             };
 
-        final Collection vertragsarten = CidsBroker.getInstance().getAllVertragsarten();
+        final Collection vertragsarten = LagisBroker.getInstance().getAllVertragsarten();
         if (vertragsarten != null) {
             vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));
         } else {

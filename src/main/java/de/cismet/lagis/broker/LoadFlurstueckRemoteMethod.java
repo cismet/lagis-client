@@ -94,7 +94,7 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
                 final FlurstueckSchluesselCustomBean key = FlurstueckSchluesselCustomBean.createNew();
                 GemarkungCustomBean gem = GemarkungCustomBean.createNew();
                 gem.setBezeichnung(gemarkung);
-                gem = CidsBroker.getInstance().completeGemarkung(gem);
+                gem = LagisBroker.getInstance().completeGemarkung(gem);
                 if (gem == null) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Change of Flurstueck not possible! No such Gemarkung: " + key);

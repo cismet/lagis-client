@@ -18,7 +18,6 @@ import org.jdesktop.swingx.JXTable;
 import java.util.ArrayList;
 
 import javax.swing.Icon;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SortOrder;
@@ -28,7 +27,6 @@ import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.tables.NKFOverviewTable;
@@ -335,11 +333,11 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                         JOptionPane.ERROR_MESSAGE);
                 } else {
                     // TODO Locking problem
-                    CidsBroker.getInstance()
+                    LagisBroker.getInstance()
                             .bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel(),
                                 LagisBroker.getInstance().getAccountName());
                 }
-                // CidsBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
+                // LagisBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
             } catch (Exception ex) {
                 // TODO ActionNotSuccessfull Exception
                 final StringBuffer resultString = new StringBuffer(

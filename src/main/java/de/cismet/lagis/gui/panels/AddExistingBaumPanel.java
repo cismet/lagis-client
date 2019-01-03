@@ -18,7 +18,6 @@ import org.jdesktop.swingx.JXTable;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.ListModel;
@@ -28,7 +27,6 @@ import javax.swing.event.ListSelectionListener;
 import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.DefaultUniqueListModel;
@@ -36,7 +34,6 @@ import de.cismet.lagis.models.DefaultUniqueListModel;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.extension.baum.Baum;
 
 /**
@@ -116,7 +113,7 @@ public class AddExistingBaumPanel extends javax.swing.JPanel implements Validati
         }
         if (flurstueckChooser1.getStatus() == flurstueckChooser1.VALID) {
             final FlurstueckSchluesselCustomBean currentKey = flurstueckChooser1.getCurrentFlurstueckSchluessel();
-            final Collection<BaumCustomBean> baeume = CidsBroker.getInstance().getBaumForKey(currentKey);
+            final Collection<BaumCustomBean> baeume = LagisBroker.getInstance().getBaumForKey(currentKey);
             if (baeume != null) {
                 // Check if the Contract ist already  added
                 // if(currentFlurstueck != null && currentFlurstueck.getVertraege() != null){
@@ -264,7 +261,7 @@ public class AddExistingBaumPanel extends javax.swing.JPanel implements Validati
                         selectedRows[i]));
             currentBaumTabelModel.addCidsBean(curBaum);
             currentBaumTabelModel.fireTableDataChanged();
-            final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
+            final Collection<FlurstueckSchluesselCustomBean> crossRefs = LagisBroker.getInstance()
                         .getCrossReferencesForBaum(curBaum);
             if (crossRefs != null) {
                 if (log.isDebugEnabled()) {

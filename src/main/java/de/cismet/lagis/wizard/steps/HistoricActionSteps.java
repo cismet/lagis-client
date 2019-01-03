@@ -28,11 +28,11 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.HistoricActionPanel;
@@ -110,24 +110,21 @@ public class HistoricActionSteps extends WizardPanelProvider {
                 log.debug("Flurstück das historisch gesetzt werden soll: " + historicKey.getKeyString());
             }
 
-            SperreCustomBean sperre = null;
+            CidsBean sperre = null;
             try {
                 progress.setBusy("Flurstück wird historisch gesetzt");
                 // CidsBroker.getInstance().createFlurstueck(key);
                 // HistoricResult result = CidsBroker.getInstance().setFlurstueckHistoric(historicKey);
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 // TODO besser setHistoric mit sperre versehen als immer die sperre vorher zu setzen
-                final SperreCustomBean other = CidsBroker.getInstance().isLocked(historicKey);
+                final CidsBean other = LagisBroker.getInstance().isLocked(historicKey);
                 if (other == null) {
-                    sperre = CidsBroker.getInstance()
-                                .createLock(SperreCustomBean.createNew(
-                                            historicKey,
-                                            LagisBroker.getInstance().getAccountName()));
+                    sperre = LagisBroker.getInstance().createNewFlurstueckSchluesselLock(historicKey);
                     if (sperre != null) {
                         System.out.println("datum:" + histDate);
-                        CidsBroker.getInstance().setFlurstueckHistoric(historicKey, histDate, true);
+                        LagisBroker.getInstance().setFlurstueckHistoric(historicKey, histDate, true);
                         final Summary summary;
-                        CidsBroker.getInstance().releaseLock(sperre);
+                        LagisBroker.getInstance().releaseLock(sperre);
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
                                     && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
@@ -172,13 +169,13 @@ public class HistoricActionSteps extends WizardPanelProvider {
                 } else {
                     progress.failed("Es war nicht möglich das Flurstück:\n\t\"" + historicKey.getKeyString()
                                 + "\"\nhistorisch zu setzen, es ist von einem anderen Benutzer gesperrt: "
-                                + other.getBenutzerkonto(),
+                                + (String)other.getProperty("user_string"),
                         false);
                 }
             } catch (Exception e) {
                 log.error("Fehler beim historischsetzen eines Flurstücks: ", e);
                 try {
-                    CidsBroker.getInstance().releaseLock(sperre);
+                    LagisBroker.getInstance().releaseLock(sperre);
                 } catch (Exception ex) {
                     log.error("Fehler beim lösen der Sperre", ex);
                 }

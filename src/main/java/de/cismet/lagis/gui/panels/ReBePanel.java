@@ -44,7 +44,6 @@ import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.DateEditor;
@@ -143,7 +142,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
      */
     private void configureTable() {
         TableSelectionUtils.crossReferenceModelAndTable(tableModel, (ReBeTable)tReBe);
-        final Collection<RebeArtCustomBean> reBeArten = CidsBroker.getInstance().getAllRebeArten();
+        final Collection<RebeArtCustomBean> reBeArten = LagisBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {
             final JComboBox cboRebeArt = new JComboBox(new Vector<>(reBeArten));

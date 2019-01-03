@@ -30,7 +30,6 @@ import javax.swing.JOptionPane;
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.panels.CreateActionPanel;
@@ -106,7 +105,7 @@ public class CreateActionSteps extends WizardPanelProvider {
             final boolean isStaedtisch = (Boolean)wizardData.get(CreateActionPanel.KEY_IS_STAEDTISCH);
             try {
                 progress.setBusy("Flurstück wird angelegt");
-                final Collection<FlurstueckArtCustomBean> flurstueckArten = CidsBroker.getInstance()
+                final Collection<FlurstueckArtCustomBean> flurstueckArten = LagisBroker.getInstance()
                             .getAllFlurstueckArten();
                 if (isStaedtisch) {
                     for (final FlurstueckArtCustomBean art : flurstueckArten) {
@@ -126,7 +125,7 @@ public class CreateActionSteps extends WizardPanelProvider {
                 if (key.getFlurstueckArt() == null) {
                     throw new Exception("Die Flurstücksart des Servers passte nicht");
                 }
-                CidsBroker.getInstance().createFlurstueck(key);
+                LagisBroker.getInstance().createFlurstueck(key);
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
 
                 if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)

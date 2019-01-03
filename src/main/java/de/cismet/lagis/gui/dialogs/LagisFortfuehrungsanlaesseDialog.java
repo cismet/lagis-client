@@ -88,7 +88,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
     //~ Static fields/initializers ---------------------------------------------
 
     private static final Logger LOG = Logger.getLogger(LagisFortfuehrungsanlaesseDialog.class);
-    private static final HashMap<Integer, GemarkungCustomBean> GEMARKUNGEN_MAP = CidsBroker.getInstance()
+    private static final HashMap<Integer, GemarkungCustomBean> GEMARKUNGEN_MAP = LagisBroker.getInstance()
                 .getGemarkungsHashMap();
     private static final Map<Geometry, Collection<FlurstueckSchluesselCustomBean>> geomBeansMap = new HashMap<>();
 

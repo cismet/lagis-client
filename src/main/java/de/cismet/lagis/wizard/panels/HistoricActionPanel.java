@@ -19,9 +19,8 @@ import org.netbeans.spi.wizard.WizardController;
 import java.util.Date;
 import java.util.Map;
 
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.validation.Validatable;
@@ -81,12 +80,11 @@ public class HistoricActionPanel extends javax.swing.JPanel implements Validatio
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panHistoric.getStatus() == Validatable.VALID) {
-            final SperreCustomBean sperre = CidsBroker.getInstance()
-                        .isLocked(panHistoric.getCurrentFlurstueckSchluessel());
+            final CidsBean sperre = LagisBroker.getInstance().isLocked(panHistoric.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
-                            + sperre.getBenutzerkonto());
+                            + (String)sperre.getProperty("user_string"));
                 return;
             } else {
                 wizardData.put(KEY_HISTORIC_CANDIDATE, panHistoric.getCurrentFlurstueckSchluessel());

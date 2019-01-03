@@ -18,11 +18,10 @@ import org.netbeans.spi.wizard.WizardController;
 
 import java.util.Map;
 
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
@@ -76,16 +75,15 @@ public class ActivateActionPanel extends javax.swing.JPanel implements Validatio
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panActivate.getStatus() == Validatable.VALID) {
-            final SperreCustomBean sperre = CidsBroker.getInstance()
-                        .isLocked(panActivate.getCurrentFlurstueckSchluessel());
+            final CidsBean sperre = LagisBroker.getInstance().isLocked(panActivate.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
-                            + sperre.getBenutzerkonto());
+                            + (String)sperre.getProperty("user_string"));
                 return;
             }
             try {
-                if (CidsBroker.getInstance().hasFlurstueckSucccessors(panActivate.getCurrentFlurstueckSchluessel())) {
+                if (LagisBroker.getInstance().hasFlurstueckSucccessors(panActivate.getCurrentFlurstueckSchluessel())) {
                     if (log.isDebugEnabled()) {
                         log.debug("Flurstück kann nicht aktiviert werden es hat nachfogler");
                     }

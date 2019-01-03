@@ -191,7 +191,7 @@ public class JoinActionSteps extends WizardPanelProvider {
                 // CidsBroker.getInstance().createFlurstueck(key);
                 // setzte bei dem gejointen Flurstück die art der anderen
                 joinKey.setFlurstueckArt(joinKeys.get(0).getFlurstueckArt());
-                final FlurstueckCustomBean newFlurstueck = CidsBroker.getInstance()
+                final FlurstueckCustomBean newFlurstueck = LagisBroker.getInstance()
                             .joinFlurstuecke(joinKeys, joinKey, LagisBroker.getInstance().getAccountName());
                 // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                 final StringBuffer resultString = new StringBuffer("Die Flurstücke:\n");
