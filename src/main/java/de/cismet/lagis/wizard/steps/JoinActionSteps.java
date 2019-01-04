@@ -42,6 +42,8 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.wizard.panels.JoinActionChoosePanel;
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SummaryPanel;
@@ -105,7 +107,7 @@ public class JoinActionSteps extends WizardPanelProvider {
     @Override
     public boolean cancel(final Map settings) {
         // return true;
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }
@@ -249,8 +251,7 @@ public class JoinActionSteps extends WizardPanelProvider {
                             });
                     }
 
-                    final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                    .getParentComponent(),
+                    final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                             "Möchten Sie zu dem neuangelegten Flurstück wechseln?",
                             "Flurstückwechsel",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;

@@ -248,16 +248,9 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
     private static final String HEADER_ERR_MSG = "Fehler";
 
-    private static final ConfigurationManager configManager = new ConfigurationManager();
-
-    static {
-        configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
-        configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
-        configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
-        configManager.setFolder(DIRECTORYNAME_LAGISHOME);
-    }
-
     //~ Instance fields --------------------------------------------------------
+
+    private final ConfigurationManager configManager = new ConfigurationManager();
 
     private RootWindow rootWindow;
     // Panels
@@ -283,63 +276,64 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private View vHistory;
     private View vBaulasten;
     private View vKassenzeichen;
-    private WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance().getMappingComponent());
-    private Set<View> wfsFormViews = new HashSet<>();
-    private List<View> wfs = new ArrayList<>();
+    private final WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance()
+                    .getMappingComponent());
+    private final Set<View> wfsFormViews = new HashSet<>();
+    private final List<View> wfs = new ArrayList<>();
     private DockingWindow[] wfsViews;
     // private View vAktenzeichenSuche;
     private JDialog aktenzeichenDialog;
-    private Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/karte.png"));
-    private Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/docs.png"));
-    private Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/ressort.png"));
-    private Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche3.png"));
-    private Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/sum.png"));
-    private Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
 
                 // "/de/cismet/lagis/ressource/icons/titlebar/findgreen.png"));
                 "/de/cismet/lagis/ressource/icons/rebe.png"));
-    private Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/verwaltungsbereich.png"));
-    private Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/documents.png"));
-    private Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/cids/custom/commons/gui/Baulast.png"));
-    private Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/info.png"));
-    private Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniBack.png"));
-    private Icon current = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon current = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/current.png"));
-    private Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniForward.png"));
     // ICON ÄNDERN
     private MappingComponent mapComponent;
     private ClipboardWaitDialog clipboarder;
-    private StringViewMap viewMap = new StringViewMap();
+    private final StringViewMap viewMap = new StringViewMap();
     private String fortfuehrungLinkFormat;
 
     // TODO Jean
 // private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     // FIXME ugly winning
-    private ActiveLayerModel mappingModel = new ActiveLayerModel();
-    private List<Widget> widgets = new ArrayList<>();
+    private final ActiveLayerModel mappingModel = new ActiveLayerModel();
+    private final List<Widget> widgets = new ArrayList<>();
     private boolean isInit = true;
     // Ressort
-    private Set<View> ressortViews = new HashSet<>();
+    private final Set<View> ressortViews = new HashSet<>();
     private DockingWindow[] ressortDockingWindow;
     // Plugin Navigator
-    private ArrayList<JMenuItem> menues = new ArrayList<>();
+    private final ArrayList<JMenuItem> menues = new ArrayList<>();
     // Configurable
     private Dimension windowSize = null;
     private Point windowLocation = null;
     // Validation
     private final ArrayList<ValidationStateChangedListener> validationListeners = new ArrayList<>();
-    private String validationMessage = "Die Komponente ist valide";
+    private final String validationMessage = "Die Komponente ist valide";
     private FlurstueckInfoClipboard fsInfoClipboard;
     private ObjectRendererDialog alkisRendererDialog;
 
@@ -432,6 +426,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * Creates a new LagisApp object.
      */
     private LagisApp() {
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void init() {
         try {
             LOG.info("Starten der LaGIS Applikation");
 
@@ -440,14 +442,12 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 ImageIO.read(getClass().getResource("/de/cismet/lagis/ressource/image/wizard.png")));
             // TODO FIX
             this.addWindowListener(this);
-            LOG.info("Laden der Lagis Konfiguration");
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Name des Lagis Server Konfigurationsfiles: " + FILENAME_LAGIS_CONFIGURATION);
-            }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Konfiguriere Karten Widget");
-            }
+            LOG.info("Laden der Lagis Konfiguration");
+            configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
+            configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
+            configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
+            configManager.setFolder(DIRECTORYNAME_LAGISHOME);
 
             if (LagisBroker.getInstance().getSession() != null) {
                 configManager.addConfigurable(this);
@@ -480,7 +480,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             alkisRendererDialog = new ObjectRendererDialog(this, false, descriptionPane);
             alkisRendererDialog.setSize(1000, 800);
 
-//
 //            // added manually as the GuiBuilder conflicts could not be resolved
 //            configureReportButton();
 //            configureCopyPasteFlurstueckInfoComponents();
@@ -618,7 +617,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         cleanUp();
                     }
                 });
-            LagisBroker.getInstance().setParentComponent(this);
             LagisBroker.getInstance().setTitle("LagIS");
 
             // TODO GEHT SCHIEF WENN ES SCHON DER PARENTFRAME IST
@@ -791,8 +789,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             System.exit(1);
         }
     }
-
-    //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
@@ -2899,7 +2895,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         }
         if (LagisBroker.getInstance().acquireLock()) {
             if (LagisBroker.getInstance().isCurrentFlurstueckLockedByUser()) {
-                // TODOWHY NOT DIRECTLY CHANGE IN THIS CLASS LIKE IN THE FLURstück CHANGED METHOD ??
                 LagisBroker.getInstance()
                         .setTitleBarComponentpainter(LagisBroker.LOCK_MODE_COLOR, LagisBroker.EDIT_MODE_COLOR);
             } else {
@@ -2946,7 +2941,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      */
     private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
         if (aktenzeichenDialog == null) {
-            aktenzeichenDialog = new JDialog(LagisBroker.getInstance().getParentComponent(),
+            aktenzeichenDialog = new JDialog(this,
                     "Suche nach Aktenzeichen",
                     false);
             aktenzeichenDialog.add(new AktenzeichenSearch());
@@ -3837,6 +3832,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 LOG.debug("Login erfolgreich");
             }
             final LagisApp app = LagisApp.getInstance();
+            app.init();
             app.setVisible(true);
             app.getMapComponent().unlock();
         } else {

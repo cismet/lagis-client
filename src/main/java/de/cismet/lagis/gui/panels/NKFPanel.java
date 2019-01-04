@@ -82,6 +82,7 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.editor.EuroEditor;
 import de.cismet.lagis.editor.FlaecheEditor;
 
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.NKFTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -135,7 +136,6 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
 
     // perhaps not good
     boolean isOnlyHistoric = false;
-    private final NKFTableModel tableModel = new NKFTableModel();
     private boolean isInEditMode = false;
     private boolean isFlurstueckEditable = true;
     private final Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
@@ -401,7 +401,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 }
             };
 
-        final Highlighter geloeschtHighlighter = new ColorHighlighter(geloeschtPredicate, LagisBroker.grey, null);
+        final Highlighter geloeschtHighlighter = new ColorHighlighter(geloeschtPredicate, LagisBroker.GREY, null);
         ((JXTable)tNutzung).setHighlighters(
             LagisBroker.ALTERNATE_ROW_HIGHLIGHTER,
             buchungsStatusHighlighter,
@@ -433,7 +433,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                 isFlurstueckEditable = false;
             }
             final Collection<NutzungCustomBean> newNutzungen = newFlurstueck.getNutzungen();
-            tableModel.refreshTableModel(newNutzungen);
+            getTableModel().refreshTableModel(newNutzungen);
             if (newNutzungen != null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Es sind Nutzungen vorhanden: " + newNutzungen.size());
@@ -752,7 +752,7 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                         copyPasteList.add(NutzungCustomBean.createNew(curNutzungToCopy.cloneBuchung()));
                     } catch (Exception ex) {
                         LOG.error("Fehler beim kopieren einer Buchung: ", ex);
-                        JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                        JOptionPane.showMessageDialog(LagisApp.getInstance(),
                             "Die Buchung konnte nicht kopiert werden, da die zu \n"
                                     + "kopierende Buchung Fehler enthält",
                             "Fehler beim kopieren einer Buchung",

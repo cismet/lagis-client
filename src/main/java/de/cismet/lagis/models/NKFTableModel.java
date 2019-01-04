@@ -34,6 +34,8 @@ import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.tools.CurrentStackTrace;
 
 /**
@@ -326,7 +328,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             removeNutzungBuchung_helper(rowIndex, completeRemoval);
         } catch (TerminateNutzungNotPossibleException ex) {
             LOG.error("Eine Nutzung konnte nicht entfernt werden", ex);
-            final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+            final int result = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                     "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
                             + "sich an den Systemadministrator",
                     "Fehler beim löschen einer Buchung",

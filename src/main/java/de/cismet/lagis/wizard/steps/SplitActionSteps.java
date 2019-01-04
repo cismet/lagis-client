@@ -34,6 +34,8 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.wizard.panels.ResultingPanel;
 import de.cismet.lagis.wizard.panels.SplitActionChoosePanel;
 import de.cismet.lagis.wizard.panels.SummaryPanel;
@@ -98,7 +100,7 @@ public class SplitActionSteps extends WizardPanelProvider {
     @Override
     public boolean cancel(final Map settings) {
         // return true;
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }

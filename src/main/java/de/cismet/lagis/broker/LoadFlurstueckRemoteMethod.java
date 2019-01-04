@@ -23,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.remote.AbstractRESTRemoteControlMethod;
 import de.cismet.remote.RESTRemoteControlMethod;
 
@@ -111,7 +113,7 @@ public class LoadFlurstueckRemoteMethod extends AbstractRESTRemoteControlMethod 
                     }
                     LagisBroker.getInstance().loadFlurstueck(key);
                     // ToDo does not work under unix (native,other vm's)
-                    LagisBroker.getInstance().getParentComponent().toFront();
+                    LagisApp.getInstance().toFront();
                 } else {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Change of Flurstueck not possible! No such key: " + key);

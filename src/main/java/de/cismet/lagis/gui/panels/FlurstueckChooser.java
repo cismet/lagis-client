@@ -47,6 +47,8 @@ import de.cismet.lagis.broker.LagisBroker;
 import de.cismet.lagis.commons.LagisConstants;
 import de.cismet.lagis.commons.LagisMetaclassConstants;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.interfaces.DoneDelegate;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckRequester;
@@ -1911,7 +1913,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (isCancelled()) {
                                     return null;
                                 }
-                                JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                                JOptionPane.showMessageDialog(LagisApp.getInstance(),
                                     "Das Flurstück kann nur gewechselt werden wenn alle Änderungen gespeichert oder verworfen worden sind.",
                                     "Wechseln nicht möglich",
                                     JOptionPane.WARNING_MESSAGE);

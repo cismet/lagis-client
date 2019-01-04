@@ -77,6 +77,7 @@ import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.gui.checkbox.JCheckBoxList;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.RemoveActionHelper;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
@@ -346,7 +347,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
         final HighlightPredicate contractExpiredPredicate = new HighlightPredicate() {
 
                 @Override
@@ -1395,7 +1396,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddExitingBaumActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingBaumActionPerformed
-        final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
+        final JDialog dialog = new JDialog(LagisApp.getInstance(), "", true);
         dialog.add(new AddExistingBaumPanel(
                 LagisBroker.getInstance().getCurrentFlurstueck(),
                 baumModel,

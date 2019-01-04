@@ -547,7 +547,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
 
         // TODO logging entfernen
         // (LagisBroker.ERROR_COLOR, null, 0, -1) {

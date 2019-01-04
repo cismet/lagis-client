@@ -32,6 +32,8 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.wizard.panels.CreateActionPanel;
 
 /**
@@ -65,7 +67,7 @@ public class CreateActionSteps extends WizardPanelProvider {
     public boolean cancel(final Map settings) {
         // return true;
         // TODO FEHLER sollte von Wizard abhängig sein
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }
@@ -143,8 +145,7 @@ public class CreateActionSteps extends WizardPanelProvider {
                         }
                     }
                 } else {
-                    final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                    .getParentComponent(),
+                    final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                             "Möchten Sie zu dem neuangelegten Flurstück wechseln?",
                             "Flurstückwechsel",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;

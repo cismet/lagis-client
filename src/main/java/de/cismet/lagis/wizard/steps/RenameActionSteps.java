@@ -32,6 +32,8 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.wizard.panels.RenameActionPanel;
 
 /**
@@ -64,7 +66,7 @@ public class RenameActionSteps extends WizardPanelProvider {
     @Override
     public boolean cancel(final Map settings) {
         // return true;
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }
@@ -150,8 +152,7 @@ public class RenameActionSteps extends WizardPanelProvider {
                     !FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                 LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
                                 createdKey)) {
-                    final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                    .getParentComponent(),
+                    final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                             "Möchten Sie zu dem neuangelegten Flurstück wechseln?",
                             "Flurstückwechsel",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;

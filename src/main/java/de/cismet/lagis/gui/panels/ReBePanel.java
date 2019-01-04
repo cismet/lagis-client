@@ -38,6 +38,8 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollection;
 import de.cismet.cismap.commons.features.StyledFeature;
@@ -191,7 +193,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
         ((JXTable)tReBe).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER, noGeometryHighlighter);
         ((JXTable)tReBe).setSortOrder(0, SortOrder.ASCENDING);
 
@@ -694,13 +696,12 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
-//        final Collection<RebeCustomBean> resBes = LagisBroker.getInstance()
-//                    .getRechteUndBelastungen(LagisBroker.getInstance().getCurrentWFSGeometry());
-//        if (resBes != null) {
-//            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getCidsBeans());
-//        } else {
-//            // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
-//        }
+        final Collection<RebeCustomBean> rebes = LagisBroker.getInstance().getCurrentRebes();
+        for (final RebeCustomBean rebe : (List<RebeCustomBean>)tableModel.getCidsBeans()) {
+            if (!rebes.contains(rebe)) {
+                rebes.add(rebe);
+            }
+        }
     }
 
     // TODO multiple Selection

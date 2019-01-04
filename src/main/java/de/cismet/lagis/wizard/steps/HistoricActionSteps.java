@@ -35,6 +35,8 @@ import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.wizard.panels.HistoricActionPanel;
 
 /**
@@ -67,7 +69,7 @@ public class HistoricActionSteps extends WizardPanelProvider {
     @Override
     public boolean cancel(final Map settings) {
         // return true;
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }
@@ -119,7 +121,7 @@ public class HistoricActionSteps extends WizardPanelProvider {
                 // TODO besser setHistoric mit sperre versehen als immer die sperre vorher zu setzen
                 final CidsBean other = LagisBroker.getInstance().isLocked(historicKey);
                 if (other == null) {
-                    sperre = LagisBroker.getInstance().createNewFlurstueckSchluesselLock(historicKey);
+                    sperre = LagisBroker.getInstance().createFlurstueckSchluesselLock(historicKey);
                     if (sperre != null) {
                         System.out.println("datum:" + histDate);
                         LagisBroker.getInstance().setFlurstueckHistoric(historicKey, histDate, true);
@@ -140,8 +142,7 @@ public class HistoricActionSteps extends WizardPanelProvider {
                                 }
                             }
                         } else {
-                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                            .getParentComponent(),
+                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                                     "Möchten Sie zu dem Flurstück wechseln?",
                                     "Flurstückwechsel",
                                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
