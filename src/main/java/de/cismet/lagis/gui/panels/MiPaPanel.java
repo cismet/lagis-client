@@ -68,7 +68,6 @@ import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.DateEditor;
@@ -76,6 +75,7 @@ import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.gui.checkbox.JCheckBoxList;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.RemoveActionHelper;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
@@ -244,7 +244,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
 
         final HighlightPredicate contractExpiredPredicate = new HighlightPredicate() {
 
@@ -295,7 +295,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         combo.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
         combo.setEditable(true);
 
-        final Collection<MipaKategorieCustomBean> alleKategorien = CidsBroker.getInstance().getAllMiPaKategorien();
+        final Collection<MipaKategorieCustomBean> alleKategorien = LagisBroker.getInstance().getAllMiPaKategorien();
         for (final MiPaKategorie currentKategorie : alleKategorien) {
             combo.addItem(currentKategorie);
         }
@@ -315,7 +315,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
         enableSlaveComponents(false);
         // lstMerkmale.setm
-        final Collection<MipaMerkmalCustomBean> miPaMerkmale = CidsBroker.getInstance().getAllMiPaMerkmale();
+        final Collection<MipaMerkmalCustomBean> miPaMerkmale = LagisBroker.getInstance().getAllMiPaMerkmale();
         final Vector<MiPaMerkmalCheckBox> merkmalCheckBoxes = new Vector<MiPaMerkmalCheckBox>();
         if ((miPaMerkmale != null) && (miPaMerkmale.size() > 0)) {
             for (final MipaMerkmalCustomBean currentMerkmal : miPaMerkmale) {
@@ -1301,8 +1301,8 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddExitingMiPaActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingMiPaActionPerformed
-        final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
+    private void btnAddExitingMiPaActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingMiPaActionPerformed
+        final JDialog dialog = new JDialog(LagisApp.getInstance(), "", true);
         dialog.add(new AddExistingMiPaPanel(
                 LagisBroker.getInstance().getCurrentFlurstueck(),
                 miPaModel,
@@ -1311,7 +1311,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
-    }//GEN-LAST:event_btnAddExitingMiPaActionPerformed
+    }                                                                                     //GEN-LAST:event_btnAddExitingMiPaActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1320,7 +1320,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         if (LOG.isDebugEnabled()) {
             LOG.debug("Update der Querverweise");
         }
-        final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
+        final Collection<FlurstueckSchluesselCustomBean> crossRefs = LagisBroker.getInstance()
                     .getCrossreferencesForMiPas(new HashSet(miPaModel.getCidsBeans()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {

@@ -70,7 +70,6 @@ import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.DateEditor;
@@ -78,6 +77,7 @@ import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.gui.checkbox.JCheckBoxList;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.RemoveActionHelper;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
@@ -347,7 +347,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
         final HighlightPredicate contractExpiredPredicate = new HighlightPredicate() {
 
                 @Override
@@ -395,7 +395,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         final JComboBox combo = new JComboBox();
         combo.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
         combo.setEditable(true);
-        final Collection<BaumKategorieCustomBean> alleKategorien = CidsBroker.getInstance().getAllBaumKategorien();
+        final Collection<BaumKategorieCustomBean> alleKategorien = LagisBroker.getInstance().getAllBaumKategorien();
         for (final BaumKategorie currentKategorie : alleKategorien) {
             combo.addItem(currentKategorie);
         }
@@ -421,7 +421,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
 
         enableSlaveComponents(false);
         // lstMerkmale.setm
-        final Collection<BaumMerkmalCustomBean> baumMerkmal = CidsBroker.getInstance().getAllBaumMerkmale();
+        final Collection<BaumMerkmalCustomBean> baumMerkmal = LagisBroker.getInstance().getAllBaumMerkmale();
         final Vector<BaumMerkmalCheckBox> merkmalCheckBoxes = new Vector<>();
         if ((baumMerkmal != null) && (baumMerkmal.size() > 0)) {
             for (final BaumMerkmalCustomBean currentMerkmal : baumMerkmal) {
@@ -1386,17 +1386,17 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnUndoActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUndoActionPerformed
+    private void btnUndoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnUndoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnUndoActionPerformed
+    } //GEN-LAST:event_btnUndoActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddExitingBaumActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingBaumActionPerformed
-        final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
+    private void btnAddExitingBaumActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingBaumActionPerformed
+        final JDialog dialog = new JDialog(LagisApp.getInstance(), "", true);
         dialog.add(new AddExistingBaumPanel(
                 LagisBroker.getInstance().getCurrentFlurstueck(),
                 baumModel,
@@ -1405,14 +1405,14 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
-    }//GEN-LAST:event_btnAddExitingBaumActionPerformed
+    }                                                                                     //GEN-LAST:event_btnAddExitingBaumActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveBaumActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveBaumActionPerformed
+    private void btnRemoveBaumActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveBaumActionPerformed
         final int currentRow = tblBaum.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
@@ -1425,7 +1425,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                 LOG.debug("liste ausgeschaltet");
             }
         }
-    }//GEN-LAST:event_btnRemoveBaumActionPerformed
+    } //GEN-LAST:event_btnRemoveBaumActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -1434,7 +1434,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         if (LOG.isDebugEnabled()) {
             LOG.debug("Update der Querverweise");
         }
-        final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
+        final Collection<FlurstueckSchluesselCustomBean> crossRefs = LagisBroker.getInstance()
                     .getCrossreferencesForBaeume(new HashSet(baumModel.getCidsBeans()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {

@@ -52,7 +52,6 @@ import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.FlaecheEditor;
@@ -467,7 +466,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         // bleModel.setVerwaltungsGebrauchList(allVerwaltungsgebraeuche);
         TableSelectionUtils.crossReferenceModelAndTable(verwaltungsTableModel, (VerwaltungsTable)tNutzung);
         final JComboBox cboVD = new JComboBox(new Vector<VerwaltendeDienststelleCustomBean>(
-                    CidsBroker.getInstance().getAllVerwaltendeDienstellen()));
+                    LagisBroker.getInstance().getAllVerwaltendeDienstellen()));
         cboVD.setEditable(true);
         cboVD.addActionListener(new ActionListener() {
 
@@ -484,7 +483,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         tNutzung.getSelectionModel().addListSelectionListener(this);
 
         TableSelectionUtils.crossReferenceModelAndTable(zusatzRolleTableModel, (ZusatzRolleTable)tZusatzRolle);
-        final JComboBox cboZRD = new JComboBox(CidsBroker.getInstance().getAllVerwaltendeDienstellen().toArray(
+        final JComboBox cboZRD = new JComboBox(LagisBroker.getInstance().getAllVerwaltendeDienstellen().toArray(
                     new VerwaltendeDienststelleCustomBean[0]));
         cboZRD.setEditable(true);
         cboZRD.addActionListener(new ActionListener() {
@@ -496,7 +495,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
             });
 
         final JComboBox cboZRA = new JComboBox(new Vector<ZusatzRolleArtCustomBean>(
-                    CidsBroker.getInstance().getAllZusatzRolleArten()));
+                    LagisBroker.getInstance().getAllZusatzRolleArten()));
         cboZRA.addActionListener(new ActionListener() {
 
                 @Override
@@ -548,7 +547,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
 
         // TODO logging entfernen
         // (LagisBroker.ERROR_COLOR, null, 0, -1) {

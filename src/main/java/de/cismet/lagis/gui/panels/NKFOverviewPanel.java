@@ -18,7 +18,6 @@ import org.jdesktop.swingx.JXTable;
 import java.util.ArrayList;
 
 import javax.swing.Icon;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SortOrder;
@@ -28,9 +27,9 @@ import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.NKFOverviewTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -320,26 +319,26 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
      */
     private void btnBuchenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnBuchenActionPerformed
         // TODO add your handling code here:
-        final int answer = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final int answer = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Wollen Sie alle Stillen Reserven des Flurstücks buchen?",
                 "Stille Reserven buchen",
                 JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
             try {
-                LagisBroker.getInstance().acceptChanges();
+                LagisApp.getInstance().acceptChanges();
                 if (LagisBroker.getInstance().isInEditMode()) {
                     LOG.warn("Stille Reserven konnten nicht gebucht werden, immernoch im Editmodus");
-                    JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                    JOptionPane.showMessageDialog(LagisApp.getInstance(),
                         "Es war nicht möglich aus dem Editiermodus herauszuwechseln.",
                         "Stille Reserven",
                         JOptionPane.ERROR_MESSAGE);
                 } else {
                     // TODO Locking problem
-                    CidsBroker.getInstance()
+                    LagisBroker.getInstance()
                             .bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel(),
                                 LagisBroker.getInstance().getAccountName());
                 }
-                // CidsBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
+                // LagisBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
             } catch (Exception ex) {
                 // TODO ActionNotSuccessfull Exception
                 final StringBuffer resultString = new StringBuffer(
@@ -354,7 +353,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     LOG.error("Unbekannter Fehler: ", ex);
                     resultString.append("Unbekannter Fehler bitte wenden Sie sich an Ihren Systemadministrator");
                 }
-                JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                JOptionPane.showMessageDialog(LagisApp.getInstance(),
                     resultString.toString(),
                     "Stille Reserven",
                     JOptionPane.ERROR_MESSAGE);

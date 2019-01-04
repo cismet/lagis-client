@@ -29,12 +29,12 @@ import javax.swing.table.TableCellEditor;
 
 import de.cismet.cids.custom.beans.lagis.*;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.editor.EuroEditor;
 
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.BeschluesseTable;
 import de.cismet.lagis.gui.tables.KostenTable;
 import de.cismet.lagis.gui.tables.RemoveActionHelper;
@@ -222,9 +222,9 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         validators.add(valTxtVoreigentuemer);
 
         final JComboBox cboBA = new JComboBox(new Vector<BeschlussartCustomBean>(
-                    CidsBroker.getInstance().getAllBeschlussarten()));
+                    LagisBroker.getInstance().getAllBeschlussarten()));
         final JComboBox cboKA = new JComboBox(new Vector<KostenartCustomBean>(
-                    CidsBroker.getInstance().getAllKostenarten()));
+                    LagisBroker.getInstance().getAllKostenarten()));
         tblBeschluesse.setDefaultEditor(BeschlussartCustomBean.class, new DefaultCellEditor(cboBA));
         tblKosten.setDefaultEditor(KostenartCustomBean.class, new DefaultCellEditor(cboKA));
         // tblBeschluesse.addMouseListener(this);
@@ -1120,7 +1120,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
      * @param  evt  DOCUMENT ME!
      */
     private void btnAddExitingContractActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingContractActionPerformed
-        final JDialog dialog = new JDialog(LagisBroker.getInstance().getParentComponent(), "", true);
+        final JDialog dialog = new JDialog(LagisApp.getInstance(), "", true);
         dialog.add(new AddExistingVorgangPanel(
                 LagisBroker.getInstance().getCurrentFlurstueck(),
                 vTableModel,
@@ -1138,7 +1138,7 @@ public class VertraegePanel extends AbstractWidget implements FlurstueckChangeLi
         if (LOG.isDebugEnabled()) {
             LOG.debug("Update der Querverweise");
         }
-        final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
+        final Collection<FlurstueckSchluesselCustomBean> crossRefs = LagisBroker.getInstance()
                     .getCrossreferencesForVertraege(new HashSet(vTableModel.getCidsBeans()));
         final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
         if (crossRefs != null) {

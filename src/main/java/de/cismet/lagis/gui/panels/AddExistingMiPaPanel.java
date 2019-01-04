@@ -18,7 +18,6 @@ import org.jdesktop.swingx.JXTable;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.swing.JDialog;
 import javax.swing.ListModel;
@@ -28,7 +27,6 @@ import javax.swing.event.ListSelectionListener;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.DefaultUniqueListModel;
@@ -36,8 +34,6 @@ import de.cismet.lagis.models.DefaultUniqueListModel;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
 
 import de.cismet.lagisEE.entity.core.Flurstueck;
-import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
-import de.cismet.lagisEE.entity.core.Vertrag;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
 
 /**
@@ -118,7 +114,7 @@ public class AddExistingMiPaPanel extends javax.swing.JPanel implements Validati
         }
         if (flurstueckChooser1.getStatus() == flurstueckChooser1.VALID) {
             final FlurstueckSchluesselCustomBean currentKey = flurstueckChooser1.getCurrentFlurstueckSchluessel();
-            final Collection<MipaCustomBean> miPas = CidsBroker.getInstance().getMiPaForKey(currentKey);
+            final Collection<MipaCustomBean> miPas = LagisBroker.getInstance().getMiPaForKey(currentKey);
             if (miPas != null) {
                 // Check if the Contract ist already  added
                 // if(currentFlurstueck != null && currentFlurstueck.getVertraege() != null){
@@ -268,7 +264,7 @@ public class AddExistingMiPaPanel extends javax.swing.JPanel implements Validati
                         selectedRows[i]));
             currentMiPaTabelModel.addCidsBean(curMiPa);
             currentMiPaTabelModel.fireTableDataChanged();
-            final Collection<FlurstueckSchluesselCustomBean> crossRefs = CidsBroker.getInstance()
+            final Collection<FlurstueckSchluesselCustomBean> crossRefs = LagisBroker.getInstance()
                         .getCrossReferencesForMiPa(curMiPa);
             if (crossRefs != null) {
                 if (log.isDebugEnabled()) {

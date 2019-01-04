@@ -248,16 +248,9 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
     private static final String HEADER_ERR_MSG = "Fehler";
 
-    private static final ConfigurationManager configManager = new ConfigurationManager();
-
-    static {
-        configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
-        configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
-        configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
-        configManager.setFolder(DIRECTORYNAME_LAGISHOME);
-    }
-
     //~ Instance fields --------------------------------------------------------
+
+    private final ConfigurationManager configManager = new ConfigurationManager();
 
     private RootWindow rootWindow;
     // Panels
@@ -283,63 +276,64 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private View vHistory;
     private View vBaulasten;
     private View vKassenzeichen;
-    private WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance().getMappingComponent());
-    private Set<View> wfsFormViews = new HashSet<>();
-    private List<View> wfs = new ArrayList<>();
+    private final WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance()
+                    .getMappingComponent());
+    private final Set<View> wfsFormViews = new HashSet<>();
+    private final List<View> wfs = new ArrayList<>();
     private DockingWindow[] wfsViews;
     // private View vAktenzeichenSuche;
     private JDialog aktenzeichenDialog;
-    private Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/karte.png"));
-    private Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/docs.png"));
-    private Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/ressort.png"));
-    private Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche3.png"));
-    private Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/sum.png"));
-    private Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
 
                 // "/de/cismet/lagis/ressource/icons/titlebar/findgreen.png"));
                 "/de/cismet/lagis/ressource/icons/rebe.png"));
-    private Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/verwaltungsbereich.png"));
-    private Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/documents.png"));
-    private Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/cids/custom/commons/gui/Baulast.png"));
-    private Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/info.png"));
-    private Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniBack.png"));
-    private Icon current = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon current = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/current.png"));
-    private Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniForward.png"));
     // ICON ÄNDERN
     private MappingComponent mapComponent;
     private ClipboardWaitDialog clipboarder;
-    private StringViewMap viewMap = new StringViewMap();
+    private final StringViewMap viewMap = new StringViewMap();
     private String fortfuehrungLinkFormat;
 
     // TODO Jean
 // private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     // FIXME ugly winning
-    private ActiveLayerModel mappingModel = new ActiveLayerModel();
-    private List<Widget> widgets = new ArrayList<>();
+    private final ActiveLayerModel mappingModel = new ActiveLayerModel();
+    private final List<Widget> widgets = new ArrayList<>();
     private boolean isInit = true;
     // Ressort
-    private Set<View> ressortViews = new HashSet<>();
+    private final Set<View> ressortViews = new HashSet<>();
     private DockingWindow[] ressortDockingWindow;
     // Plugin Navigator
-    private ArrayList<JMenuItem> menues = new ArrayList<>();
+    private final ArrayList<JMenuItem> menues = new ArrayList<>();
     // Configurable
     private Dimension windowSize = null;
     private Point windowLocation = null;
     // Validation
     private final ArrayList<ValidationStateChangedListener> validationListeners = new ArrayList<>();
-    private String validationMessage = "Die Komponente ist valide";
+    private final String validationMessage = "Die Komponente ist valide";
     private FlurstueckInfoClipboard fsInfoClipboard;
     private ObjectRendererDialog alkisRendererDialog;
 
@@ -432,6 +426,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * Creates a new LagisApp object.
      */
     private LagisApp() {
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void init() {
         try {
             LOG.info("Starten der LaGIS Applikation");
 
@@ -440,14 +442,12 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 ImageIO.read(getClass().getResource("/de/cismet/lagis/ressource/image/wizard.png")));
             // TODO FIX
             this.addWindowListener(this);
-            LOG.info("Laden der Lagis Konfiguration");
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Name des Lagis Server Konfigurationsfiles: " + FILENAME_LAGIS_CONFIGURATION);
-            }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Konfiguriere Karten Widget");
-            }
+            LOG.info("Laden der Lagis Konfiguration");
+            configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
+            configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
+            configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
+            configManager.setFolder(DIRECTORYNAME_LAGISHOME);
 
             if (LagisBroker.getInstance().getSession() != null) {
                 configManager.addConfigurable(this);
@@ -480,7 +480,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             alkisRendererDialog = new ObjectRendererDialog(this, false, descriptionPane);
             alkisRendererDialog.setSize(1000, 800);
 
-//
 //            // added manually as the GuiBuilder conflicts could not be resolved
 //            configureReportButton();
 //            configureCopyPasteFlurstueckInfoComponents();
@@ -618,7 +617,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         cleanUp();
                     }
                 });
-            LagisBroker.getInstance().setParentComponent(this);
             LagisBroker.getInstance().setTitle("LagIS");
 
             // TODO GEHT SCHIEF WENN ES SCHON DER PARENTFRAME IST
@@ -791,8 +789,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             System.exit(1);
         }
     }
-
-    //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
@@ -2302,107 +2298,107 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnOpenWizardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenWizardActionPerformed
+    private void btnOpenWizardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnOpenWizardActionPerformed
         WizardDisplayer.showWizard(new ContinuationWizard().createWizard(),
             new Rectangle(20, 20, 600, 400));
-    }//GEN-LAST:event_btnOpenWizardActionPerformed
+    }                                                                                 //GEN-LAST:event_btnOpenWizardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniNewsActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniNewsActionPerformed
+    private void mniNewsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniNewsActionPerformed
         openUrlInExternalBrowser(newsURL);
-    }//GEN-LAST:event_mniNewsActionPerformed
+    }                                                                           //GEN-LAST:event_mniNewsActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniOnlineHelpActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniOnlineHelpActionPerformed
+    private void mniOnlineHelpActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniOnlineHelpActionPerformed
         openUrlInExternalBrowser(onlineHelpURL);
-    }//GEN-LAST:event_mniOnlineHelpActionPerformed
+    }                                                                                 //GEN-LAST:event_mniOnlineHelpActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniHistoryActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniHistoryActionPerformed
+    private void mniHistoryActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniHistoryActionPerformed
         showOrHideView(vHistory);
-    }//GEN-LAST:event_mniHistoryActionPerformed
+    }                                                                              //GEN-LAST:event_mniHistoryActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniDMSActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniDMSActionPerformed
+    private void mniDMSActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniDMSActionPerformed
         showOrHideView(vDMS);
-    }//GEN-LAST:event_mniDMSActionPerformed
+    }                                                                          //GEN-LAST:event_mniDMSActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniReBeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniReBeActionPerformed
+    private void mniReBeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniReBeActionPerformed
         showOrHideView(vReBe);
-    }//GEN-LAST:event_mniReBeActionPerformed
+    }                                                                           //GEN-LAST:event_mniReBeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniNutzungActionPerformed
+    private void mniNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniNutzungActionPerformed
         showOrHideView(vNKF);
-    }//GEN-LAST:event_mniNutzungActionPerformed
+    }                                                                              //GEN-LAST:event_mniNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniNKFOverviewActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniNKFOverviewActionPerformed
+    private void mniNKFOverviewActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniNKFOverviewActionPerformed
         showOrHideView(vNKFOverview);
-    }//GEN-LAST:event_mniNKFOverviewActionPerformed
+    }                                                                                  //GEN-LAST:event_mniNKFOverviewActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniVorgaengeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniVorgaengeActionPerformed
+    private void mniVorgaengeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniVorgaengeActionPerformed
         showOrHideView(vVertraege);
-    }//GEN-LAST:event_mniVorgaengeActionPerformed
+    }                                                                                //GEN-LAST:event_mniVorgaengeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniVerwaltungsbereichActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniVerwaltungsbereichActionPerformed
+    private void mniVerwaltungsbereichActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniVerwaltungsbereichActionPerformed
         showOrHideView(vFlurstueck);
-    }//GEN-LAST:event_mniVerwaltungsbereichActionPerformed
+    }                                                                                         //GEN-LAST:event_mniVerwaltungsbereichActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniMapActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniMapActionPerformed
+    private void mniMapActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniMapActionPerformed
         showOrHideView(vKarte);
-    }//GEN-LAST:event_mniMapActionPerformed
+    }                                                                          //GEN-LAST:event_mniMapActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniGotoPointActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniGotoPointActionPerformed
+    private void mniGotoPointActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniGotoPointActionPerformed
         final BoundingBox c = mapComponent.getCurrentBoundingBox();
         final double x = (c.getX1() + c.getX2()) / 2;
         final double y = (c.getY1() + c.getY2()) / 2;
@@ -2420,14 +2416,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             mapComponent.gotoBoundingBox(bb, true, false, mapComponent.getAnimationDuration());
         } catch (Exception skip) {
         }
-    }//GEN-LAST:event_mniGotoPointActionPerformed
+    }                                                                                //GEN-LAST:event_mniGotoPointActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniScaleActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniScaleActionPerformed
+    private void mniScaleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniScaleActionPerformed
         final String s = JOptionPane.showInputDialog(
                 this,
                 "Maßstab_manuell_auswählen",
@@ -2438,56 +2434,56 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             mapComponent.gotoBoundingBoxWithHistory(mapComponent.getBoundingBoxFromScale(i));
         } catch (Exception skip) {
         }
-    }//GEN-LAST:event_mniScaleActionPerformed
+    }                                                                            //GEN-LAST:event_mniScaleActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniHomeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniHomeActionPerformed
+    private void mniHomeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniHomeActionPerformed
         if (mapComponent != null) {
             mapComponent.gotoInitialBoundingBox();
         }
-    }//GEN-LAST:event_mniHomeActionPerformed
+    }                                                                           //GEN-LAST:event_mniHomeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniForwardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniForwardActionPerformed
+    private void mniForwardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniForwardActionPerformed
         if ((mapComponent != null) && mapComponent.isForwardPossible()) {
             mapComponent.forward(true);
         }
-    }//GEN-LAST:event_mniForwardActionPerformed
+    }                                                                              //GEN-LAST:event_mniForwardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniBackActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniBackActionPerformed
+    private void mniBackActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniBackActionPerformed
         if ((mapComponent != null) && mapComponent.isBackPossible()) {
             mapComponent.back(true);
         }
-    }//GEN-LAST:event_mniBackActionPerformed
+    }                                                                           //GEN-LAST:event_mniBackActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniRefreshActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniRefreshActionPerformed
+    private void mniRefreshActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniRefreshActionPerformed
         LagisBroker.getInstance().reloadFlurstueck();
-    }//GEN-LAST:event_mniRefreshActionPerformed
+    }                                                                              //GEN-LAST:event_mniRefreshActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniClippboardActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniClippboardActionPerformed
+    private void mniClippboardActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniClippboardActionPerformed
         final Thread t = new Thread(new Runnable() {
 
                     @Override
@@ -2513,23 +2509,23 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     }
                 });
         t.start();
-    }//GEN-LAST:event_mniClippboardActionPerformed
+    } //GEN-LAST:event_mniClippboardActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniResetWindowLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniResetWindowLayoutActionPerformed
+    private void mniResetWindowLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniResetWindowLayoutActionPerformed
         doLayoutInfoNode();
-    }//GEN-LAST:event_mniResetWindowLayoutActionPerformed
+    }                                                                                        //GEN-LAST:event_mniResetWindowLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniSaveLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniSaveLayoutActionPerformed
+    private void mniSaveLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniSaveLayoutActionPerformed
         final JFileChooser fc = new JFileChooser(DIRECTORYPATH_LAGIS);
         fc.setFileFilter(new FileFilter() {
 
@@ -2561,7 +2557,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 saveLayout(name + ".layout");
             }
         }
-    }//GEN-LAST:event_mniSaveLayoutActionPerformed
+    } //GEN-LAST:event_mniSaveLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2656,17 +2652,17 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniCloseActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniCloseActionPerformed
+    private void mniCloseActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniCloseActionPerformed
         this.cleanUp();
         this.dispose();
-    }//GEN-LAST:event_mniCloseActionPerformed
+    }                                                                            //GEN-LAST:event_mniCloseActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniLoadLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniLoadLayoutActionPerformed
+    private void mniLoadLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniLoadLayoutActionPerformed
         final JFileChooser fc = new JFileChooser(DIRECTORYPATH_LAGIS);
         fc.setFileFilter(new FileFilter() {
 
@@ -2697,7 +2693,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     JOptionPane.INFORMATION_MESSAGE);
             }
         }
-    }//GEN-LAST:event_mniLoadLayoutActionPerformed
+    } //GEN-LAST:event_mniLoadLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2745,16 +2741,16 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnReloadFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadFlurstueckActionPerformed
+    private void btnReloadFlurstueckActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnReloadFlurstueckActionPerformed
         LagisBroker.getInstance().reloadFlurstueck();
-    }//GEN-LAST:event_btnReloadFlurstueckActionPerformed
+    }                                                                                       //GEN-LAST:event_btnReloadFlurstueckActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnDiscardChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDiscardChangesActionPerformed
+    private void btnDiscardChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnDiscardChangesActionPerformed
         if (LagisBroker.getInstance().isInEditMode()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Versuche aus Editiermodus heraus zu wechseln: ");
@@ -2770,7 +2766,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             btnAcceptChanges.setEnabled(false);
             btnDiscardChanges.setEnabled(false);
             btnSwitchInEditmode.setEnabled(false);
-            if (LagisBroker.getInstance().releaseLock()) {
+            if (LagisBroker.getInstance().releaseLocks()) {
                 // datamodell refactoring 22.10.07e
                 if ((LagisBroker.getInstance().getCurrentFlurstueck() != null)
                             && LagisBroker.getInstance().getCurrentFlurstueck().getFlurstueckSchluessel()
@@ -2795,7 +2791,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
             }
         }
-    }//GEN-LAST:event_btnDiscardChangesActionPerformed
+    } //GEN-LAST:event_btnDiscardChangesActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -2809,7 +2805,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAcceptChangesActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcceptChangesActionPerformed
+    private void btnAcceptChangesActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAcceptChangesActionPerformed
         try {
             if (LagisBroker.getInstance().isInEditMode()) {
                 if (LOG.isDebugEnabled()) {
@@ -2841,7 +2837,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     btnSwitchInEditmode.setEnabled(false);
                     // TODO TEST IT!!!!
                     LagisBroker.getInstance().getMappingComponent().setReadOnly(true);
-                    if (LagisBroker.getInstance().releaseLock()) {
+                    if (LagisBroker.getInstance().releaseLocks()) {
                         // datamodell refactoring 22.10.07
                         if ((LagisBroker.getInstance().getCurrentFlurstueck() != null)
                                     && LagisBroker.getInstance().getCurrentFlurstueck().getFlurstueckSchluessel()
@@ -2886,20 +2882,19 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 btnOpenWizard.setEnabled(true);
             }
         }
-    }//GEN-LAST:event_btnAcceptChangesActionPerformed
+    } //GEN-LAST:event_btnAcceptChangesActionPerformed
 
     /**
      * boolean isInEditMode = false;
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnSwitchInEditmodeActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSwitchInEditmodeActionPerformed
+    private void btnSwitchInEditmodeActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnSwitchInEditmodeActionPerformed
         if (LOG.isDebugEnabled()) {
             LOG.debug("Versuche in Editiermodus zu wechseln: ");
         }
         if (LagisBroker.getInstance().acquireLock()) {
             if (LagisBroker.getInstance().isCurrentFlurstueckLockedByUser()) {
-                // TODOWHY NOT DIRECTLY CHANGE IN THIS CLASS LIKE IN THE FLURstück CHANGED METHOD ??
                 LagisBroker.getInstance()
                         .setTitleBarComponentpainter(LagisBroker.LOCK_MODE_COLOR, LagisBroker.EDIT_MODE_COLOR);
             } else {
@@ -2917,36 +2912,36 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         if (LOG.isDebugEnabled()) {
             LOG.debug("ist im Editiermodus: " + LagisBroker.getInstance().isInEditMode());
         }
-    }//GEN-LAST:event_btnSwitchInEditmodeActionPerformed
+    } //GEN-LAST:event_btnSwitchInEditmodeActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniLockLayoutActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniLockLayoutActionPerformed
+    private void mniLockLayoutActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniLockLayoutActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_mniLockLayoutActionPerformed
+    } //GEN-LAST:event_mniLockLayoutActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniOptionsActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniOptionsActionPerformed
+    private void mniOptionsActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniOptionsActionPerformed
         final OptionsDialog od = new OptionsDialog(this, true);
         od.setLocationRelativeTo(this);
         od.setVisible(true);
-    }//GEN-LAST:event_mniOptionsActionPerformed
+    }                                                                              //GEN-LAST:event_mniOptionsActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
+    private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
         if (aktenzeichenDialog == null) {
-            aktenzeichenDialog = new JDialog(LagisBroker.getInstance().getParentComponent(),
+            aktenzeichenDialog = new JDialog(this,
                     "Suche nach Aktenzeichen",
                     false);
             aktenzeichenDialog.add(new AktenzeichenSearch());
@@ -2960,48 +2955,48 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 StaticSwingTools.showDialog(aktenzeichenDialog);
             }
         }
-    }//GEN-LAST:event_btnAktenzeichenSucheActionPerformed
+    }                                                                                        //GEN-LAST:event_btnAktenzeichenSucheActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniBaulastenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniBaulastenActionPerformed
+    private void mniBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniBaulastenActionPerformed
         showOrHideView(vBaulasten);
-    }//GEN-LAST:event_mniBaulastenActionPerformed
+    }                                                                                //GEN-LAST:event_mniBaulastenActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdPrintActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdPrintActionPerformed
+    private void cmdPrintActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdPrintActionPerformed
         mapComponent.showPrintingSettingsDialog();
-    }//GEN-LAST:event_cmdPrintActionPerformed
+    }                                                                            //GEN-LAST:event_cmdPrintActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniPrintActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniPrintActionPerformed
+    private void mniPrintActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniPrintActionPerformed
         cmdPrintActionPerformed(evt);
-    }//GEN-LAST:event_mniPrintActionPerformed
+    }                                                                            //GEN-LAST:event_mniPrintActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
         final MetaObject mo = getCurrentFlurstueckMO();
         if (mo != null) {
             showRenderer(mo);
         } else {
             showErrorMessage("<html>Es wurde kein entsprechendes Alkis Flurstück gefunden");
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -3094,54 +3089,54 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniFlurstueckassistentActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniFlurstueckassistentActionPerformed
+    private void mniFlurstueckassistentActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniFlurstueckassistentActionPerformed
         btnOpenWizardActionPerformed(evt);
-    }//GEN-LAST:event_mniFlurstueckassistentActionPerformed
+    }                                                                                          //GEN-LAST:event_mniFlurstueckassistentActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniAddNutzungActionPerformed
+    private void mniAddNutzungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniAddNutzungActionPerformed
         ((NKFTable)NKFPanel.getInstance().getNutzungTable()).getAddAction().actionPerformed(evt);
-    }//GEN-LAST:event_mniAddNutzungActionPerformed
+    }                                                                                 //GEN-LAST:event_mniAddNutzungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniKassenzeichenInformationActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniKassenzeichenInformationActionPerformed
+    private void mniKassenzeichenInformationActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniKassenzeichenInformationActionPerformed
         showOrHideView(vKassenzeichen);
-    }//GEN-LAST:event_mniKassenzeichenInformationActionPerformed
+    }                                                                                               //GEN-LAST:event_mniKassenzeichenInformationActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSearchRisseActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSearchRisseActionPerformed
+    private void cmdSearchRisseActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchRisseActionPerformed
         StaticSwingTools.showDialog(new VermessungsrissSuchDialog(this, false, ConnectionContext.createDeprecated()));
-    }//GEN-LAST:event_cmdSearchRisseActionPerformed
+    }                                                                                  //GEN-LAST:event_cmdSearchRisseActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSearchBaulastenActionPerformed
+    private void cmdSearchBaulastenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSearchBaulastenActionPerformed
         StaticSwingTools.showDialog(new BaulastSuchDialog(this, false, ConnectionContext.createDeprecated()));
-    }//GEN-LAST:event_cmdSearchBaulastenActionPerformed
+    }                                                                                      //GEN-LAST:event_cmdSearchBaulastenActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdFortfuehrungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdFortfuehrungActionPerformed
+    private void cmdFortfuehrungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFortfuehrungActionPerformed
         StaticSwingTools.showDialog(LagisFortfuehrungsanlaesseDialog.getInstance());
-    }//GEN-LAST:event_cmdFortfuehrungActionPerformed
+    }                                                                                   //GEN-LAST:event_cmdFortfuehrungActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -3781,7 +3776,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             }
             while (true) {
                 // TODO Progressbar & !!! Regeneriert sich nicht nach einem Server neustart
-                if (LagisBroker.getInstance().releaseLock()) {
+                if (LagisBroker.getInstance().releaseLocks()) {
                     break;
                 } else {
                     final int answer = JOptionPane.showConfirmDialog(
@@ -3837,6 +3832,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 LOG.debug("Login erfolgreich");
             }
             final LagisApp app = LagisApp.getInstance();
+            app.init();
             app.setVisible(true);
             app.getMapComponent().unlock();
         } else {

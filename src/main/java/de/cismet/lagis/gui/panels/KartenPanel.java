@@ -79,6 +79,8 @@ import de.cismet.cismap.commons.interaction.memento.MementoInterface;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.NoPermissionsWidget;
 
@@ -1884,7 +1886,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                         if (log.isDebugEnabled()) {
                             log.debug("Flurstück kann nicht gewechselt werden --> Editmode");
                         }
-                        JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                        JOptionPane.showMessageDialog(LagisApp.getInstance(),
                             "Das Flurstück kann nur gewechselt werden, wenn alle Änderungen gespeichert oder verworfen worden sind.",
                             "Wechseln nicht möglich",
                             JOptionPane.WARNING_MESSAGE);

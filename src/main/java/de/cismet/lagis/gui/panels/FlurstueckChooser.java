@@ -42,11 +42,12 @@ import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.commons.LagisConstants;
 import de.cismet.lagis.commons.LagisMetaclassConstants;
+
+import de.cismet.lagis.gui.main.LagisApp;
 
 import de.cismet.lagis.interfaces.DoneDelegate;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -323,7 +324,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             fsKey.setFlurstueckZaehler(zaehler);
             fsKey.setFlurstueckNenner(nenner);
             fsKey.setId(-1);
-            CidsBroker.getInstance().completeFlurstueckSchluessel(fsKey);
+            LagisBroker.getInstance().completeFlurstueckSchluessel(fsKey);
             requestFlurstueck(fsKey);
         } catch (final Exception ex) {
             LOG.error(ex.getMessage(), ex);
@@ -1302,7 +1303,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     if (isCancelled()) {
                         return null;
                     }
-                    final Collection<GemarkungCustomBean> gemKeys = CidsBroker.getInstance().getGemarkungsKeys();
+                    final Collection<GemarkungCustomBean> gemKeys = LagisBroker.getInstance().getGemarkungsKeys();
                     if (isCancelled()) {
                         return null;
                     }
@@ -1346,7 +1347,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                             }
                                         });
 
-                                    final Collection<Key> flurKeys = CidsBroker.getInstance()
+                                    final Collection<Key> flurKeys = LagisBroker.getInstance()
                                                 .getDependingKeysForKey(selectedGemarkung);
                                     if (isCancelled()) {
                                         return null;
@@ -1403,7 +1404,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                     if (isCancelled()) {
                                         return null;
                                     }
-                                    selectedGemarkung = CidsBroker.getInstance().completeGemarkung(selectedGemarkung);
+                                    selectedGemarkung = LagisBroker.getInstance().completeGemarkung(selectedGemarkung);
                                 }
                             }
                             if ((selectedGemarkung != null)
@@ -1632,7 +1633,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     selectedFlur.setHistoricFilterEnabled(filter == Filter.HISTORIC);
                     selectedFlur.setAbteilungXIFilterEnabled(filter == Filter.ABTEILUNG_IX);
                     selectedFlur.setStaedtischFilterEnabled(filter == Filter.STAEDTISCH);
-                    final Collection<Key> flurKeys = CidsBroker.getInstance().getDependingKeysForKey(selectedFlur);
+                    final Collection<Key> flurKeys = LagisBroker.getInstance().getDependingKeysForKey(selectedFlur);
                     if (isCancelled()) {
                         return null;
                     }
@@ -1870,7 +1871,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     if (isCancelled()) {
                         return null;
                     }
-                    final FlurstueckSchluesselCustomBean tmpKey = CidsBroker.getInstance()
+                    final FlurstueckSchluesselCustomBean tmpKey = LagisBroker.getInstance()
                                 .completeFlurstueckSchluessel(selectedFlurstueck);
                     if (isCancelled()) {
                         return null;
@@ -1896,7 +1897,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (isCancelled()) {
                                     return null;
                                 }
-                                final FlurstueckCustomBean flurstueck = CidsBroker.getInstance()
+                                final FlurstueckCustomBean flurstueck = LagisBroker.getInstance()
                                             .retrieveFlurstueck(selectedFlurstueck);
                                 if (isCancelled()) {
                                     return null;
@@ -1912,13 +1913,13 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (isCancelled()) {
                                     return null;
                                 }
-                                JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                                JOptionPane.showMessageDialog(LagisApp.getInstance(),
                                     "Das Flurstück kann nur gewechselt werden wenn alle Änderungen gespeichert oder verworfen worden sind.",
                                     "Wechseln nicht möglich",
                                     JOptionPane.WARNING_MESSAGE);
                             }
                         } else {
-                            final FlurstueckCustomBean flurstueck = CidsBroker.getInstance()
+                            final FlurstueckCustomBean flurstueck = LagisBroker.getInstance()
                                         .retrieveFlurstueck(selectedFlurstueck);
                             if (flurstueck != null) {
                                 return flurstueck;
@@ -2054,7 +2055,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     return null;
                 }
                 if (isFlurstueckCandidateValide) {
-                    keyToCheck = CidsBroker.getInstance().completeFlurstueckSchluessel(keyToCheck);
+                    keyToCheck = LagisBroker.getInstance().completeFlurstueckSchluessel(keyToCheck);
                     return keyToCheck != null;
                 } else {
                     return false;

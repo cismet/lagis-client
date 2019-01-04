@@ -22,9 +22,9 @@ import javax.swing.Icon;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+import de.cismet.cids.dynamics.CidsBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
 
@@ -102,12 +102,11 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panCreate.getStatus() == Validatable.VALID) {
-            final SperreCustomBean sperre = CidsBroker.getInstance()
-                        .isLocked(panCreate.getCurrentFlurstueckSchluessel());
+            final CidsBean sperre = LagisBroker.getInstance().isLocked(panCreate.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
-                            + sperre.getBenutzerkonto());
+                            + (String)sperre.getProperty("user_string"));
                 return;
             } else {
                 wizardData.put(KEY_CREATE_CANDIDATE, panCreate.getCurrentFlurstueckSchluessel());

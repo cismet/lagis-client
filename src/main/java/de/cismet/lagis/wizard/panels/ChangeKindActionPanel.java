@@ -24,9 +24,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
@@ -136,7 +136,7 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
                         return;
                     } else {
                         for (final FlurstueckArtCustomBean currentArt
-                                    : CidsBroker.getInstance().getAllFlurstueckArten()) {
+                                    : LagisBroker.getInstance().getAllFlurstueckArten()) {
                             if (currentArt.getBezeichnung().equals(
                                             FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
                                 newArt = currentArt;
@@ -153,7 +153,7 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
                         return;
                     } else {
                         for (final FlurstueckArtCustomBean currentArt
-                                    : CidsBroker.getInstance().getAllFlurstueckArten()) {
+                                    : LagisBroker.getInstance().getAllFlurstueckArten()) {
                             if (currentArt.getBezeichnung().equals(
                                             FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX)) {
                                 newArt = currentArt;
@@ -165,12 +165,12 @@ public class ChangeKindActionPanel extends javax.swing.JPanel implements Validat
                     wizardController.setProblem("Gewählte Art kommt in der Datenbank nicht vor");
                     return;
                 }
-                final SperreCustomBean sperre = CidsBroker.getInstance()
+                final CidsBean sperre = LagisBroker.getInstance()
                             .isLocked(panChangeKind.getCurrentFlurstueckSchluessel());
                 if (sperre != null) {
                     // TODO nicht ganz sichtbar
                     wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
-                                + sperre.getBenutzerkonto());
+                                + (String)sperre.getProperty("user_string"));
                     return;
                 } else {
                     wizardData.put(KEY_CHANGE_CANDIDATE, panChangeKind.getCurrentFlurstueckSchluessel());

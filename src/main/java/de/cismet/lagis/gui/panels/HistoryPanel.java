@@ -308,22 +308,22 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
                 // -----
 
-                CidsBroker.HistoryLevel level;
+                LagisBroker.HistoryLevel level;
                 final int levelCount;
                 if (cbxHistoryOptions.getSelectedItem().equals("Direkte Vorgänger/Nachfolger")) {
-                    level = CidsBroker.HistoryLevel.DIRECT_RELATIONS;
+                    level = LagisBroker.HistoryLevel.DIRECT_RELATIONS;
                     levelCount = 0;
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("nur angrenzendte Flurstücke");
                     }
                 } else if (cbxHistoryOptions.getSelectedItem().equals("Begrenzte Tiefe")) {
-                    level = CidsBroker.HistoryLevel.CUSTOM;
+                    level = LagisBroker.HistoryLevel.CUSTOM;
                     levelCount = ((Number)sprLevels.getValue()).intValue();
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("begrentze Tiefe mit " + levelCount + " Stufen");
                     }
                 } else {
-                    level = CidsBroker.HistoryLevel.All;
+                    level = LagisBroker.HistoryLevel.All;
                     levelCount = 0;
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Alle Levels");
@@ -332,37 +332,37 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
                 // -----
 
-                CidsBroker.HistorySibblingLevel levelSibbling;
+                LagisBroker.HistorySibblingLevel levelSibbling;
                 final int levelSibblingCount;
                 if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister")) {
-                    levelSibbling = CidsBroker.HistorySibblingLevel.SIBBLING_ONLY;
+                    levelSibbling = LagisBroker.HistorySibblingLevel.SIBBLING_ONLY;
                     levelSibblingCount = 0;
                 } else if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister, vollständig")) {
-                    levelSibbling = CidsBroker.HistorySibblingLevel.FULL;
+                    levelSibbling = LagisBroker.HistorySibblingLevel.FULL;
                     levelSibblingCount = 0;
                 } else if (cbxHistoryOptions1.getSelectedItem().equals("Geschwister, begrenzte Tiefe")) {
-                    levelSibbling = CidsBroker.HistorySibblingLevel.CUSTOM;
+                    levelSibbling = LagisBroker.HistorySibblingLevel.CUSTOM;
                     levelSibblingCount = ((Number)sprLevels1.getValue()).intValue();
                 } else { // keine Geschwister
-                    levelSibbling = CidsBroker.HistorySibblingLevel.NONE;
+                    levelSibbling = LagisBroker.HistorySibblingLevel.NONE;
                     levelSibblingCount = 0;
                 }
 
                 // -----
 
-                CidsBroker.HistoryType type;
+                LagisBroker.HistoryType type;
                 if (cbxHistoryType.getSelectedItem().equals("Nur Nachfolger")) {
-                    type = CidsBroker.HistoryType.SUCCESSOR;
+                    type = LagisBroker.HistoryType.SUCCESSOR;
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("nur Nachfolger");
                     }
                 } else if (cbxHistoryType.getSelectedItem().equals("Nur Vorgänger")) {
-                    type = CidsBroker.HistoryType.PREDECESSOR;
+                    type = LagisBroker.HistoryType.PREDECESSOR;
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("nur Vorgänger");
                     }
                 } else {
-                    type = CidsBroker.HistoryType.BOTH;
+                    type = LagisBroker.HistoryType.BOTH;
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Vorgänger/Nachfolger");
                     }
@@ -372,7 +372,7 @@ public class HistoryPanel extends AbstractWidget implements FlurstueckChangeList
 
                 nodeToKeyMap = new HashMap<>();
 
-                final String dotGraphRepresentation = CidsBroker.getInstance()
+                final String dotGraphRepresentation = LagisBroker.getInstance()
                             .getHistoryGraph(
                                 newFlurstueck,
                                 level,
