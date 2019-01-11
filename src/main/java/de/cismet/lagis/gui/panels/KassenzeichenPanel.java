@@ -18,9 +18,11 @@ import org.jdesktop.swingx.JXTable;
 
 import java.awt.Point;
 
+import java.util.Collection;
 import java.util.Date;
 
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.KassenzeichenCustomBean;
@@ -45,6 +47,8 @@ import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.widget.AbstractWidget;
 
+import de.cismet.verdis.server.search.KassenzeichenGeomSearch;
+
 /**
  * DOCUMENT ME!
  *
@@ -65,7 +69,7 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddKassenzeichen;
-    private javax.swing.JButton btnMagicAddKasszenzeichen;
+    private javax.swing.JButton btnMagicAddKassenzeichen;
     private javax.swing.JButton btnRemoveKassenzeichen;
     private javax.swing.JToggleButton btnSort;
     private javax.swing.JPanel jPanel1;
@@ -130,7 +134,7 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         btnAddKassenzeichen = new javax.swing.JButton();
         btnRemoveKassenzeichen = new javax.swing.JButton();
         btnSort = new javax.swing.JToggleButton();
-        btnMagicAddKasszenzeichen = new javax.swing.JButton();
+        btnMagicAddKassenzeichen = new javax.swing.JButton();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -173,13 +177,6 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         btnAddKassenzeichen.setMaximumSize(new java.awt.Dimension(25, 25));
         btnAddKassenzeichen.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddKassenzeichen.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnAddKassenzeichen.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddKassenzeichenActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
@@ -195,13 +192,6 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         btnRemoveKassenzeichen.setMaximumSize(new java.awt.Dimension(25, 25));
         btnRemoveKassenzeichen.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveKassenzeichen.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnRemoveKassenzeichen.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnRemoveKassenzeichenActionPerformed(evt);
-                }
-            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 0;
@@ -229,19 +219,18 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         jPanel3.add(btnSort, gridBagConstraints);
         btnSort.addItemListener(((KassenzeichenTable)tKassenzeichen).getSortItemListener());
 
-        btnMagicAddKasszenzeichen.setAction(((KassenzeichenTable)tKassenzeichen).getAddAction());
-        btnMagicAddKasszenzeichen.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
-        btnMagicAddKasszenzeichen.setBorder(null);
-        btnMagicAddKasszenzeichen.setBorderPainted(false);
-        btnMagicAddKasszenzeichen.setMaximumSize(new java.awt.Dimension(25, 25));
-        btnMagicAddKasszenzeichen.setMinimumSize(new java.awt.Dimension(25, 25));
-        btnMagicAddKasszenzeichen.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnMagicAddKasszenzeichen.addActionListener(new java.awt.event.ActionListener() {
+        btnMagicAddKassenzeichen.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/addMagic.png"))); // NOI18N
+        btnMagicAddKassenzeichen.setBorder(null);
+        btnMagicAddKassenzeichen.setBorderPainted(false);
+        btnMagicAddKassenzeichen.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnMagicAddKassenzeichen.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnMagicAddKassenzeichen.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnMagicAddKassenzeichen.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
                 public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnMagicAddKasszenzeichenActionPerformed(evt);
+                    btnMagicAddKassenzeichenActionPerformed(evt);
                 }
             });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -249,7 +238,7 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        jPanel3.add(btnMagicAddKasszenzeichen, gridBagConstraints);
+        jPanel3.add(btnMagicAddKassenzeichen, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -265,24 +254,6 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         add(jPanel1, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddKassenzeichenActionPerformed
-//        tableModel.addCidsBean();
-    } //GEN-LAST:event_btnAddKassenzeichenActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnRemoveKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveKassenzeichenActionPerformed
-        // TODO add your handling code here:
-    } //GEN-LAST:event_btnRemoveKassenzeichenActionPerformed
 
     /**
      * DOCUMENT ME!
@@ -322,10 +293,35 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnMagicAddKasszenzeichenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnMagicAddKasszenzeichenActionPerformed
-        final Geometry geom = LagisBroker.getInstance().getCurrentWFSGeometry().buffer(-0.05);
-//        CidsBroker.getInstance().
-    }                                                                                             //GEN-LAST:event_btnMagicAddKasszenzeichenActionPerformed
+    private void btnMagicAddKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnMagicAddKassenzeichenActionPerformed
+        final Geometry geometry = LagisBroker.getInstance().getCurrentWFSGeometry().buffer(-0.05);
+        final KassenzeichenGeomSearch search = new KassenzeichenGeomSearch();
+        search.setGeometry(geometry);
+        setComponentEditable(false);
+        new SwingWorker<Collection, Void>() {
+
+                @Override
+                protected Collection doInBackground() throws Exception {
+                    return CidsBroker.getInstance().executeSearch(search);
+                }
+
+                @Override
+                protected void done() {
+                    if (LagisBroker.getInstance().isInEditMode()) {
+                        try {
+                            final Collection<Integer> kassenzeichenNumern = get();
+                            for (final Integer kassenzeichenNummer : kassenzeichenNumern) {
+                                ((KassenzeichenTable)tKassenzeichen).addNewKassenzeichen(kassenzeichenNummer);
+                            }
+                        } catch (final Exception ex) {
+                            LOG.fatal(ex, ex);
+                        } finally {
+                            setComponentEditable(true);
+                        }
+                    }
+                }
+            }.execute();
+    } //GEN-LAST:event_btnMagicAddKassenzeichenActionPerformed
 
     @Override
     public void clearComponent() {
@@ -339,6 +335,7 @@ public class KassenzeichenPanel extends AbstractWidget implements FlurstueckChan
     @Override
     public void setComponentEditable(final boolean isEditable) {
         btnAddKassenzeichen.setEnabled(isEditable);
+        btnMagicAddKassenzeichen.setEnabled(isEditable);
         btnRemoveKassenzeichen.setEnabled(isEditable);
     }
 

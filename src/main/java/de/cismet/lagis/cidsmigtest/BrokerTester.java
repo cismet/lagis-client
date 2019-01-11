@@ -233,7 +233,7 @@ public class BrokerTester {
 
         return (stopTimeEjb - startTimeEjb) / 1000000000f;
     }
-    
+
     /**
      * DOCUMENT ME!
      *

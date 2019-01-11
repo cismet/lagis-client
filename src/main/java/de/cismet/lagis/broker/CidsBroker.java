@@ -24,6 +24,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
+import de.cismet.cids.server.search.CidsServerSearch;
+
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
 
@@ -1752,7 +1754,7 @@ public final class CidsBroker {
                     predecessorLevelCount,
                     successorLevelCount,
                     sibblingLevelCount);
-            final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = proxy.customServerSearch(search);
+            final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = executeSearch(search);
             final HashMap<String, String> pseudoKeys = new HashMap<String, String>();
 
             final HashMap<String, Integer> nodeToKeyMap = (nodeToKeyMapIn == null) ? new HashMap<String, Integer>()
@@ -1816,6 +1818,18 @@ public final class CidsBroker {
         return dotGraphRepresentation.toString();
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   search  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  ConnectionException  DOCUMENT ME!
+     */
+    public Collection executeSearch(final CidsServerSearch search) throws ConnectionException {
+        return proxy.customServerSearch(search);
+    }
     /**
      * DOCUMENT ME!
      *
