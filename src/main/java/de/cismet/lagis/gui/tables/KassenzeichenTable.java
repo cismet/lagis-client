@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import java.sql.Timestamp;
 
+import java.util.Collection;
 import java.util.Date;
 
 import de.cismet.cids.custom.beans.lagis.KassenzeichenCustomBean;
@@ -56,15 +57,29 @@ public class KassenzeichenTable extends AbstractCidsBeanTable_Lagis {
     /**
      * DOCUMENT ME!
      *
-     * @param  kassenzeichennummer  DOCUMENT ME!
+     * @param   kassenzeichennummer  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
      */
-    public void addNewKassenzeichen(final Integer kassenzeichennummer) {
-        final KassenzeichenCustomBean tmp = KassenzeichenCustomBean.createNew();
-        tmp.setKassenzeichennummer(kassenzeichennummer);
-        tmp.setZugeordnet_am(new Timestamp(new Date().getTime()));
-        tmp.setZugeordnet_von(SessionManager.getSession().getUser().getName());
-        ((KassenzeichenTableModel)getModel()).addCidsBean(tmp);
-        fireItemAdded();
+    public boolean addNewKassenzeichen(final Integer kassenzeichennummer) {
+        if (kassenzeichennummer != null) {
+            for (final KassenzeichenCustomBean kassenzeichenBean
+                        : (Collection<KassenzeichenCustomBean>)((KassenzeichenTableModel)getModel()).getCidsBeans()) {
+                if ((kassenzeichenBean != null)
+                            && kassenzeichennummer.equals(kassenzeichenBean.getKassenzeichennummer())) {
+                    return false;
+                }
+            }
+
+            final KassenzeichenCustomBean tmp = KassenzeichenCustomBean.createNew();
+            tmp.setKassenzeichennummer(kassenzeichennummer);
+            tmp.setZugeordnet_am(new Timestamp(new Date().getTime()));
+            tmp.setZugeordnet_von(SessionManager.getSession().getUser().getName());
+            ((KassenzeichenTableModel)getModel()).addCidsBean(tmp);
+            fireItemAdded();
+            return true;
+        }
+        return false;
     }
 
     @Override

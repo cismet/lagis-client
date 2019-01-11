@@ -201,7 +201,7 @@ public final class CidsBroker implements ConnectionContextProvider {
      *
      * @throws  ConnectionException  DOCUMENT ME!
      */
-    public Collection search(final CidsServerSearch search) throws ConnectionException {
+    public Collection executeSearch(final CidsServerSearch search) throws ConnectionException {
         return proxy.customServerSearch(search);
     }
 

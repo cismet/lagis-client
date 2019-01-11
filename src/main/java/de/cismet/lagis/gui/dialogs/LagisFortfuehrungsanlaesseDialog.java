@@ -202,7 +202,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
                             search.setGeometry(searchGeom);
 
                             final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)CidsBroker
-                                        .getInstance().search(search);
+                                        .getInstance().executeSearch(search);
 
                             final List<String> alkisIds = new ArrayList<>();
 

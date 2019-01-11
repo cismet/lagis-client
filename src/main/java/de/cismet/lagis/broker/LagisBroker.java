@@ -391,7 +391,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             final List<RebeCustomBean> rebes = new ArrayList<>();
             final Geometry bufferedGeom = flurstueckGeometry.buffer(rebeBuffer);
             bufferedGeom.setSRID(flurstueckGeometry.getSRID());
-            final Collection<MetaObjectNode> mons = CidsBroker.getInstance().search(new ReBeGeomSearch(bufferedGeom));
+            final Collection<MetaObjectNode> mons = CidsBroker.getInstance()
+                        .executeSearch(new ReBeGeomSearch(bufferedGeom));
             if (mons != null) {
                 for (final MetaObjectNode mon : mons) {
                     if (mon != null) {
@@ -2088,7 +2089,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     successorLevelCount,
                     sibblingLevelCount);
             final Collection<FlurstueckHistorieGraphSearchResultItem> allEdges = CidsBroker.getInstance()
-                        .search(search);
+                        .executeSearch(search);
             final HashMap<String, String> pseudoKeys = new HashMap<>();
 
             final HashMap<String, Integer> nodeToKeyMap = (nodeToKeyMapIn == null) ? new HashMap<String, Integer>()

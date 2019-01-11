@@ -163,7 +163,7 @@ public class BaulastenPanel extends AbstractWidget implements FlurstueckChangeLi
                                 mcBaulast.getId(),
                                 -1);
 
-                        return CidsBroker.getInstance().search(search);
+                        return CidsBroker.getInstance().executeSearch(search);
                     }
 
                     @Override
