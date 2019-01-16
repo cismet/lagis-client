@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaNutzungCustomBean;
@@ -60,8 +59,7 @@ public class MiPaDataSource extends ADataSource<MipaCustomBean> implements JRDat
 
     @Override
     protected List<MipaCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
-        final Collection<MipaCustomBean> mipaSet = currentFlurstueck.getMiPas();
+        final Collection<MipaCustomBean> mipaSet = LagisBroker.getInstance().getCurrentMipas();
 
         return new ArrayList<>(mipaSet);
     }

@@ -3450,6 +3450,15 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         "Fehler beim setzen den buffers für die Abfrage der Rechte und Blastungen",
                         ex);
                 }
+                try {
+                    final double mipaBuffer = Double.parseDouble(crossoverPrefs.getChildText(
+                                "MipaBuffer"));
+                    broker.setMipaBuffer(mipaBuffer);
+                } catch (final Exception ex) {
+                    LOG.error(
+                        "Fehler beim setzen den buffers für die Abfrage der Vermietungen und Verpachtungen",
+                        ex);
+                }
             } catch (final Exception ex) {
                 LOG.error("Crossover: Fehler beim Konfigurieren.", ex);
             }

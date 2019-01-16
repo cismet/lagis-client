@@ -98,6 +98,7 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
+import de.cismet.cismap.commons.CrsTransformer;
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.statusbar.StatusBar;
@@ -123,6 +124,7 @@ import de.cismet.lagis.interfaces.Widget;
 
 import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearch;
 import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearchResultItem;
+import de.cismet.lagis.server.search.MiPaGeomSearch;
 import de.cismet.lagis.server.search.ReBeGeomSearch;
 
 import de.cismet.lagis.utillity.EmailConfig;
@@ -143,6 +145,8 @@ import de.cismet.tools.CurrentStackTrace;
 import de.cismet.tools.configuration.Configurable;
 
 import de.cismet.tools.gui.StaticSwingTools;
+
+import de.cismet.verdis.server.search.AlkisLandparcelSearch;
 
 import static de.cismet.lagis.gui.panels.VerdisCrossoverPanel.createQuery;
 
@@ -293,7 +297,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // TODO Jean
     // private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
-    private double rebeBuffer = -0.2;
+    private double mipaBuffer = -0.5;
+    private double rebeBuffer = -0.5;
     private double kassenzeichenBuffer = -0.2;
     private double kassenzeichenBuffer100 = -0.5;
     private boolean skipSecurityCheckFlurstueckAssistent = false;
@@ -319,6 +324,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private final Collection<LagisBrokerPropertyChangeListener> wfsFlurstueckChangeListeners = new ArrayList<>();
 
     private List<RebeCustomBean> currentRebes = null;
+    private List<MipaCustomBean> currentMipas = null;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -413,6 +419,39 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     }
 
     /**
+     * DOCUMENT ME!
+     *
+     * @param   flurstueckGeometry  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public List<MipaCustomBean> getMiPas(final Geometry flurstueckGeometry) {
+        try {
+            final List<MipaCustomBean> mipas = new ArrayList<>();
+            final Geometry bufferedGeom = flurstueckGeometry.buffer(mipaBuffer);
+            bufferedGeom.setSRID(flurstueckGeometry.getSRID());
+            final Collection<MetaObjectNode> mons = CidsBroker.getInstance()
+                        .executeSearch(new MiPaGeomSearch(bufferedGeom));
+            if (mons != null) {
+                for (final MetaObjectNode mon : mons) {
+                    if (mon != null) {
+                        final MetaObject mo = CidsBroker.getInstance()
+                                    .getMetaObject(mon.getObjectId(), mon.getClassId(), mon.getDomain());
+                        final CidsBean cidsBean = mo.getBean();
+                        if (cidsBean instanceof MipaCustomBean) {
+                            mipas.add((MipaCustomBean)cidsBean);
+                        }
+                    }
+                }
+            }
+            return mipas;
+        } catch (final ConnectionException ex) {
+            LOG.fatal(ex, ex);
+            return null;
+        }
+    }
+
+    /**
      * ToDo place query generation in VerdisCrossover. Give key get Query.
      *
      * @param  bean  e bean DOCUMENT ME!
@@ -443,7 +482,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                 }
                             }
                         };
-                    LagisBroker.getInstance().execute(openKassenzeichen);
+                    execute(openKassenzeichen);
                 } else {
                     LOG.warn("Crossover: konnte keine Query anlegen. Kein Abruf der Kassenzeichen möglich.");
                 }
@@ -1028,8 +1067,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public FlurstueckCustomBean renameFlurstueck(final FlurstueckSchluesselCustomBean oldFlurstueckSchluessel,
             final FlurstueckSchluesselCustomBean newFlurstueckSchluessel,
             final String benutzerkonto) throws ActionNotSuccessfulException {
-        oldFlurstueckSchluessel.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
-        newFlurstueckSchluessel.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        oldFlurstueckSchluessel.setLetzter_bearbeiter(getAccountName());
+        newFlurstueckSchluessel.setLetzter_bearbeiter(getAccountName());
         oldFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
         newFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
         CidsBean lock = null;
@@ -1129,9 +1168,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     final String queryNutzung = "SELECT " + mcNutzung.getID() + ", " + mcNutzung.getPrimaryKey()
                                 + " FROM " + mcNutzung.getTableName() + " WHERE " + " fk_flurstueck = "
                                 + oldFlurstueck.getId().toString();
-                    final String queryRebe = "SELECT " + mcRebe.getID() + ", " + mcRebe.getPrimaryKey() + " FROM "
-                                + mcRebe.getTableName() + " WHERE " + " fk_flurstueck = "
-                                + oldFlurstueck.getId().toString();
                     final String queryVerwaltungsbereichEintrag = "SELECT " + mcVerwaltungsbereichEintrag.getID()
                                 + ", "
                                 + mcVerwaltungsbereichEintrag.getPrimaryKey() + " FROM "
@@ -1140,9 +1176,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 
                     newFlurstueck.getAr_baeume().addAll(oldFlurstueck.getAr_baeume());
                     oldFlurstueck.getAr_baeume().clear();
-
-                    newFlurstueck.getAr_mipas().addAll(oldFlurstueck.getAr_mipas());
-                    oldFlurstueck.getAr_mipas().clear();
 
                     newFlurstueck.getAr_vertraege().addAll(oldFlurstueck.getAr_vertraege());
                     oldFlurstueck.getAr_vertraege().clear();
@@ -1157,11 +1190,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                 : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) {
                         moNutzung.getBean().setProperty("fk_flurstueck", newFlurstueck);
                         moNutzung.getBean().persist();
-                    }
-
-                    for (final MetaObject moRebe : SessionManager.getProxy().getMetaObjectByQuery(user, queryRebe)) {
-                        moRebe.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                        moRebe.getBean().persist();
                     }
 
                     for (final MetaObject moVerwaltungsbereichEintrag
@@ -1459,7 +1487,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
     public void modifyFlurstueck(final FlurstueckCustomBean flurstueck) throws ActionNotSuccessfulException {
-        flurstueck.getFlurstueckSchluessel().setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        flurstueck.getFlurstueckSchluessel().setLetzter_bearbeiter(getAccountName());
         flurstueck.getFlurstueckSchluessel().setLetzte_bearbeitung(getCurrentDate());
         try {
             processNutzungen(flurstueck.getNutzungen(), flurstueck.getFlurstueckSchluessel().getKeyString());
@@ -1481,7 +1509,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @param  key  DOCUMENT ME!
      */
     public void modifyFlurstueckSchluessel(final FlurstueckSchluesselCustomBean key) {
-        key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        key.setLetzter_bearbeiter(getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
         try {
             final FlurstueckSchluesselCustomBean oldKey = completeFlurstueckSchluessel(key);
@@ -1850,8 +1878,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     }
                     if (query != null) {
                         final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
-                        final Collection<FlurstueckSchluesselCustomBean> flurstuecke =
-                            new HashSet<FlurstueckSchluesselCustomBean>();
+                        final Collection<FlurstueckSchluesselCustomBean> flurstuecke = new HashSet<>();
                         for (final MetaObject metaObject : mos) {
                             flurstuecke.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
                         }
@@ -1874,6 +1901,61 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 ex);
         }
         return new HashSet();
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   geometry  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private Collection<CidsBean> searchAlkisLandparcelBeans(final Geometry geometry) {
+        try {
+            final AlkisLandparcelSearch serverSearch = new AlkisLandparcelSearch();
+            final String crs = serverSearch.getCrs();
+
+            final Geometry transformedGeom = CrsTransformer.transformToGivenCrs(geometry, crs);
+
+            transformedGeom.setSRID(CrsTransformer.extractSridFromCrs(crs));
+            serverSearch.setGeometry(transformedGeom);
+
+            final List<Integer> alkisLandparcelIds = (List<Integer>)SessionManager.getProxy()
+                        .customServerSearch(SessionManager.getSession().getUser(), serverSearch);
+
+            if (alkisLandparcelIds.isEmpty()) {
+                return null;
+            }
+
+            final StringBuilder idStringBuilder = new StringBuilder();
+            for (int index = 0; index < alkisLandparcelIds.size(); index++) {
+                final Integer alkisLandparcel = alkisLandparcelIds.get(index);
+                if (index > 0) {
+                    idStringBuilder.append(", ");
+                }
+                idStringBuilder.append(Integer.toString(alkisLandparcel));
+            }
+            final MetaClass mc = CidsBean.getMetaClassFromTableName(
+                    "WUNDA_BLAU",
+                    "alkis_landparcel");
+            final MetaObject[] mos = SessionManager.getProxy()
+                        .getMetaObjectByQuery(SessionManager.getSession().getUser(),
+                            "SELECT "
+                            + mc.getId()
+                            + ", id FROM alkis_landparcel WHERE id IN ("
+                            + idStringBuilder.toString()
+                            + ")",
+                            "WUNDA_BLAU");
+
+            final Collection<CidsBean> alkisLandparcelBeans = new ArrayList<>();
+            for (final MetaObject mo : mos) {
+                alkisLandparcelBeans.add(mo.getBean());
+            }
+            return alkisLandparcelBeans;
+        } catch (final Exception ex) {
+            LOG.error("error while searching alkis landparcels", ex);
+            return null;
+        }
     }
 
     /**
@@ -1978,15 +2060,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                             resultKeys.remove(result.getFlurstueckSchluessel());
                         }
                         result.setVertraegeQuerverweise(resultKeys);
-                    }
-
-                    final Collection<MipaCustomBean> miPas = result.getMiPas();
-                    if ((miPas != null) && (miPas.size() > 0)) {
-                        final Collection<FlurstueckSchluesselCustomBean> resultKeys = getCrossreferencesForMiPas(miPas);
-                        if (resultKeys != null) {
-                            resultKeys.remove(result.getFlurstueckSchluessel());
-                        }
-                        result.setMiPasQuerverweise(resultKeys);
                     }
 
                     final Collection<BaumCustomBean> baueme = result.getBaeume();
@@ -2272,8 +2345,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     + "    AND vertrag.aktenzeichen LIKE '%" + aktenzeichen + "%'";
 
         final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
-        final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessel =
-            new HashSet<FlurstueckSchluesselCustomBean>();
+        final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessel = new HashSet<>();
         for (final MetaObject metaObject : mos) {
             flurstueckSchluessel.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
         }
@@ -2287,44 +2359,52 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /**
      * DOCUMENT ME!
      *
-     * @param   miPa  DOCUMENT ME!
+     * @param   mipa  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForMiPa(final MipaCustomBean miPa) {
+    public Collection<FlurstueckSchluesselCustomBean> getCrossReferencesForMiPa(final MipaCustomBean mipa) {
         final MetaClass mcFlurstueckSchluessel = CidsBroker.getInstance()
                     .getLagisMetaClass(LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
         if (mcFlurstueckSchluessel == null) {
             return null;
         }
 
-        final String query = "SELECT "
-                    + "   " + mcFlurstueckSchluessel.getID() + ", "
-                    + "   flurstueck.fk_flurstueck_schluessel "
-                    + "FROM "
-                    + "   public.flurstueck, "
-                    + "   public.jt_flurstueck_mipa "
-                    + "WHERE "
-                    + "   public.flurstueck.ar_mipas = public.jt_flurstueck_mipa.fk_flurstueck  "
-                    + "   AND public.jt_flurstueck_mipa.fk_mipa = " + miPa.getId();
+        final FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = getCurrentFlurstueckSchluessel();
+        final Collection<CidsBean> alkisFlurstuecke = searchAlkisLandparcelBeans(mipa.getGeometry());
+        final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<>();
+        for (final CidsBean alkisFlurstueck : alkisFlurstuecke) {
+            if (alkisFlurstueck != null) {
+                final String query = "SELECT "
+                            + "  " + mcFlurstueckSchluessel.getID() + ", "
+                            + "  flurstueck_schluessel.id "
+                            + "FROM flurstueck_schluessel "
+                            + "LEFT JOIN gemarkung "
+                            + "  ON flurstueck_schluessel.fk_gemarkung = gemarkung.id "
+                            + "WHERE "
+                            + "  gemarkung.bezeichnung ILIKE '" + alkisFlurstueck.getProperty("gemarkung") + "' "
+                            + "  AND flurstueck_schluessel.flur = '" + alkisFlurstueck.getProperty("flur")
+                            + "'::integer "
+                            + ((alkisFlurstueck.getProperty("fstck_zaehler") != null)
+                                ? ("  AND flurstueck_schluessel.flurstueck_zaehler = '"
+                                    + alkisFlurstueck.getProperty("fstck_zaehler") + "'::integer") : "") + " "
+                            + ((alkisFlurstueck.getProperty("fstck_nenner") != null)
+                                ? ("  AND flurstueck_schluessel.flurstueck_nenner  = '"
+                                    + alkisFlurstueck.getProperty("fstck_nenner") + "'::integer") : "") + ";";
 
-        final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
-        final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<FlurstueckSchluesselCustomBean>();
-        for (final MetaObject metaObject : mosMipa) {
-            keys.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
-        }
-
-        if (keys != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Anzahl FlurstueckSchluessel ist: " + keys.size());
+                final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
+                if (mosMipa != null) {
+                    for (final MetaObject metaObject : mosMipa) {
+                        final FlurstueckSchluesselCustomBean schluessel = (FlurstueckSchluesselCustomBean)
+                            metaObject.getBean();
+                        if ((schluessel != null) && !schluessel.equals(currentFlurstueckSchluessel)) {
+                            keys.add(schluessel);
+                        }
+                    }
+                }
             }
-            return keys;
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Flurstückreferenzen für MiPa vorhanden");
-            }
-            return null;
         }
+        return keys;
     }
 
     /**
@@ -2337,7 +2417,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public Collection<FlurstueckSchluesselCustomBean> getCrossreferencesForMiPas(
             final Collection<MipaCustomBean> miPas) {
         if ((miPas != null) && (miPas.size() > 0)) {
-            final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<FlurstueckSchluesselCustomBean>();
+            final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<>();
             final Iterator<MipaCustomBean> it = miPas.iterator();
             while (it.hasNext()) {
                 final Collection<FlurstueckSchluesselCustomBean> curKeys = getCrossReferencesForMiPa(it.next());
@@ -2485,7 +2565,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
     public void setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key) throws ActionNotSuccessfulException {
-        key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        key.setLetzter_bearbeiter(getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
         setFlurstueckHistoric(key, new Date());
     }
@@ -2515,7 +2595,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public void setFlurstueckHistoric(final FlurstueckSchluesselCustomBean key,
             final Date date,
             final boolean delRebeMipa) throws ActionNotSuccessfulException {
-        key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        key.setLetzter_bearbeiter(getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
 
         try {
@@ -2535,9 +2615,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 //                            }
 //                        }
 //                    }
-                    final List<RebeCustomBean> rechteUndBelastungen = LagisBroker.getInstance().getCurrentRebes();
+                    final List<RebeCustomBean> rechteUndBelastungen = getCurrentRebes();
                     final boolean hasReBe = !rechteUndBelastungen.isEmpty();
-                    final boolean hasMiPa = !flurstueck.getMiPas().isEmpty();
+
+                    final List<MipaCustomBean> mipas = getCurrentMipas();
+                    final boolean hasMiPa = !mipas.isEmpty();
 
                     final Date rebeLoeschDatum;
                     final Date mipaVertragsendeDatum;
@@ -2555,7 +2637,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     }
 
                     if (rebeLoeschDatum != null) {
-                        for (final MipaCustomBean mipa : flurstueck.getMiPas()) {
+                        for (final MipaCustomBean mipa : mipas) {
                             mipa.setVertragsende(mipaVertragsendeDatum);
                         }
                         for (final RebeCustomBean rebe : rechteUndBelastungen) {
@@ -2702,7 +2784,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @throws  ActionNotSuccessfulException  DOCUMENT ME!
      */
     public boolean setFlurstueckActive(final FlurstueckSchluesselCustomBean key) throws ActionNotSuccessfulException {
-        key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        key.setLetzter_bearbeiter(getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
 
         try {
@@ -2751,7 +2833,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public void bookNutzungenForFlurstueck(final FlurstueckSchluesselCustomBean key, final String username)
             throws ActionNotSuccessfulException {
-        key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        key.setLetzter_bearbeiter(getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
     }
 
@@ -2915,7 +2997,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      * @return  DOCUMENT ME!
      */
     public FlurstueckCustomBean createFlurstueck(final FlurstueckSchluesselCustomBean key) {
-        key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        key.setLetzter_bearbeiter(getAccountName());
         key.setLetzte_bearbeitung(getCurrentDate());
         try {
             if (LOG.isDebugEnabled()) {
@@ -3355,10 +3437,10 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             final FlurstueckSchluesselCustomBean newFlurstueckSchluessel,
             final String benutzerkonto) throws ActionNotSuccessfulException {
         for (final FlurstueckSchluesselCustomBean key : joinMembers) {
-            key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzter_bearbeiter(getAccountName());
             key.setLetzte_bearbeitung(getCurrentDate());
         }
-        newFlurstueckSchluessel.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+        newFlurstueckSchluessel.setLetzter_bearbeiter(getAccountName());
         newFlurstueckSchluessel.setLetzte_bearbeitung(getCurrentDate());
         final ArrayList<CidsBean> locks = new ArrayList<>();
         try {
@@ -3482,7 +3564,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             final ArrayList<FlurstueckSchluesselCustomBean> splitMembers,
             final String benutzerkonto) throws ActionNotSuccessfulException {
         for (final FlurstueckSchluesselCustomBean key : splitMembers) {
-            key.setLetzter_bearbeiter(LagisBroker.getInstance().getAccountName());
+            key.setLetzter_bearbeiter(getAccountName());
             key.setLetzte_bearbeitung(getCurrentDate());
         }
         oldFlurstueckSchluessel.setLetzter_bearbeiter(benutzerkonto);
@@ -3965,6 +4047,9 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
             for (final RebeCustomBean rebe : currentRebes) {
                 rebe.persist();
             }
+            for (final MipaCustomBean mipa : currentMipas) {
+                mipa.persist();
+            }
         } catch (final Exception ex) {
             showError("Fehler beim speichern", "Das Flurstück konnte nicht gespeichert werden.", ex);
         }
@@ -4445,6 +4530,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /**
      * DOCUMENT ME!
      *
+     * @return  DOCUMENT ME!
+     */
+    public List<MipaCustomBean> getCurrentMipas() {
+        return currentMipas;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param  geom  DOCUMENT ME!
      */
     public void setCurrentWFSGeometry(final Geometry geom) {
@@ -4468,7 +4562,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 @Override
                 protected List doInBackground() throws Exception {
                     if (currentWFSGeometry != null) {
-                        return LagisBroker.getInstance().getRechteUndBelastungen(currentWFSGeometry);
+                        return getRechteUndBelastungen(currentWFSGeometry);
                     } else {
                         return null;
                     }
@@ -4490,6 +4584,41 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                         LagisBrokerPropertyChangeListener.PROP__CURRENT_REBES,
                                         oldRebes,
                                         currentRebes));
+                            } catch (final Exception ex) {
+                                LOG.error("Exception in PropertyChange propagation", ex);
+                            }
+                        }
+                    }
+                }
+            }.execute();
+
+        new SwingWorker<List, Void>() {
+
+                @Override
+                protected List doInBackground() throws Exception {
+                    if (currentWFSGeometry != null) {
+                        return getMiPas(currentWFSGeometry);
+                    } else {
+                        return null;
+                    }
+                }
+
+                @Override
+                protected void done() {
+                    final Collection oldMipas = currentMipas;
+                    try {
+                        currentMipas = get();
+                    } catch (final Exception ex) {
+                        LOG.error(ex, ex);
+                        currentMipas = null;
+                    } finally {
+                        for (final LagisBrokerPropertyChangeListener listener : wfsFlurstueckChangeListeners) {
+                            try {
+                                listener.propertyChange(new PropertyChangeEvent(
+                                        this,
+                                        LagisBrokerPropertyChangeListener.PROP__CURRENT_MIPAS,
+                                        oldMipas,
+                                        currentMipas));
                             } catch (final Exception ex) {
                                 LOG.error("Exception in PropertyChange propagation", ex);
                             }
@@ -4658,6 +4787,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public double getRebeBuffer() {
         return rebeBuffer;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  mipaBuffer  DOCUMENT ME!
+     */
+    public void setMipaBuffer(final double mipaBuffer) {
+        this.mipaBuffer = mipaBuffer;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public double getMipaBuffer() {
+        return mipaBuffer;
     }
 
     /**

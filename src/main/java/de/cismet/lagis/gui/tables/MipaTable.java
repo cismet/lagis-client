@@ -9,12 +9,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.cismet.lagis.gui.panels;
+package de.cismet.lagis.gui.tables;
 
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 
-import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
-import de.cismet.lagis.gui.tables.RemoveActionHelper;
+import de.cismet.lagis.models.MiPaModel;
 
 /**
  * DOCUMENT ME!

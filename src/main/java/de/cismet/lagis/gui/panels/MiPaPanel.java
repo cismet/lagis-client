@@ -32,12 +32,13 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import java.beans.PropertyChangeEvent;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -46,10 +47,10 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
 import javax.swing.SortOrder;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -75,15 +76,17 @@ import de.cismet.lagis.editor.DateEditor;
 import de.cismet.lagis.gui.checkbox.JCheckBoxList;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
-import de.cismet.lagis.gui.main.LagisApp;
+import de.cismet.lagis.gui.tables.MipaTable;
 import de.cismet.lagis.gui.tables.RemoveActionHelper;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 import de.cismet.lagis.interfaces.GeometrySlotProvider;
+import de.cismet.lagis.interfaces.LagisBrokerPropertyChangeListener;
 
 import de.cismet.lagis.models.DefaultUniqueListModel;
+import de.cismet.lagis.models.MiPaModel;
 
 import de.cismet.lagis.renderer.DateRenderer;
 import de.cismet.lagis.renderer.FlurstueckSchluesselRenderer;
@@ -106,8 +109,6 @@ import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
 
 import de.cismet.tools.CurrentStackTrace;
 
-import de.cismet.tools.gui.StaticSwingTools;
-
 /**
  * DOCUMENT ME!
  *
@@ -125,7 +126,8 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
     TableModelListener,
     Copyable,
     Pasteable,
-    RemoveActionHelper {
+    RemoveActionHelper,
+    LagisBrokerPropertyChangeListener {
 
     //~ Static fields/initializers ---------------------------------------------
 
@@ -139,16 +141,13 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
     private boolean isFlurstueckEditable = true;
     private boolean isInEditMode = false;
-    private final MiPaModel miPaModel = new MiPaModel();
-    private final ImageIcon icoExistingContract = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/contract.png"));
+    private final MiPaModel tableModel = new MiPaModel();
     private final JComboBox cbxAuspraegung = new JComboBox();
     private final Icon copyDisplayIcon;
 
     private boolean listenerEnabled = true;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAddExitingMiPa;
     private javax.swing.JButton btnAddMiPa;
     private javax.swing.JButton btnRemoveMiPa;
     private javax.swing.JButton btnUndo;
@@ -204,6 +203,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         setOpaqueRecursive(panBackground.getComponents());
 
         this.copyDisplayIcon = new ImageIcon(this.getClass().getResource(WIDGET_ICON));
+        LagisBroker.getInstance().addWfsFlurstueckGeometryChangeListener(this);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -228,7 +228,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
      * DOCUMENT ME!
      */
     private void configureComponents() {
-        TableSelectionUtils.crossReferenceModelAndTable(miPaModel, (MipaTable)tblMipa);
+        TableSelectionUtils.crossReferenceModelAndTable(tableModel, (MipaTable)tblMipa);
         tblMipa.setDefaultEditor(Date.class, new DateEditor());
         tblMipa.setDefaultRenderer(Date.class, new DateRenderer());
         tblMipa.addMouseListener(this);
@@ -239,7 +239,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     final int displayedIndex = componentAdapter.row;
                     final int modelIndex = ((JXTable)tblMipa).convertRowIndexToModel(displayedIndex);
-                    final MiPa mp = miPaModel.getCidsBeanAtRow(modelIndex);
+                    final MiPa mp = tableModel.getCidsBeanAtRow(modelIndex);
                     return (mp != null) && (mp.getGeometry() == null);
                 }
             };
@@ -252,7 +252,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter componentAdapter) {
                     final int displayedIndex = componentAdapter.row;
                     final int modelIndex = ((JXTable)tblMipa).convertRowIndexToModel(displayedIndex);
-                    final MiPa mp = miPaModel.getCidsBeanAtRow(modelIndex);
+                    final MiPa mp = tableModel.getCidsBeanAtRow(modelIndex);
                     return (mp != null) && (mp.getVertragsende() != null) && (mp.getVertragsbeginn() != null)
                                 && (mp.getVertragsende().getTime() < System.currentTimeMillis());
                 }
@@ -303,7 +303,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
         tc.setCellEditor(new org.jdesktop.swingx.autocomplete.ComboBoxCellEditor(combo));
 
-        tc = tblMipa.getColumnModel().getColumn(miPaModel.AUSPRAEGUNG_COLUMN);
+        tc = tblMipa.getColumnModel().getColumn(tableModel.AUSPRAEGUNG_COLUMN);
         cbxAuspraegung.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
         cbxAuspraegung.setEditable(true);
         org.jdesktop.swingx.autocomplete.AutoCompleteDecorator.decorate(cbxAuspraegung);
@@ -311,12 +311,12 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
         ((JXTable)tblMipa).packAll();
 
-        taBemerkung.setDocument(miPaModel.getBemerkungDocumentModel());
+        taBemerkung.setDocument(tableModel.getBemerkungDocumentModel());
 
         enableSlaveComponents(false);
         // lstMerkmale.setm
         final Collection<MipaMerkmalCustomBean> miPaMerkmale = LagisBroker.getInstance().getAllMiPaMerkmale();
-        final Vector<MiPaMerkmalCheckBox> merkmalCheckBoxes = new Vector<MiPaMerkmalCheckBox>();
+        final Collection<MiPaMerkmalCheckBox> merkmalCheckBoxes = new ArrayList<>();
         if ((miPaMerkmale != null) && (miPaMerkmale.size() > 0)) {
             for (final MipaMerkmalCustomBean currentMerkmal : miPaMerkmale) {
                 if ((currentMerkmal != null) && (currentMerkmal.getBezeichnung() != null)) {
@@ -328,7 +328,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 }
             }
         }
-        lstMerkmale.setListData(merkmalCheckBoxes);
+        lstMerkmale.setListData(merkmalCheckBoxes.toArray());
 
         lstCrossRefs.setCellRenderer(new FlurstueckSchluesselRenderer());
         lstCrossRefs.setModel(new DefaultUniqueListModel());
@@ -369,7 +369,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 //        taBemerkung.setDocument(miPaModel.getBemerkungDocumentModel());
 //        valTxtBemerkung = new Validator(taBemerkung);
 //        valTxtBemerkung.reSetValidator((Validatable) miPaModel.getBemerkungDocumentModel());
-        miPaModel.addTableModelListener(this);
+        tableModel.addTableModelListener(this);
     }
 
     /**
@@ -421,9 +421,9 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         if (LOG.isDebugEnabled()) {
             LOG.debug("clearComponent", new CurrentStackTrace());
         }
-        miPaModel.clearSlaveComponents();
+        tableModel.clearSlaveComponents();
         deselectAllListEntries();
-        miPaModel.refreshTableModel(new HashSet<MipaCustomBean>());
+        tableModel.refreshTableModel(new HashSet<MipaCustomBean>());
         lstCrossRefs.setModel(new DefaultUniqueListModel());
         if (EventQueue.isDispatchThread()) {
             lstCrossRefs.updateUI();
@@ -466,7 +466,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 LOG.debug("MiPARessortWidget --> setComponentEditable");
             }
             isInEditMode = isEditable;
-            miPaModel.setInEditMode(isEditable);
+            tableModel.setInEditMode(isEditable);
             final TableCellEditor currentEditor = tblMipa.getCellEditor();
             if (currentEditor != null) {
                 currentEditor.cancelCellEditing();
@@ -484,9 +484,8 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 btnRemoveMiPa.setEnabled(isEditable);
             }
 
-            btnAddExitingMiPa.setEnabled(isEditable);
             btnAddMiPa.setEnabled(isEditable);
-            miPaModel.setInEditMode(isEditable);
+            tableModel.setInEditMode(isEditable);
             btnUndo.setEnabled(false);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("MiPARessortWidget --> setComponentEditable finished");
@@ -518,38 +517,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 }
                 isFlurstueckEditable = false;
             }
-
-            miPaModel.refreshTableModel(newFlurstueck.getMiPas());
-            final Collection<FlurstueckSchluesselCustomBean> crossRefs = newFlurstueck.getMiPasQuerverweise();
-            if ((crossRefs != null) && (crossRefs.size() > 0)) {
-                lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
-            }
-            EventQueue.invokeLater(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final Vector<Feature> features = miPaModel.getAllMiPaFeatures();
-                        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
-                        final FeatureCollection featureCollection = mappingComp.getFeatureCollection();
-                        if (features != null) {
-                            for (Feature currentFeature : features) {
-                                if (currentFeature != null) {
-                                    if (isWidgetReadOnly()) {
-                                        ((MiPa)currentFeature).setModifiable(false);
-                                    }
-
-                                    currentFeature = new StyledFeatureGroupWrapper(
-                                            (StyledFeature)currentFeature,
-                                            PROVIDER_NAME,
-                                            PROVIDER_NAME);
-
-                                    featureCollection.addFeature(currentFeature);
-                                }
-                            }
-                        }
-                        ((JXTable)tblMipa).packAll();
-                    }
-                });
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(MiPaPanel.this);
@@ -559,15 +526,60 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
     }
 
     @Override
+    public void propertyChange(final PropertyChangeEvent evt) {
+        if (LagisBrokerPropertyChangeListener.PROP__CURRENT_MIPAS.equals(evt.getPropertyName())) {
+            final Collection<MipaCustomBean> mipas = (Collection)evt.getNewValue();
+            tableModel.refreshTableModel(mipas);
+            final Collection<Feature> features = tableModel.getAllMiPaFeatures();
+            final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
+            final FeatureCollection featureCollection = mappingComp.getFeatureCollection();
+            if (features != null) {
+                for (Feature currentFeature : features) {
+                    if (currentFeature != null) {
+                        if (isWidgetReadOnly()) {
+                            ((MiPa)currentFeature).setModifiable(false);
+                        }
+
+                        currentFeature = new StyledFeatureGroupWrapper((StyledFeature)currentFeature,
+                                PROVIDER_NAME,
+                                PROVIDER_NAME);
+
+                        featureCollection.addFeature(currentFeature);
+                    }
+                }
+            }
+            ((JXTable)tblMipa).packAll();
+
+            new SwingWorker<Collection, Void>() {
+
+                    @Override
+                    protected Collection doInBackground() throws Exception {
+                        return LagisBroker.getInstance().getCrossreferencesForMiPas(mipas);
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            final Collection<FlurstueckSchluesselCustomBean> crossRefs = get();
+                            if ((crossRefs != null) && (crossRefs.size() > 0)) {
+                                lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
+                            }
+                            ((JXTable)tblMipa).packAll();
+                        } catch (final Exception ex) {
+                            LOG.error(ex, ex);
+                        }
+                    }
+                }.execute();
+        }
+    }
+
+    @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
-        final Collection<MipaCustomBean> miPas = flurstueck.getMiPas();
-        if (miPas != null) {
-            miPas.clear();
-            miPas.addAll((ArrayList<MipaCustomBean>)miPaModel.getCidsBeans());
-        } else {
-            final HashSet newSet = new HashSet();
-            newSet.addAll(miPaModel.getCidsBeans());
-            flurstueck.setMiPas(newSet);
+        final Collection<MipaCustomBean> mipas = LagisBroker.getInstance().getCurrentMipas();
+        for (final MipaCustomBean mipa : (List<MipaCustomBean>)tableModel.getCidsBeans()) {
+            if (!mipas.contains(mipa)) {
+                mipas.add(mipa);
+            }
         }
     }
 
@@ -650,8 +662,8 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
             final int index = ((JXTable)tblMipa).convertRowIndexToModel(viewIndex);
             if ((index != -1) && (tblMipa.getSelectedRowCount() <= 1)) {
-                final MiPa selectedMiPa = miPaModel.getCidsBeanAtRow(index);
-                miPaModel.setCurrentSelectedMipa(selectedMiPa);
+                final MiPa selectedMiPa = tableModel.getCidsBeanAtRow(index);
+                tableModel.setCurrentSelectedMipa(selectedMiPa);
                 if (selectedMiPa != null) {
                     updateCbxAuspraegung(selectedMiPa);
                     if (selectedMiPa.getGeometry() == null) {
@@ -700,7 +712,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         } else {
             btnRemoveMiPa.setEnabled(false);
             deselectAllListEntries();
-            miPaModel.clearSlaveComponents();
+            tableModel.clearSlaveComponents();
             enableSlaveComponents(false);
             return;
         }
@@ -713,7 +725,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
             validationMessage = "Bitte vollenden Sie alle Änderungen bei den Vermietungen und Verpachtungen.";
             return Validatable.ERROR;
         }
-        final ArrayList<MipaCustomBean> miPas = (ArrayList<MipaCustomBean>)miPaModel.getCidsBeans();
+        final ArrayList<MipaCustomBean> miPas = (ArrayList<MipaCustomBean>)tableModel.getCidsBeans();
         if ((miPas != null) || (miPas.size() > 0)) {
             for (final MiPa currentMiPa : miPas) {
                 if ((currentMiPa != null)
@@ -758,7 +770,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         // TODO use Constants from Java
         final MiPaMerkmalCheckBox checkBox = (MiPaMerkmalCheckBox)e.getSource();
         if (tblMipa.getSelectedRow() != -1) {
-            final MiPa miPa = miPaModel.getCidsBeanAtRow(((JXTable)tblMipa).convertRowIndexToModel(
+            final MiPa miPa = tableModel.getCidsBeanAtRow(((JXTable)tblMipa).convertRowIndexToModel(
                         tblMipa.getSelectedRow()));
             if (miPa != null) {
                 Collection<MipaMerkmalCustomBean> merkmale = miPa.getMiPaMerkmal();
@@ -840,9 +852,9 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         if (isWidgetReadOnly()) {
             return result;
         } else {
-            final int rowCount = miPaModel.getRowCount();
+            final int rowCount = tableModel.getRowCount();
             for (int i = 0; i < rowCount; i++) {
-                final MiPa currentMiPa = miPaModel.getCidsBeanAtRow(i);
+                final MiPa currentMiPa = tableModel.getCidsBeanAtRow(i);
                 // Geom geom;
                 if (currentMiPa.getGeometry() == null) {
                     result.add(new GeometrySlotInformation(
@@ -882,7 +894,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         cpMiPa = new javax.swing.JScrollPane();
         tblMipa = new MipaTable();
         jPanel3 = new javax.swing.JPanel();
-        btnAddExitingMiPa = new javax.swing.JButton();
         btnAddMiPa = new javax.swing.JButton();
         btnRemoveMiPa = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
@@ -958,26 +969,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         jPanel4.add(cpMiPa, gridBagConstraints);
 
         jPanel3.setLayout(new java.awt.GridBagLayout());
-
-        btnAddExitingMiPa.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
-        btnAddExitingMiPa.setBorder(null);
-        btnAddExitingMiPa.setBorderPainted(false);
-        btnAddExitingMiPa.setMaximumSize(new java.awt.Dimension(25, 25));
-        btnAddExitingMiPa.setMinimumSize(new java.awt.Dimension(25, 25));
-        btnAddExitingMiPa.setPreferredSize(new java.awt.Dimension(25, 25));
-        btnAddExitingMiPa.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    btnAddExitingMiPaActionPerformed(evt);
-                }
-            });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
-        jPanel3.add(btnAddExitingMiPa, gridBagConstraints);
 
         btnAddMiPa.setAction(((MipaTable)tblMipa).getAddAction());
         btnAddMiPa.setIcon(new javax.swing.ImageIcon(
@@ -1298,50 +1289,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
     /**
      * DOCUMENT ME!
-     *
-     * @param  evt  DOCUMENT ME!
-     */
-    private void btnAddExitingMiPaActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingMiPaActionPerformed
-        final JDialog dialog = new JDialog(LagisApp.getInstance(), "", true);
-        dialog.add(new AddExistingMiPaPanel(
-                LagisBroker.getInstance().getCurrentFlurstueck(),
-                miPaModel,
-                lstCrossRefs.getModel()));
-        dialog.pack();
-        dialog.setIconImage(icoExistingContract.getImage());
-        dialog.setTitle("Vorhandener Vertrag hinzufügen...");
-        StaticSwingTools.showDialog(dialog);
-    }                                                                                     //GEN-LAST:event_btnAddExitingMiPaActionPerformed
-
-    /**
-     * DOCUMENT ME!
-     */
-    private void updateCrossRefs() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Update der Querverweise");
-        }
-        final Collection<FlurstueckSchluesselCustomBean> crossRefs = LagisBroker.getInstance()
-                    .getCrossreferencesForMiPas(new HashSet(miPaModel.getCidsBeans()));
-        final DefaultUniqueListModel newModel = new DefaultUniqueListModel();
-        if (crossRefs != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Es sind Querverweise auf MiPas vorhanden");
-            }
-            LagisBroker.getInstance().getCurrentFlurstueck().setVertraegeQuerverweise(crossRefs);
-            final Iterator<FlurstueckSchluesselCustomBean> it = crossRefs.iterator();
-            while (it.hasNext()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ein Querverweis hinzugefügt");
-                }
-                newModel.addElement(it.next());
-            }
-            newModel.removeElement(LagisBroker.getInstance().getCurrentFlurstueck().getFlurstueckSchluessel());
-        }
-        lstCrossRefs.setModel(newModel);
-    }
-
-    /**
-     * DOCUMENT ME!
      */
     private void updateWidgetUi() {
         tblMipa.repaint();
@@ -1391,8 +1338,8 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
     @Override
     public List<BasicEntity> getCopyData() {
-        final ArrayList<MipaCustomBean> allMiPas = (ArrayList<MipaCustomBean>)this.miPaModel.getCidsBeans();
-        final ArrayList<BasicEntity> result = new ArrayList<BasicEntity>(allMiPas.size());
+        final ArrayList<MipaCustomBean> allMiPas = (ArrayList<MipaCustomBean>)this.tableModel.getCidsBeans();
+        final ArrayList<BasicEntity> result = new ArrayList<>(allMiPas.size());
 
         MipaCustomBean tmp;
         for (final MipaCustomBean mipa : allMiPas) {
@@ -1437,20 +1384,20 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         }
 
         if (item instanceof MiPa) {
-            final Collection<MipaCustomBean> residentMiPas = (Collection<MipaCustomBean>)this.miPaModel.getCidsBeans();
+            final Collection<MipaCustomBean> residentMiPas = (Collection<MipaCustomBean>)this.tableModel.getCidsBeans();
 
             if (residentMiPas.contains(item)) {
                 LOG.warn("MiPa " + item + " does already exist in Flurstück "
                             + LagisBroker.getInstance().getCurrentFlurstueck());
             } else {
-                this.miPaModel.addCidsBean((MipaCustomBean)item);
+                this.tableModel.addCidsBean((MipaCustomBean)item);
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
                 final Feature f = new StyledFeatureGroupWrapper((StyledFeature)item, PROVIDER_NAME, PROVIDER_NAME);
                 mc.getFeatureCollection().addFeature(f);
                 mc.setGroupLayerVisibility(PROVIDER_NAME, true);
 
-                this.miPaModel.fireTableDataChanged();
+                this.tableModel.fireTableDataChanged();
             }
         }
     }
@@ -1465,8 +1412,8 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
             return;
         }
 
-        final ArrayList<MipaCustomBean> residentMiPas = (ArrayList<MipaCustomBean>)this.miPaModel.getCidsBeans();
-        final int rowCountBefore = this.miPaModel.getRowCount();
+        final ArrayList<MipaCustomBean> residentMiPas = (ArrayList<MipaCustomBean>)this.tableModel.getCidsBeans();
+        final int rowCountBefore = this.tableModel.getRowCount();
 
         Feature f;
         final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
@@ -1478,17 +1425,17 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                     LOG.warn("Verwaltungsbereich " + entity + " does already exist in Flurstück "
                                 + LagisBroker.getInstance().getCurrentFlurstueck());
                 } else {
-                    this.miPaModel.addCidsBean((MipaCustomBean)entity);
+                    this.tableModel.addCidsBean((MipaCustomBean)entity);
                     f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
                     featCollection.addFeature(f);
                 }
             }
         }
 
-        if (rowCountBefore == this.miPaModel.getRowCount()) {
+        if (rowCountBefore == this.tableModel.getRowCount()) {
             LOG.warn("No MiPa items were added from input list " + dataList);
         } else {
-            this.miPaModel.fireTableDataChanged();
+            this.tableModel.fireTableDataChanged();
             mc.setGroupLayerVisibility(PROVIDER_NAME, true);
         }
     }
@@ -1518,7 +1465,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
     @Override
     public void duringRemoveAction(final Object source) {
-        updateCrossRefs();
         enableSlaveComponents(false);
         deselectAllListEntries();
         if (LOG.isDebugEnabled()) {
