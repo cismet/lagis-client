@@ -45,12 +45,10 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
             "fk_flurstueck_schluessel",
             "in_stadtbesitz",
             "ar_baeume",
-            "ar_mipas",
             "ar_vertraege",
             "n_verwaltungsbereiche_eintraege",
             "n_dms_urls",
             "n_nutzungen",
-            "n_rebes",
             "n_kassenzeichen",
             "n_zusatz_rollen"
         };
@@ -67,7 +65,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private FlurstueckSchluesselCustomBean fk_flurstueck_schluessel;
     private Boolean in_stadtbesitz;
     private Collection<BaumCustomBean> ar_baeume;
-    private Collection<MipaCustomBean> ar_mipas;
     private Collection<VertragCustomBean> ar_vertraege;
     private Collection<VerwaltungsbereicheEintragCustomBean> n_verwaltungsbereiche_eintraege;
     private Collection<DmsUrlCustomBean> n_dms_urls;
@@ -232,26 +229,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
         this.ar_baeume = paramCollection;
 
         this.propertyChangeSupport.firePropertyChange("ar_baeume", null, this.ar_baeume);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<MipaCustomBean> getAr_mipas() {
-        return this.ar_mipas;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  paramCollection  DOCUMENT ME!
-     */
-    public void setAr_mipas(final Collection<MipaCustomBean> paramCollection) {
-        this.ar_mipas = paramCollection;
-
-        this.propertyChangeSupport.firePropertyChange("ar_mipas", null, this.ar_mipas);
     }
 
     /**
@@ -432,16 +409,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     }
 
     @Override
-    public Collection<MipaCustomBean> getMiPas() {
-        return getAr_mipas();
-    }
-
-    @Override
-    public void setMiPas(final Collection<MipaCustomBean> val) {
-        setAr_mipas(val);
-    }
-
-    @Override
     public Collection<BaumCustomBean> getBaeume() {
         return getAr_baeume();
     }
@@ -564,16 +531,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     @Override
     public void setVertraegeQuerverweise(final Collection<FlurstueckSchluesselCustomBean> val) {
         vertrag_querverweise = val;
-    }
-
-    @Override
-    public Collection<FlurstueckSchluesselCustomBean> getMiPasQuerverweise() {
-        return mipa_querverweise;
-    }
-
-    @Override
-    public void setMiPasQuerverweise(final Collection<FlurstueckSchluesselCustomBean> val) {
-        mipa_querverweise = val;
     }
 
     @Override

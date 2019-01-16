@@ -800,7 +800,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public void propertyChange(final PropertyChangeEvent evt) {
         if (LagisBrokerPropertyChangeListener.PROP__CURRENT_REBES.equals(evt.getPropertyName())) {
-            tableModel.refreshTableModel(LagisBroker.getInstance().getCurrentRebes());
+            tableModel.refreshTableModel((Collection)evt.getNewValue());
             final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
             if (features != null) {
                 for (final Feature currentFeature : features) {

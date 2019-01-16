@@ -67,20 +67,6 @@ public interface Flurstueck {
      *
      * @return  DOCUMENT ME!
      */
-    Collection<MipaCustomBean> getMiPas();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  miPas  DOCUMENT ME!
-     */
-    void setMiPas(final Collection<MipaCustomBean> miPas);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     Collection<BaumCustomBean> getBaeume();
 
     /**
@@ -167,19 +153,19 @@ public interface Flurstueck {
      */
     void setVertraegeQuerverweise(final Collection<FlurstueckSchluesselCustomBean> querverweise);
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    Collection<FlurstueckSchluesselCustomBean> getMiPasQuerverweise();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  miPasQuerverweise  DOCUMENT ME!
-     */
-    void setMiPasQuerverweise(final Collection<FlurstueckSchluesselCustomBean> miPasQuerverweise);
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @return  DOCUMENT ME!
+//     */
+//    Collection<FlurstueckSchluesselCustomBean> getMiPasQuerverweise();
+//
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @param  miPasQuerverweise  DOCUMENT ME!
+//     */
+//    void setMiPasQuerverweise(final Collection<FlurstueckSchluesselCustomBean> miPasQuerverweise);
 
     /**
      * DOCUMENT ME!

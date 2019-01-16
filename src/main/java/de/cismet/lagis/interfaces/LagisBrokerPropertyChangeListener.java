@@ -26,11 +26,12 @@ import java.beans.PropertyChangeListener;
  */
 public interface LagisBrokerPropertyChangeListener extends PropertyChangeListener {
 
-    //~ Static fields/initializers ---------------------------------------------
+    //~ Instance fields --------------------------------------------------------
 
     String PROP__CURRENT_WFS_GEOMETRY = "currentWFSGeometry";
     String PROP__CURRENT_WFS_GEOMETRY_ERROR = "currentWFSGeometryError";
     String PROP__CURRENT_REBES = "currentRebes";
+    String PROP__CURRENT_MIPAS = "currentMipas";
 
     //~ Methods ----------------------------------------------------------------
 

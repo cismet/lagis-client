@@ -9,14 +9,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.cismet.lagis.gui.panels;
+package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Vector;
 
 import javax.swing.text.BadLocationException;
 
@@ -29,7 +27,6 @@ import de.cismet.cismap.commons.features.Feature;
 
 import de.cismet.lagis.broker.LagisBroker;
 
-import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
 import de.cismet.lagis.models.documents.SimpleDocumentModel;
 
 import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
@@ -77,9 +74,10 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
     public static final int VERTRAGS_BEGINN_COLUMN = 6;
     public static final int VERTRAGS_ENDE_COLUMN = 7;
 
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(MiPaModel.class);
+
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private SimpleDocumentModel bemerkungDocumentModel;
     private MiPa currentSelectedMiPa = null;
 
@@ -109,7 +107,7 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
     public Object getValueAt(final int rowIndex, final int columnIndex) {
         try {
             if (rowIndex >= getRowCount()) {
-                log.warn("Cannot access row " + rowIndex + ". There are just " + getRowCount() + " rows");
+                LOG.warn("Cannot access row " + rowIndex + ". There are just " + getRowCount() + " rows");
                 return null;
             }
 
@@ -165,7 +163,7 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
                 }
             }
         } catch (Exception ex) {
-            log.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
     }
@@ -177,11 +175,16 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
      */
     @Override
     public void removeCidsBean(final int rowIndex) {
-        final MiPa miPa = getCidsBeanAtRow(rowIndex);
-        if ((miPa != null) && (miPa.getGeometry() != null)) {
-            LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(miPa);
+        try {
+            final MipaCustomBean miPa = getCidsBeanAtRow(rowIndex);
+            if ((miPa != null) && (miPa.getGeometry() != null)) {
+                LagisBroker.getInstance().getMappingComponent().getFeatureCollection().removeFeature(miPa);
+            }
+            miPa.delete();
+            super.removeCidsBean(rowIndex);
+        } catch (final Exception ex) {
+            LOG.error("An error occurred while removing MiPa from MipaTableModel", ex);
         }
-        super.removeCidsBean(rowIndex);
     }
 
     @Override
@@ -213,17 +216,15 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
      *
      * @return  DOCUMENT ME!
      */
-    public Vector<Feature> getAllMiPaFeatures() {
-        final Vector<Feature> tmp = new Vector<Feature>();
+    public Collection<Feature> getAllMiPaFeatures() {
+        final Collection<Feature> mipaFeatures = new ArrayList<>();
         if (getCidsBeans() != null) {
-            final Iterator<MipaCustomBean> it = (Iterator<MipaCustomBean>)getCidsBeans().iterator();
-            while (it.hasNext()) {
-                final MiPa curMiPa = it.next();
+            for (final MipaCustomBean curMiPa : (Collection<MipaCustomBean>)getCidsBeans()) {
                 if (curMiPa.getGeometry() != null) {
-                    tmp.add(curMiPa);
+                    mipaFeatures.add(curMiPa);
                 }
             }
-            return tmp;
+            return mipaFeatures;
         } else {
             return null;
         }
@@ -265,8 +266,8 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
                         MiPaKategorie oldKategory = null;
                         if (((oldKategory = value.getMiPaNutzung().getMiPaKategorie()) != null) && (aValue != null)) {
                             if (!oldKategory.equals(aValue)) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Kategorie hat sich geändert --> Ausprägung ist nicht mehr gültig");
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Kategorie hat sich geändert --> Ausprägung ist nicht mehr gültig");
                                 }
                                 value.getMiPaNutzung().setAusgewaehlteAuspraegung(null);
                                 value.getMiPaNutzung().setAusgewaehlteNummer(null);
@@ -317,13 +318,13 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
                     break;
                 }
                 default: {
-                    log.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
+                    LOG.warn("Keine Spalte für angegebenen Index vorhanden: " + columnIndex);
                     return;
                 }
             }
             fireTableDataChanged();
         } catch (Exception ex) {
-            log.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
+            LOG.error("Fehler beim setzen von Daten in dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
         }
     }
 
@@ -335,9 +336,9 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
 
                 @Override
                 public void assignValue(final String newValue) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Bemerkung assigned");
-                        log.debug("new Value: " + newValue);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Bemerkung assigned");
+                        LOG.debug("new Value: " + newValue);
                     }
                     valueToCheck = newValue;
                     fireValidationStateChanged(this);
@@ -353,8 +354,8 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
      */
     public void clearSlaveComponents() {
         try {
-            if (log.isDebugEnabled()) {
-                log.debug("Clear Slave Components");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Clear Slave Components");
             }
             bemerkungDocumentModel.clear(0, bemerkungDocumentModel.getLength());
         } catch (Exception ex) {
@@ -383,11 +384,11 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
                 bemerkungDocumentModel.insertString(0, currentSelectedMiPa.getBemerkung(), null);
             } catch (BadLocationException ex) {
                 // TODO Böse
-                log.error("Fehler beim setzen des BemerkungsModells: ", ex);
+                LOG.error("Fehler beim setzen des BemerkungsModells: ", ex);
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("nichts selektiert lösche Felder");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("nichts selektiert lösche Felder");
             }
             clearSlaveComponents();
         }
