@@ -116,7 +116,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
     private javax.swing.JButton btnUndo;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tReBe;
@@ -456,12 +455,13 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tReBe = new ReBeTable();
-        jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         btnRemoveReBe = new javax.swing.JButton();
         btnAddReBe = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
         btnUndo = new javax.swing.JButton();
+
+        setLayout(new java.awt.GridBagLayout());
 
         tReBe.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tReBe.setModel(new javax.swing.table.DefaultTableModel(
@@ -507,7 +507,15 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             });
         jScrollPane1.setViewportView(tReBe);
 
-        jLabel1.setText("Rechte und Belastungen:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
+        add(jScrollPane1, gridBagConstraints);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -569,37 +577,12 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(btnUndo, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        layout.createSequentialGroup().add(jLabel1).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(
-                            jPanel1,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        jScrollPane1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        631,
-                        Short.MAX_VALUE)).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
-                        jPanel1,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    243,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+        add(jPanel1, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
 
     // End of variables declaration

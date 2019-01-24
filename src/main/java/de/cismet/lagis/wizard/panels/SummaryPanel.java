@@ -38,6 +38,8 @@ public class SummaryPanel extends JPanel {
         "<td><b>Differenz Quell- und Ziel-Flurst&uuml;ck(e):</b></td> <td align='right'>%.2f</td></tr>";
     private static final String HTML_SEP = "<tr><td colspan='2'><hr/></td></tr>";
     private static final String HTML_FS_REC = "<tr><td><b>Flurst&uuml;ck %s:</b></td> <td align='right'>%.2f</td></tr>";
+    private static final String HTML_SMALL_AREA =
+        "<tr><td colspan='2'><b>Achtung! Es entstehen Flurst&uuml;cke &lt; 2 m².<br/>Bitte die Eintragung der Belastungen<br/>und Pachtvertr&auml;ge kontrollieren.</b></td></tr>";
     private static final String HTML_END = "</table></center></body></html>";
 
     public static final String GEOM_AREA_CHECKER = "Geometry Area Checker";
@@ -81,6 +83,7 @@ public class SummaryPanel extends JPanel {
         final StringBuilder builder = new StringBuilder(HTML_BEGIN);
         Geometry tmpGeom;
 
+        boolean smallArea = false;
         for (final Map.Entry<FlurstueckSchluesselCustomBean, Geometry> entry : targetGeomsMap.entrySet()) {
             tmpGeom = entry.getValue();
             if (tmpGeom == null) {
@@ -98,6 +101,9 @@ public class SummaryPanel extends JPanel {
                     builder.append(String.format(HTML_FS_REC, entry.getKey().getKeyString(), 0.0));
                 } else {
                     builder.append(String.format(HTML_FS_REC, entry.getKey().getKeyString(), tmpGeom.getArea()));
+                    if (tmpGeom.getArea() < 2) {
+                        smallArea = true;
+                    }
                 }
             }
             builder.append(HTML_SEP);
@@ -108,6 +114,12 @@ public class SummaryPanel extends JPanel {
         final double sumArea = chk.getSumArea();
 
         builder.append(String.format(HTML_DIFF_REC, Math.abs(sumArea - sumTargets)));
+
+        if (smallArea) {
+            builder.append(HTML_SEP);
+            builder.append(HTML_SMALL_AREA);
+        }
+
         builder.append(HTML_END);
 
         return builder.toString();

@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -133,6 +134,7 @@ import de.cismet.lagis.utillity.Message;
 
 import de.cismet.lagis.validation.Validatable;
 
+import de.cismet.lagis.wizard.GeometryWorker;
 import de.cismet.lagis.wizard.panels.HistoricNoSucessorDialog;
 
 import de.cismet.lagisEE.interfaces.GeometrySlot;
@@ -297,8 +299,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     // TODO Jean
     // private KassenzeichenFacadeRemote verdisServer;
     private Geometry currentWFSGeometry;
-    private double mipaBuffer = -0.5;
-    private double rebeBuffer = -0.5;
+    private double mipaBuffer = -1;
+    private double rebeBuffer = -1;
     private double kassenzeichenBuffer = -0.2;
     private double kassenzeichenBuffer100 = -0.5;
     private boolean skipSecurityCheckFlurstueckAssistent = false;
@@ -2371,7 +2373,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         }
 
         final FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = getCurrentFlurstueckSchluessel();
-        final Collection<CidsBean> alkisFlurstuecke = searchAlkisLandparcelBeans(mipa.getGeometry());
+        final Collection<CidsBean> alkisFlurstuecke = searchAlkisLandparcelBeans(mipa.getGeometry().buffer(mipaBuffer));
         final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<>();
         for (final CidsBean alkisFlurstueck : alkisFlurstuecke) {
             if (alkisFlurstueck != null) {
@@ -2615,10 +2617,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
 //                            }
 //                        }
 //                    }
-                    final List<RebeCustomBean> rechteUndBelastungen = getCurrentRebes();
+                    final GeometryWorker worker = new GeometryWorker(Arrays.asList(key));
+                    final Map<FlurstueckSchluesselCustomBean, Geometry> result = worker.call();
+                    final Geometry flurstueckGeometry = result.get(key);
+
+                    final List<RebeCustomBean> rechteUndBelastungen = getRechteUndBelastungen(flurstueckGeometry);
                     final boolean hasReBe = !rechteUndBelastungen.isEmpty();
 
-                    final List<MipaCustomBean> mipas = getCurrentMipas();
+                    final List<MipaCustomBean> mipas = getMiPas(flurstueckGeometry);
                     final boolean hasMiPa = !mipas.isEmpty();
 
                     final Date rebeLoeschDatum;
@@ -2639,9 +2645,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     if (rebeLoeschDatum != null) {
                         for (final MipaCustomBean mipa : mipas) {
                             mipa.setVertragsende(mipaVertragsendeDatum);
+                            mipa.persist();
                         }
                         for (final RebeCustomBean rebe : rechteUndBelastungen) {
                             rebe.setDatumLoeschung(rebeLoeschDatum);
+                            rebe.persist();
                         }
                     }
                 }

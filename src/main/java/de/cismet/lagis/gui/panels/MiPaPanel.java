@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -163,12 +164,10 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JList lstCrossRefs;
     private javax.swing.JList lstMerkmale;
-    private javax.swing.JPanel panBackground;
     private javax.swing.JPanel panBemerkung;
     private javax.swing.JPanel panBemerkungTitled;
     private javax.swing.JPanel panMerkmale;
     private javax.swing.JPanel panMerkmaleTitled;
-    private javax.swing.JPanel panMiPaBordered;
     private javax.swing.JPanel panQuerverweise;
     private javax.swing.JPanel panQuerverweiseTitled;
     private javax.swing.JScrollPane spBemerkung;
@@ -200,7 +199,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         setWidgetName(widgetName);
         setWidgetIcon(iconPath);
         configureComponents();
-        setOpaqueRecursive(panBackground.getComponents());
+        setOpaqueRecursive(jPanel1.getComponents());
 
         this.copyDisplayIcon = new ImageIcon(this.getClass().getResource(WIDGET_ICON));
         LagisBroker.getInstance().addWfsFlurstueckGeometryChangeListener(this);
@@ -550,6 +549,9 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
             }
             ((JXTable)tblMipa).packAll();
 
+            final DefaultListModel loadingModel = new DefaultListModel();
+            loadingModel.addElement("werden geladen...");
+            lstCrossRefs.setModel(loadingModel);
             new SwingWorker<Collection, Void>() {
 
                     @Override
@@ -563,10 +565,13 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                             final Collection<FlurstueckSchluesselCustomBean> crossRefs = get();
                             if ((crossRefs != null) && (crossRefs.size() > 0)) {
                                 lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
+                            } else {
+                                lstCrossRefs.setModel(new DefaultUniqueListModel());
                             }
                             ((JXTable)tblMipa).packAll();
                         } catch (final Exception ex) {
                             LOG.error(ex, ex);
+                            lstCrossRefs.setModel(null);
                         }
                     }
                 }.execute();
@@ -889,7 +894,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
         jPanel2 = new javax.swing.JPanel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
-        panMiPaBordered = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         cpMiPa = new javax.swing.JScrollPane();
         tblMipa = new MipaTable();
@@ -899,7 +903,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         tbtnSort = new javax.swing.JToggleButton();
         btnUndo = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        panBackground = new javax.swing.JPanel();
         panQuerverweise = new javax.swing.JPanel();
         panQuerverweiseTitled = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -933,7 +936,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                     126,
                     Short.MAX_VALUE).addContainerGap()));
 
-        panMiPaBordered.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        setLayout(new java.awt.GridBagLayout());
 
         jPanel4.setLayout(new java.awt.GridBagLayout());
 
@@ -1035,30 +1038,25 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         gridBagConstraints.gridy = 0;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(10, 0, 3, 2);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 2, 2);
         jPanel4.add(jPanel3, gridBagConstraints);
 
-        final javax.swing.GroupLayout panMiPaBorderedLayout = new javax.swing.GroupLayout(panMiPaBordered);
-        panMiPaBordered.setLayout(panMiPaBorderedLayout);
-        panMiPaBorderedLayout.setHorizontalGroup(
-            panMiPaBorderedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panMiPaBorderedLayout.createSequentialGroup().addContainerGap().addComponent(
-                    jPanel4,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    0,
-                    Short.MAX_VALUE).addContainerGap()));
-        panMiPaBorderedLayout.setVerticalGroup(
-            panMiPaBorderedLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panMiPaBorderedLayout.createSequentialGroup().addGap(0, 0, 0).addComponent(
-                    jPanel4,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    478,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 6, 12);
+        add(jPanel4, gridBagConstraints);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel1.setMinimumSize(new java.awt.Dimension(24, 100));
+        jPanel1.setPreferredSize(new java.awt.Dimension(314, 100));
+        jPanel1.setLayout(new java.awt.GridBagLayout());
 
         panQuerverweise.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         panQuerverweise.setOpaque(false);
+        panQuerverweise.setLayout(new java.awt.GridBagLayout());
 
         panQuerverweiseTitled.setOpaque(false);
 
@@ -1074,40 +1072,49 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         panQuerverweiseTitledLayout.setHorizontalGroup(
             panQuerverweiseTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
                 jScrollPane1,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                187,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                0,
                 Short.MAX_VALUE));
         panQuerverweiseTitledLayout.setVerticalGroup(
             panQuerverweiseTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
                 jScrollPane1,
                 javax.swing.GroupLayout.DEFAULT_SIZE,
-                31,
+                61,
                 Short.MAX_VALUE));
 
-        jLabel2.setText("Querverweise:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 6);
+        panQuerverweise.add(panQuerverweiseTitled, gridBagConstraints);
 
-        final javax.swing.GroupLayout panQuerverweiseLayout = new javax.swing.GroupLayout(panQuerverweise);
-        panQuerverweise.setLayout(panQuerverweiseLayout);
-        panQuerverweiseLayout.setHorizontalGroup(
-            panQuerverweiseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panQuerverweiseLayout.createSequentialGroup().addContainerGap().addGroup(
-                    panQuerverweiseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                        jLabel2).addComponent(
-                        panQuerverweiseTitled,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addContainerGap()));
-        panQuerverweiseLayout.setVerticalGroup(
-            panQuerverweiseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panQuerverweiseLayout.createSequentialGroup().addContainerGap().addComponent(jLabel2).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    panQuerverweiseTitled,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addContainerGap()));
+        jLabel2.setText("Querverweise:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        panQuerverweise.add(jLabel2, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 6);
+        jPanel1.add(panQuerverweise, gridBagConstraints);
 
         panMerkmale.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         panMerkmale.setOpaque(false);
+        panMerkmale.setLayout(new java.awt.GridBagLayout());
 
         panMerkmaleTitled.setOpaque(false);
 
@@ -1123,39 +1130,49 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         panMerkmaleTitledLayout.setHorizontalGroup(
             panMerkmaleTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
                 spMerkmale,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                171,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                0,
                 Short.MAX_VALUE));
         panMerkmaleTitledLayout.setVerticalGroup(
             panMerkmaleTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
                 spMerkmale,
                 javax.swing.GroupLayout.DEFAULT_SIZE,
-                31,
+                61,
                 Short.MAX_VALUE));
 
-        jLabel1.setText("Merkmale:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 6);
+        panMerkmale.add(panMerkmaleTitled, gridBagConstraints);
 
-        final javax.swing.GroupLayout panMerkmaleLayout = new javax.swing.GroupLayout(panMerkmale);
-        panMerkmale.setLayout(panMerkmaleLayout);
-        panMerkmaleLayout.setHorizontalGroup(
-            panMerkmaleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panMerkmaleLayout.createSequentialGroup().addContainerGap().addGroup(
-                    panMerkmaleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                        panMerkmaleTitled,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).addComponent(jLabel1)).addContainerGap()));
-        panMerkmaleLayout.setVerticalGroup(
-            panMerkmaleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panMerkmaleLayout.createSequentialGroup().addContainerGap().addComponent(jLabel1).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    panMerkmaleTitled,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addContainerGap()));
+        jLabel1.setText("Merkmale:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        panMerkmale.add(jLabel1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 6);
+        jPanel1.add(panMerkmale, gridBagConstraints);
 
         panBemerkung.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         panBemerkung.setOpaque(false);
+        panBemerkung.setLayout(new java.awt.GridBagLayout());
 
         panBemerkungTitled.setOpaque(false);
 
@@ -1174,117 +1191,53 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         panBemerkungTitledLayout.setHorizontalGroup(
             panBemerkungTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
                 spBemerkung,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                254,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                0,
                 Short.MAX_VALUE));
         panBemerkungTitledLayout.setVerticalGroup(
             panBemerkungTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
                 spBemerkung,
                 javax.swing.GroupLayout.DEFAULT_SIZE,
-                31,
+                61,
                 Short.MAX_VALUE));
 
-        jLabel3.setText("Bemerkung");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 6);
+        panBemerkung.add(panBemerkungTitled, gridBagConstraints);
 
-        final javax.swing.GroupLayout panBemerkungLayout = new javax.swing.GroupLayout(panBemerkung);
-        panBemerkung.setLayout(panBemerkungLayout);
-        panBemerkungLayout.setHorizontalGroup(
-            panBemerkungLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panBemerkungLayout.createSequentialGroup().addContainerGap().addGroup(
-                    panBemerkungLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                        panBemerkungTitled,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).addComponent(jLabel3)).addContainerGap()));
-        panBemerkungLayout.setVerticalGroup(
-            panBemerkungLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panBemerkungLayout.createSequentialGroup().addContainerGap().addComponent(jLabel3).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    panBemerkungTitled,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addContainerGap()));
+        jLabel3.setText("Bemerkung:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        panBemerkung.add(jLabel3, gridBagConstraints);
 
-        final javax.swing.GroupLayout panBackgroundLayout = new javax.swing.GroupLayout(panBackground);
-        panBackground.setLayout(panBackgroundLayout);
-        panBackgroundLayout.setHorizontalGroup(
-            panBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                panBackgroundLayout.createSequentialGroup().addComponent(
-                    panMerkmale,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    panQuerverweise,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    panBemerkung,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE)));
-        panBackgroundLayout.setVerticalGroup(
-            panBackgroundLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                panBemerkung,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                Short.MAX_VALUE).addComponent(
-                panMerkmale,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                Short.MAX_VALUE).addComponent(
-                panQuerverweise,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                javax.swing.GroupLayout.DEFAULT_SIZE,
-                Short.MAX_VALUE));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        jPanel1.add(panBemerkung, gridBagConstraints);
 
-        final javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                jPanel1Layout.createSequentialGroup().addContainerGap().addComponent(
-                    panBackground,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addContainerGap()));
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                jPanel1Layout.createSequentialGroup().addContainerGap().addComponent(
-                    panBackground,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addContainerGap()));
-
-        final javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                javax.swing.GroupLayout.Alignment.TRAILING,
-                layout.createSequentialGroup().addContainerGap().addGroup(
-                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addComponent(
-                        panMiPaBordered,
-                        javax.swing.GroupLayout.Alignment.LEADING,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).addComponent(
-                        jPanel1,
-                        javax.swing.GroupLayout.Alignment.LEADING,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE)).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                javax.swing.GroupLayout.Alignment.TRAILING,
-                layout.createSequentialGroup().addContainerGap().addComponent(
-                    panMiPaBordered,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    jPanel1,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 11, 12);
+        add(jPanel1, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
 
     /**

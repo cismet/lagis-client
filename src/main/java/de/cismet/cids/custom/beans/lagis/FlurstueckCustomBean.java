@@ -56,7 +56,6 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     //~ Instance fields --------------------------------------------------------
 
     private Collection<FlurstueckSchluesselCustomBean> vertrag_querverweise;
-    private Collection<FlurstueckSchluesselCustomBean> mipa_querverweise;
     private Collection<FlurstueckSchluesselCustomBean> baum_querverweise;
 
     private Integer id;

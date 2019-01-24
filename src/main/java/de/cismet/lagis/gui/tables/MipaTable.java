@@ -11,9 +11,17 @@
  */
 package de.cismet.lagis.gui.tables;
 
+import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 
+import de.cismet.cismap.commons.features.Feature;
+import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
+
+import de.cismet.lagis.broker.LagisBroker;
+
 import de.cismet.lagis.models.MiPaModel;
+
+import static de.cismet.lagis.gui.panels.VerwaltungsPanel.PROVIDER_NAME;
 
 /**
  * DOCUMENT ME!
@@ -50,7 +58,16 @@ public class MipaTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void addNewItem() {
         final MipaCustomBean tmpMiPa = MipaCustomBean.createNew();
+        final GeomCustomBean tmpGeom = GeomCustomBean.createNew();
+        tmpGeom.setGeo_field(LagisBroker.getInstance().getCurrentWFSGeometry());
+        tmpMiPa.setGeometrie(tmpGeom);
+        tmpMiPa.setFlaeche(tmpGeom.getGeo_field().getArea());
         ((MiPaModel)getModel()).addCidsBean(tmpMiPa);
+
+        final Feature feature = new StyledFeatureGroupWrapper(tmpMiPa, PROVIDER_NAME, PROVIDER_NAME);
+        LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(feature);
+
+        fireItemAdded();
     }
 
     @Override
