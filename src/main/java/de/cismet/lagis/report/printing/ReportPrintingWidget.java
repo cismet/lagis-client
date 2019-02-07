@@ -278,8 +278,8 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
                     if (zl < 1) {
                         myWeb.setSize(
                             new Dimension(
-                                (int)(HISTORY_IMAGE_WIDTH / DPI_FACTOR / zl),
-                                (int)(HISTORY_IMAGE_HEIGHT / DPI_FACTOR / zl)));
+                                (int)(HISTORY_IMAGE_WIDTH * DPI_FACTOR / zl),
+                                (int)(HISTORY_IMAGE_HEIGHT * DPI_FACTOR / zl)));
                         myWeb.loadContent(graphContent);
                     } else {
                         final SnapshotParameters params = new SnapshotParameters();
