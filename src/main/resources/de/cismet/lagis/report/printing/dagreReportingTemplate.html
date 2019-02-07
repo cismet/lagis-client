@@ -131,13 +131,10 @@
 
                 var zoomlevel;
                 
-                if (graphWidth < graphHeight) {
+                if (graphWidth / graphHeight < width / height) {
                     zoomlevel = height / graphHeight;
                 } else {
                     zoomlevel = width / graphWidth;
-                }
-                if (zoomlevel > 1) {
-                    zoomlevel = 1;
                 }
 
                 zoom.scale(zoomlevel);
