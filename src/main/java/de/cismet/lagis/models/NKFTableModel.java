@@ -17,8 +17,6 @@ package de.cismet.lagis.models;
 
 import org.apache.log4j.Logger;
 
-import java.text.DecimalFormat;
-
 import java.util.*;
 
 import javax.swing.Icon;
@@ -36,6 +34,8 @@ import de.cismet.lagis.Exception.TerminateNutzungNotPossibleException;
 
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
+
 import de.cismet.tools.CurrentStackTrace;
 
 /**
@@ -48,14 +48,27 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
 
+    public static final int COLUMN_NUTZUNGS_NUMMER = 0;
+    public static final int COLUMN_BUCHUNGS_NUMMER = 1;
+    public static final int COLUMN_ANLAGEKLASSE = 2;
+    public static final int COLUMN_NUTZUNGSART_SCHLUESSEL = 3;
+    public static final int COLUMN_NUTZUNGSART_BEZEICHNUNG = 4;
+    public static final int COLUMN_FLAECHE = 5;
+    public static final int COLUMN_QUADRATMETER_PREIS = 6;
+    public static final int COLUMN_GESAMT_PREIS = 7;
+    public static final int COLUMN_STILLE_RESERVE = 8;
+    public static final int COLUMN_BUCHWERT = 9;
+    public static final int COLUMN_BEMERKUNG = 10;
+    public static final int COLUMN_LAST = 11;
+
     private static final String[] COLUMN_NAMES = {
-            "Nutzungs Nr.",
-            "Buchungsnummer",
+            "Nutzungs-Nr.",
+            "Buchungs-Nr.",
             "Anlageklasse",
-            "Nutzungsartenschlüssel",
             "Nutzungsart",
-            "Fläche m²",
-            "Quadratmeterpreis",
+            "Nutzungsarten-Bezeichnung",
+            "Fläche/m²",
+            "m²-Preis",
             "Gesamtpreis",
             "Stille Reserve",
             "Buchwert",
@@ -65,8 +78,8 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             Integer.class,
             Integer.class,
             AnlageklasseCustomBean.class,
-            NutzungsartCustomBean.class,
             String.class,
+            NutzungsartCustomBean.class,
             Integer.class,
             Double.class,
             Double.class,
@@ -128,75 +141,52 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             }
 
             final NutzungBuchungCustomBean selectedBuchung = getCidsBeanAtRow(rowIndex);
-            final NutzungCustomBean nutzung = (selectedBuchung != null) ? selectedBuchung.getNutzung() : null;
+            if (selectedBuchung == null) {
+                return null;
+            }
+
+            final NutzungCustomBean nutzung = selectedBuchung.getNutzung();
             final Double stilleReserve = (nutzung != null) ? nutzung.getStilleReserveForBuchung(selectedBuchung) : null;
             switch (columnIndex) {
-                case 0: {
-                    if (nutzung != null) {
-                        return (nutzung.getId() == -1) ? null : nutzung.getId();
-                    } else {
-                        return null;
-                    }
+                case COLUMN_NUTZUNGS_NUMMER: {
+                    return ((nutzung != null) && (nutzung.getId() != -1)) ? nutzung.getId() : null;
                 }
-                case 1: {
-                    if (nutzung != null) {
-                        return nutzung.getBuchungsNummerForBuchung(selectedBuchung);
-                    } else {
-                        return null;
-                    }
+                case COLUMN_BUCHUNGS_NUMMER: {
+                    return (nutzung == null) ? null : nutzung.getBuchungsNummerForBuchung(selectedBuchung);
                 }
-                case 2: {
+                case COLUMN_ANLAGEKLASSE: {
                     return selectedBuchung.getAnlageklasse();
                 }
-                case 3: {
+                case COLUMN_NUTZUNGSART_SCHLUESSEL: {
+                    return (selectedBuchung.getNutzungsart() != null) ? selectedBuchung.getNutzungsart()
+                                    .getSchluessel() : null;
+                }
+                case COLUMN_NUTZUNGSART_BEZEICHNUNG: {
                     return selectedBuchung.getNutzungsart();
                 }
-                case 4: {
-                    if ((selectedBuchung.getNutzungsart() != null)
-                                && (selectedBuchung.getNutzungsart().getBezeichnung() != null)) {
-                        return selectedBuchung.getNutzungsart().getBezeichnung();
-                    } else {
-                        return null;
-                    }
-                }
-                case 5: {
+                case COLUMN_FLAECHE: {
                     return selectedBuchung.getFlaeche();
                 }
-                case 6: {
+                case COLUMN_QUADRATMETER_PREIS: {
                     return selectedBuchung.getQuadratmeterpreis();
                 }
-                case 7: {
-                    if (stilleReserve != null) {
-                        return selectedBuchung.getGesamtpreis() - stilleReserve;
-                    } else {
-                        // ToDo NKF
-                        return selectedBuchung.getGesamtpreis();
-                    }
+                case COLUMN_GESAMT_PREIS: {
+                    return selectedBuchung.getGesamtpreis() - ((stilleReserve != null) ? stilleReserve : 0);
                 }
-                case 8: {
-                    // ToDo NKF
-                    if (stilleReserve != null) {
-                        return stilleReserve;
-                    } else {
-                        return 0.0;
-                    }
+                case COLUMN_STILLE_RESERVE: {
+                    return (stilleReserve != null) ? stilleReserve : 0.0;
                 }
-                case 9: {
-                    // ToDo gibt so wenig Buchwerte extra Spalte dafür ?
-                    if (selectedBuchung.getIstBuchwert()) {
-                        return booked;
-                    } else {
-                        return notBooked;
-                    }
+                case COLUMN_BUCHWERT: {
+                    return selectedBuchung.getIstBuchwert() ? booked : notBooked;
                 }
-                case 10: {
+                case COLUMN_BEMERKUNG: {
                     return selectedBuchung.getBemerkung();
                 }
                 default: {
                     return "Spalte ist nicht definiert";
                 }
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             LOG.error("Fehler beim abrufen von Daten aus dem Modell: Zeile: " + rowIndex + " Spalte" + columnIndex, ex);
             return null;
         }
@@ -204,8 +194,12 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
 
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        if ((columnIndex == 0) || (columnIndex == 1) || (columnIndex == 4) || (columnIndex == 9) || (columnIndex == 10)
-                    || (columnIndex == 11)) {
+        if ((columnIndex == COLUMN_NUTZUNGS_NUMMER)
+                    || (columnIndex == COLUMN_NUTZUNGSART_SCHLUESSEL)
+                    || (columnIndex == COLUMN_BUCHUNGS_NUMMER)
+                    || (columnIndex == COLUMN_BUCHWERT)
+                    || (columnIndex == COLUMN_BEMERKUNG)
+                    || (columnIndex == COLUMN_LAST)) {
             return false;
         } else {
             return (COLUMN_NAMES.length > columnIndex)
@@ -241,7 +235,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                 }
             }
             switch (columnIndex) {
-                case 2: {
+                case COLUMN_ANLAGEKLASSE: {
                     if ((aValue != null) && (aValue instanceof String)) {
                         selectedBuchung.setAnlageklasse(null);
                         break;
@@ -249,29 +243,29 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
                     selectedBuchung.setAnlageklasse((AnlageklasseCustomBean)aValue);
                     break;
                 }
-                case 3: {
+                case COLUMN_NUTZUNGSART_BEZEICHNUNG: {
                     if ((aValue != null) && (aValue instanceof String)) {
                         selectedBuchung.setNutzungsart(null);
-                        break;
+                    } else {
+                        selectedBuchung.setNutzungsart((NutzungsartCustomBean)aValue);
                     }
-                    selectedBuchung.setNutzungsart((NutzungsartCustomBean)aValue);
                     break;
                 }
-                case 5: {
+                case COLUMN_FLAECHE: {
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
                     selectedBuchung.setFlaeche((Integer)aValue);
                     break;
                 }
-                case 6: {
+                case COLUMN_QUADRATMETER_PREIS: {
 //                    if (nutzung.getFlaeche() != null && nutzung.getQuadratmeterpreis() != null) {
 //                        nutzung.setAlterGesamtpreis(nutzung.getFlaeche() * nutzung.getQuadratmeterpreis());
 //                    }
                     selectedBuchung.setQuadratmeterpreis((Double)aValue);
                     break;
                 }
-                case 10: {
+                case COLUMN_BEMERKUNG: {
                     if ((aValue != null) && (aValue instanceof String) && (((String)aValue).length() == 0)) {
                         selectedBuchung.setBemerkung(null);
                         return;
@@ -334,7 +328,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             removeNutzungBuchung_helper(rowIndex, completeRemoval);
         } catch (TerminateNutzungNotPossibleException ex) {
             LOG.error("Eine Nutzung konnte nicht entfernt werden", ex);
-            final int result = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+            final int result = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                     "Die Buchung konnte nicht entfernt werden, bitte wenden Sie \n"
                             + "sich an den Systemadministrator",
                     "Fehler beim löschen einer Buchung",
@@ -412,7 +406,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
      * @return  DOCUMENT ME!
      */
     public ArrayList<NutzungBuchungCustomBean> getAllBuchungen() {
-        final ArrayList<NutzungBuchungCustomBean> sortedNutzungen = new ArrayList<NutzungBuchungCustomBean>();
+        final ArrayList<NutzungBuchungCustomBean> sortedNutzungen = new ArrayList<>();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
             if (curNutzung.getBuchungsCount() > 0) {
                 for (final NutzungBuchungCustomBean curBuchung : curNutzung.getNutzungsBuchungen()) {
@@ -441,7 +435,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
             }
 
             if (nutzungen != null) {
-                this.allNutzungen = (ArrayList<NutzungCustomBean>)new ArrayList<T>(nutzungen);
+                this.allNutzungen = (ArrayList<NutzungCustomBean>)new ArrayList<>(nutzungen);
             } else {
                 allNutzungen.clear();
             }
@@ -450,7 +444,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         } catch (Exception ex) {
             LOG.error("Fehler beim refreshen des Models", ex);
             setCidsBeans(new ArrayList<NutzungBuchungCustomBean>());
-            this.allNutzungen = new ArrayList<NutzungCustomBean>();
+            this.allNutzungen = new ArrayList<>();
         }
     }
 
@@ -463,7 +457,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Anzahl aller Nutzungen: " + allNutzungen.size());
         }
-        final ArrayList<NutzungBuchungCustomBean> selectedBuchungen = new ArrayList<NutzungBuchungCustomBean>();
+        final ArrayList<NutzungBuchungCustomBean> selectedBuchungen = new ArrayList<>();
         for (final NutzungCustomBean curNutzung : allNutzungen) {
             final NutzungBuchungCustomBean curBuchung = curNutzung.getOpenBuchung();
             if (curBuchung != null) {
@@ -477,7 +471,7 @@ public class NKFTableModel extends CidsBeanTableModel_Lagis {
     }
 
     /**
-     * public Set<Nutzung> getCurrentNutzungen() { final Set<Nutzung> currentNutzungen = new HashSet<Nutzung>(); for
+     * public Set<> getCurrentNutzungen() { final Set<> currentNutzungen = new HashSet<>(); for
      * (NutzungBuchungCustomBean curBuchung : currentBuchungen) { NutzungCustomBean curNutzung =
      * curBuchung.getNutzung(); if (curNutzung != null) { currentNutzungen.add(curNutzung); } } return currentNutzungen;
      * }

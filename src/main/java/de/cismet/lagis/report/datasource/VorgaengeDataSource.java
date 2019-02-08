@@ -13,10 +13,11 @@ import net.sf.jasperreports.engine.JRException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -59,10 +60,10 @@ public class VorgaengeDataSource extends ADataSource<VertragCustomBean> implemen
 
     @Override
     protected List<VertragCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Collection<VertragCustomBean> vertraegeSet = currentFlurstueck.getVertraege();
 
-        return new ArrayList<VertragCustomBean>(vertraegeSet);
+        return new ArrayList<>(vertraegeSet);
     }
 
     @Override

@@ -21,8 +21,9 @@ import org.jdesktop.swingx.decorator.*;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.event.*;
+
+import java.beans.PropertyChangeEvent;
 
 import java.util.*;
 
@@ -37,13 +38,14 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollection;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.editor.DateEditor;
@@ -56,14 +58,12 @@ import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 import de.cismet.lagis.interfaces.GeometrySlotProvider;
+import de.cismet.lagis.interfaces.LagisBrokerPropertyChangeListener;
 
 import de.cismet.lagis.models.ReBeTableModel;
 
 import de.cismet.lagis.renderer.DateRenderer;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
-import de.cismet.lagis.util.LagISUtils;
 import de.cismet.lagis.util.TableSelectionUtils;
 
 import de.cismet.lagis.utillity.GeometrySlotInformation;
@@ -82,6 +82,7 @@ import de.cismet.lagisEE.entity.basic.BasicEntity;
  */
 public class ReBePanel extends AbstractWidget implements MouseListener,
     FlurstueckChangeListener,
+    LagisBrokerPropertyChangeListener,
     GeometrySlotProvider,
     FlurstueckSaver,
     FeatureSelectionChangedListener,
@@ -105,9 +106,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private ReBeTableModel tableModel = new ReBeTableModel();
+    private final ReBeTableModel tableModel = new ReBeTableModel();
     private boolean isInEditMode = false;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     private final Icon copyDisplayIcon;
 
     private boolean listenerEnabled = true;
@@ -116,7 +116,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     private javax.swing.JButton btnAddReBe;
     private javax.swing.JButton btnRemoveReBe;
     private javax.swing.JButton btnUndo;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tReBe;
@@ -134,7 +133,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         initComponents();
         btnRemoveReBe.setEnabled(false);
         configureTable();
-        configBackgroundThread();
+        LagisBroker.getInstance().addWfsFlurstueckGeometryChangeListener(this);
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -142,98 +141,12 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     /**
      * DOCUMENT ME!
      */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        final FlurstueckArtCustomBean flurstueckArt = getCurrentObject().getFlurstueckSchluessel()
-                                    .getFlurstueckArt();
-                        if ((flurstueckArt != null)
-                                    && flurstueckArt.getBezeichnung().equals(
-                                        FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist nicht Abteilung IX");
-                            }
-                            tableModel.setIsReBeKindSwitchAllowed(true);
-                        } else {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Flurstück ist Abteilung IX");
-                            }
-                            tableModel.setIsReBeKindSwitchAllowed(false);
-                        }
-
-                        tableModel.refreshTableModel(getCurrentObject().getRechteUndBelastungen());
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        EventQueue.invokeLater(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    // LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeatures(tableModel.getAllReBeFeatures());
-                                    final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
-                                    if (features != null) {
-                                        for (final Feature currentFeature : features) {
-                                            if (currentFeature != null) {
-                                                if (isWidgetReadOnly()) {
-                                                    ((RebeCustomBean)currentFeature).setModifiable(false);
-                                                }
-
-                                                final StyledFeature sf = new StyledFeatureGroupWrapper(
-                                                        (StyledFeature)currentFeature,
-                                                        PROVIDER_NAME,
-                                                        PROVIDER_NAME);
-
-                                                LagisBroker.getInstance()
-                                                        .getMappingComponent()
-                                                        .getFeatureCollection()
-                                                        .addFeature(sf);
-//                                                        .addFeature(currentFeature);
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(ReBePanel.this);
-                    } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(ReBePanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
-    }
-
-    /**
-     * DOCUMENT ME!
-     */
     private void configureTable() {
         TableSelectionUtils.crossReferenceModelAndTable(tableModel, (ReBeTable)tReBe);
-        final Collection<RebeArtCustomBean> reBeArten = CidsBroker.getInstance().getAllRebeArten();
+        final Collection<RebeArtCustomBean> reBeArten = LagisBroker.getInstance().getAllRebeArten();
 //        //TODO what if null
         if (reBeArten != null) {
-            final JComboBox cboRebeArt = new JComboBox(new Vector<RebeArtCustomBean>(reBeArten));
+            final JComboBox cboRebeArt = new JComboBox(new Vector<>(reBeArten));
             tReBe.setDefaultEditor(RebeArtCustomBean.class, new DefaultCellEditor(cboRebeArt));
 
             cboRebeArt.addItemListener(new ItemListener() {
@@ -279,7 +192,7 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                 }
             };
 
-        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.grey, null);
+        final Highlighter noGeometryHighlighter = new ColorHighlighter(noGeometryPredicate, LagisBroker.GREY, null);
         ((JXTable)tReBe).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER, noGeometryHighlighter);
         ((JXTable)tReBe).setSortOrder(0, SortOrder.ASCENDING);
 
@@ -465,11 +378,26 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
+        log.info("FlurstueckChanged");
         try {
-            log.info("FlurstueckChanged");
-            updateThread.notifyThread(newFlurstueck);
+            clearComponent();
+            final FlurstueckArtCustomBean flurstueckArt = newFlurstueck.getFlurstueckSchluessel().getFlurstueckArt();
+            if ((flurstueckArt != null)
+                        && flurstueckArt.getBezeichnung().equals(
+                            FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH)) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Flurstück ist nicht Abteilung IX");
+                }
+                tableModel.setIsReBeKindSwitchAllowed(true);
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug("Flurstück ist Abteilung IX");
+                }
+                tableModel.setIsReBeKindSwitchAllowed(false);
+            }
         } catch (Exception ex) {
             log.error("Fehler beim Flurstückswechsel: ", ex);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(ReBePanel.this);
         }
     }
@@ -509,7 +437,6 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public synchronized void clearComponent() {
-//tReBe.setModel(new ReBeTableModel());
         tableModel.refreshTableModel(new HashSet());
     }
 
@@ -528,12 +455,13 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tReBe = new ReBeTable();
-        jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         btnRemoveReBe = new javax.swing.JButton();
         btnAddReBe = new javax.swing.JButton();
         tbtnSort = new javax.swing.JToggleButton();
         btnUndo = new javax.swing.JButton();
+
+        setLayout(new java.awt.GridBagLayout());
 
         tReBe.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         tReBe.setModel(new javax.swing.table.DefaultTableModel(
@@ -579,7 +507,15 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             });
         jScrollPane1.setViewportView(tReBe);
 
-        jLabel1.setText("Rechte und Belastungen:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
+        add(jScrollPane1, gridBagConstraints);
 
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
@@ -641,37 +577,12 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
         gridBagConstraints.insets = new java.awt.Insets(4, 3, 4, 3);
         jPanel1.add(btnUndo, gridBagConstraints);
 
-        final org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                        layout.createSequentialGroup().add(jLabel1).addPreferredGap(
-                            org.jdesktop.layout.LayoutStyle.RELATED,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            Short.MAX_VALUE).add(
-                            jPanel1,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                            org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                            org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(
-                        jScrollPane1,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        631,
-                        Short.MAX_VALUE)).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
-                layout.createSequentialGroup().addContainerGap().add(
-                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(jLabel1).add(
-                        jPanel1,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
-                        org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                        org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).addPreferredGap(
-                    org.jdesktop.layout.LayoutStyle.RELATED).add(
-                    jScrollPane1,
-                    org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
-                    243,
-                    Short.MAX_VALUE).addContainerGap()));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 0, 0, 12);
+        add(jPanel1, gridBagConstraints);
     } // </editor-fold>//GEN-END:initComponents
 
     // End of variables declaration
@@ -768,11 +679,11 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
 
     @Override
     public void updateFlurstueckForSaving(final FlurstueckCustomBean flurstueck) {
-        final Collection<RebeCustomBean> resBes = flurstueck.getRechteUndBelastungen();
-        if (resBes != null) {
-            LagISUtils.makeCollectionContainSameAsOtherCollection(resBes, tableModel.getCidsBeans());
-        } else {
-            // TODO kann das überhaupt noch passieren seid der Umstellung auf cids ?!
+        final Collection<RebeCustomBean> rebes = LagisBroker.getInstance().getCurrentRebes();
+        for (final RebeCustomBean rebe : (List<RebeCustomBean>)tableModel.getCidsBeans()) {
+            if (!rebes.contains(rebe)) {
+                rebes.add(rebe);
+            }
         }
     }
 
@@ -867,5 +778,28 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
     @Override
     public void setFeatureSelectionChangedEnabled(final boolean listenerEnabled) {
         this.listenerEnabled = listenerEnabled;
+    }
+
+    @Override
+    public void propertyChange(final PropertyChangeEvent evt) {
+        if (LagisBrokerPropertyChangeListener.PROP__CURRENT_REBES.equals(evt.getPropertyName())) {
+            tableModel.refreshTableModel((Collection)evt.getNewValue());
+            final ArrayList<Feature> features = tableModel.getAllReBeFeatures();
+            if (features != null) {
+                for (final Feature currentFeature : features) {
+                    if (currentFeature != null) {
+                        if (isWidgetReadOnly()) {
+                            ((RebeCustomBean)currentFeature).setModifiable(false);
+                        }
+
+                        final StyledFeature sf = new StyledFeatureGroupWrapper((StyledFeature)currentFeature,
+                                PROVIDER_NAME,
+                                PROVIDER_NAME);
+
+                        LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(sf);
+                    }
+                }
+            }
+        }
     }
 }

@@ -26,7 +26,6 @@ import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.FlurstueckeTableModel;
@@ -426,7 +425,7 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
             if (log.isDebugEnabled()) {
                 log.debug("Replaced Aktenzeichen String: " + replacedAktenzeichen);
             }
-            final Collection<FlurstueckSchluesselCustomBean> result = CidsBroker.getInstance()
+            final Collection<FlurstueckSchluesselCustomBean> result = LagisBroker.getInstance()
                         .getFlurstueckSchluesselByAktenzeichen(replacedAktenzeichen);
             if ((result != null) && (result.size() > 0)) {
                 if (log.isDebugEnabled()) {

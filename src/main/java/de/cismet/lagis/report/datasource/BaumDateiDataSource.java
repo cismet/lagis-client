@@ -13,12 +13,13 @@ import net.sf.jasperreports.engine.JRException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
 import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.BaumNutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -59,10 +60,10 @@ public class BaumDateiDataSource extends ADataSource<BaumCustomBean> implements 
 
     @Override
     protected List<BaumCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Collection<BaumCustomBean> baeumeSet = currentFlurstueck.getBaeume();
 
-        return new ArrayList<BaumCustomBean>(baeumeSet);
+        return new ArrayList<>(baeumeSet);
     }
 
     @Override

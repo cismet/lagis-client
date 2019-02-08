@@ -18,7 +18,6 @@ import org.jdesktop.swingx.JXTable;
 import java.util.ArrayList;
 
 import javax.swing.Icon;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SortOrder;
@@ -28,16 +27,14 @@ import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
+import de.cismet.lagis.gui.main.LagisApp;
 import de.cismet.lagis.gui.tables.NKFOverviewTable;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
 import de.cismet.lagis.models.NKFOverviewTableModel;
-
-import de.cismet.lagis.thread.BackgroundUpdateThread;
 
 import de.cismet.lagis.util.NutzungsContainer;
 
@@ -61,10 +58,9 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
 
     private FlurstueckCustomBean currentFlurstueck;
     private NKFOverviewTableModel tableModel = new NKFOverviewTableModel();
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
-    private Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoHistoricIcon = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/history.png"));
-    private Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoHistoricIconDummy = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/nutzung/emptyDummy22.png"));
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuchen;
@@ -87,14 +83,12 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         setIsCoreWidget(true);
         initComponents();
         tSummeNutzungen.setModel(tableModel);
-        final JComboBox box = new JComboBox();
         // HighlighterPipeline hPipline = new HighlighterPipeline(new
         // Highlighter[]{LagisBroker.ALTERNATE_ROW_HIGHLIGHTER});
         ((JXTable)tSummeNutzungen).setHighlighters(LagisBroker.ALTERNATE_ROW_HIGHLIGHTER);
         ((JXTable)tSummeNutzungen).setSortOrder(0, SortOrder.ASCENDING);
         ((JXTable)tSummeNutzungen).packAll();
         ((NKFOverviewTable)tSummeNutzungen).setSortButton(tbtnSort);
-        configBackgroundThread();
         btnBuchen.setEnabled(false);
     }
 
@@ -118,53 +112,21 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
         return instance;
     }
 
-    /**
-     * DOCUMENT ME!
-     */
-    private void configBackgroundThread() {
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        tableModel.setCurrentDate(null);
-                        tableModel.refreshModel(getCurrentObject().getNutzungen());
-                        updateStilleReservenBetrag();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
-                    } catch (Exception ex) {
-                        LOG.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
-    }
-    // private Thread panelRefresherThread;
-
     @Override
     public synchronized void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
             currentFlurstueck = newFlurstueck;
-            updateThread.notifyThread(currentFlurstueck);
+            try {
+                clearComponent();
+                tableModel.setCurrentDate(null);
+                tableModel.refreshModel(currentFlurstueck.getNutzungen());
+                updateStilleReservenBetrag();
+            } catch (Exception ex) {
+                LOG.error("Fehler im refresh thread: ", ex);
+            } finally {
+                LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
+            }
         } catch (Exception ex) {
             LOG.error("Fehler beim Flurstückswechsel: ", ex);
             LagisBroker.getInstance().flurstueckChangeFinished(NKFOverviewPanel.this);
@@ -357,26 +319,26 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
      */
     private void btnBuchenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnBuchenActionPerformed
         // TODO add your handling code here:
-        final int answer = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final int answer = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Wollen Sie alle Stillen Reserven des Flurstücks buchen?",
                 "Stille Reserven buchen",
                 JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.YES_OPTION) {
             try {
-                LagisBroker.getInstance().acceptChanges();
+                LagisApp.getInstance().acceptChanges();
                 if (LagisBroker.getInstance().isInEditMode()) {
                     LOG.warn("Stille Reserven konnten nicht gebucht werden, immernoch im Editmodus");
-                    JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                    JOptionPane.showMessageDialog(LagisApp.getInstance(),
                         "Es war nicht möglich aus dem Editiermodus herauszuwechseln.",
                         "Stille Reserven",
                         JOptionPane.ERROR_MESSAGE);
                 } else {
                     // TODO Locking problem
-                    CidsBroker.getInstance()
+                    LagisBroker.getInstance()
                             .bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel(),
                                 LagisBroker.getInstance().getAccountName());
                 }
-                // CidsBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
+                // LagisBroker.getInstance().bookNutzungenForFlurstueck(currentFlurstueck.getFlurstueckSchluessel());
             } catch (Exception ex) {
                 // TODO ActionNotSuccessfull Exception
                 final StringBuffer resultString = new StringBuffer(
@@ -391,7 +353,7 @@ public class NKFOverviewPanel extends AbstractWidget implements FlurstueckChange
                     LOG.error("Unbekannter Fehler: ", ex);
                     resultString.append("Unbekannter Fehler bitte wenden Sie sich an Ihren Systemadministrator");
                 }
-                JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                JOptionPane.showMessageDialog(LagisApp.getInstance(),
                     resultString.toString(),
                     "Stille Reserven",
                     JOptionPane.ERROR_MESSAGE);

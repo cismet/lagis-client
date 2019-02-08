@@ -32,12 +32,14 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.main.LagisApp;
 
 import de.cismet.lagis.wizard.panels.ActivateActionPanel;
 
@@ -71,7 +73,7 @@ public class ActivateActionSteps extends WizardPanelProvider {
     @Override
     public boolean cancel(final Map settings) {
         // return true;
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }
@@ -110,20 +112,17 @@ public class ActivateActionSteps extends WizardPanelProvider {
             if (log.isDebugEnabled()) {
                 log.debug("Flurstück das aktiviert werden soll: " + activationCandidate.getKeyString());
             }
-            SperreCustomBean sperre = null;
+            CidsBean sperre = null;
             try {
-                final SperreCustomBean other = CidsBroker.getInstance().isLocked(activationCandidate);
+                final CidsBean other = LagisBroker.getInstance().isLocked(activationCandidate);
                 if (other == null) {
-                    sperre = CidsBroker.getInstance()
-                                .createLock(SperreCustomBean.createNew(
-                                            activationCandidate,
-                                            LagisBroker.getInstance().getAccountName()));
+                    sperre = LagisBroker.getInstance().createFlurstueckSchluesselLock(activationCandidate);
                     if (sperre != null) {
                         progress.setBusy("Flurstück wird aktiviert");
                         // CidsBroker.getInstance().createFlurstueck(key);
-                        CidsBroker.getInstance().setFlurstueckActive(activationCandidate);
+                        LagisBroker.getInstance().setFlurstueckActive(activationCandidate);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
-                        CidsBroker.getInstance().releaseLock(sperre);
+                        LagisBroker.getInstance().releaseLock(sperre);
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
                                     && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
                                         LagisBroker.getInstance().getCurrentFlurstueckSchluessel(),
@@ -139,8 +138,7 @@ public class ActivateActionSteps extends WizardPanelProvider {
                                 }
                             }
                         } else {
-                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                            .getParentComponent(),
+                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                                     "Möchten Sie zu dem aktivierten Flurstück wechseln?",
                                     "Flurstückwechsel",
                                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
@@ -174,13 +172,13 @@ public class ActivateActionSteps extends WizardPanelProvider {
                     progress.failed("Es war nicht möglich die Art des Flurstücks:\n\t\""
                                 + activationCandidate.getKeyString()
                                 + "\"\nzu ändern, es ist von einem anderen Benutzer gesperrt: "
-                                + other.getBenutzerkonto(),
+                                + (String)other.getProperty("user_string"),
                         false);
                 }
             } catch (final Exception e) {
                 log.error("Fehler beim renamen eines Flurstücks: ", e);
                 try {
-                    CidsBroker.getInstance().releaseLock(sperre);
+                    LagisBroker.getInstance().releaseLock(sperre);
                 } catch (Exception ex) {
                     log.error("Fehler beim lösen der Sperre", ex);
                 }
