@@ -150,7 +150,6 @@ import de.cismet.cismap.commons.gui.ClipboardWaitDialog;
 import de.cismet.cismap.commons.gui.MappingComponent;
 import de.cismet.cismap.commons.gui.layerwidget.ActiveLayerModel;
 import de.cismet.cismap.commons.gui.piccolo.eventlistener.CreateGeometryListener;
-import de.cismet.cismap.commons.gui.piccolo.eventlistener.CustomFeatureInfoListener;
 import de.cismet.cismap.commons.gui.printing.Scale;
 import de.cismet.cismap.commons.gui.statusbar.StatusBar;
 import de.cismet.cismap.commons.interaction.CismapBroker;
@@ -175,7 +174,6 @@ import de.cismet.lagis.interfaces.Widget;
 
 import de.cismet.lagis.report.printing.ReportPrintingWidget;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 import de.cismet.lagis.validation.Validatable;
@@ -222,7 +220,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private static final Logger LOG = Logger.getLogger(LagisApp.class);
     private static final Image IMAGE_MAIN = new javax.swing.ImageIcon(LagisApp.class.getResource(
                 "/de/cismet/lagis/ressource/icons/main.png")).getImage();
-    // sollte eigentlich alles in den LagisBroker ?? Configuration
+
     private static final String FILENAME_LAGIS_CONFIGURATION = "defaultLagisProperties.xml";
     private static final String FILENAME_LOCAL_LAGIS_CONFIGURATION = "lagisProperties.xml";
     private static final String CLASSPATH_LAGIS_CONFIGURATION = "/de/cismet/lagis/configuration/";
@@ -250,16 +248,9 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
     private static final String HEADER_ERR_MSG = "Fehler";
 
-    private static final ConfigurationManager configManager = new ConfigurationManager();
-
-    static {
-        configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
-        configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
-        configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
-        configManager.setFolder(DIRECTORYNAME_LAGISHOME);
-    }
-
     //~ Instance fields --------------------------------------------------------
+
+    private final ConfigurationManager configManager = new ConfigurationManager();
 
     private RootWindow rootWindow;
     // Panels
@@ -285,66 +276,64 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private View vHistory;
     private View vBaulasten;
     private View vKassenzeichen;
-    private WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance().getMappingComponent());
-    private Set<View> wfsFormViews = new HashSet<>();
-    private List<View> wfs = new ArrayList<>();
+    private final WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance()
+                    .getMappingComponent());
+    private final Set<View> wfsFormViews = new HashSet<>();
+    private final List<View> wfs = new ArrayList<>();
     private DockingWindow[] wfsViews;
     // private View vAktenzeichenSuche;
     private JDialog aktenzeichenDialog;
-    private Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/karte.png"));
-    private Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/docs.png"));
-    private Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/ressort.png"));
-    private Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche3.png"));
-    private Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/sum.png"));
-    private Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
 
                 // "/de/cismet/lagis/ressource/icons/titlebar/findgreen.png"));
                 "/de/cismet/lagis/ressource/icons/rebe.png"));
-    private Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoVerwaltungsbereich = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/verwaltungsbereich.png"));
-    private Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoDokumente = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/documents.png"));
-    private Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoBaulasten = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/cids/custom/commons/gui/Baulast.png"));
-    private Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon icoKassenzeichen = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/toolbar/info.png"));
-    private Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon miniBack = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniBack.png"));
-    private Icon current = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon current = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/current.png"));
-    private Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
+    private final Icon miniForward = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/menue/miniForward.png"));
     // ICON ÄNDERN
     private MappingComponent mapComponent;
     private ClipboardWaitDialog clipboarder;
-    private StringViewMap viewMap = new StringViewMap();
+    private final StringViewMap viewMap = new StringViewMap();
     private String fortfuehrungLinkFormat;
 
     // TODO Jean
 // private EJBAccessor<KassenzeichenFacadeRemote> verdisCrossoverAccessor;
     // FIXME ugly winning
-    private ActiveLayerModel mappingModel = new ActiveLayerModel();
-    private List<Widget> widgets = new ArrayList<>();
+    private final ActiveLayerModel mappingModel = new ActiveLayerModel();
+    private final List<Widget> widgets = new ArrayList<>();
     private boolean isInit = true;
     // Ressort
-    private Set<View> ressortViews = new HashSet<>();
+    private final Set<View> ressortViews = new HashSet<>();
     private DockingWindow[] ressortDockingWindow;
     // Plugin Navigator
-    private ArrayList<JMenuItem> menues = new ArrayList<>();
+    private final ArrayList<JMenuItem> menues = new ArrayList<>();
     // Configurable
     private Dimension windowSize = null;
     private Point windowLocation = null;
-    // private Thread refresherThread;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
     // Validation
-    private final ArrayList<ValidationStateChangedListener> validationListeners =
-        new ArrayList<ValidationStateChangedListener>();
-    private String validationMessage = "Die Komponente ist valide";
+    private final ArrayList<ValidationStateChangedListener> validationListeners = new ArrayList<>();
+    private final String validationMessage = "Die Komponente ist valide";
     private FlurstueckInfoClipboard fsInfoClipboard;
     private ObjectRendererDialog alkisRendererDialog;
 
@@ -437,6 +426,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * Creates a new LagisApp object.
      */
     private LagisApp() {
+    }
+
+    //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     */
+    private void init() {
         try {
             LOG.info("Starten der LaGIS Applikation");
 
@@ -445,14 +442,12 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 ImageIO.read(getClass().getResource("/de/cismet/lagis/ressource/image/wizard.png")));
             // TODO FIX
             this.addWindowListener(this);
-            LOG.info("Laden der Lagis Konfiguration");
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Name des Lagis Server Konfigurationsfiles: " + FILENAME_LAGIS_CONFIGURATION);
-            }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Konfiguriere Karten Widget");
-            }
+            LOG.info("Laden der Lagis Konfiguration");
+            configManager.setDefaultFileName(FILENAME_LAGIS_CONFIGURATION);
+            configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
+            configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
+            configManager.setFolder(DIRECTORYNAME_LAGISHOME);
 
             if (LagisBroker.getInstance().getSession() != null) {
                 configManager.addConfigurable(this);
@@ -485,7 +480,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             alkisRendererDialog = new ObjectRendererDialog(this, false, descriptionPane);
             alkisRendererDialog.setSize(1000, 800);
 
-//
 //            // added manually as the GuiBuilder conflicts could not be resolved
 //            configureReportButton();
 //            configureCopyPasteFlurstueckInfoComponents();
@@ -623,7 +617,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         cleanUp();
                     }
                 });
-            LagisBroker.getInstance().setParentComponent(this);
             LagisBroker.getInstance().setTitle("LagIS");
 
             // TODO GEHT SCHIEF WENN ES SCHON DER PARENTFRAME IST
@@ -651,107 +644,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 };
             getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(configLoggerKeyStroke, "CONFIGLOGGING");
             getRootPane().getActionMap().put("CONFIGLOGGING", configAction);
-
-            updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                    @Override
-                    protected void update() {
-                        try {
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-                            clearComponent();
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-                            try {
-                                final FlurstueckSchluesselCustomBean flurstueckSchluesselBean = getCurrentObject()
-                                            .getFlurstueckSchluessel();
-                                final FlurstueckChooser.Status status = FlurstueckChooser.identifyStatus(
-                                        flurstueckSchluesselBean);
-                                if (status != null) {
-                                    pFlurstueckChooser.setStatus(status);
-                                }
-                            } catch (Exception ex) {
-                                LOG.error("Fehler beim bestimmen der Flurstücksart", ex);
-                            }
-                            // datamodell refactoring 22.10.07
-                            if (getCurrentObject().getFlurstueckSchluessel().isGesperrt()
-                                        && (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() == null)) {
-                                LOG.info("Flurstück ist gesperrt");
-                                rootWindow.getRootWindowProperties()
-                                        .getViewProperties()
-                                        .getViewTitleBarProperties()
-                                        .getNormalProperties()
-                                        .getShapedPanelProperties()
-                                        .setComponentPainter(new GradientComponentPainter(
-                                                LagisBroker.LOCK_MODE_COLOR,
-                                                new Color(236, 233, 216),
-                                                LagisBroker.LOCK_MODE_COLOR,
-                                                new Color(236, 233, 216)));
-                                if (!LagisBroker.getInstance().isFullReadOnlyMode()) {
-                                    btnSwitchInEditmode.setEnabled(true);
-                                    if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
-                                        btnOpenWizard.setEnabled(true);
-                                    }
-                                }
-                                // datamodell refactoring 22.10.07
-                            } else if (getCurrentObject().getFlurstueckSchluessel().getGueltigBis() != null) {
-                                LOG.info("Flurstück ist historisch");
-                                rootWindow.getRootWindowProperties()
-                                        .getViewProperties()
-                                        .getViewTitleBarProperties()
-                                        .getNormalProperties()
-                                        .getShapedPanelProperties()
-                                        .setComponentPainter(new GradientComponentPainter(
-                                                LagisBroker.HISTORY_MODE_COLOR,
-                                                new Color(236, 233, 216),
-                                                LagisBroker.HISTORY_MODE_COLOR,
-                                                new Color(236, 233, 216)));
-
-                                btnSwitchInEditmode.setEnabled(LagisBroker.getInstance().isNkfAdminPermission());
-
-                                if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
-                                    btnOpenWizard.setEnabled(true);
-                                }
-                            } else {
-                                LOG.info("Flurstück ist normal");
-                                rootWindow.getRootWindowProperties()
-                                        .getViewProperties()
-                                        .getViewTitleBarProperties()
-                                        .getNormalProperties()
-                                        .getShapedPanelProperties()
-                                        .setComponentPainter(new GradientComponentPainter(
-                                                LagisBroker.DEFAULT_MODE_COLOR,
-                                                new Color(236, 233, 216),
-                                                LagisBroker.DEFAULT_MODE_COLOR,
-                                                new Color(236, 233, 216)));
-                                if (!LagisBroker.getInstance().isFullReadOnlyMode()) {
-                                    btnSwitchInEditmode.setEnabled(true);
-                                    if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
-                                        btnOpenWizard.setEnabled(true);
-                                    }
-                                }
-                            }
-                            if (isUpdateAvailable()) {
-                                cleanup();
-                                return;
-                            }
-                            LagisBroker.getInstance().flurstueckChangeFinished(LagisApp.this);
-                        } catch (Exception ex) {
-                            LOG.error("Fehler im refresh thread: ", ex);
-                            LagisBroker.getInstance().flurstueckChangeFinished(LagisApp.this);
-                        }
-                    }
-
-                    @Override
-                    protected void cleanup() {
-                    }
-                };
-            updateThread.setPriority(Thread.NORM_PRIORITY);
-            updateThread.start();
 
             isInit = false;
 
@@ -897,8 +789,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             System.exit(1);
         }
     }
-
-    //~ Methods ----------------------------------------------------------------
 
     /**
      * DOCUMENT ME!
@@ -1268,7 +1158,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         pRechteDetail = new ReBePanel();
         boolean isJavaFxAvailable;
         try {
-            final Class jfxPanel = LagisApp.class.getClassLoader().loadClass("javafx.embed.swing.JFXPanel");
+            LagisApp.class.getClassLoader().loadClass("javafx.embed.swing.JFXPanel");
             isJavaFxAvailable = true;
         } catch (ClassNotFoundException e) {
             isJavaFxAvailable = false;
@@ -2876,7 +2766,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             btnAcceptChanges.setEnabled(false);
             btnDiscardChanges.setEnabled(false);
             btnSwitchInEditmode.setEnabled(false);
-            if (LagisBroker.getInstance().releaseLock()) {
+            if (LagisBroker.getInstance().releaseLocks()) {
                 // datamodell refactoring 22.10.07e
                 if ((LagisBroker.getInstance().getCurrentFlurstueck() != null)
                             && LagisBroker.getInstance().getCurrentFlurstueck().getFlurstueckSchluessel()
@@ -2947,7 +2837,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     btnSwitchInEditmode.setEnabled(false);
                     // TODO TEST IT!!!!
                     LagisBroker.getInstance().getMappingComponent().setReadOnly(true);
-                    if (LagisBroker.getInstance().releaseLock()) {
+                    if (LagisBroker.getInstance().releaseLocks()) {
                         // datamodell refactoring 22.10.07
                         if ((LagisBroker.getInstance().getCurrentFlurstueck() != null)
                                     && LagisBroker.getInstance().getCurrentFlurstueck().getFlurstueckSchluessel()
@@ -3005,7 +2895,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         }
         if (LagisBroker.getInstance().acquireLock()) {
             if (LagisBroker.getInstance().isCurrentFlurstueckLockedByUser()) {
-                // TODOWHY NOT DIRECTLY CHANGE IN THIS CLASS LIKE IN THE FLURstück CHANGED METHOD ??
                 LagisBroker.getInstance()
                         .setTitleBarComponentpainter(LagisBroker.LOCK_MODE_COLOR, LagisBroker.EDIT_MODE_COLOR);
             } else {
@@ -3052,7 +2941,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      */
     private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
         if (aktenzeichenDialog == null) {
-            aktenzeichenDialog = new JDialog(LagisBroker.getInstance().getParentComponent(),
+            aktenzeichenDialog = new JDialog(this,
                     "Suche nach Aktenzeichen",
                     false);
             aktenzeichenDialog.add(new AktenzeichenSearch());
@@ -3500,13 +3389,12 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         try {
             // ToDo if it fails all fail better place in the single try catch
             final Element urls = parent.getChild("urls");
-            final Element albConfiguration = parent.getChild("albConfiguration");
             try {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("OnlineHilfeUrl: " + urls.getChildText("onlineHelp"));
                 }
                 onlineHelpURL = urls.getChildText("onlineHelp");
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 LOG.warn("Fehler beim lesen der OnlineHilfe URL", ex);
             }
             try {
@@ -3514,7 +3402,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     LOG.debug("News Url: " + urls.getChildText("onlineHelp"));
                 }
                 newsURL = urls.getChildText("news");
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
             try {
@@ -3526,7 +3414,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
                     }
                     initCrossoverServer(Integer.parseInt(crossoverServerPort));
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     LOG.warn("Crossover: Error while starting Server", ex);
                 }
                 try {
@@ -3534,26 +3422,44 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Crossover: verdisCrossoverPort: " + broker.getVerdisCrossoverPort());
                     }
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     LOG.warn("Crossover: Error beim setzen des verdis servers", ex);
                 }
                 try {
                     final double kassenzeichenBuffer = Double.parseDouble(crossoverPrefs.getChildText(
                                 "KassenzeichenBuffer"));
                     broker.setKassenzeichenBuffer(kassenzeichenBuffer);
-                } catch (Exception ex) {
-                    LOG.error("Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
+                } catch (final Exception ex) {
+                    LOG.error("Fehler beim setzen den buffers für die Kassenzeichenabfrage", ex);
                 }
                 try {
                     final double kassenzeichenBuffer100 = Double.parseDouble(crossoverPrefs.getChildText(
                                 "KassenzeichenBuffer100"));
                     broker.setKassenzeichenBuffer100(kassenzeichenBuffer100);
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     LOG.error(
-                        "Crossover: Fehler beim setzen den buffers für die Kassenzeichenabfrage bei flurstücken größer 100m",
+                        "Fehler beim setzen den buffers für die Kassenzeichenabfrage bei flurstücken größer 100m",
                         ex);
                 }
-            } catch (Exception ex) {
+                try {
+                    final double rebeBuffer = Double.parseDouble(crossoverPrefs.getChildText(
+                                "RebeBuffer"));
+                    broker.setRebeBuffer(rebeBuffer);
+                } catch (final Exception ex) {
+                    LOG.error(
+                        "Fehler beim setzen den buffers für die Abfrage der Rechte und Blastungen",
+                        ex);
+                }
+                try {
+                    final double mipaBuffer = Double.parseDouble(crossoverPrefs.getChildText(
+                                "MipaBuffer"));
+                    broker.setMipaBuffer(mipaBuffer);
+                } catch (final Exception ex) {
+                    LOG.error(
+                        "Fehler beim setzen den buffers für die Abfrage der Vermietungen und Verpachtungen",
+                        ex);
+                }
+            } catch (final Exception ex) {
                 LOG.error("Crossover: Fehler beim Konfigurieren.", ex);
             }
 
@@ -3562,7 +3468,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 final Element child = conf.getChild("linkFormat");
                 fortfuehrungLinkFormat = (child != null) ? conf.getChild("linkFormat").getText() : null;
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             LOG.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);
         }
     }
@@ -3608,12 +3514,87 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     }
 
     @Override
-    public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
+    public void flurstueckChanged(final FlurstueckCustomBean currentFlurstueck) {
         LOG.info("Flurstueck Changed");
-        updateThread.notifyThread(newFlurstueck);
-        jButton1.setEnabled(newFlurstueck != null);
 
-        this.fsInfoClipboard.flurstueckChanged(newFlurstueck);
+        try {
+            clearComponent();
+            try {
+                final FlurstueckSchluesselCustomBean flurstueckSchluesselBean =
+                    currentFlurstueck.getFlurstueckSchluessel();
+                final FlurstueckChooser.Status status = FlurstueckChooser.identifyStatus(
+                        flurstueckSchluesselBean);
+                if (status != null) {
+                    pFlurstueckChooser.setStatus(status);
+                }
+            } catch (Exception ex) {
+                LOG.error("Fehler beim bestimmen der Flurstücksart", ex);
+            }
+
+            if (currentFlurstueck.getFlurstueckSchluessel().isGesperrt()
+                        && (currentFlurstueck.getFlurstueckSchluessel().getGueltigBis() == null)) {
+                LOG.info("Flurstück ist gesperrt");
+                rootWindow.getRootWindowProperties()
+                        .getViewProperties()
+                        .getViewTitleBarProperties()
+                        .getNormalProperties()
+                        .getShapedPanelProperties()
+                        .setComponentPainter(new GradientComponentPainter(
+                                LagisBroker.LOCK_MODE_COLOR,
+                                new Color(236, 233, 216),
+                                LagisBroker.LOCK_MODE_COLOR,
+                                new Color(236, 233, 216)));
+                if (!LagisBroker.getInstance().isFullReadOnlyMode()) {
+                    btnSwitchInEditmode.setEnabled(true);
+                    if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
+                        btnOpenWizard.setEnabled(true);
+                    }
+                }
+            } else if (currentFlurstueck.getFlurstueckSchluessel().getGueltigBis() != null) {
+                LOG.info("Flurstück ist historisch");
+                rootWindow.getRootWindowProperties()
+                        .getViewProperties()
+                        .getViewTitleBarProperties()
+                        .getNormalProperties()
+                        .getShapedPanelProperties()
+                        .setComponentPainter(new GradientComponentPainter(
+                                LagisBroker.HISTORY_MODE_COLOR,
+                                new Color(236, 233, 216),
+                                LagisBroker.HISTORY_MODE_COLOR,
+                                new Color(236, 233, 216)));
+
+                btnSwitchInEditmode.setEnabled(LagisBroker.getInstance().isNkfAdminPermission());
+
+                if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
+                    btnOpenWizard.setEnabled(true);
+                }
+            } else {
+                LOG.info("Flurstück ist normal");
+                rootWindow.getRootWindowProperties()
+                        .getViewProperties()
+                        .getViewTitleBarProperties()
+                        .getNormalProperties()
+                        .getShapedPanelProperties()
+                        .setComponentPainter(new GradientComponentPainter(
+                                LagisBroker.DEFAULT_MODE_COLOR,
+                                new Color(236, 233, 216),
+                                LagisBroker.DEFAULT_MODE_COLOR,
+                                new Color(236, 233, 216)));
+                if (!LagisBroker.getInstance().isFullReadOnlyMode()) {
+                    btnSwitchInEditmode.setEnabled(true);
+                    if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
+                        btnOpenWizard.setEnabled(true);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Fehler im refresh thread: ", ex);
+        } finally {
+            LagisBroker.getInstance().flurstueckChangeFinished(LagisApp.this);
+        }
+
+        jButton1.setEnabled(currentFlurstueck != null);
+        fsInfoClipboard.flurstueckChanged(currentFlurstueck);
     }
 
     @Override
@@ -3633,14 +3614,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         }
     }
 
-//    /**
-//     * DOCUMENT ME!
-//     *
-//     * @return  DOCUMENT ME!
-//     */
-//    public EJBAccessor<KassenzeichenFacadeRemote> getVerdisCrossoverAccessor() {
-//        return verdisCrossoverAccessor;
-//    }
     @Override
     public void refresh(final Object refreshObject) {
     }
@@ -3812,7 +3785,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             }
             while (true) {
                 // TODO Progressbar & !!! Regeneriert sich nicht nach einem Server neustart
-                if (LagisBroker.getInstance().releaseLock()) {
+                if (LagisBroker.getInstance().releaseLocks()) {
                     break;
                 } else {
                     final int answer = JOptionPane.showConfirmDialog(
@@ -3845,8 +3818,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     public static Image getBannerImage() {
         return BANNER;
     }
-    // TODO VERDIS COPY
-    // obsolete because for failed logins --> only for saving the username
 
     /**
      * DOCUMENT ME!
@@ -3864,12 +3835,13 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             usernames.saveUserNames();
             usernames.addUserName((login.getUserName()));
             usernames.saveUserNames();
-            // Added for RM Plugin functionalty 22.07.2007 Sebastian Puhl
+
             LagisBroker.getInstance().setLoggedIn(true);
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Login erfolgreich");
             }
             final LagisApp app = LagisApp.getInstance();
+            app.init();
             app.setVisible(true);
             app.getMapComponent().unlock();
         } else {
@@ -3973,30 +3945,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
     @Override
     public void featureSelectionChanged(final Collection<Feature> features) {
-//        if (LOG.isDebugEnabled()) {
-//            LOG.debug("FeatureSelectionChanged LagisApp: ");
-//        }
-//        if (LagisBroker.getInstance().isInEditMode() && (features != null) && (features.size() > 0)) {
-//            final Iterator<Feature> it = features.iterator();
-//            while (it.hasNext()) {
-//                final Feature curFeature = it.next();
-//                if (curFeature.canBeSelected()
-//                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-//                                curFeature)) {
-//                    if (LOG.isDebugEnabled()) {
-//                        LOG.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
-//                    }
-//                    cmdCopyFlaeche.setEnabled(true);
-//                    return;
-//                }
-//            }
-//            cmdCopyFlaeche.setEnabled(false);
-//        } else {
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug("disable copy nicht alle vorraussetzungen erfüllt");
-//            }
-//            cmdCopyFlaeche.setEnabled(false);
-//        }
     }
 
     @Override

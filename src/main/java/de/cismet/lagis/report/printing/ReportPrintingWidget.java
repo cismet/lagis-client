@@ -50,7 +50,6 @@ import javax.swing.SwingWorker;
 
 import de.cismet.cismap.commons.gui.printing.JasperReportDownload;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.checkbox.IconCheckBox;
@@ -199,13 +198,13 @@ public final class ReportPrintingWidget extends javax.swing.JDialog {
     private static String getGraphContent() {
         String graphString;
         try {
-            graphString = CidsBroker.getInstance()
+            graphString = LagisBroker.getInstance()
                         .getHistoryGraph(LagisBroker.getInstance().getCurrentFlurstueck(),
-                                CidsBroker.HistoryLevel.DIRECT_RELATIONS,
+                                LagisBroker.HistoryLevel.DIRECT_RELATIONS,
                                 0,
-                                CidsBroker.HistorySibblingLevel.NONE,
+                                LagisBroker.HistorySibblingLevel.NONE,
                                 0,
-                                CidsBroker.HistoryType.BOTH,
+                                LagisBroker.HistoryType.BOTH,
                                 null);
         } catch (final Exception ex) {
             graphString = "digraph G{\"Fehler beim Ermitteln der Historie\"}";

@@ -88,7 +88,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
     //~ Static fields/initializers ---------------------------------------------
 
     private static final Logger LOG = Logger.getLogger(LagisFortfuehrungsanlaesseDialog.class);
-    private static final HashMap<Integer, GemarkungCustomBean> GEMARKUNGEN_MAP = CidsBroker.getInstance()
+    private static final HashMap<Integer, GemarkungCustomBean> GEMARKUNGEN_MAP = LagisBroker.getInstance()
                 .getGemarkungsHashMap();
     private static final Map<Geometry, Collection<FlurstueckSchluesselCustomBean>> geomBeansMap = new HashMap<>();
 
@@ -201,8 +201,8 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
                             search.setValidClasses(Arrays.asList(mc));
                             search.setGeometry(searchGeom);
 
-                            final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)SessionManager
-                                        .getProxy().customServerSearch(SessionManager.getSession().getUser(), search);
+                            final Collection<MetaObjectNode> res = (Collection<MetaObjectNode>)CidsBroker
+                                        .getInstance().executeSearch(search);
 
                             final List<String> alkisIds = new ArrayList<>();
 

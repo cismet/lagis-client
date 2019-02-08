@@ -16,6 +16,8 @@ import java.util.List;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
+import de.cismet.lagis.broker.LagisBroker;
+
 /**
  * DOCUMENT ME!
  *
@@ -53,9 +55,9 @@ public class FlurstueckSchluesselDataSource extends ADataSource<FlurstueckSchlue
 
     @Override
     protected List<FlurstueckSchluesselCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
 
-        final ArrayList<FlurstueckSchluesselCustomBean> fsKeys = new ArrayList<FlurstueckSchluesselCustomBean>(1);
+        final ArrayList<FlurstueckSchluesselCustomBean> fsKeys = new ArrayList<>(1);
         fsKeys.add(currentFlurstueck.getFlurstueckSchluessel());
 
         return fsKeys;

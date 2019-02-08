@@ -357,17 +357,17 @@ public abstract class AbstractCidsBeanTable_Lagis extends JXTable implements Lis
             if (cidsbeanClass.isInstance(wrappedFeature)) {
                 // TODO Refactor Name
                 final int index = ((CidsBeanTableModel_Lagis)getModel()).getIndexOfCidsBean((CidsBean)wrappedFeature);
-                final int displayedIndex = this.convertRowIndexToView(index);
                 if ((index != -1)
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
                                 feature)) {
+                    final int displayedIndex = this.convertRowIndexToView(index);
                     this.getSelectionModel().addSelectionInterval(displayedIndex, displayedIndex);
                     final Rectangle tmp = this.getCellRect(displayedIndex, 0, true);
                     if (tmp != null) {
                         this.scrollRectToVisible(tmp);
                     }
                 } else {
-                    this.getSelectionModel().removeSelectionInterval(displayedIndex, displayedIndex);
+                    this.getSelectionModel().clearSelection();
                 }
             }
         }
