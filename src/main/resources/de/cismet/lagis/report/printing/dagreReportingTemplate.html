@@ -137,6 +137,9 @@
                     zoomlevel = width / graphWidth;
                 }
 
+                if (zoomlevel < 1) {
+                    zoomlevel = 1;
+                }
                 zoom.scale(zoomlevel);
 
                 translator(margin.left + (width - (graphWidth * zoomlevel)) / 2, margin.top + (height - (graphHeight * zoomlevel)) / 2, true);
