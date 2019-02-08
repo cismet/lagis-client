@@ -38,8 +38,6 @@ import de.cismet.lagis.gui.tools.DocPanel;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 
-import de.cismet.lagis.thread.BackgroundUpdateThread;
-
 import de.cismet.lagis.util.LagISUtils;
 
 import de.cismet.lagis.widget.AbstractWidget;
@@ -63,16 +61,12 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     //~ Instance fields --------------------------------------------------------
 
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private FlurstueckCustomBean currentFlurstueck;
     private Collection<DmsUrlCustomBean> dmsUrls;
     // TODO
     private boolean inEditMode = true;
-    private final Collection<DocPanel> newLinks = new ArrayList<DocPanel>();
-    private final Collection<DocPanel> removedLinks = new ArrayList<DocPanel>();
-    private final Collection<DocPanel> allPanels = new ArrayList<DocPanel>();
-
-    // private Thread panelRefresherThread;
-    private BackgroundUpdateThread<FlurstueckCustomBean> updateThread;
+    private final Collection<DocPanel> newLinks = new ArrayList<>();
+    private final Collection<DocPanel> removedLinks = new ArrayList<>();
+    private final Collection<DocPanel> allPanels = new ArrayList<>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -84,56 +78,6 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
         initComponents();
         final DropTarget dt = new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, this);
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
-        updateThread = new BackgroundUpdateThread<FlurstueckCustomBean>() {
-
-                //J-
-                protected void clear() {
-                    allPanels.clear();
-                    DMSPanel.this.removeAll();
-                }
-                //J+
-
-                @Override
-                protected void update() {
-                    try {
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        clearComponent();
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        setCursor(java.awt.Cursor.getDefaultCursor());
-                        dmsUrls = getCurrentObject().getDokumente();
-                        for (final DmsUrlCustomBean elem : dmsUrls) {
-                            if (this.isInterrupted()) {
-                                return;
-                            }
-                            try {
-                                allPanels.add(addNewDocPanel(elem));
-                            } catch (Exception e) {
-                                log.error("Fehler beim laden eines Dokumentes", e);
-                            }
-                        }
-                        if (isUpdateAvailable()) {
-                            cleanup();
-                            return;
-                        }
-                        LagisBroker.getInstance().flurstueckChangeFinished(DMSPanel.this);
-                    } catch (Exception ex) {
-                        log.error("Fehler im refresh thread: ", ex);
-                        LagisBroker.getInstance().flurstueckChangeFinished(DMSPanel.this);
-                    }
-                }
-
-                @Override
-                protected void cleanup() {
-                }
-            };
-        updateThread.setPriority(Thread.NORM_PRIORITY);
-        updateThread.start();
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -141,11 +85,19 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
-            currentFlurstueck = newFlurstueck;
-//            if(panelRefresherThread != null && panelRefresherThread.isAlive()){
-//                panelRefresherThread.interrupt();
-//            }
-            updateThread.notifyThread(currentFlurstueck);
+            allPanels.clear();
+            removeAll();
+            clearComponent();
+            setCursor(java.awt.Cursor.getDefaultCursor());
+            dmsUrls = newFlurstueck.getDokumente();
+            for (final DmsUrlCustomBean elem : dmsUrls) {
+                try {
+                    allPanels.add(addNewDocPanel(elem));
+                } catch (Exception e) {
+                    log.error("Fehler beim laden eines Dokumentes", e);
+                }
+            }
+
 //            panelRefresherThread=new Thread() {
 //                public void run() {
 //                    clearComponent();
@@ -174,8 +126,9 @@ public class DMSPanel extends AbstractWidget implements DropTargetListener, Flur
 //            };
 //            panelRefresherThread.setPriority(Thread.NORM_PRIORITY);
 //            panelRefresherThread.start();
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             log.error("Fehler beim Flurstueckswechsel im FlurstueckPanel: ", ex);
+        } finally {
             LagisBroker.getInstance().flurstueckChangeFinished(DMSPanel.this);
         }
     }

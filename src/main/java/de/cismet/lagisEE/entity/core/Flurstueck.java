@@ -14,7 +14,6 @@ import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 import de.cismet.cids.custom.beans.lagis.SpielplatzCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
@@ -62,20 +61,6 @@ public interface Flurstueck {
      * @return  DOCUMENT ME!
      */
     String getBemerkung();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    Collection<MipaCustomBean> getMiPas();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  miPas  DOCUMENT ME!
-     */
-    void setMiPas(final Collection<MipaCustomBean> miPas);
 
     /**
      * DOCUMENT ME!
@@ -145,20 +130,6 @@ public interface Flurstueck {
      *
      * @return  DOCUMENT ME!
      */
-    Collection<RebeCustomBean> getRechteUndBelastungen();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    void setRechteUndBelastungen(final Collection<RebeCustomBean> val);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     Collection<VertragCustomBean> getVertraege();
 
     /**
@@ -182,19 +153,19 @@ public interface Flurstueck {
      */
     void setVertraegeQuerverweise(final Collection<FlurstueckSchluesselCustomBean> querverweise);
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    Collection<FlurstueckSchluesselCustomBean> getMiPasQuerverweise();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  miPasQuerverweise  DOCUMENT ME!
-     */
-    void setMiPasQuerverweise(final Collection<FlurstueckSchluesselCustomBean> miPasQuerverweise);
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @return  DOCUMENT ME!
+//     */
+//    Collection<FlurstueckSchluesselCustomBean> getMiPasQuerverweise();
+//
+//    /**
+//     * DOCUMENT ME!
+//     *
+//     * @param  miPasQuerverweise  DOCUMENT ME!
+//     */
+//    void setMiPasQuerverweise(final Collection<FlurstueckSchluesselCustomBean> miPasQuerverweise);
 
     /**
      * DOCUMENT ME!

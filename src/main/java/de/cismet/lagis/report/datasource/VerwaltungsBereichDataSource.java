@@ -12,17 +12,18 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.beans.lagis.RessortCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.wizard.GeometryWorker;
 
@@ -65,18 +66,18 @@ public class VerwaltungsBereichDataSource extends ADataSource<Verwaltungsbereich
 
     @Override
     protected List<VerwaltungsbereichCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Collection<VerwaltungsbereichCustomBean> vbSet = currentFlurstueck.getVerwaltungsbereiche();
         final FlurstueckSchluesselCustomBean fsKey = currentFlurstueck.getFlurstueckSchluessel();
 
-        final ArrayList<FlurstueckSchluesselCustomBean> fsList = new ArrayList<FlurstueckSchluesselCustomBean>(1);
+        final ArrayList<FlurstueckSchluesselCustomBean> fsList = new ArrayList<>(1);
         fsList.add(fsKey);
 
         final GeometryWorker worker = new GeometryWorker(fsList);
         final Map<FlurstueckSchluesselCustomBean, Geometry> result = worker.call();
         this.currentGeom = result.get(fsKey);
 
-        return new ArrayList<VerwaltungsbereichCustomBean>(vbSet);
+        return new ArrayList<>(vbSet);
     }
 
     @Override

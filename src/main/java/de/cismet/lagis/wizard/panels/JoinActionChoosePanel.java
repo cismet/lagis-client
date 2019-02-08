@@ -24,9 +24,9 @@ import java.util.Map;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
+import de.cismet.cids.dynamics.CidsBean;
+
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
@@ -104,11 +104,10 @@ public class JoinActionChoosePanel extends javax.swing.JPanel implements Validat
                 wizardController.setProblem(curJoinMember.getValidationMessage());
                 return;
             }
-            final SperreCustomBean sperre = CidsBroker.getInstance()
-                        .isLocked(curJoinMember.getCurrentFlurstueckSchluessel());
+            final CidsBean sperre = LagisBroker.getInstance().isLocked(curJoinMember.getCurrentFlurstueckSchluessel());
             if (sperre != null) {
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
-                            + sperre.getBenutzerkonto());
+                            + (String)sperre.getProperty("user_string"));
                 return;
             }
             joinKeys.add(curJoinMember.getCurrentFlurstueckSchluessel());

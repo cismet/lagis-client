@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
 import de.cismet.cids.custom.beans.lagis.BeschlussCustomBean;
@@ -39,7 +40,6 @@ import de.cismet.cids.custom.beans.lagis.KostenCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
 import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.BeschluesseTableModel;
@@ -54,11 +54,14 @@ import de.cismet.lagis.models.VertraegeTableModel;
  */
 public class VertragDocumentModelContainer implements MouseListener, ActionListener {
 
+    //~ Static fields/initializers ---------------------------------------------
+
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(VertragDocumentModelContainer.class);
+
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private DecimalFormat df = LagisBroker.getCurrencyFormatter();
-    private DateFormat dateFormatter = LagisBroker.getDateFormatter();
+    private final DecimalFormat df = LagisBroker.getCurrencyFormatter();
+    private final DateFormat dateFormatter = LagisBroker.getDateFormatter();
     private VertragCustomBean currentSelectedVertrag = null;
     private VertraegeTableModel vertraegeTableModel;
     private AmountDocumentModel kaufpreisDocumentModel;
@@ -98,8 +101,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final Double betrag) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("amount assinged");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("amount assinged");
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setGesamtpreis(betrag);
@@ -112,8 +115,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final Double betrag) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("amount assinged");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("amount assinged");
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setQuadratmeterpreis(betrag);
@@ -126,8 +129,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final Date date) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Date assinged");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Date assinged");
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setDatumAuflassung(date);
@@ -139,8 +142,8 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final Date date) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Date assinged");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Date assinged");
                     }
                     if (currentSelectedVertrag != null) {
                         currentSelectedVertrag.setDatumEintragung(date);
@@ -152,9 +155,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final String newValue) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("voreigentuemer assigned");
-                        log.debug("new Value: " + newValue);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("voreigentuemer assigned");
+                        LOG.debug("new Value: " + newValue);
                     }
                     valueToCheck = newValue;
                     fireValidationStateChanged(this);
@@ -168,9 +171,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final String newValue) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("aktenzeichen assigned");
-                        log.debug("new Value: " + newValue);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("aktenzeichen assigned");
+                        LOG.debug("new Value: " + newValue);
                     }
                     valueToCheck = newValue;
                     fireValidationStateChanged(this);
@@ -185,9 +188,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
 
                 @Override
                 public void assignValue(final String newValue) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Bemerkung assigned");
-                        log.debug("new Value: " + newValue);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Bemerkung assigned");
+                        LOG.debug("new Value: " + newValue);
                     }
                     valueToCheck = newValue;
                     fireValidationStateChanged(this);
@@ -197,7 +200,7 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                 }
             };
 
-        final Collection vertragsarten = CidsBroker.getInstance().getAllVertragsarten();
+        final Collection vertragsarten = LagisBroker.getInstance().getAllVertragsarten();
         if (vertragsarten != null) {
             vertragsartComboBoxModel = new DefaultComboBoxModel(new Vector(vertragsarten));
         } else {
@@ -234,88 +237,103 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
     @Override
     public void mouseClicked(final MouseEvent e) {
         final Object source = e.getSource();
-        if (log.isDebugEnabled()) {
-            log.debug("source: " + source);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("source: " + source);
         }
         if (source instanceof JXTable) {
             final JXTable table = (JXTable)source;
-            int currentRow = table.getSelectedRow();
+            final int currentRow = table.getSelectedRow();
+            selectRow(currentRow);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  row  DOCUMENT ME!
+     */
+    public void selectRow(final int row) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Row: " + row);
+        }
+        if (row != -1) {
+            final JXTable table = (JXTable)vertraegeTableModel.getTable();
             final int currentColumn = table.getSelectedColumn();
-            if (log.isDebugEnabled()) {
-                log.debug("Row: " + currentRow);
-            }
-            if (currentRow != -1) {
-                currentRow = table.convertRowIndexToModel(currentRow);
-                currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(currentRow);
-                try {
-                    kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
-                    if (currentSelectedVertrag.getGesamtpreis() != null) {
-                        kaufpreisDocumentModel.insertString(
-                            0,
-                            df.format(currentSelectedVertrag.getGesamtpreis()),
-                            null);
-                    } else {
-                        kaufpreisDocumentModel.insertString(0, "", null);
-                    }
-
-                    auflassungDocumentModel.clear(0, auflassungDocumentModel.getLength());
-                    if (currentSelectedVertrag.getDatumAuflassung() != null) {
-                        auflassungDocumentModel.insertString(
-                            0,
-                            dateFormatter.format(currentSelectedVertrag.getDatumAuflassung()),
-                            null);
-                    } else {
-                        auflassungDocumentModel.insertString(0, "", null);
-                    }
-
-                    eintragungDocumentModel.clear(0, eintragungDocumentModel.getLength());
-                    if (currentSelectedVertrag.getDatumEintragung() != null) {
-                        eintragungDocumentModel.insertString(
-                            0,
-                            dateFormatter.format(currentSelectedVertrag.getDatumEintragung()),
-                            null);
-                    } else {
-                        eintragungDocumentModel.insertString(0, "", null);
-                    }
-
-                    voreigentuemerDocumentModel.clear(0, voreigentuemerDocumentModel.getLength());
-                    voreigentuemerDocumentModel.insertString(0, currentSelectedVertrag.getVertragspartner(), null);
-
-                    aktenzeichenDocumentModel.clear(0, aktenzeichenDocumentModel.getLength());
-                    aktenzeichenDocumentModel.insertString(0, currentSelectedVertrag.getAktenzeichen(), null);
-
-                    bemerkungDocumentModel.clear(0, bemerkungDocumentModel.getLength());
-                    bemerkungDocumentModel.insertString(0, currentSelectedVertrag.getBemerkung(), null);
-
-                    quadPreisDocumentModel.clear(0, quadPreisDocumentModel.getLength());
-                    if (currentSelectedVertrag.getQuadratmeterpreis() != null) {
-                        quadPreisDocumentModel.insertString(
-                            0,
-                            df.format(currentSelectedVertrag.getQuadratmeterpreis()),
-                            null);
-                    } else {
-                        quadPreisDocumentModel.insertString(0, "", null);
-                    }
-
-                    vertragsartComboBoxModel.setSelectedItem(currentSelectedVertrag.getVertragsart());
-
-                    kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
-                    beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
-                    table.changeSelection(table.convertRowIndexToView(currentRow),
-                        currentColumn,
-                        false,
-                        false);
-                } catch (BadLocationException ex) {
-                    // TODO Böse
-                    ex.printStackTrace();
+            final int modelRow = table.convertRowIndexToModel(row);
+            currentSelectedVertrag = vertraegeTableModel.getCidsBeanAtRow(modelRow);
+            try {
+                kaufpreisDocumentModel.clear(0, kaufpreisDocumentModel.getLength());
+                if (currentSelectedVertrag.getGesamtpreis() != null) {
+                    kaufpreisDocumentModel.insertString(
+                        0,
+                        df.format(currentSelectedVertrag.getGesamtpreis()),
+                        null);
+                } else {
+                    kaufpreisDocumentModel.insertString(0, "", null);
                 }
-            } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("nichts selektiert lösche Felder");
+
+                auflassungDocumentModel.clear(0, auflassungDocumentModel.getLength());
+                if (currentSelectedVertrag.getDatumAuflassung() != null) {
+                    auflassungDocumentModel.insertString(
+                        0,
+                        dateFormatter.format(currentSelectedVertrag.getDatumAuflassung()),
+                        null);
+                } else {
+                    auflassungDocumentModel.insertString(0, "", null);
                 }
-                currentSelectedVertrag = null;
-                clearComponents();
+
+                eintragungDocumentModel.clear(0, eintragungDocumentModel.getLength());
+                if (currentSelectedVertrag.getDatumEintragung() != null) {
+                    eintragungDocumentModel.insertString(
+                        0,
+                        dateFormatter.format(currentSelectedVertrag.getDatumEintragung()),
+                        null);
+                } else {
+                    eintragungDocumentModel.insertString(0, "", null);
+                }
+
+                voreigentuemerDocumentModel.clear(0, voreigentuemerDocumentModel.getLength());
+                voreigentuemerDocumentModel.insertString(0, currentSelectedVertrag.getVertragspartner(), null);
+
+                aktenzeichenDocumentModel.clear(0, aktenzeichenDocumentModel.getLength());
+                aktenzeichenDocumentModel.insertString(0, currentSelectedVertrag.getAktenzeichen(), null);
+
+                bemerkungDocumentModel.clear(0, bemerkungDocumentModel.getLength());
+                bemerkungDocumentModel.insertString(0, currentSelectedVertrag.getBemerkung(), null);
+
+                quadPreisDocumentModel.clear(0, quadPreisDocumentModel.getLength());
+                if (currentSelectedVertrag.getQuadratmeterpreis() != null) {
+                    quadPreisDocumentModel.insertString(
+                        0,
+                        df.format(currentSelectedVertrag.getQuadratmeterpreis()),
+                        null);
+                } else {
+                    quadPreisDocumentModel.insertString(0, "", null);
+                }
+
+                vertragsartComboBoxModel.setSelectedItem(currentSelectedVertrag.getVertragsart());
+
+                kostenTableModel.refreshTableModel(currentSelectedVertrag.getKosten());
+                beschluesseTableModel.refreshTableModel(currentSelectedVertrag.getBeschluesse());
+                SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            table.changeSelection(table.convertRowIndexToView(modelRow),
+                                currentColumn,
+                                false,
+                                false);
+                        }
+                    });
+            } catch (final BadLocationException ex) {
+                LOG.error(ex, ex);
             }
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("nichts selektiert lösche Felder");
+            }
+            currentSelectedVertrag = null;
+            clearComponents();
         }
     }
 
@@ -344,6 +362,9 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
      */
     public void updateTableModel(final VertraegeTableModel vertraegeTableModel) {
         this.vertraegeTableModel = vertraegeTableModel;
+        if (vertraegeTableModel.getRowCount() > 0) {
+            selectRow(0);
+        }
     }
 
     /**
@@ -446,15 +467,15 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
                 beschluesseTableModel.addCidsBean(beschlussBean);
                 currentSelectedVertrag.getBeschluesse().add(beschlussBean);
                 beschluesseTableModel.fireTableDataChanged();
-                if (log.isDebugEnabled()) {
-                    log.debug("Neuer Beschluss angelegt");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Neuer Beschluss angelegt");
                 }
             } catch (Exception ex) {
-                log.error("error creating beschluss bean", ex);
+                LOG.error("error creating beschluss bean", ex);
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Es konnte kein Beschluss angelegt werden --> currentSelected Vertrag = null");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Es konnte kein Beschluss angelegt werden --> currentSelected Vertrag = null");
             }
         }
     }
@@ -468,12 +489,12 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
             kostenTableModel.addCidsBean(kostenBean);
             currentSelectedVertrag.getKosten().add(kostenBean);
             kostenTableModel.fireTableDataChanged();
-            if (log.isDebugEnabled()) {
-                log.debug("Neue Kosten angelegt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Neue Kosten angelegt");
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Es konnten keine neue Kosten angelegt werden --> currentSelected Vertrag = null");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Es konnten keine neue Kosten angelegt werden --> currentSelected Vertrag = null");
             }
         }
     }
@@ -499,12 +520,12 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
             kostenTableModel.removeCidsBean(kostenIndex);
             currentSelectedVertrag.getKosten().remove(kostenBean);
             kostenTableModel.fireTableDataChanged();
-            if (log.isDebugEnabled()) {
-                log.debug("Kosten wurden entfernt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Kosten wurden entfernt");
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Kosten konnten nicht entfernt werden --> currentSelected Vertrag = null oder wert = -1");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Kosten konnten nicht entfernt werden --> currentSelected Vertrag = null oder wert = -1");
             }
         }
     }
@@ -520,12 +541,12 @@ public class VertragDocumentModelContainer implements MouseListener, ActionListe
             beschluesseTableModel.removeCidsBean(beschlussIndex);
             currentSelectedVertrag.getBeschluesse().remove(beschlussBean);
             beschluesseTableModel.fireTableDataChanged();
-            if (log.isDebugEnabled()) {
-                log.debug("Beschluss wurde entfernt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Beschluss wurde entfernt");
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("Beschluss konnten nicht entfernt werden --> currentSelected Vertrag = null oder wert = -1");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Beschluss konnten nicht entfernt werden --> currentSelected Vertrag = null oder wert = -1");
             }
         }
     }

@@ -12,12 +12,13 @@ import net.sf.jasperreports.engine.JRException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -65,10 +66,10 @@ public final class NutzungenDataSource extends ADataSource<NutzungBuchungCustomB
 
     @Override
     protected List<NutzungBuchungCustomBean> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Collection<NutzungCustomBean> nutzungen = currentFlurstueck.getNutzungen();
 
-        final ArrayList<NutzungBuchungCustomBean> buchungen = new ArrayList<NutzungBuchungCustomBean>(nutzungen.size());
+        final ArrayList<NutzungBuchungCustomBean> buchungen = new ArrayList<>(nutzungen.size());
         for (final NutzungCustomBean tmpNutzung : nutzungen) {
             if (tmpNutzung.getBuchungsCount() > 0) {
                 for (final NutzungBuchungCustomBean buchung : tmpNutzung.getNutzungsBuchungen()) {

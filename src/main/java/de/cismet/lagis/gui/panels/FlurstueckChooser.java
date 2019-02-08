@@ -42,11 +42,12 @@ import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
 import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.commons.LagisConstants;
 import de.cismet.lagis.commons.LagisMetaclassConstants;
+
+import de.cismet.lagis.gui.main.LagisApp;
 
 import de.cismet.lagis.interfaces.DoneDelegate;
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
@@ -323,7 +324,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
             fsKey.setFlurstueckZaehler(zaehler);
             fsKey.setFlurstueckNenner(nenner);
             fsKey.setId(-1);
-            CidsBroker.getInstance().completeFlurstueckSchluessel(fsKey);
+            LagisBroker.getInstance().completeFlurstueckSchluessel(fsKey);
             requestFlurstueck(fsKey);
         } catch (final Exception ex) {
             LOG.error(ex.getMessage(), ex);
@@ -1302,7 +1303,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     if (isCancelled()) {
                         return null;
                     }
-                    final Collection<GemarkungCustomBean> gemKeys = CidsBroker.getInstance().getGemarkungsKeys();
+                    final Collection<GemarkungCustomBean> gemKeys = LagisBroker.getInstance().getGemarkungsKeys();
                     if (isCancelled()) {
                         return null;
                     }
@@ -1346,7 +1347,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                             }
                                         });
 
-                                    final Collection<Key> flurKeys = CidsBroker.getInstance()
+                                    final Collection<Key> flurKeys = LagisBroker.getInstance()
                                                 .getDependingKeysForKey(selectedGemarkung);
                                     if (isCancelled()) {
                                         return null;
@@ -1403,7 +1404,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                     if (isCancelled()) {
                                         return null;
                                     }
-                                    selectedGemarkung = CidsBroker.getInstance().completeGemarkung(selectedGemarkung);
+                                    selectedGemarkung = LagisBroker.getInstance().completeGemarkung(selectedGemarkung);
                                 }
                             }
                             if ((selectedGemarkung != null)
@@ -1632,7 +1633,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     selectedFlur.setHistoricFilterEnabled(filter == Filter.HISTORIC);
                     selectedFlur.setAbteilungXIFilterEnabled(filter == Filter.ABTEILUNG_IX);
                     selectedFlur.setStaedtischFilterEnabled(filter == Filter.STAEDTISCH);
-                    final Collection<Key> flurKeys = CidsBroker.getInstance().getDependingKeysForKey(selectedFlur);
+                    final Collection<Key> flurKeys = LagisBroker.getInstance().getDependingKeysForKey(selectedFlur);
                     if (isCancelled()) {
                         return null;
                     }
@@ -1870,7 +1871,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     if (isCancelled()) {
                         return null;
                     }
-                    final FlurstueckSchluesselCustomBean tmpKey = CidsBroker.getInstance()
+                    final FlurstueckSchluesselCustomBean tmpKey = LagisBroker.getInstance()
                                 .completeFlurstueckSchluessel(selectedFlurstueck);
                     if (isCancelled()) {
                         return null;
@@ -1896,7 +1897,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (isCancelled()) {
                                     return null;
                                 }
-                                final FlurstueckCustomBean flurstueck = CidsBroker.getInstance()
+                                final FlurstueckCustomBean flurstueck = LagisBroker.getInstance()
                                             .retrieveFlurstueck(selectedFlurstueck);
                                 if (isCancelled()) {
                                     return null;
@@ -1912,13 +1913,13 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                                 if (isCancelled()) {
                                     return null;
                                 }
-                                JOptionPane.showMessageDialog(LagisBroker.getInstance().getParentComponent(),
+                                JOptionPane.showMessageDialog(LagisApp.getInstance(),
                                     "Das Flurstück kann nur gewechselt werden wenn alle Änderungen gespeichert oder verworfen worden sind.",
                                     "Wechseln nicht möglich",
                                     JOptionPane.WARNING_MESSAGE);
                             }
                         } else {
-                            final FlurstueckCustomBean flurstueck = CidsBroker.getInstance()
+                            final FlurstueckCustomBean flurstueck = LagisBroker.getInstance()
                                         .retrieveFlurstueck(selectedFlurstueck);
                             if (flurstueck != null) {
                                 return flurstueck;
@@ -2054,7 +2055,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     return null;
                 }
                 if (isFlurstueckCandidateValide) {
-                    keyToCheck = CidsBroker.getInstance().completeFlurstueckSchluessel(keyToCheck);
+                    keyToCheck = LagisBroker.getInstance().completeFlurstueckSchluessel(keyToCheck);
                     return keyToCheck != null;
                 } else {
                     return false;
@@ -2099,7 +2100,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                     isFlurstueckCreateable = false;
                     fireValidationStateChanged(this);
                 }
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 LOG.error("Fehler beim checken des Flurstücks (done)", ex);
                 isFlurstueckCreateable = false;
                 fireValidationStateChanged(this);
@@ -2137,16 +2138,18 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                 }
 
                 final Geometry result = worker.get();
+                if (result != null) {
+                    result.setSRID(25832);
+                    LOG.info("CurrentWFSGeometry SRS=" + result.getSRID() + " " + result);
+                }
+                LagisBroker.getInstance().setCurrentWFSGeometry(result);
+
                 if (result == null) {
                     LOG.warn("could not retrieve WFS geometry");
                     LagisBroker.getInstance().flurstueckChangeFinished(FlurstueckChooser.this);
                     return;
                 }
 
-                result.setSRID(25832);
-
-                LagisBroker.getInstance().setCurrentWFSGeometry(result);
-                LOG.info("CurrentWFSGeometry SRS=" + ((result != null) ? result.getSRID() : "?") + " " + result);
                 if (worker.hadErrors()) {
                     btnAction.setToolTipText(worker.getErrorMessage());
                     setHighlightColor(LagisBroker.ERROR_COLOR);
@@ -2161,71 +2164,64 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             && (worker.getKeyObject() instanceof FlurstueckSchluesselCustomBean)) {
                     final FlurstueckSchluesselCustomBean flurstueckKey = (FlurstueckSchluesselCustomBean)
                         worker.getKeyObject();
-                    if (result != null) {
-                        // TODO GUESSING ACHTUNG FALLS FEHLER
-                        if ((flurstueckKey.getId() == null) || (flurstueckKey.getId() == -1)) {
-                            LagisBroker.getInstance().setCurrentFlurstueckSchluessel(flurstueckKey, true);
-                        }
-                        Feature tmpFeature = null;
-                        if (properties != null) {
-                            final boolean hasManyVerwaltungsbereiche =
-                                (properties.get(HAS_MANY_VERWALTUNGSBEREICHE) != null)
-                                ? properties.get(HAS_MANY_VERWALTUNGSBEREICHE) : false;
-                            final boolean isNoGeometryAssigned = (properties.get(IS_NO_GEOMETRY_ASSIGNED) != null)
-                                ? properties.get(IS_NO_GEOMETRY_ASSIGNED) : false;
-                            if (!hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
-                                tmpFeature = new FlurtstueckNamedStyledFeature();
-                                tmpFeature.setEditable(false);
-                                ((DefaultStyledFeature)tmpFeature).setCanBeSelected(false);
+                    // TODO GUESSING ACHTUNG FALLS FEHLER
+                    if ((flurstueckKey.getId() == null) || (flurstueckKey.getId() == -1)) {
+                        LagisBroker.getInstance().setCurrentFlurstueckSchluessel(flurstueckKey, true);
+                    }
+                    Feature tmpFeature = null;
+                    if (properties != null) {
+                        final boolean hasManyVerwaltungsbereiche =
+                            (properties.get(HAS_MANY_VERWALTUNGSBEREICHE) != null)
+                            ? properties.get(HAS_MANY_VERWALTUNGSBEREICHE) : false;
+                        final boolean isNoGeometryAssigned = (properties.get(IS_NO_GEOMETRY_ASSIGNED) != null)
+                            ? properties.get(IS_NO_GEOMETRY_ASSIGNED) : false;
+                        if (!hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
+                            tmpFeature = new FlurtstueckNamedStyledFeature();
+                            tmpFeature.setEditable(false);
+                            ((DefaultStyledFeature)tmpFeature).setCanBeSelected(false);
 
-                                final FlurstueckArtCustomBean flurstueckArt = flurstueckKey.getFlurstueckArt();
-                                final DefaultStyledFeature styledFeature = (DefaultStyledFeature)tmpFeature;
-                                final String flurstueckArtBez = (flurstueckArt != null) ? flurstueckArt
-                                                .getBezeichnung() : null;
-                                final Date gueltigBis = flurstueckKey.getGueltigBis();
+                            final FlurstueckArtCustomBean flurstueckArt = flurstueckKey.getFlurstueckArt();
+                            final DefaultStyledFeature styledFeature = (DefaultStyledFeature)tmpFeature;
+                            final String flurstueckArtBez = (flurstueckArt != null) ? flurstueckArt.getBezeichnung()
+                                                                                    : null;
+                            final Date gueltigBis = flurstueckKey.getGueltigBis();
 
-                                if (flurstueckArt == null) {
-                                    styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
-                                } else if (
-                                    FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
+                            if (flurstueckArt == null) {
+                                styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
+                            } else if (
+                                FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
+                                            flurstueckArtBez)
+                                        && (gueltigBis == null)) {
+                                styledFeature.setFillingPaint(LagisBroker.STADT_FILLING_COLOR);
+                            } else if ((gueltigBis != null)
+                                        && (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
                                                 flurstueckArtBez)
-                                            && (gueltigBis == null)) {
-                                    styledFeature.setFillingPaint(LagisBroker.STADT_FILLING_COLOR);
-                                } else if ((gueltigBis != null)
-                                            && (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_STAEDTISCH.equals(
-                                                    flurstueckArtBez)
-                                                || FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX
-                                                .equals(flurstueckArtBez))) {
-                                    styledFeature.setFillingPaint(LagisBroker.HISTORIC_FLURSTUECK_COLOR);
-                                } else if (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
-                                                flurstueckArtBez)) {
-                                    styledFeature.setFillingPaint(LagisBroker.ABTEILUNG_IX_FILLING_COLOR);
-                                } else {
-                                    styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
-                                }
-                                tmpFeature.setGeometry(result);
-                                ((FlurtstueckNamedStyledFeature)tmpFeature).setName(flurstueckKey.getKeyString());
-                                tmpFeature = new StyledFeatureGroupWrapper((StyledFeature)tmpFeature,
-                                        FEATURE_GRP,
-                                        FEATURE_GRP);
-                            } else if (hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
-                                tmpFeature = new PureNewFeature(result);
-                                tmpFeature.setEditable(true);
-                                ((PureNewFeature)tmpFeature).setCanBeSelected(true);
+                                            || FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
+                                                flurstueckArtBez))) {
+                                styledFeature.setFillingPaint(LagisBroker.HISTORIC_FLURSTUECK_COLOR);
+                            } else if (FlurstueckArtCustomBean.FLURSTUECK_ART_BEZEICHNUNG_ABTEILUNGIX.equals(
+                                            flurstueckArtBez)) {
+                                styledFeature.setFillingPaint(LagisBroker.ABTEILUNG_IX_FILLING_COLOR);
                             } else {
-                                LOG.warn("Nicht vorgesehner Fall !! --> Der Karte wird nichts hinzugefügt!");
+                                styledFeature.setFillingPaint(LagisBroker.UNKNOWN_FILLING_COLOR);
                             }
+                            tmpFeature.setGeometry(result);
+                            ((FlurtstueckNamedStyledFeature)tmpFeature).setName(flurstueckKey.getKeyString());
+                            tmpFeature = new StyledFeatureGroupWrapper((StyledFeature)tmpFeature,
+                                    FEATURE_GRP,
+                                    FEATURE_GRP);
+                        } else if (hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
+                            tmpFeature = new PureNewFeature(result);
+                            tmpFeature.setEditable(true);
+                            ((PureNewFeature)tmpFeature).setCanBeSelected(true);
                         } else {
-                            LOG.error("Properties sind null --> kann kein Feature hinzufügen");
-                        }
-                        if (tmpFeature != null) {
-                            LagisBroker.getInstance()
-                                    .getMappingComponent()
-                                    .getFeatureCollection()
-                                    .addFeature(tmpFeature);
+                            LOG.warn("Nicht vorgesehner Fall !! --> Der Karte wird nichts hinzugefügt!");
                         }
                     } else {
-                        LagisBroker.getInstance().setCurrentWFSGeometry(null);
+                        LOG.error("Properties sind null --> kann kein Feature hinzufügen");
+                    }
+                    if (tmpFeature != null) {
+                        LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(tmpFeature);
                     }
                 } else {
                     LagisBroker.getInstance().setCurrentWFSGeometry(null);

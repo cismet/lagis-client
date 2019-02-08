@@ -32,13 +32,12 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.SperreCustomBean;
+
+import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.Exception.ActionNotSuccessfulException;
 
-import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.main.LagisApp;
@@ -76,7 +75,7 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
     public boolean cancel(final Map settings) {
         // return true;
         // TODO FEHLER sollte von Wizard abhängig sein
-        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisBroker.getInstance().getParentComponent(),
+        final boolean dialogShouldClose = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                 "Möchten Sie den Bearbeitungsvorgang beenden?") == JOptionPane.OK_OPTION;
         return dialogShouldClose;
     }
@@ -115,20 +114,17 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                     ChangeKindActionPanel.KEY_CHANGE_CANDIDATE);
             final FlurstueckArtCustomBean newArt = (FlurstueckArtCustomBean)wizardData.get(
                     ChangeKindActionPanel.KEY_NEW_KIND);
-            SperreCustomBean sperre = null;
+            CidsBean sperre = null;
             try {
                 // TODO besser alles in Server
-                final SperreCustomBean other = CidsBroker.getInstance().isLocked(key);
+                final CidsBean other = LagisBroker.getInstance().isLocked(key);
                 if (other == null) {
-                    sperre = CidsBroker.getInstance()
-                                .createLock(SperreCustomBean.createNew(
-                                            key,
-                                            LagisBroker.getInstance().getAccountName()));
+                    sperre = LagisBroker.getInstance().createFlurstueckSchluesselLock(key);
                     if (sperre != null) {
                         progress.setBusy("Flurstückart wird geändert");
                         key.setFlurstueckArt(newArt);
-                        CidsBroker.getInstance().modifyFlurstueckSchluessel(key);
-                        CidsBroker.getInstance().releaseLock(sperre);
+                        LagisBroker.getInstance().modifyFlurstueckSchluessel(key);
+                        LagisBroker.getInstance().releaseLock(sperre);
                         // TODO schlechte Postion verwirrt den Benutzer wäre besser wenn sie ganz zum Schluss käme
                         if ((LagisBroker.getInstance().getCurrentFlurstueckSchluessel() != null)
                                     && FlurstueckSchluesselCustomBean.FLURSTUECK_EQUALATOR.pedanticEquals(
@@ -145,8 +141,7 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                                 }
                             }
                         } else {
-                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisBroker.getInstance()
-                                            .getParentComponent(),
+                            final boolean changeFlurstueck = JOptionPane.showConfirmDialog(LagisApp.getInstance(),
                                     "Möchten Sie zu dem geänderten Flurstück wechseln?",
                                     "Flurstückwechsel",
                                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
@@ -181,12 +176,12 @@ public class ChangeKindActionSteps extends WizardPanelProvider {
                 } else {
                     progress.failed("Es war nicht möglich die Art des Flurstücks:\n\t\"" + key.getKeyString()
                                 + "\"\nzu ändern, es ist von einem anderen Benutzer gesperrt: "
-                                + other.getBenutzerkonto(),
+                                + (String)other.getProperty("user_string"),
                         false);
                 }
             } catch (Exception e) {
                 try {
-                    CidsBroker.getInstance().releaseLock(sperre);
+                    LagisBroker.getInstance().releaseLock(sperre);
                 } catch (Exception ex) {
                     log.error("Fehler beim lösen der Sperre", ex);
                 }

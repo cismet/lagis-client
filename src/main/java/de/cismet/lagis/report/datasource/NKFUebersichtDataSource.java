@@ -10,12 +10,18 @@ package de.cismet.lagis.report.datasource;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
+
+import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.utillity.AnlagenklasseSumme;
 
@@ -54,11 +60,11 @@ public class NKFUebersichtDataSource extends ADataSource<AnlagenklasseSumme> imp
 
     @Override
     protected List<AnlagenklasseSumme> retrieveData() {
-        final FlurstueckCustomBean currentFlurstueck = LAGIS_BROKER.getCurrentFlurstueck();
+        final FlurstueckCustomBean currentFlurstueck = LagisBroker.getInstance().getCurrentFlurstueck();
         final Collection<NutzungCustomBean> nutzungen = currentFlurstueck.getNutzungen();
 
         // Mapping Bez. Anlagenklasse -> sum(Gesamtpreis)
-        final HashMap<AnlageklasseCustomBean, Double> sumMap = new HashMap<AnlageklasseCustomBean, Double>();
+        final HashMap<AnlageklasseCustomBean, Double> sumMap = new HashMap<>();
 
         AnlageklasseCustomBean anlkl;
         Double gesamtPreis;
@@ -99,7 +105,7 @@ public class NKFUebersichtDataSource extends ADataSource<AnlagenklasseSumme> imp
         }
 
         // Erstellung der AnlagenklassenSummen aus vorher ermittelten Aggregation
-        final ArrayList<AnlagenklasseSumme> summen = new ArrayList<AnlagenklasseSumme>(sumMap.size());
+        final ArrayList<AnlagenklasseSumme> summen = new ArrayList<>(sumMap.size());
         AnlagenklasseSumme sum;
         for (final Map.Entry<AnlageklasseCustomBean, Double> entry : sumMap.entrySet()) {
             sum = new AnlagenklasseSumme(entry.getKey());
