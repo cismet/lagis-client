@@ -831,8 +831,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         if ((currentFlurstueck != null) && (currentLocks.isEmpty())) {
             try {
                 currentLocks.add(createFlurstueckSchluesselLock(currentFlurstueck.getFlurstueckSchluessel()));
-                for (final RebeCustomBean rebe : currentRebes) {
-                    currentLocks.add(createRebeLock(rebe, currentFlurstueck.getFlurstueckSchluessel()));
+                if (currentRebes != null) {
+                    for (final RebeCustomBean rebe : currentRebes) {
+                        currentLocks.add(createRebeLock(rebe, currentFlurstueck.getFlurstueckSchluessel()));
+                    }
+                }
+                if (currentMipas != null) {
+                    for (final MipaCustomBean mipa : currentMipas) {
+                        currentLocks.add(createMipaLock(mipa, currentFlurstueck.getFlurstueckSchluessel()));
+                    }
                 }
                 setWidgetsEditable(true);
                 for (final Feature feature
@@ -844,6 +851,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 showObjectsLockedDialog(ex.getAlreadyExisingLocks());
                 return false;
             } catch (final Exception ex) {
+                currentLocks.clear();
                 showError(
                     "Kein Editieren möglich",
                     "Beim Sperren des Datensatzes ist ein unerwarteter Fehler aufgetreten.",
@@ -1034,6 +1042,25 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 getCurrentFlurstueckSchluessel().getKeyString()
                         + ";Recht/Belastung: "
                         + rebe.toString());
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   mipa                  DOCUMENT ME!
+     * @param   flurstueckSchluessel  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public CidsBean createMipaLock(final MipaCustomBean mipa, final FlurstueckSchluesselCustomBean flurstueckSchluessel)
+            throws Exception {
+        return createLock(
+                mipa,
+                getCurrentFlurstueckSchluessel().getKeyString()
+                        + ";Vermietung/Verpachtung: "
+                        + mipa.toString());
     }
 
     /**
