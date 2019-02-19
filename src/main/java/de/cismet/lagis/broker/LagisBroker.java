@@ -2402,32 +2402,34 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         final FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = getCurrentFlurstueckSchluessel();
         final Collection<CidsBean> alkisFlurstuecke = searchAlkisLandparcelBeans(mipa.getGeometry().buffer(mipaBuffer));
         final Collection<FlurstueckSchluesselCustomBean> keys = new HashSet<>();
-        for (final CidsBean alkisFlurstueck : alkisFlurstuecke) {
-            if (alkisFlurstueck != null) {
-                final String query = "SELECT "
-                            + "  " + mcFlurstueckSchluessel.getID() + ", "
-                            + "  flurstueck_schluessel.id "
-                            + "FROM flurstueck_schluessel "
-                            + "LEFT JOIN gemarkung "
-                            + "  ON flurstueck_schluessel.fk_gemarkung = gemarkung.id "
-                            + "WHERE "
-                            + "  gemarkung.bezeichnung ILIKE '" + alkisFlurstueck.getProperty("gemarkung") + "' "
-                            + "  AND flurstueck_schluessel.flur = '" + alkisFlurstueck.getProperty("flur")
-                            + "'::integer "
-                            + ((alkisFlurstueck.getProperty("fstck_zaehler") != null)
-                                ? ("  AND flurstueck_schluessel.flurstueck_zaehler = '"
-                                    + alkisFlurstueck.getProperty("fstck_zaehler") + "'::integer") : "") + " "
-                            + ((alkisFlurstueck.getProperty("fstck_nenner") != null)
-                                ? ("  AND flurstueck_schluessel.flurstueck_nenner  = '"
-                                    + alkisFlurstueck.getProperty("fstck_nenner") + "'::integer") : "") + ";";
+        if (alkisFlurstuecke != null) {
+            for (final CidsBean alkisFlurstueck : alkisFlurstuecke) {
+                if (alkisFlurstueck != null) {
+                    final String query = "SELECT "
+                                + "  " + mcFlurstueckSchluessel.getID() + ", "
+                                + "  flurstueck_schluessel.id "
+                                + "FROM flurstueck_schluessel "
+                                + "LEFT JOIN gemarkung "
+                                + "  ON flurstueck_schluessel.fk_gemarkung = gemarkung.id "
+                                + "WHERE "
+                                + "  gemarkung.bezeichnung ILIKE '" + alkisFlurstueck.getProperty("gemarkung") + "' "
+                                + "  AND flurstueck_schluessel.flur = '" + alkisFlurstueck.getProperty("flur")
+                                + "'::integer "
+                                + ((alkisFlurstueck.getProperty("fstck_zaehler") != null)
+                                    ? ("  AND flurstueck_schluessel.flurstueck_zaehler = '"
+                                        + alkisFlurstueck.getProperty("fstck_zaehler") + "'::integer") : "") + " "
+                                + ((alkisFlurstueck.getProperty("fstck_nenner") != null)
+                                    ? ("  AND flurstueck_schluessel.flurstueck_nenner  = '"
+                                        + alkisFlurstueck.getProperty("fstck_nenner") + "'::integer") : "") + ";";
 
-                final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
-                if (mosMipa != null) {
-                    for (final MetaObject metaObject : mosMipa) {
-                        final FlurstueckSchluesselCustomBean schluessel = (FlurstueckSchluesselCustomBean)
-                            metaObject.getBean();
-                        if ((schluessel != null) && !schluessel.equals(currentFlurstueckSchluessel)) {
-                            keys.add(schluessel);
+                    final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
+                    if (mosMipa != null) {
+                        for (final MetaObject metaObject : mosMipa) {
+                            final FlurstueckSchluesselCustomBean schluessel = (FlurstueckSchluesselCustomBean)
+                                metaObject.getBean();
+                            if ((schluessel != null) && !schluessel.equals(currentFlurstueckSchluessel)) {
+                                keys.add(schluessel);
+                            }
                         }
                     }
                 }
@@ -2439,19 +2441,18 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /**
      * DOCUMENT ME!
      *
-     * @param   miPas  DOCUMENT ME!
+     * @param   mipas  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<FlurstueckSchluesselCustomBean> getCrossreferencesForMiPas(
-            final Collection<MipaCustomBean> miPas) {
-        if ((miPas != null) && (miPas.size() > 0)) {
-            final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<>();
-            final Iterator<MipaCustomBean> it = miPas.iterator();
-            while (it.hasNext()) {
-                final Collection<FlurstueckSchluesselCustomBean> curKeys = getCrossReferencesForMiPa(it.next());
-                if ((curKeys != null) && (curKeys.size() > 0)) {
-                    result.addAll(curKeys);
+    public Map<MipaCustomBean, Collection<FlurstueckSchluesselCustomBean>> getCrossreferencesForMiPas(
+            final Collection<MipaCustomBean> mipas) {
+        if ((mipas != null) && (mipas.size() > 0)) {
+            final Map<MipaCustomBean, Collection<FlurstueckSchluesselCustomBean>> result = new HashMap<>();
+            for (final MipaCustomBean mipa : mipas) {
+                final Collection<FlurstueckSchluesselCustomBean> keys = getCrossReferencesForMiPa(mipa);
+                if ((keys != null) && (keys.size() > 0)) {
+                    result.put(mipa, keys);
                 }
             }
             return result;

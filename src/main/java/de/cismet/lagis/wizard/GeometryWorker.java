@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
+import de.cismet.lagis.thread.WFSByKeyWorkerThread;
 import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 /**
@@ -150,10 +151,10 @@ public class GeometryWorker implements Callable<Map<FlurstueckSchluesselCustomBe
         try {
             this.notifyPreExecutionListener();
 
-            WFSRetrieverFactory.WFSWorkerThread currentWorker;
+            WFSByKeyWorkerThread currentWorker;
 
             for (final FlurstueckSchluesselCustomBean currentKey : this.fsKeys) {
-                currentWorker = (WFSRetrieverFactory.WFSWorkerThread)WFS_RETR_FACTORY.getWFSRetriever(
+                currentWorker = (WFSByKeyWorkerThread)WFS_RETR_FACTORY.getWFSRetriever(
                         currentKey,
                         null,
                         null);

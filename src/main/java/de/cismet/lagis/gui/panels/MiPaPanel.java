@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.DefaultListCellRenderer;
@@ -147,6 +148,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
     private final Icon copyDisplayIcon;
 
     private boolean listenerEnabled = true;
+    private Map<MipaCustomBean, Collection<FlurstueckSchluesselCustomBean>> crossreferences;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddMiPa;
@@ -552,19 +554,27 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
             final DefaultListModel loadingModel = new DefaultListModel();
             loadingModel.addElement("werden geladen...");
             lstCrossRefs.setModel(loadingModel);
-            new SwingWorker<Collection, Void>() {
+            new SwingWorker<Map<MipaCustomBean, Collection<FlurstueckSchluesselCustomBean>>, Void>() {
 
                     @Override
-                    protected Collection doInBackground() throws Exception {
+                    protected Map<MipaCustomBean, Collection<FlurstueckSchluesselCustomBean>> doInBackground()
+                            throws Exception {
                         return LagisBroker.getInstance().getCrossreferencesForMiPas(mipas);
                     }
 
                     @Override
                     protected void done() {
                         try {
-                            final Collection<FlurstueckSchluesselCustomBean> crossRefs = get();
-                            if ((crossRefs != null) && (crossRefs.size() > 0)) {
-                                lstCrossRefs.setModel(new DefaultUniqueListModel(crossRefs));
+                            crossreferences = get();
+                            final int selectedIndex = tblMipa.getSelectedRow();
+                            if ((crossreferences != null) && (crossreferences.size() > 0) && (selectedIndex >= 0)) {
+                                final MipaCustomBean selectedMiPa = tableModel.getCidsBeanAtRow(((JXTable)tblMipa)
+                                                .convertRowIndexToModel(selectedIndex));
+                                final Collection<FlurstueckSchluesselCustomBean> keys = crossreferences.get(
+                                        selectedMiPa);
+                                if (keys != null) {
+                                    lstCrossRefs.setModel(new DefaultUniqueListModel(keys));
+                                }
                             } else {
                                 lstCrossRefs.setModel(new DefaultUniqueListModel());
                             }
@@ -656,7 +666,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         if (LOG.isDebugEnabled()) {
             LOG.debug("SelectionChanged MiPa");
         }
-        final MappingComponent mappingComp = LagisBroker.getInstance().getMappingComponent();
+        lstCrossRefs.setModel(new DefaultUniqueListModel());
         final int viewIndex = tblMipa.getSelectedRow();
         if (viewIndex != -1) {
             if (isInEditMode) {
@@ -667,9 +677,15 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 
             final int index = ((JXTable)tblMipa).convertRowIndexToModel(viewIndex);
             if ((index != -1) && (tblMipa.getSelectedRowCount() <= 1)) {
-                final MiPa selectedMiPa = tableModel.getCidsBeanAtRow(index);
+                final MipaCustomBean selectedMiPa = tableModel.getCidsBeanAtRow(index);
                 tableModel.setCurrentSelectedMipa(selectedMiPa);
                 if (selectedMiPa != null) {
+                    if (crossreferences != null) {
+                        final Collection<FlurstueckSchluesselCustomBean> keys = crossreferences.get(selectedMiPa);
+                        if (keys != null) {
+                            lstCrossRefs.setModel(new DefaultUniqueListModel(keys));
+                        }
+                    }
                     updateCbxAuspraegung(selectedMiPa);
                     if (selectedMiPa.getGeometry() == null) {
                         if (LOG.isDebugEnabled()) {
