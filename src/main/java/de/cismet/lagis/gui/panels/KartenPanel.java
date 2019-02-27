@@ -1280,10 +1280,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     @Override
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
-        for (final FeatureGroupActionListener listener : this.featureGroupButtonListenerMap.values()) {
-            listener.setVisible(true);
-        }
-
         LagisBroker.getInstance().flurstueckChangeFinished(this);
     }
 
