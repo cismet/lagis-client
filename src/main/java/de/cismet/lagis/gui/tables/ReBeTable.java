@@ -13,11 +13,12 @@ import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
 import de.cismet.cismap.commons.features.Feature;
-import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.models.ReBeTableModel;
+
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
 
 import static de.cismet.lagis.gui.panels.VerwaltungsPanel.PROVIDER_NAME;
 
@@ -51,7 +52,7 @@ public class ReBeTable extends AbstractCidsBeanTable_Lagis {
 
             ((ReBeTableModel)getModel()).addCidsBean(tmpReBe);
 
-            final Feature feature = new StyledFeatureGroupWrapper(tmpReBe, PROVIDER_NAME, PROVIDER_NAME);
+            final Feature feature = new CustomSelectionStyledFeatureGroupWrapper(tmpReBe, PROVIDER_NAME, PROVIDER_NAME);
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(feature);
 
             fireItemAdded();

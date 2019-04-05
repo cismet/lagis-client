@@ -89,6 +89,8 @@ import de.cismet.lagis.utillity.GeometrySlotInformation;
 import de.cismet.lagis.widget.AbstractWidget;
 import de.cismet.lagis.widget.RessortFactory;
 
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
+
 import de.cismet.tools.configuration.Configurable;
 
 import de.cismet.tools.gui.StaticSwingTools;
@@ -1767,7 +1769,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
                 final String providerName = slotInfo.getProviderName();
                 final Feature openSlot = slotInfo.getOpenSlot();
-                final StyledFeatureGroupWrapper featureWrapper = new StyledFeatureGroupWrapper((StyledFeature)openSlot,
+                final StyledFeatureGroupWrapper featureWrapper = new CustomSelectionStyledFeatureGroupWrapper(
+                        (StyledFeature)openSlot,
                         providerName,
                         providerName);
 

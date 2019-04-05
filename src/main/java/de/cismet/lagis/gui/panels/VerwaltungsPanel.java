@@ -86,6 +86,7 @@ import de.cismet.lagis.validation.Validator;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
 
 import de.cismet.tools.configuration.Configurable;
 
@@ -342,7 +343,9 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 this.verwaltungsTableModel.fireTableDataChanged();
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
-                final Feature f = new StyledFeatureGroupWrapper((StyledFeature)item, PROVIDER_NAME, PROVIDER_NAME);
+                final Feature f = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)item,
+                        PROVIDER_NAME,
+                        PROVIDER_NAME);
                 mc.getFeatureCollection().addFeature(f);
                 mc.setGroupLayerVisibility(PROVIDER_NAME, true);
 //                this.featureCollectionChanged();
@@ -381,7 +384,9 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                                 + LagisBroker.getInstance().getCurrentFlurstueck());
                 } else {
                     this.verwaltungsTableModel.addCidsBean((VerwaltungsbereichCustomBean)entity);
-                    f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
+                    f = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)entity,
+                            PROVIDER_NAME,
+                            PROVIDER_NAME);
                     featCollection.addFeature(f);
                 }
             }
@@ -810,7 +815,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                                                 false);
                                         }
 
-                                        final Feature tmp = new StyledFeatureGroupWrapper(
+                                        final Feature tmp = new CustomSelectionStyledFeatureGroupWrapper(
                                                 (StyledFeature)currentFeature,
                                                 PROVIDER_NAME,
                                                 PROVIDER_NAME);
