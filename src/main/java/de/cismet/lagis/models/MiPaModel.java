@@ -19,7 +19,6 @@ import java.util.Date;
 import javax.swing.text.BadLocationException;
 
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaKategorieAuspraegungCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaNutzungCustomBean;
 
@@ -31,7 +30,6 @@ import de.cismet.lagis.models.documents.SimpleDocumentModel;
 
 import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorie;
-import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorieAuspraegung;
 
 /**
  * DOCUMENT ME!
@@ -48,7 +46,6 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
             "Aktenzeichen",
             "Fläche m²",
             "Nutzung",
-            "Ausprägung",
             "Nutzer",
             "Vertragsbeginn",
             "Vertragsende",
@@ -59,7 +56,6 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
             String.class,
             Integer.class,
             MiPaKategorie.class,
-            Object.class,
             String.class,
             Date.class,
             Date.class
@@ -69,10 +65,9 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
     public static final int AKTENZEICHEN_COLUMN = 1;
     public static final int FLAECHE_COLUMN = 2;
     public static final int NUTZUNG_COLUMN = 3;
-    public static final int AUSPRAEGUNG_COLUMN = 4;
-    public static final int NUTZER_COLUMN = 5;
-    public static final int VERTRAGS_BEGINN_COLUMN = 6;
-    public static final int VERTRAGS_ENDE_COLUMN = 7;
+    public static final int NUTZER_COLUMN = 4;
+    public static final int VERTRAGS_BEGINN_COLUMN = 5;
+    public static final int VERTRAGS_ENDE_COLUMN = 6;
 
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(MiPaModel.class);
 
@@ -134,21 +129,6 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
                         return null;
                     }
                 }
-                case AUSPRAEGUNG_COLUMN: {
-                    if ((value.getMiPaNutzung() != null) && (value.getMiPaNutzung().getMiPaKategorie() != null)
-                                && value.getMiPaNutzung().getMiPaKategorie().getHatNummerAlsAuspraegung()) {
-                        if (value.getMiPaNutzung().getAusgewaehlteNummer() != null) {
-                            return "Nr. " + value.getMiPaNutzung().getAusgewaehlteNummer();
-                        } else {
-                            return "";
-                        }
-                    } else if ((value.getMiPaNutzung() != null)
-                                && (value.getMiPaNutzung().getMiPaKategorie() != null)) {
-                        return value.getMiPaNutzung().getAusgewaehlteAuspraegung();
-                    } else {
-                        return null;
-                    }
-                }
                 case NUTZER_COLUMN: {
                     return value.getNutzer();
                 }
@@ -189,26 +169,7 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
 
     @Override
     public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-        if ((COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isInEditMode()) {
-            if (columnIndex == AUSPRAEGUNG_COLUMN) {
-                final MiPa currentMiPa = getCidsBeanAtRow(rowIndex);
-                if ((currentMiPa != null) && (currentMiPa.getMiPaNutzung() != null)
-                            && (currentMiPa.getMiPaNutzung().getMiPaKategorie() != null)
-                            && ((currentMiPa.getMiPaNutzung().getMiPaKategorie().getHatNummerAlsAuspraegung())
-                                || ((currentMiPa.getMiPaNutzung().getMiPaKategorie().getKategorieAuspraegungen()
-                                        != null)
-                                    && (currentMiPa.getMiPaNutzung().getMiPaKategorie().getKategorieAuspraegungen()
-                                        .size() > 0)))) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return true;
-            }
-        } else {
-            return false;
-        }
+        return (COLUMN_HEADER.length > columnIndex) && (getRowCount() > rowIndex) && isInEditMode();
     }
 
     /**
@@ -255,47 +216,14 @@ public class MiPaModel extends CidsBeanTableModel_Lagis {
                     if (value.getMiPaNutzung() == null) {
                         value.setMiPaNutzung(MipaNutzungCustomBean.createNew());
                         value.getMiPaNutzung().setMiPaKategorie((MipaKategorieCustomBean)aValue);
-                        if ((aValue != null) && (((MiPaKategorie)aValue).getKategorieAuspraegungen() != null)
-                                    && (((MiPaKategorie)aValue).getKategorieAuspraegungen().size() == 1)) {
-                            for (final MipaKategorieAuspraegungCustomBean currentAuspraegung
-                                        : ((MipaKategorieCustomBean)aValue).getKategorieAuspraegungen()) {
-                                value.getMiPaNutzung().setAusgewaehlteAuspraegung(currentAuspraegung);
-                            }
-                        }
                     } else {
                         MiPaKategorie oldKategory = null;
                         if (((oldKategory = value.getMiPaNutzung().getMiPaKategorie()) != null) && (aValue != null)) {
                             if (!oldKategory.equals(aValue)) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("Kategorie hat sich geändert --> Ausprägung ist nicht mehr gültig");
-                                }
-                                value.getMiPaNutzung().setAusgewaehlteAuspraegung(null);
                                 value.getMiPaNutzung().setAusgewaehlteNummer(null);
                             }
                         }
                         value.getMiPaNutzung().setMiPaKategorie((MipaKategorieCustomBean)aValue);
-                        if ((aValue != null) && (((MiPaKategorie)aValue).getKategorieAuspraegungen() != null)
-                                    && (((MiPaKategorie)aValue).getKategorieAuspraegungen().size() == 1)) {
-                            for (final MipaKategorieAuspraegungCustomBean currentAuspraegung
-                                        : ((MiPaKategorie)aValue).getKategorieAuspraegungen()) {
-                                value.getMiPaNutzung().setAusgewaehlteAuspraegung(currentAuspraegung);
-                            }
-                        }
-                    }
-                    break;
-                }
-                case AUSPRAEGUNG_COLUMN: {
-                    if (value.getMiPaNutzung() == null) {
-                        value.setMiPaNutzung(MipaNutzungCustomBean.createNew());
-                    } else if ((aValue != null) && (aValue instanceof MiPaKategorieAuspraegung)) {
-                        value.getMiPaNutzung().setAusgewaehlteAuspraegung((MipaKategorieAuspraegungCustomBean)aValue);
-                        value.getMiPaNutzung().setAusgewaehlteNummer(null);
-                    } else if ((aValue != null) && (aValue instanceof Integer)) {
-                        value.getMiPaNutzung().setAusgewaehlteAuspraegung(null);
-                        value.getMiPaNutzung().setAusgewaehlteNummer((Integer)aValue);
-                    } else {
-                        value.getMiPaNutzung().setAusgewaehlteAuspraegung(null);
-                        value.getMiPaNutzung().setAusgewaehlteNummer(null);
                     }
                     break;
                 }

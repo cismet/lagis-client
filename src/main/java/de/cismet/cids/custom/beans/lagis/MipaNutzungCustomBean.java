@@ -29,7 +29,6 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
     private static final String[] PROPERTY_NAMES = new String[] {
             "id",
             "ausgewaehlte_nummer",
-            "fk_ausgewaehlte_auspraegung",
             "fk_mipa_kategorie"
         };
 
@@ -37,7 +36,6 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
 
     private Integer id;
     private Integer ausgewaehlte_nummer;
-    private MipaKategorieAuspraegungCustomBean fk_ausgewaehlte_auspraegung;
     private MipaKategorieCustomBean fk_mipa_kategorie;
 
     //~ Constructors -----------------------------------------------------------
@@ -113,29 +111,6 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
      *
      * @return  DOCUMENT ME!
      */
-    public MipaKategorieAuspraegungCustomBean getFk_ausgewaehlte_auspraegung() {
-        return this.fk_ausgewaehlte_auspraegung;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setFk_ausgewaehlte_auspraegung(final MipaKategorieAuspraegungCustomBean val) {
-        this.fk_ausgewaehlte_auspraegung = val;
-
-        this.propertyChangeSupport.firePropertyChange(
-            "fk_ausgewaehlte_auspraegung",
-            null,
-            this.fk_ausgewaehlte_auspraegung);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public MipaKategorieCustomBean getFk_mipa_kategorie() {
         return this.fk_mipa_kategorie;
     }
@@ -153,17 +128,7 @@ public class MipaNutzungCustomBean extends BasicEntity implements MiPaNutzung {
 
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
-    }
-
-    @Override
-    public MipaKategorieAuspraegungCustomBean getAusgewaehlteAuspraegung() {
-        return getFk_ausgewaehlte_auspraegung();
-    }
-
-    @Override
-    public void setAusgewaehlteAuspraegung(final MipaKategorieAuspraegungCustomBean val) {
-        setFk_ausgewaehlte_auspraegung(val);
+        return PROPERTY_NAMES;
     }
 
     @Override

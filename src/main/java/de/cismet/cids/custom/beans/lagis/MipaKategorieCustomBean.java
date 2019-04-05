@@ -7,8 +7,6 @@
 ****************************************************/
 package de.cismet.cids.custom.beans.lagis;
 
-import java.util.Collection;
-
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.commons.LagisConstants;
@@ -30,17 +28,13 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(MipaCustomBean.class);
     private static final String[] PROPERTY_NAMES = new String[] {
             "id",
-            "bezeichnung",
-            "hat_nummer_als_auspraegung",
-            "ar_kategorie_auspraegungen"
+            "bezeichnung"
         };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
     private String bezeichnung;
-    private Boolean hat_nummer_als_auspraegung;
-    private Collection<MipaKategorieAuspraegungCustomBean> ar_kategorie_auspraegungen;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -112,86 +106,9 @@ public class MipaKategorieCustomBean extends BasicEntity implements MiPaKategori
         this.propertyChangeSupport.firePropertyChange("bezeichnung", null, this.bezeichnung);
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Boolean isHat_nummer_als_auspraegung() {
-        return this.hat_nummer_als_auspraegung;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Boolean getHat_nummer_als_auspraegung() {
-        return this.hat_nummer_als_auspraegung;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setHat_nummer_als_auspraegung(final Boolean val) {
-        this.hat_nummer_als_auspraegung = val;
-
-        this.propertyChangeSupport.firePropertyChange(
-            "hat_nummer_als_auspraegung",
-            null,
-            this.hat_nummer_als_auspraegung);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public Collection<MipaKategorieAuspraegungCustomBean> getAr_kategorie_auspraegungen() {
-        return this.ar_kategorie_auspraegungen;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  val  DOCUMENT ME!
-     */
-    public void setAr_kategorie_auspraegungen(
-            final Collection<MipaKategorieAuspraegungCustomBean> val) {
-        this.ar_kategorie_auspraegungen = val;
-
-        this.propertyChangeSupport.firePropertyChange(
-            "ar_kategorie_auspraegungen",
-            null,
-            this.ar_kategorie_auspraegungen);
-    }
-
     @Override
     public String[] getPropertyNames() {
         return this.PROPERTY_NAMES;
-    }
-
-    @Override
-    public boolean getHatNummerAlsAuspraegung() {
-        final Boolean bool = getHat_nummer_als_auspraegung();
-        return (bool == null) ? false : bool;
-    }
-
-    @Override
-    public void setHatNummerAlsAuspraegung(final boolean val) {
-        setHat_nummer_als_auspraegung(val);
-    }
-
-    @Override
-    public Collection<MipaKategorieAuspraegungCustomBean> getKategorieAuspraegungen() {
-        return getAr_kategorie_auspraegungen();
-    }
-
-    @Override
-    public void setKategorieAuspraegungen(final Collection<MipaKategorieAuspraegungCustomBean> val) {
-        setAr_kategorie_auspraegungen(val);
     }
 
     @Override

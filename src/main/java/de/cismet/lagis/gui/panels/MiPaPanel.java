@@ -106,7 +106,6 @@ import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorie;
-import de.cismet.lagisEE.entity.extension.vermietung.MiPaKategorieAuspraegung;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPaNutzung;
 
 import de.cismet.tools.CurrentStackTrace;
@@ -144,7 +143,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
     private boolean isFlurstueckEditable = true;
     private boolean isInEditMode = false;
     private final MiPaModel tableModel = new MiPaModel();
-    private final JComboBox cbxAuspraegung = new JComboBox();
     private final Icon copyDisplayIcon;
 
     private boolean listenerEnabled = true;
@@ -290,7 +288,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         ((JXTable)tblMipa).setHorizontalScrollEnabled(true);
 //        TableColumnExt id = ((JXTable) tblMipa).getColumnExt(0);
 //        id.setVisible(false);
-        TableColumn tc = tblMipa.getColumnModel().getColumn(MiPaModel.NUTZUNG_COLUMN);
+        final TableColumn tc = tblMipa.getColumnModel().getColumn(MiPaModel.NUTZUNG_COLUMN);
         // Kategorien EditorCombobox
         final JComboBox combo = new JComboBox();
         combo.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
@@ -303,12 +301,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
         org.jdesktop.swingx.autocomplete.AutoCompleteDecorator.decorate(combo);
 
         tc.setCellEditor(new org.jdesktop.swingx.autocomplete.ComboBoxCellEditor(combo));
-
-        tc = tblMipa.getColumnModel().getColumn(tableModel.AUSPRAEGUNG_COLUMN);
-        cbxAuspraegung.setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0));
-        cbxAuspraegung.setEditable(true);
-        org.jdesktop.swingx.autocomplete.AutoCompleteDecorator.decorate(cbxAuspraegung);
-        tc.setCellEditor(new org.jdesktop.swingx.autocomplete.ComboBoxCellEditor(cbxAuspraegung));
 
         ((JXTable)tblMipa).packAll();
 
@@ -371,50 +363,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
 //        valTxtBemerkung = new Validator(taBemerkung);
 //        valTxtBemerkung.reSetValidator((Validatable) miPaModel.getBemerkungDocumentModel());
         tableModel.addTableModelListener(this);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  mp  DOCUMENT ME!
-     */
-    private void updateCbxAuspraegung(final MiPa mp) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Update der Ausprägungen");
-        }
-        cbxAuspraegung.removeAllItems();
-        final int maxNumericEntries = 100;
-        if ((mp != null) && (mp.getMiPaNutzung() != null)
-                    && (mp.getMiPaNutzung().getMiPaKategorie() != null)
-                    && mp.getMiPaNutzung().getMiPaKategorie().getHatNummerAlsAuspraegung()) {
-            if (cbxAuspraegung.getItemCount() != maxNumericEntries) {
-                for (int i = 1; i <= maxNumericEntries; i++) {
-                    cbxAuspraegung.addItem(i);
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Kein Update nötig Zahlen sind schon in der Combobox");
-                }
-            }
-        } else if ((mp != null) && (mp.getMiPaNutzung() != null) && (mp.getMiPaNutzung().getMiPaKategorie() != null)
-                    && (mp.getMiPaNutzung().getMiPaKategorie().getKategorieAuspraegungen() != null)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Ausprägungen sind vorhanden");
-            }
-            final Collection<MipaKategorieAuspraegungCustomBean> auspraegungen = mp.getMiPaNutzung()
-                        .getMiPaKategorie()
-                        .getKategorieAuspraegungen();
-            for (final MiPaKategorieAuspraegung currentAuspraegung : auspraegungen) {
-                cbxAuspraegung.addItem(currentAuspraegung);
-            }
-        } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Keine Ausprägungen vorhanden");
-            }
-        }
-        cbxAuspraegung.validate();
-        cbxAuspraegung.repaint();
-        cbxAuspraegung.updateUI();
     }
 
     @Override
@@ -686,7 +634,6 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                             lstCrossRefs.setModel(new DefaultUniqueListModel(keys));
                         }
                     }
-                    updateCbxAuspraegung(selectedMiPa);
                     if (selectedMiPa.getGeometry() == null) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("SetBackgroundEnabled abgeschaltet: ", new CurrentStackTrace());
@@ -797,7 +744,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 Collection<MipaMerkmalCustomBean> merkmale = miPa.getMiPaMerkmal();
                 if (merkmale == null) {
                     LOG.info("neues Hibernateset für Merkmale angelegt");
-                    merkmale = new HashSet<MipaMerkmalCustomBean>();
+                    merkmale = new HashSet<>();
                 }
 
                 if (e.getStateChange() == 1) {
@@ -850,17 +797,9 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
             identifier.append(GeometrySlotInformation.SLOT_IDENTIFIER_SEPARATOR + "keine Nutzung");
         }
 
-        if ((idValue2 != null)
-                    && ((idValue2.getAusgewaehlteNummer() != null) || (idValue2.getAusgewaehlteAuspraegung() != null))) {
-            if (idValue2.getAusgewaehlteNummer() != null) {
-                identifier.append(GeometrySlotInformation.SLOT_IDENTIFIER_SEPARATOR + "Nr. "
-                            + idValue2.getAusgewaehlteNummer());
-            } else {
-                identifier.append(GeometrySlotInformation.SLOT_IDENTIFIER_SEPARATOR
-                            + idValue2.getAusgewaehlteAuspraegung());
-            }
-        } else {
-            identifier.append(GeometrySlotInformation.SLOT_IDENTIFIER_SEPARATOR + "keine Ausprägung");
+        if ((idValue2 != null) && (idValue2.getAusgewaehlteNummer() != null)) {
+            identifier.append(GeometrySlotInformation.SLOT_IDENTIFIER_SEPARATOR + "Nr. "
+                        + idValue2.getAusgewaehlteNummer());
         }
 
         return identifier.toString();
@@ -869,7 +808,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
     @Override
     public Vector<GeometrySlotInformation> getSlotInformation() {
         // VerwaltungsTableModel tmp = (VerwaltungsTableModel) tNutzung.getModel();
-        final Vector<GeometrySlotInformation> result = new Vector<GeometrySlotInformation>();
+        final Vector<GeometrySlotInformation> result = new Vector<>();
         if (isWidgetReadOnly()) {
             return result;
         } else {
