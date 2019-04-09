@@ -967,22 +967,22 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         taBemerkung = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        final javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                jPanel2Layout.createSequentialGroup().addContainerGap().addComponent(
+                    jTabbedPane2,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    148,
+                    Short.MAX_VALUE).addContainerGap()));
         jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                jPanel2Layout.createSequentialGroup().addContainerGap().addComponent(
+                    jTabbedPane2,
+                    javax.swing.GroupLayout.DEFAULT_SIZE,
+                    126,
+                    Short.MAX_VALUE).addContainerGap()));
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -991,24 +991,21 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         cpBaum.setBorder(null);
 
         tblBaum.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
-            },
-            new String [] {
-                "Nummer", "Lage", "Fläche m²", "Nutzung", "Nutzer", "Vertragsbeginn", "Vertragsende"
-            }
-        ));
+                new Object[][] {
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null },
+                    { null, null, null, null, null, null, null }
+                },
+                new String[] { "Nummer", "Lage", "Fläche m²", "Nutzung", "Nutzer", "Vertragsbeginn", "Vertragsende" }));
         ((BaumTable)tblBaum).setSortButton(tbtnSort);
         ((BaumTable)tblBaum).setUndoButton(btnUndo);
         cpBaum.setViewportView(tblBaum);
@@ -1025,7 +1022,8 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         jPanel3.setLayout(new java.awt.GridBagLayout());
 
         btnAddBaum.setAction(((BaumTable)tblBaum).getAddAction());
-        btnAddBaum.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddBaum.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
         btnAddBaum.setBorder(null);
         btnAddBaum.setBorderPainted(false);
         btnAddBaum.setFocusPainted(false);
@@ -1040,7 +1038,8 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         jPanel3.add(btnAddBaum, gridBagConstraints);
 
         btnRemoveBaum.setAction(((BaumTable)tblBaum).getRemoveAction());
-        btnRemoveBaum.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveBaum.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
         btnRemoveBaum.setBorder(null);
         btnRemoveBaum.setBorderPainted(false);
         btnRemoveBaum.setFocusPainted(false);
@@ -1048,10 +1047,12 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         btnRemoveBaum.setMinimumSize(new java.awt.Dimension(25, 25));
         btnRemoveBaum.setPreferredSize(new java.awt.Dimension(25, 25));
         btnRemoveBaum.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRemoveBaumActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnRemoveBaumActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
@@ -1059,7 +1060,8 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
         jPanel3.add(btnRemoveBaum, gridBagConstraints);
 
-        btnAddExitingBaum.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
+        btnAddExitingBaum.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/contract.png"))); // NOI18N
         btnAddExitingBaum.setBorder(null);
         btnAddExitingBaum.setBorderPainted(false);
         btnAddExitingBaum.setFocusPainted(false);
@@ -1067,10 +1069,12 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         btnAddExitingBaum.setMinimumSize(new java.awt.Dimension(25, 25));
         btnAddExitingBaum.setPreferredSize(new java.awt.Dimension(25, 25));
         btnAddExitingBaum.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAddExitingBaumActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddExitingBaumActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -1079,7 +1083,8 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         jPanel3.add(btnAddExitingBaum, gridBagConstraints);
 
         btnUndo.setAction(((BaumTable)tblBaum).getUndoAction());
-        btnUndo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
+        btnUndo.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/undo.png"))); // NOI18N
         btnUndo.setToolTipText("Rückgängig machen");
         btnUndo.setBorder(null);
         btnUndo.setBorderPainted(false);
@@ -1088,10 +1093,12 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         btnUndo.setMinimumSize(new java.awt.Dimension(25, 25));
         btnUndo.setPreferredSize(new java.awt.Dimension(25, 25));
         btnUndo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUndoActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnUndoActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -1099,14 +1106,16 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         jPanel3.add(btnUndo, gridBagConstraints);
 
-        tbtnSort.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png"))); // NOI18N
+        tbtnSort.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort.png")));          // NOI18N
         tbtnSort.setToolTipText("Sortierung An / Aus");
         tbtnSort.setBorderPainted(false);
         tbtnSort.setContentAreaFilled(false);
         tbtnSort.setMaximumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setMinimumSize(new java.awt.Dimension(25, 25));
         tbtnSort.setPreferredSize(new java.awt.Dimension(25, 25));
-        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
+        tbtnSort.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/sort_selected.png"))); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -1146,16 +1155,20 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         lstCrossRefs.setOpaque(false);
         jScrollPane1.setViewportView(lstCrossRefs);
 
-        javax.swing.GroupLayout panQuerverweiseTitledLayout = new javax.swing.GroupLayout(panQuerverweiseTitled);
+        final javax.swing.GroupLayout panQuerverweiseTitledLayout = new javax.swing.GroupLayout(panQuerverweiseTitled);
         panQuerverweiseTitled.setLayout(panQuerverweiseTitledLayout);
         panQuerverweiseTitledLayout.setHorizontalGroup(
-            panQuerverweiseTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-        );
+            panQuerverweiseTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                jScrollPane1,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                0,
+                Short.MAX_VALUE));
         panQuerverweiseTitledLayout.setVerticalGroup(
-            panQuerverweiseTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
-        );
+            panQuerverweiseTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                jScrollPane1,
+                javax.swing.GroupLayout.DEFAULT_SIZE,
+                61,
+                Short.MAX_VALUE));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1199,16 +1212,20 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         lstMerkmale.setOpaque(false);
         spMerkmale.setViewportView(lstMerkmale);
 
-        javax.swing.GroupLayout panMerkmaleTitledLayout = new javax.swing.GroupLayout(panMerkmaleTitled);
+        final javax.swing.GroupLayout panMerkmaleTitledLayout = new javax.swing.GroupLayout(panMerkmaleTitled);
         panMerkmaleTitled.setLayout(panMerkmaleTitledLayout);
         panMerkmaleTitledLayout.setHorizontalGroup(
-            panMerkmaleTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(spMerkmale, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-        );
+            panMerkmaleTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                spMerkmale,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                0,
+                Short.MAX_VALUE));
         panMerkmaleTitledLayout.setVerticalGroup(
-            panMerkmaleTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(spMerkmale, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
-        );
+            panMerkmaleTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                spMerkmale,
+                javax.swing.GroupLayout.DEFAULT_SIZE,
+                61,
+                Short.MAX_VALUE));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1252,21 +1269,30 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         taBemerkung.setRows(3);
         taBemerkung.setWrapStyleWord(true);
 
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, taBemerkung, org.jdesktop.beansbinding.ELProperty.create("${editable}"), taBemerkung, org.jdesktop.beansbinding.BeanProperty.create("opaque"));
+        final org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
+                taBemerkung,
+                org.jdesktop.beansbinding.ELProperty.create("${editable}"),
+                taBemerkung,
+                org.jdesktop.beansbinding.BeanProperty.create("opaque"));
         bindingGroup.addBinding(binding);
 
         spBemerkung.setViewportView(taBemerkung);
 
-        javax.swing.GroupLayout panBemerkungTitledLayout = new javax.swing.GroupLayout(panBemerkungTitled);
+        final javax.swing.GroupLayout panBemerkungTitledLayout = new javax.swing.GroupLayout(panBemerkungTitled);
         panBemerkungTitled.setLayout(panBemerkungTitledLayout);
         panBemerkungTitledLayout.setHorizontalGroup(
-            panBemerkungTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(spBemerkung, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-        );
+            panBemerkungTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                spBemerkung,
+                javax.swing.GroupLayout.PREFERRED_SIZE,
+                0,
+                Short.MAX_VALUE));
         panBemerkungTitledLayout.setVerticalGroup(
-            panBemerkungTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(spBemerkung, javax.swing.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE)
-        );
+            panBemerkungTitledLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+                spBemerkung,
+                javax.swing.GroupLayout.DEFAULT_SIZE,
+                61,
+                Short.MAX_VALUE));
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1306,23 +1332,23 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         add(jPanel1, gridBagConstraints);
 
         bindingGroup.bind();
-    }// </editor-fold>//GEN-END:initComponents
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnUndoActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUndoActionPerformed
+    private void btnUndoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnUndoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_btnUndoActionPerformed
+    } //GEN-LAST:event_btnUndoActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnAddExitingBaumActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddExitingBaumActionPerformed
+    private void btnAddExitingBaumActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddExitingBaumActionPerformed
         final JDialog dialog = new JDialog(LagisApp.getInstance(), "", true);
         dialog.add(new AddExistingBaumPanel(
                 LagisBroker.getInstance().getCurrentFlurstueck(),
@@ -1332,14 +1358,14 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         dialog.setIconImage(icoExistingContract.getImage());
         dialog.setTitle("Vorhandener Vertrag hinzufügen...");
         StaticSwingTools.showDialog(dialog);
-    }//GEN-LAST:event_btnAddExitingBaumActionPerformed
+    }                                                                                     //GEN-LAST:event_btnAddExitingBaumActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnRemoveBaumActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveBaumActionPerformed
+    private void btnRemoveBaumActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnRemoveBaumActionPerformed
         final int currentRow = tblBaum.getSelectedRow();
         if (currentRow != -1) {
             // VerwaltungsTableModel currentModel = (VerwaltungsTableModel)tNutzung.getModel();
@@ -1352,7 +1378,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                 LOG.debug("liste ausgeschaltet");
             }
         }
-    }//GEN-LAST:event_btnRemoveBaumActionPerformed
+    } //GEN-LAST:event_btnRemoveBaumActionPerformed
 
     /**
      * DOCUMENT ME!

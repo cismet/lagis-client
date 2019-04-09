@@ -85,6 +85,7 @@ import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
@@ -2715,9 +2716,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                 if (LOG.isDebugEnabled()) {
                                     LOG.debug("Setze Gueltigbis Datum des Flurstueks auf letzten Stadtbesitz");
                                 }
-                                flurstueck.getFlurstueckSchluessel()
-                                        .setGueltigBis(flurstueck.getFlurstueckSchluessel()
-                                            .getDatumLetzterStadtbesitz());
+                                final Date letzterStadtbesitzDate = flurstueck.getFlurstueckSchluessel()
+                                            .getDatumLetzterStadtbesitz();
+                                flurstueck.getFlurstueckSchluessel().setGueltigBis(letzterStadtbesitzDate);
+                                for (final NutzungCustomBean nutzung : flurstueck.getNutzungen()) {
+                                    for (final NutzungBuchungCustomBean buchung : nutzung.getNutzungsBuchungen()) {
+                                        buchung.setGueltigbis(letzterStadtbesitzDate);
+                                    }
+                                }
                             } else {
                                 if (LOG.isDebugEnabled()) {
                                     LOG.debug("Achtung war schon in Stadtbesitz hat aber kein Datum");
@@ -2737,6 +2743,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         }
                         key.setDatumLetzterStadtbesitz(date);
                         key.setGueltigBis(date);
+                        for (final NutzungCustomBean nutzung : flurstueck.getNutzungen()) {
+                            for (final NutzungBuchungCustomBean buchung : nutzung.getNutzungsBuchungen()) {
+                                buchung.setGueltigbis(date);
+                            }
+                        }
                         flurstueck.persist();
                     }
                 }
