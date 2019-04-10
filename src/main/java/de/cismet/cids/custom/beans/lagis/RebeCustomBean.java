@@ -14,7 +14,6 @@ import java.awt.Paint;
 
 import java.sql.Timestamp;
 
-import java.util.Collection;
 import java.util.Date;
 
 import de.cismet.cids.dynamics.CidsBean;
@@ -428,7 +427,8 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
 
     @Override
     public Paint getLinePaint() {
-        return Color.BLACK;
+        final Color c = Color.BLACK;
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 2);
     }
 
     @Override
@@ -446,12 +446,13 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
 
     @Override
     public Paint getFillingPaint() {
-        final Collection<FarbeCustomBean> farben;
+        final Color c;
         if (isRecht()) {
-            return Color.GREEN;
+            c = Color.GREEN;
         } else {
-            return Color.ORANGE;
+            c = Color.ORANGE;
         }
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 2);
     }
 
     @Override
@@ -460,7 +461,7 @@ public final class RebeCustomBean extends BasicEntity implements ReBe {
 
     @Override
     public float getTransparency() {
-        return 0.5f;
+        return 1f;
     }
 
     @Override

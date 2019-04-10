@@ -22,6 +22,7 @@ import java.awt.event.MouseListener;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
@@ -39,22 +40,43 @@ import de.cismet.lagis.renderer.FlurstueckSchluesselCellRenderer;
  *           which have the entered Aktenzeichen. The Class supports regular expressions.
  * @version  $Revision$, $Date$
  */
-public class AktenzeichenSearch extends javax.swing.JPanel {
+public class FlurstueckeByAktenzeichenSearchPanel extends javax.swing.JPanel {
 
     //~ Static fields/initializers ---------------------------------------------
 
     /** the apache log4j logger. */
-    private static final Logger log = org.apache.log4j.Logger.getLogger(AktenzeichenSearch.class);
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(FlurstueckeByAktenzeichenSearchPanel.class);
     /** The result count string. */
-    private static final String anzahl = "Anzahl:";
+    private static final String ANZAHL = "Anzahl:";
+    private static final Icon ICON_VERTRAG = new javax.swing.ImageIcon(FlurstueckeByAktenzeichenSearchPanel.class
+                    .getResource(
+                        "/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche3.png"));
+    private static final Icon ICON_MIPA = new javax.swing.ImageIcon(FlurstueckeByAktenzeichenSearchPanel.class
+                    .getResource(
+                        "/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche4.png"));
+
+    //~ Enums ------------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    public enum By {
+
+        //~ Enum constants -----------------------------------------------------
+
+        VERTRAG, MIPA
+    }
 
     //~ Instance fields --------------------------------------------------------
 
     /** the table model which holds the founded Flurstueckschluessel of the search. */
-    private FlurstueckeTableModel tableModel = new FlurstueckeTableModel();
+    private final FlurstueckeTableModel tableModel = new FlurstueckeTableModel();
     /** the current searcher thread which handles the search and updates the GUI. */
     private FlurstueckSchluesselSearcher currentSearcher = null;
     // ToDo properties File
+    private final By by;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
@@ -76,12 +98,60 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
     /**
      * Creates new form AktenzeichenSearch and configures the Component.
      */
-    public AktenzeichenSearch() {
+    public FlurstueckeByAktenzeichenSearchPanel() {
+        this(By.VERTRAG);
+    }
+
+    /**
+     * Creates a new FlurstueckeByAktenzeichenSearchPanel object.
+     *
+     * @param  by  DOCUMENT ME!
+     */
+    public FlurstueckeByAktenzeichenSearchPanel(final By by) {
+        this.by = by;
         initComponents();
         configureComponent();
     }
 
     //~ Methods ----------------------------------------------------------------
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public String getTitle() {
+        switch (by) {
+            case VERTRAG: {
+                return "Suche Flurstücke nach Aktenzeichen (Vertrag)";
+            }
+            case MIPA: {
+                return "Suche Flurstücke nach Aktenzeichen (Vermietung/Verpachtung)";
+            }
+            default: {
+                return "Suche Flurstücke nach Aktenzeichen";
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Icon getIcon() {
+        switch (by) {
+            case VERTRAG: {
+                return ICON_VERTRAG;
+            }
+            case MIPA: {
+                return ICON_MIPA;
+            }
+            default: {
+                return null;
+            }
+        }
+    }
 
     /**
      * This method sets all startup configuration of this component.
@@ -232,9 +302,11 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
                 new Object[][] {},
                 new String[] { "Art", "Flurstück" }));
         jScrollPane1.setViewportView(tblAktenzeichen);
-        tblAktenzeichen.getColumnModel().getColumn(0).setMinWidth(50);
-        tblAktenzeichen.getColumnModel().getColumn(0).setPreferredWidth(50);
-        tblAktenzeichen.getColumnModel().getColumn(0).setMaxWidth(50);
+        if (tblAktenzeichen.getColumnModel().getColumnCount() > 0) {
+            tblAktenzeichen.getColumnModel().getColumn(0).setMinWidth(50);
+            tblAktenzeichen.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tblAktenzeichen.getColumnModel().getColumn(0).setMaxWidth(50);
+        }
 
         btnCancel.setText("Abbrechen");
         btnCancel.addActionListener(new java.awt.event.ActionListener() {
@@ -374,9 +446,9 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
      */
     private void setResultCount(final int count) {
         if (count < 0) {
-            lblAnzahl.setText(anzahl);
+            lblAnzahl.setText(ANZAHL);
         } else {
-            lblAnzahl.setText(anzahl + count);
+            lblAnzahl.setText(ANZAHL + count);
         }
     }
 
@@ -392,17 +464,17 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
         //~ Instance fields ----------------------------------------------------
 
         /** the aktenzeichen after which should be searched. */
-        private String aktenzeichen;
+        private final String aktenzeichenSearchPattern;
 
         //~ Constructors -------------------------------------------------------
 
         /**
          * Creates a new FlurstueckSchluesselSearcher object.
          *
-         * @param  aktenzeichen  DOCUMENT ME!
+         * @param  aktenzeichenSearchPattern  DOCUMENT ME!
          */
-        public FlurstueckSchluesselSearcher(final String aktenzeichen) {
-            this.aktenzeichen = aktenzeichen;
+        public FlurstueckSchluesselSearcher(final String aktenzeichenSearchPattern) {
+            this.aktenzeichenSearchPattern = aktenzeichenSearchPattern;
         }
 
         //~ Methods ------------------------------------------------------------
@@ -416,27 +488,37 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
          */
         @Override
         protected Collection<FlurstueckSchluesselCustomBean> doInBackground() throws Exception {
-            if (log.isDebugEnabled()) {
-                log.debug("Suche nach Flurstücken mit dem Aktenzeichen: " + aktenzeichen);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Suche nach Flurstücken mit dem Aktenzeichen: " + aktenzeichenSearchPattern);
             }
 
-            // replace * wildchard through database wildchard %
-            final String replacedAktenzeichen = aktenzeichen.replaceAll("\\*", "%");
-            if (log.isDebugEnabled()) {
-                log.debug("Replaced Aktenzeichen String: " + replacedAktenzeichen);
+            final Collection<FlurstueckSchluesselCustomBean> result;
+            switch (by) {
+                case VERTRAG: {
+                    result = LagisBroker.getInstance()
+                                .getFlurstueckSchluesselByVertragAktenzeichen(aktenzeichenSearchPattern);
+                }
+                break;
+                case MIPA: {
+                    result = LagisBroker.getInstance()
+                                .getFlurstueckSchluesselByMipaAktenzeichen(aktenzeichenSearchPattern);
+                }
+                break;
+                default: {
+                    return new HashSet<>();
+                }
             }
-            final Collection<FlurstueckSchluesselCustomBean> result = LagisBroker.getInstance()
-                        .getFlurstueckSchluesselByAktenzeichen(replacedAktenzeichen);
+
             if ((result != null) && (result.size() > 0)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Suche brachte ein Ergebnis. Anzahl FlurstueckSchluessel: " + result.size());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Suche brachte ein Ergebnis. Anzahl FlurstueckSchluessel: " + result.size());
                 }
                 return result;
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Suche brachte kein Ergebnis");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Suche brachte kein Ergebnis");
                 }
-                return new HashSet<FlurstueckSchluesselCustomBean>();
+                return new HashSet<>();
             }
         }
 
@@ -447,15 +529,17 @@ public class AktenzeichenSearch extends javax.swing.JPanel {
         protected void done() {
             try {
                 setSearchActive(false);
-                if (log.isDebugEnabled()) {
-                    log.debug("FlurstueckSchluesselSearcher done()");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("FlurstueckSchluesselSearcher done()");
                 }
                 // lstResults.setModel(new DefaultUniqueListModel(get()));
                 tableModel.refreshTableModel(get());
                 setResultCount(tableModel.getFlurstueckSchluesselCount());
             } catch (Exception ex) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Fehler bei der Suche nach Flurstücken mit dem Aktenzeichen: " + aktenzeichen, ex);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Fehler bei der Suche nach Flurstücken mit dem Aktenzeichen: "
+                                + aktenzeichenSearchPattern,
+                        ex);
                 }
             }
         }

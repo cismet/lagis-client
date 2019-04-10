@@ -13,7 +13,6 @@ package de.cismet.lagisEE.entity.extension.vermietung;
 
 import java.io.Serializable;
 
-import de.cismet.cids.custom.beans.lagis.MipaKategorieAuspraegungCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 
 /**
@@ -38,20 +37,6 @@ public interface MiPaNutzung extends Serializable {
      * @param  val  DOCUMENT ME!
      */
     void setId(final Integer val);
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    MipaKategorieAuspraegungCustomBean getAusgewaehlteAuspraegung();
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  ausgewaehlteAuspraegung  DOCUMENT ME!
-     */
-    void setAusgewaehlteAuspraegung(final MipaKategorieAuspraegungCustomBean ausgewaehlteAuspraegung);
 
     /**
      * DOCUMENT ME!

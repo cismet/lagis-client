@@ -281,7 +281,8 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     @Override
     public Paint getLinePaint() {
-        return Color.BLACK;
+        final Color c = Color.BLACK;
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 2);
     }
 
     @Override
@@ -300,17 +301,19 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
     @Override
     public Paint getFillingPaint() {
         final Collection<FarbeCustomBean> farben;
+        final Color c;
         if ((getDienststelle() != null) && ((farben = getDienststelle().getFarben()) != null)) {
             final Iterator<FarbeCustomBean> it = farben.iterator();
             final FarbeCustomBean farbe;
             if (it.hasNext() && ((farbe = it.next()) != null)) {
-                return new Color(farbe.getRgbFarbwert());
+                c = new Color(farbe.getRgbFarbwert());
             } else {
-                return Color.BLACK;
+                c = Color.BLACK;
             }
         } else {
-            return Color.BLACK;
+            c = Color.BLACK;
         }
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 2);
     }
 
     @Override
@@ -319,7 +322,7 @@ public class VerwaltungsbereichCustomBean extends BasicEntity implements Verwalt
 
     @Override
     public float getTransparency() {
-        return 0.5f;
+        return 1f;
     }
 
     @Override

@@ -40,7 +40,6 @@ import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureNameProvider;
 import de.cismet.cismap.commons.features.PureNewFeature;
 import de.cismet.cismap.commons.features.StyledFeature;
-import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
 
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -61,6 +60,8 @@ import de.cismet.lagis.thread.WFSRetrieverFactory;
 import de.cismet.lagis.validation.Validatable;
 
 import de.cismet.lagis.widget.AbstractWidget;
+
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
 
 import de.cismet.lagisEE.interfaces.Key;
 
@@ -2207,7 +2208,7 @@ public class FlurstueckChooser extends AbstractWidget implements FlurstueckChang
                             }
                             tmpFeature.setGeometry(result);
                             ((FlurtstueckNamedStyledFeature)tmpFeature).setName(flurstueckKey.getKeyString());
-                            tmpFeature = new StyledFeatureGroupWrapper((StyledFeature)tmpFeature,
+                            tmpFeature = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)tmpFeature,
                                     FEATURE_GRP,
                                     FEATURE_GRP);
                         } else if (hasManyVerwaltungsbereiche && isNoGeometryAssigned) {
