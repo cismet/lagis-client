@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>6.2</version>
+                <version>6.2-server-searches-pre-release-1</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
