@@ -85,6 +85,7 @@ import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
 import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
+import de.cismet.cids.custom.beans.lagis.NutzungBuchungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
 import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
@@ -98,6 +99,8 @@ import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
+import de.cismet.cids.server.search.CidsServerSearch;
 
 import de.cismet.cismap.commons.CrsTransformer;
 import de.cismet.cismap.commons.features.Feature;
@@ -125,6 +128,8 @@ import de.cismet.lagis.interfaces.Widget;
 
 import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearch;
 import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearchResultItem;
+import de.cismet.lagis.server.search.FlurstueckSchluesselByMipaAktenzeichenSearch;
+import de.cismet.lagis.server.search.FlurstueckSchluesselByVertragAktenzeichenSearch;
 import de.cismet.lagis.server.search.MiPaGeomSearch;
 import de.cismet.lagis.server.search.ReBeGeomSearch;
 
@@ -2332,7 +2337,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public Collection<FlurstueckSchluesselCustomBean> getCrossreferencesForVertraege(
             final Collection<VertragCustomBean> vertraege) {
         if ((vertraege != null) && (vertraege.size() > 0)) {
-            final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<FlurstueckSchluesselCustomBean>();
+            final Collection<FlurstueckSchluesselCustomBean> result = new HashSet<>();
             final Iterator<VertragCustomBean> it = vertraege.iterator();
             while (it.hasNext()) {
                 final Collection<FlurstueckSchluesselCustomBean> curKeys = getCrossReferencesForVertrag(it.next());
@@ -2348,41 +2353,63 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     /**
      * DOCUMENT ME!
      *
-     * @param   aktenzeichen  DOCUMENT ME!
+     * @param   search  DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselByAktenzeichen(final String aktenzeichen) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Suche nach Flurstücken(Schluesseln) mit dem Aktenzeichen: " + aktenzeichen);
-        }
-
-        final MetaClass metaclass = CidsBroker.getInstance().getLagisMetaClass("flurstueck_schluessel");
-        if (metaclass == null) {
-            return null;
-        }
-        final String query = "SELECT "
-                    + "   " + metaclass.getID() + ", "
-                    + "    flurstueck.fk_flurstueck_schluessel "
-                    + "FROM "
-                    + "    flurstueck, "
-                    + "    jt_flurstueck_vertrag, "
-                    + "    vertrag "
-                    + "WHERE "
-                    + "    flurstueck.ar_vertraege = jt_flurstueck_vertrag.fk_flurstueck "
-                    + "    AND jt_flurstueck_vertrag.fk_vertrag = vertrag.id "
-                    + "    AND vertrag.aktenzeichen LIKE '%" + aktenzeichen + "%'";
-
-        final MetaObject[] mos = CidsBroker.getInstance().getLagisMetaObject(query);
+    private Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselBy(final CidsServerSearch search) {
         final Collection<FlurstueckSchluesselCustomBean> flurstueckSchluessel = new HashSet<>();
-        for (final MetaObject metaObject : mos) {
-            flurstueckSchluessel.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
+        try {
+            final Collection<MetaObjectNode> mons = CidsBroker.getInstance().executeSearch(search);
+            if (mons != null) {
+                for (final MetaObjectNode mon : mons) {
+                    final MetaObject metaObject = CidsBroker.getInstance()
+                                .getLagisMetaObject(mon.getObjectId(), mon.getClassId());
+                    if (metaObject != null) {
+                        flurstueckSchluessel.add((FlurstueckSchluesselCustomBean)metaObject.getBean());
+                    }
+                }
+            }
+        } catch (final Exception ex) {
+            LOG.fatal(ex, ex);
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Anzahl Flurststückschlüssel für das Aktenzeichen ist: " + flurstueckSchluessel.size());
+            LOG.debug("Anzahl gefundener Flurststückschlüssel ist: " + flurstueckSchluessel.size());
         }
         return flurstueckSchluessel;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   aktenzeichenSearchPattern  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselByVertragAktenzeichen(
+            final String aktenzeichenSearchPattern) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Suche nach Flurstücken(Schluesseln) mit dem Vertrags-Aktenzeichen: "
+                        + aktenzeichenSearchPattern);
+        }
+        return getFlurstueckSchluesselBy(new FlurstueckSchluesselByVertragAktenzeichenSearch(
+                    aktenzeichenSearchPattern));
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   aktenzeichenSearchPattern  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<FlurstueckSchluesselCustomBean> getFlurstueckSchluesselByMipaAktenzeichen(
+            final String aktenzeichenSearchPattern) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Suche nach Flurstücken(Schluesseln) mit dem Mipa-Aktenzeichen: " + aktenzeichenSearchPattern);
+        }
+        return getFlurstueckSchluesselBy(new FlurstueckSchluesselByMipaAktenzeichenSearch(aktenzeichenSearchPattern));
     }
 
     /**
@@ -2715,9 +2742,14 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                 if (LOG.isDebugEnabled()) {
                                     LOG.debug("Setze Gueltigbis Datum des Flurstueks auf letzten Stadtbesitz");
                                 }
-                                flurstueck.getFlurstueckSchluessel()
-                                        .setGueltigBis(flurstueck.getFlurstueckSchluessel()
-                                            .getDatumLetzterStadtbesitz());
+                                final Date letzterStadtbesitzDate = flurstueck.getFlurstueckSchluessel()
+                                            .getDatumLetzterStadtbesitz();
+                                flurstueck.getFlurstueckSchluessel().setGueltigBis(letzterStadtbesitzDate);
+                                for (final NutzungCustomBean nutzung : flurstueck.getNutzungen()) {
+                                    for (final NutzungBuchungCustomBean buchung : nutzung.getNutzungsBuchungen()) {
+                                        buchung.setGueltigbis(letzterStadtbesitzDate);
+                                    }
+                                }
                             } else {
                                 if (LOG.isDebugEnabled()) {
                                     LOG.debug("Achtung war schon in Stadtbesitz hat aber kein Datum");
@@ -2737,6 +2769,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         }
                         key.setDatumLetzterStadtbesitz(date);
                         key.setGueltigBis(date);
+                        for (final NutzungCustomBean nutzung : flurstueck.getNutzungen()) {
+                            for (final NutzungBuchungCustomBean buchung : nutzung.getNutzungsBuchungen()) {
+                                buchung.setGueltigbis(date);
+                            }
+                        }
                         flurstueck.persist();
                     }
                 }

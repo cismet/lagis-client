@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>6.1.4</version>
+                <version>6.2</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>

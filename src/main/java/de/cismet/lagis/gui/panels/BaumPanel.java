@@ -178,6 +178,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
     private javax.swing.JTextArea taBemerkung;
     private javax.swing.JTable tblBaum;
     private javax.swing.JToggleButton tbtnSort;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -941,6 +942,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         jPanel2 = new javax.swing.JPanel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
@@ -1265,14 +1267,21 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
 
         panBemerkungTitled.setOpaque(false);
 
-        spBemerkung.setBorder(null);
         spBemerkung.setOpaque(false);
 
         taBemerkung.setColumns(20);
         taBemerkung.setLineWrap(true);
-        taBemerkung.setRows(5);
+        taBemerkung.setRows(3);
         taBemerkung.setWrapStyleWord(true);
-        taBemerkung.setOpaque(false);
+
+        final org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(
+                org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE,
+                taBemerkung,
+                org.jdesktop.beansbinding.ELProperty.create("${editable}"),
+                taBemerkung,
+                org.jdesktop.beansbinding.BeanProperty.create("opaque"));
+        bindingGroup.addBinding(binding);
+
         spBemerkung.setViewportView(taBemerkung);
 
         final javax.swing.GroupLayout panBemerkungTitledLayout = new javax.swing.GroupLayout(panBemerkungTitled);
@@ -1326,6 +1335,8 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 12);
         add(jPanel1, gridBagConstraints);
+
+        bindingGroup.bind();
     } // </editor-fold>//GEN-END:initComponents
 
     /**
