@@ -282,15 +282,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private final List<View> wfs = new ArrayList<>();
     private DockingWindow[] wfsViews;
     // private View vAktenzeichenSuche;
-    private JDialog aktenzeichenDialog;
+    private JDialog searchByVertragAktenzeichenDialog;
+    private JDialog searchByMipaAktenzeichenDialog;
     private final Icon icoKarte = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/karte.png"));
     private final Icon icoDMS = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/docs.png"));
     private final Icon icoRessort = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/ressort.png"));
-    private final Icon icoAktenzeichenSuche = new javax.swing.ImageIcon(getClass().getResource(
-                "/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche3.png"));
     private final Icon icoNKF = new javax.swing.ImageIcon(getClass().getResource(
                 "/de/cismet/lagis/ressource/icons/titlebar/sum.png"));
     private final Icon icoRechteDetail = new javax.swing.ImageIcon(getClass().getResource(
@@ -345,6 +344,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAcceptChanges;
     private javax.swing.JButton btnAktenzeichenSuche;
+    private javax.swing.JButton btnAktenzeichenSuche1;
     private javax.swing.JButton btnDiscardChanges;
     private javax.swing.JButton btnOpenWizard;
     private javax.swing.JButton btnReloadFlurstueck;
@@ -1459,6 +1459,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         btnReloadFlurstueck = new javax.swing.JButton();
         btnOpenWizard = new javax.swing.JButton();
         btnAktenzeichenSuche = new javax.swing.JButton();
+        btnAktenzeichenSuche1 = new javax.swing.JButton();
         btnVerdisCrossover = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
         cmdFortfuehrung = new javax.swing.JButton();
@@ -1691,7 +1692,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
         btnAktenzeichenSuche.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche3.png"))); // NOI18N
-        btnAktenzeichenSuche.setToolTipText("Aktenzeichen Suche...");
+        btnAktenzeichenSuche.setToolTipText("Suche Flurstücke nach Aktenzeichen (Vertrag)...");
         btnAktenzeichenSuche.setBorderPainted(false);
         btnAktenzeichenSuche.setFocusable(false);
         btnAktenzeichenSuche.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -1705,6 +1706,23 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 }
             });
         toolbar.add(btnAktenzeichenSuche);
+
+        btnAktenzeichenSuche1.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/Aktenzeichensuche4.png"))); // NOI18N
+        btnAktenzeichenSuche1.setToolTipText("Suche Flurstücke nach Aktenzeichen (Vermietung/Verpachtung)...");
+        btnAktenzeichenSuche1.setBorderPainted(false);
+        btnAktenzeichenSuche1.setFocusable(false);
+        btnAktenzeichenSuche1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnAktenzeichenSuche1.setPreferredSize(new java.awt.Dimension(23, 23));
+        btnAktenzeichenSuche1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnAktenzeichenSuche1.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAktenzeichenSuche1ActionPerformed(evt);
+                }
+            });
+        toolbar.add(btnAktenzeichenSuche1);
 
         btnVerdisCrossover.setIcon(new javax.swing.ImageIcon(
                 getClass().getResource("/de/cismet/lagis/ressource/icons/verdis.png"))); // NOI18N
@@ -2940,19 +2958,21 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * @param  evt  DOCUMENT ME!
      */
     private void btnAktenzeichenSucheActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAktenzeichenSucheActionPerformed
-        if (aktenzeichenDialog == null) {
-            aktenzeichenDialog = new JDialog(this,
-                    "Suche nach Aktenzeichen",
+        if (searchByVertragAktenzeichenDialog == null) {
+            final FlurstueckeByAktenzeichenSearchPanel searchPanel = new FlurstueckeByAktenzeichenSearchPanel(
+                    FlurstueckeByAktenzeichenSearchPanel.By.VERTRAG);
+            searchByVertragAktenzeichenDialog = new JDialog(this,
+                    searchPanel.getTitle(),
                     false);
-            aktenzeichenDialog.add(new AktenzeichenSearch());
-            aktenzeichenDialog.pack();
-            aktenzeichenDialog.setIconImage(((ImageIcon)icoAktenzeichenSuche).getImage());
-            StaticSwingTools.showDialog(aktenzeichenDialog);
+            searchByVertragAktenzeichenDialog.add(searchPanel);
+            searchByVertragAktenzeichenDialog.pack();
+            searchByVertragAktenzeichenDialog.setIconImage(((ImageIcon)searchPanel.getIcon()).getImage());
+            StaticSwingTools.showDialog(searchByVertragAktenzeichenDialog);
         } else {
-            if (aktenzeichenDialog.isVisible()) {
-                aktenzeichenDialog.setVisible(false);
+            if (searchByVertragAktenzeichenDialog.isVisible()) {
+                searchByVertragAktenzeichenDialog.setVisible(false);
             } else {
-                StaticSwingTools.showDialog(aktenzeichenDialog);
+                StaticSwingTools.showDialog(searchByVertragAktenzeichenDialog);
             }
         }
     }                                                                                        //GEN-LAST:event_btnAktenzeichenSucheActionPerformed
@@ -3137,6 +3157,31 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private void cmdFortfuehrungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFortfuehrungActionPerformed
         StaticSwingTools.showDialog(LagisFortfuehrungsanlaesseDialog.getInstance());
     }                                                                                   //GEN-LAST:event_cmdFortfuehrungActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAktenzeichenSuche1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAktenzeichenSuche1ActionPerformed
+        if (searchByMipaAktenzeichenDialog == null) {
+            final FlurstueckeByAktenzeichenSearchPanel searchPanel = new FlurstueckeByAktenzeichenSearchPanel(
+                    FlurstueckeByAktenzeichenSearchPanel.By.MIPA);
+            searchByMipaAktenzeichenDialog = new JDialog(this,
+                    searchPanel.getTitle(),
+                    false);
+            searchByMipaAktenzeichenDialog.add(searchPanel);
+            searchByMipaAktenzeichenDialog.pack();
+            searchByMipaAktenzeichenDialog.setIconImage(((ImageIcon)searchPanel.getIcon()).getImage());
+            StaticSwingTools.showDialog(searchByMipaAktenzeichenDialog);
+        } else {
+            if (searchByMipaAktenzeichenDialog.isVisible()) {
+                searchByMipaAktenzeichenDialog.setVisible(false);
+            } else {
+                StaticSwingTools.showDialog(searchByMipaAktenzeichenDialog);
+            }
+        }
+    }                                                                                         //GEN-LAST:event_btnAktenzeichenSuche1ActionPerformed
 
     /**
      * DOCUMENT ME!
