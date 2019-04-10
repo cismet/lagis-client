@@ -459,7 +459,8 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public Paint getLinePaint() {
-        return Color.BLACK;
+        final Color c = Color.BLACK;
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 2);
     }
 
     @Override
@@ -477,7 +478,8 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public Paint getFillingPaint() {
-        return Color.CYAN;
+        final Color c = Color.CYAN;
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() / 2);
     }
 
     @Override
@@ -486,7 +488,7 @@ public class MipaCustomBean extends BasicEntity implements MiPa {
 
     @Override
     public float getTransparency() {
-        return 0.5f;
+        return 1f;
     }
 
     @Override

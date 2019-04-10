@@ -99,6 +99,7 @@ import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.extension.baum.Baum;
@@ -265,7 +266,9 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                 this.baumModel.addCidsBean((BaumCustomBean)item);
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
-                final Feature f = new StyledFeatureGroupWrapper((StyledFeature)item, PROVIDER_NAME, PROVIDER_NAME);
+                final Feature f = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)item,
+                        PROVIDER_NAME,
+                        PROVIDER_NAME);
                 mc.getFeatureCollection().addFeature(f);
                 mc.setGroupLayerVisibility(PROVIDER_NAME, true);
             }
@@ -296,7 +299,9 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                                 + LagisBroker.getInstance().getCurrentFlurstueck());
                 } else {
                     this.baumModel.addCidsBean((BaumCustomBean)entity);
-                    wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
+                    wrapper = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)entity,
+                            PROVIDER_NAME,
+                            PROVIDER_NAME);
                     fc.addFeature(wrapper);
                 }
             }
@@ -625,7 +630,7 @@ public class BaumPanel extends AbstractWidget implements FlurstueckChangeListene
                                         ((Baum)currentFeature).setModifiable(false);
                                     }
 
-                                    currentFeature = new StyledFeatureGroupWrapper(
+                                    currentFeature = new CustomSelectionStyledFeatureGroupWrapper(
                                             (StyledFeature)currentFeature,
                                             PROVIDER_NAME,
                                             PROVIDER_NAME);

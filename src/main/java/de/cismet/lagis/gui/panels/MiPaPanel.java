@@ -102,6 +102,7 @@ import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
 import de.cismet.lagisEE.entity.core.FlurstueckSchluessel;
 import de.cismet.lagisEE.entity.core.hardwired.FlurstueckArt;
 import de.cismet.lagisEE.entity.extension.vermietung.MiPa;
@@ -490,7 +491,7 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                             ((MiPa)currentFeature).setModifiable(false);
                         }
 
-                        currentFeature = new StyledFeatureGroupWrapper((StyledFeature)currentFeature,
+                        currentFeature = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)currentFeature,
                                 PROVIDER_NAME,
                                 PROVIDER_NAME);
 
@@ -1312,7 +1313,9 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                 this.tableModel.addCidsBean((MipaCustomBean)item);
 
                 final MappingComponent mc = LagisBroker.getInstance().getMappingComponent();
-                final Feature f = new StyledFeatureGroupWrapper((StyledFeature)item, PROVIDER_NAME, PROVIDER_NAME);
+                final Feature f = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)item,
+                        PROVIDER_NAME,
+                        PROVIDER_NAME);
                 mc.getFeatureCollection().addFeature(f);
                 mc.setGroupLayerVisibility(PROVIDER_NAME, true);
 
@@ -1345,7 +1348,9 @@ public class MiPaPanel extends AbstractWidget implements FlurstueckChangeListene
                                 + LagisBroker.getInstance().getCurrentFlurstueck());
                 } else {
                     this.tableModel.addCidsBean((MipaCustomBean)entity);
-                    f = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
+                    f = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)entity,
+                            PROVIDER_NAME,
+                            PROVIDER_NAME);
                     featCollection.addFeature(f);
                 }
             }

@@ -38,8 +38,6 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
 
-import de.cismet.cids.dynamics.CidsBean;
-
 import de.cismet.cismap.commons.features.Feature;
 import de.cismet.cismap.commons.features.FeatureCollection;
 import de.cismet.cismap.commons.features.StyledFeature;
@@ -73,6 +71,7 @@ import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.widget.AbstractWidget;
 
 import de.cismet.lagisEE.entity.basic.BasicEntity;
+import de.cismet.lagisEE.entity.core.CustomSelectionStyledFeatureGroupWrapper;
 
 /**
  * DOCUMENT ME!
@@ -316,7 +315,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
             } else {
                 this.tableModel.addCidsBean((RebeCustomBean)entity);
 
-                final StyledFeatureGroupWrapper wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity,
+                final StyledFeatureGroupWrapper wrapper = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)
+                        entity,
                         PROVIDER_NAME,
                         PROVIDER_NAME);
 
@@ -360,7 +360,9 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                     log.warn("ReBe " + entity + " does already exist -> ignored");
                 } else {
                     this.tableModel.addCidsBean((RebeCustomBean)entity);
-                    wrapper = new StyledFeatureGroupWrapper((StyledFeature)entity, PROVIDER_NAME, PROVIDER_NAME);
+                    wrapper = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)entity,
+                            PROVIDER_NAME,
+                            PROVIDER_NAME);
                     fc.addFeature(wrapper);
                 }
             }
@@ -792,7 +794,8 @@ public class ReBePanel extends AbstractWidget implements MouseListener,
                             ((RebeCustomBean)currentFeature).setModifiable(false);
                         }
 
-                        final StyledFeature sf = new StyledFeatureGroupWrapper((StyledFeature)currentFeature,
+                        final StyledFeature sf = new CustomSelectionStyledFeatureGroupWrapper((StyledFeature)
+                                currentFeature,
                                 PROVIDER_NAME,
                                 PROVIDER_NAME);
 
