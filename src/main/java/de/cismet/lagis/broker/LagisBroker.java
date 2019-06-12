@@ -402,10 +402,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public List<RebeCustomBean> getRechteUndBelastungen(final Geometry flurstueckGeometry) {
         try {
             final List<RebeCustomBean> rebes = new ArrayList<>();
-            final Geometry bufferedGeom = flurstueckGeometry.buffer(rebeBuffer);
+            final Geometry bufferedGeom = flurstueckGeometry.buffer(getRebeBuffer());
             bufferedGeom.setSRID(flurstueckGeometry.getSRID());
             final Collection<MetaObjectNode> mons = CidsBroker.getInstance()
-                        .executeSearch(new ReBeGeomSearch(bufferedGeom));
+                        .executeSearch(new ReBeGeomSearch(
+                                bufferedGeom.isEmpty() ? flurstueckGeometry.getInteriorPoint() : bufferedGeom));
             if (mons != null) {
                 for (final MetaObjectNode mon : mons) {
                     if (mon != null) {
@@ -435,10 +436,11 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public List<MipaCustomBean> getMiPas(final Geometry flurstueckGeometry) {
         try {
             final List<MipaCustomBean> mipas = new ArrayList<>();
-            final Geometry bufferedGeom = flurstueckGeometry.buffer(mipaBuffer);
+            final Geometry bufferedGeom = flurstueckGeometry.buffer(getMipaBuffer());
             bufferedGeom.setSRID(flurstueckGeometry.getSRID());
             final Collection<MetaObjectNode> mons = CidsBroker.getInstance()
-                        .executeSearch(new MiPaGeomSearch(bufferedGeom));
+                        .executeSearch(new MiPaGeomSearch(
+                                bufferedGeom.isEmpty() ? flurstueckGeometry.getInteriorPoint() : bufferedGeom));
             if (mons != null) {
                 for (final MetaObjectNode mon : mons) {
                     if (mon != null) {
