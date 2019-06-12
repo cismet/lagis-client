@@ -10,7 +10,7 @@
 
     <groupId>de.cismet.lagis</groupId>
     <artifactId>lagis-client</artifactId>
-    <version>6.4</version>
+    <version>6.4.1</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -24,7 +24,7 @@
         <connection>https://github.com/cismet/lagis-client.git</connection>
         <developerConnection>scm:git:git@github.com:cismet/lagis-client.git</developerConnection>
         <url>https://github.com/cismet/lagis-client</url>
-        <tag>v6.4</tag>
+        <tag>6.4.1</tag>
     </scm>
 
     <issueManagement>
