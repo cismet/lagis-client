@@ -438,19 +438,21 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     public List<MipaCustomBean> getMiPas(final Geometry flurstueckGeometry) {
         try {
             final List<MipaCustomBean> mipas = new ArrayList<>();
-            final Geometry bufferedGeom = flurstueckGeometry.buffer(getMipaBuffer());
-            bufferedGeom.setSRID(flurstueckGeometry.getSRID());
-            final Collection<MetaObjectNode> mons = CidsBroker.getInstance()
-                        .executeSearch(new MiPaGeomSearch(
-                                bufferedGeom.isEmpty() ? flurstueckGeometry.getInteriorPoint() : bufferedGeom));
-            if (mons != null) {
-                for (final MetaObjectNode mon : mons) {
-                    if (mon != null) {
-                        final MetaObject mo = CidsBroker.getInstance()
-                                    .getMetaObject(mon.getObjectId(), mon.getClassId(), mon.getDomain());
-                        final CidsBean cidsBean = mo.getBean();
-                        if (cidsBean instanceof MipaCustomBean) {
-                            mipas.add((MipaCustomBean)cidsBean);
+            if (flurstueckGeometry != null) {
+                final Geometry bufferedGeom = flurstueckGeometry.buffer(getMipaBuffer());
+                bufferedGeom.setSRID(flurstueckGeometry.getSRID());
+                final Collection<MetaObjectNode> mons = CidsBroker.getInstance()
+                            .executeSearch(new MiPaGeomSearch(
+                                    bufferedGeom.isEmpty() ? flurstueckGeometry.getInteriorPoint() : bufferedGeom));
+                if (mons != null) {
+                    for (final MetaObjectNode mon : mons) {
+                        if (mon != null) {
+                            final MetaObject mo = CidsBroker.getInstance()
+                                        .getMetaObject(mon.getObjectId(), mon.getClassId(), mon.getDomain());
+                            final CidsBean cidsBean = mo.getBean();
+                            if (cidsBean instanceof MipaCustomBean) {
+                                mipas.add((MipaCustomBean)cidsBean);
+                            }
                         }
                     }
                 }
