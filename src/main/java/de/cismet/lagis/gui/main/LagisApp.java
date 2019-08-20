@@ -280,8 +280,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private View vHistory;
     private View vBaulasten;
     private View vKassenzeichen;
-    private final WFSFormFactory wfsFormFactory = WFSFormFactory.getInstance(LagisBroker.getInstance()
-                    .getMappingComponent());
+    private WFSFormFactory wfsFormFactory;
     private final Set<View> wfsFormViews = new HashSet<>();
     private final List<View> wfs = new ArrayList<>();
     private DockingWindow[] wfsViews;
@@ -436,6 +435,15 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
     /**
      * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public WFSFormFactory getWfsFormFactory() {
+        return wfsFormFactory;
+    }
+
+    /**
+     * DOCUMENT ME!
      */
     private void init() {
         try {
@@ -452,6 +460,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             configManager.setFileName(FILENAME_LOCAL_LAGIS_CONFIGURATION);
             configManager.setClassPathFolder(CLASSPATH_LAGIS_CONFIGURATION);
             configManager.setFolder(DIRECTORYNAME_LAGISHOME);
+
+            initCismetCommonsComponents();
 
             if (LagisBroker.getInstance().getSession() != null) {
                 configManager.addConfigurable(this);
@@ -487,7 +497,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 //            // added manually as the GuiBuilder conflicts could not be resolved
 //            configureReportButton();
 //            configureCopyPasteFlurstueckInfoComponents();
-            initCismetCommonsComponents();
 
             if (!LagisBroker.getInstance().isCoreReadOnlyMode()) {
                 btnOpenWizard.setEnabled(true);
@@ -1031,6 +1040,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         mapComponent.addHistoryModelListener(this);
         CismapBroker.getInstance().setMappingComponent(mapComponent);
         LagisBroker.getInstance().setMappingComponent(mapComponent);
+        wfsFormFactory = WFSFormFactory.getInstance(mapComponent);
     }
 
     /**
@@ -3553,6 +3563,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 final Element child = conf.getChild("linkFormat");
                 fortfuehrungLinkFormat = (child != null) ? conf.getChild("linkFormat").getText() : null;
             }
+
+            wfsFormFactory.masterConfigure(parent);
         } catch (final Exception ex) {
             LOG.error("Fehler beim konfigurieren der Lagis Applikation: ", ex);
         }

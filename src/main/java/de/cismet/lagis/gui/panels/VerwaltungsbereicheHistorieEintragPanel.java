@@ -16,7 +16,7 @@ import javax.swing.event.ListSelectionListener;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereicheEintragCustomBean;
 
-import de.cismet.lagis.models.VerwaltungsTableModel;
+import de.cismet.lagis.gui.tables.VerwaltungsTable;
 
 import de.cismet.lagis.renderer.VerwaltendeDienststelleRenderer;
 
@@ -49,7 +49,7 @@ public class VerwaltungsbereicheHistorieEintragPanel extends javax.swing.JPanel 
      */
     public VerwaltungsbereicheHistorieEintragPanel(final VerwaltungsbereicheEintragCustomBean eintrag) {
         initComponents();
-        final VerwaltungsTableModel model = new VerwaltungsTableModel();
+        final VerwaltungsTable.Model model = new VerwaltungsTable.Model();
         model.setHistory(true);
         model.refreshTableModel(eintrag.getN_verwaltungsbereiche());
 

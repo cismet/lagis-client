@@ -63,9 +63,9 @@ public class ZusatzRolleArtCustomBean extends BasicEntity {
         try {
             return (ZusatzRolleArtCustomBean)CidsBean.createNewCidsBeanFromTableName(
                     LagisConstants.DOMAIN_LAGIS,
-                    LagisMetaclassConstants.MC_ZUSATZ_ROLLE);
+                    LagisMetaclassConstants.ZUSATZ_ROLLE);
         } catch (Exception ex) {
-            LOG.error("error creating " + LagisMetaclassConstants.MC_ZUSATZ_ROLLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.ZUSATZ_ROLLE + " bean", ex);
             return null;
         }
     }
