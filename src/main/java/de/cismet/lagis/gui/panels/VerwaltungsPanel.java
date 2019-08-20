@@ -33,6 +33,8 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -43,14 +45,18 @@ import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.GeomCustomBean;
 import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
+import de.cismet.cids.custom.beans.lagis.StrassenfrontCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
 import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
 import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
 import de.cismet.cids.custom.beans.lagis.ZusatzRolleCustomBean;
 
+import de.cismet.cismap.commons.BoundingBox;
 import de.cismet.cismap.commons.features.*;
 import de.cismet.cismap.commons.gui.MappingComponent;
-import de.cismet.cismap.commons.gui.StyledFeatureGroupWrapper;
+import de.cismet.cismap.commons.wfsforms.WFSFormAdress;
+import de.cismet.cismap.commons.wfsforms.WFSFormAdressListener;
+import de.cismet.cismap.commons.wfsforms.WFSFormsListAndComboBoxModel;
 
 import de.cismet.lagis.broker.LagisBroker;
 
@@ -59,6 +65,9 @@ import de.cismet.lagis.editor.FlaecheEditor;
 import de.cismet.lagis.gui.copypaste.Copyable;
 import de.cismet.lagis.gui.copypaste.Pasteable;
 import de.cismet.lagis.gui.dialogs.VerwaltungsbereicheHistorieDialog;
+import de.cismet.lagis.gui.main.LagisApp;
+import de.cismet.lagis.gui.tables.AbstractCidsBeanTable_Lagis;
+import de.cismet.lagis.gui.tables.StrassenfrontTable;
 import de.cismet.lagis.gui.tables.VerwaltungsTable;
 import de.cismet.lagis.gui.tables.ZusatzRolleTable;
 
@@ -68,8 +77,7 @@ import de.cismet.lagis.interfaces.FlurstueckSaver;
 import de.cismet.lagis.interfaces.GeometrySlotProvider;
 import de.cismet.lagis.interfaces.LagisBrokerPropertyChangeListener;
 
-import de.cismet.lagis.models.VerwaltungsTableModel;
-import de.cismet.lagis.models.ZusatzRolleTableModel;
+import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
 import de.cismet.lagis.models.documents.SimpleDocumentModel;
 
 import de.cismet.lagis.renderer.FlaecheRenderer;
@@ -144,8 +152,9 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
 
     private final Validator valTxtBemerkung;
     private SimpleDocumentModel bemerkungDocumentModel;
-    private final VerwaltungsTableModel verwaltungsTableModel = new VerwaltungsTableModel();
-    private final ZusatzRolleTableModel zusatzRolleTableModel = new ZusatzRolleTableModel();
+    private final VerwaltungsTable.Model verwaltungsTableModel = new VerwaltungsTable.Model();
+    private final ZusatzRolleTable.Model zusatzRolleTableModel = new ZusatzRolleTable.Model();
+    private final StrassenfrontTable.Model strassenfrontTableModel = new StrassenfrontTable.Model();
     private boolean isInEditMode = false;
     private final VerwaltendeDienststelleRenderer vdRenderer = new VerwaltendeDienststelleRenderer();
     // hierüber kann man ausfindig machen was bei AbteilungIX oder Städtisch passiert (falls gerefactored wird)
@@ -161,9 +170,11 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     private boolean listenerEnabled = true;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddStrassenfront;
     private javax.swing.JButton btnAddVerwaltung;
     private javax.swing.JButton btnAddZusatzRolle;
     private javax.swing.JButton btnHistorie;
+    private javax.swing.JButton btnRemoveStrassenfront;
     private javax.swing.JButton btnRemoveVerwaltung;
     private javax.swing.JButton btnRemoveZusatzRolle;
     private javax.swing.JButton btnUndo;
@@ -172,7 +183,10 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -180,16 +194,20 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JSeparator jSeparator3;
+    private javax.swing.JSeparator jSeparator4;
     private javax.swing.JLabel lblBelastungen;
     private javax.swing.JLabel lblBemSperre;
     private javax.swing.JLabel lblRechte;
     private javax.swing.JLabel lblWFSInfo;
     private javax.swing.JTable tNutzung;
+    private javax.swing.JTable tStrassenfront;
     private javax.swing.JTable tZusatzRolle;
     private javax.swing.JToggleButton tbtnSort;
     private javax.swing.JTextArea txtBemerkung;
@@ -487,7 +505,66 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         tNutzung.setDefaultEditor(Integer.class, new FlaecheEditor());
         tNutzung.getSelectionModel().addListSelectionListener(this);
 
-        TableSelectionUtils.crossReferenceModelAndTable(zusatzRolleTableModel, (ZusatzRolleTable)tZusatzRolle);
+        TableSelectionUtils.crossReferenceModelAndTable(
+            strassenfrontTableModel,
+            (AbstractCidsBeanTable_Lagis)tStrassenfront);
+        TableSelectionUtils.crossReferenceModelAndTable(
+            zusatzRolleTableModel,
+            (AbstractCidsBeanTable_Lagis)tZusatzRolle);
+
+        final WFSFormAdress wfsSF = ((WFSFormAdress)LagisApp.getInstance().getWfsFormFactory().getForms().get(
+                    "strassen"));
+        wfsSF.initWFSForm();
+        final WFSFormsListAndComboBoxModel cbModel = (WFSFormsListAndComboBoxModel)
+            ((JComboBox)wfsSF.getListComponentByName("cboAllStreets")).getModel();
+        cbModel.addListDataListener(new ListDataListener() {
+
+                @Override
+                public void intervalAdded(final ListDataEvent e) {
+                }
+
+                @Override
+                public void intervalRemoved(final ListDataEvent e) {
+                }
+
+                @Override
+                public void contentsChanged(final ListDataEvent e) {
+                    final List<String> strassen = new ArrayList<>();
+                    strassen.add(null);
+                    for (int index = 0; index < cbModel.getSize(); index++) {
+                        strassen.add(String.valueOf(cbModel.getElementAt(index)));
+                    }
+                    final JComboBox cboSF = new JComboBox(strassen.toArray(new String[0]));
+                    cboSF.setRenderer(new DefaultListCellRenderer() {
+
+                            @Override
+                            public Component getListCellRendererComponent(final JList<?> list,
+                                    final Object value,
+                                    final int index,
+                                    final boolean isSelected,
+                                    final boolean cellHasFocus) {
+                                return super.getListCellRendererComponent(
+                                        list,
+                                        (value != null) ? value : "<html><i> keine ",
+                                        index,
+                                        isSelected,
+                                        cellHasFocus);
+                            }
+                        });
+
+                    cboSF.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(final ActionEvent e) {
+                                tStrassenfront.setValueAt(cboSF.getSelectedItem(), tStrassenfront.getSelectedRow(), 0);
+                            }
+                        });
+                    StaticSwingTools.decorateWithFixedAutoCompleteDecorator(cboSF);
+                    tStrassenfront.setDefaultEditor(String.class, new ComboBoxCellEditor(cboSF));
+                    tStrassenfront.getSelectionModel().addListSelectionListener(VerwaltungsPanel.this);
+                }
+            });
+
         final JComboBox cboZRD = new JComboBox(LagisBroker.getInstance().getAllVerwaltendeDienstellen().toArray(
                     new VerwaltendeDienststelleCustomBean[0]));
         cboZRD.setEditable(true);
@@ -499,7 +576,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 }
             });
 
-        final JComboBox cboZRA = new JComboBox(new Vector<ZusatzRolleArtCustomBean>(
+        final JComboBox cboZRA = new JComboBox(new Vector<>(
                     LagisBroker.getInstance().getAllZusatzRolleArten()));
         cboZRA.addActionListener(new ActionListener() {
 
@@ -695,6 +772,8 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     public void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
         try {
             LOG.info("FlurstueckChanged");
+            strassenfrontTableModel.setCidsBeans((newFlurstueck != null) ? (List)newFlurstueck.getN_strassenfronten()
+                                                                         : null);
             zusatzRolleTableModel.setCidsBeans((newFlurstueck != null) ? (List)newFlurstueck.getN_zusatz_rollen()
                                                                        : null);
             btnHistorie.setEnabled(!newFlurstueck.getVerwaltungsbereicheHistorie().isEmpty());
@@ -799,6 +878,8 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
 
             zusatzRolleTableModel.refreshTableModel((Collection<ZusatzRolleCustomBean>)
                 newFlurstueck.getN_zusatz_rollen());
+            strassenfrontTableModel.refreshTableModel((Collection<StrassenfrontCustomBean>)
+                newFlurstueck.getN_strassenfronten());
 
             // Wenn Flurstück nicht städtisch ist werden keine Geometrien der Karte hinzugefügt
             if (isFlurstueckEditable) {
@@ -950,6 +1031,14 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
             }
             zusatzRolleTableModel.setInEditMode(isEditable);
 
+            btnAddStrassenfront.setEnabled(isEditable);
+            if (isEditable && (tStrassenfront.getSelectedRow() != -1)) {
+                btnRemoveStrassenfront.setEnabled(true);
+            } else if (!isEditable) {
+                btnRemoveStrassenfront.setEnabled(false);
+            }
+            strassenfrontTableModel.setInEditMode(isEditable);
+
             btnUndo.setEnabled(false);
             if (LOG.isDebugEnabled()) {
 //        HighlighterPipeline pipeline = ((JXTable)tNutzung).getHighlighters();
@@ -987,6 +1076,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         lblBemSperre.setText("");
         verwaltungsTableModel.refreshTableModel(new HashSet<VerwaltungsbereichCustomBean>());
         zusatzRolleTableModel.refreshTableModel(new HashSet<ZusatzRolleCustomBean>());
+        strassenfrontTableModel.refreshTableModel(new HashSet<StrassenfrontCustomBean>());
         if (LOG.isDebugEnabled()) {
             LOG.debug("Clear Verwaltungspanel beendet");
         }
@@ -1040,7 +1130,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         if (LOG.isDebugEnabled()) {
             LOG.debug("Verwaltungsbereich refreshed");
         }
-        final VerwaltungsTableModel model = ((VerwaltungsTableModel)tNutzung.getModel());
+        final CidsBeanTableModel_Lagis model = ((CidsBeanTableModel_Lagis)tNutzung.getModel());
         // model.updateAreaInformation(null);
 // EventQueue.invokeLater(new Runnable() {
 // public void run() {
@@ -1057,7 +1147,6 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         final Collection<ZusatzRolleCustomBean> oldRollen = new ArrayList<>(flurstueck.getN_zusatz_rollen());
         final Collection<ZusatzRolleCustomBean> newRollen = (List<ZusatzRolleCustomBean>)
             zusatzRolleTableModel.getCidsBeans();
-
         // alle Rollen hinzufügen die vorher noch nicht existiert haben
         for (final ZusatzRolleCustomBean newRolle : newRollen) {
             if (!oldRollen.contains(newRolle)) {
@@ -1065,11 +1154,27 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
                 oldRollen.remove(newRolle);
             }
         }
-
         // alle Rollen entfernen die nicht mehr exisiteren
         for (final ZusatzRolleCustomBean oldRolle : oldRollen) {
             if (!newRollen.contains(oldRolle)) {
                 flurstueck.getN_zusatz_rollen().remove(oldRolle);
+            }
+        }
+
+        final Collection<StrassenfrontCustomBean> oldFronten = new ArrayList<>(flurstueck.getN_strassenfronten());
+        final Collection<StrassenfrontCustomBean> newFronten = (List<StrassenfrontCustomBean>)
+            strassenfrontTableModel.getCidsBeans();
+        // alle Fronten hinzufügen die vorher noch nicht existiert haben
+        for (final StrassenfrontCustomBean newFront : newFronten) {
+            if (!oldFronten.contains(newFront)) {
+                flurstueck.getN_strassenfronten().add(newFront);
+                oldFronten.remove(newFront);
+            }
+        }
+        // alle Fronten entfernen die nicht mehr exisiteren
+        for (final StrassenfrontCustomBean oldFront : oldFronten) {
+            if (!newFronten.contains(oldFront)) {
+                flurstueck.getN_strassenfronten().remove(oldFront);
             }
         }
     }
@@ -1105,6 +1210,9 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
             this.setFeatureSelectionChangedEnabled(true);
         } else if (e.getSource().equals(tZusatzRolle.getSelectionModel())) {
             btnRemoveZusatzRolle.setEnabled((tZusatzRolle.getSelectedRow() != -1) && isInEditMode);
+            this.setFeatureSelectionChangedEnabled(true);
+        } else if (e.getSource().equals(tStrassenfront.getSelectionModel())) {
+            btnRemoveStrassenfront.setEnabled((tStrassenfront.getSelectedRow() != -1) && isInEditMode);
             this.setFeatureSelectionChangedEnabled(true);
         }
     }
@@ -1264,6 +1372,15 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         btnAddZusatzRolle = new javax.swing.JButton();
         btnRemoveZusatzRolle = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
+        jPanel9 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        tStrassenfront = new de.cismet.lagis.gui.tables.StrassenfrontTable();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel6 = new javax.swing.JLabel();
+        btnAddStrassenfront = new javax.swing.JButton();
+        btnRemoveStrassenfront = new javax.swing.JButton();
+        jSeparator4 = new javax.swing.JSeparator();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         txtBemerkung = new javax.swing.JTextArea();
@@ -1412,7 +1529,7 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.weighty = 2.0;
         jPanel4.add(jPanel5, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1516,6 +1633,100 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
         gridBagConstraints.insets = new java.awt.Insets(6, 0, 5, 0);
         jPanel4.add(jSeparator2, gridBagConstraints);
 
+        jPanel9.setLayout(new java.awt.GridBagLayout());
+
+        jLabel5.setText("Straßenfronten:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
+        jPanel9.add(jLabel5, gridBagConstraints);
+
+        jScrollPane4.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        tStrassenfront.setAutoCreateRowSorter(true);
+        tStrassenfront.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
+        tStrassenfront.setModel(new javax.swing.table.DefaultTableModel(
+                new Object[][] {},
+                new String[] { "Title 1", "Title 2" }));
+        jScrollPane4.setViewportView(tStrassenfront);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel9.add(jScrollPane4, gridBagConstraints);
+
+        jPanel10.setLayout(new java.awt.GridBagLayout());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        jPanel10.add(jLabel6, gridBagConstraints);
+
+        btnAddStrassenfront.setAction(((de.cismet.lagis.gui.tables.StrassenfrontTable)tStrassenfront).getAddAction());
+        btnAddStrassenfront.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/add.png"))); // NOI18N
+        btnAddStrassenfront.setBorder(null);
+        btnAddStrassenfront.setBorderPainted(false);
+        btnAddStrassenfront.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnAddStrassenfront.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnAddStrassenfront.setPreferredSize(new java.awt.Dimension(25, 25));
+        btnAddStrassenfront.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnAddStrassenfrontActionPerformed(evt);
+                }
+            });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
+        jPanel10.add(btnAddStrassenfront, gridBagConstraints);
+
+        btnRemoveStrassenfront.setAction(((de.cismet.lagis.gui.tables.StrassenfrontTable)tStrassenfront)
+                    .getRemoveAction());
+        btnRemoveStrassenfront.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/buttons/remove.png"))); // NOI18N
+        btnRemoveStrassenfront.setBorder(null);
+        btnRemoveStrassenfront.setBorderPainted(false);
+        btnRemoveStrassenfront.setMaximumSize(new java.awt.Dimension(25, 25));
+        btnRemoveStrassenfront.setMinimumSize(new java.awt.Dimension(25, 25));
+        btnRemoveStrassenfront.setPreferredSize(new java.awt.Dimension(25, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 0);
+        jPanel10.add(btnRemoveStrassenfront, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        jPanel9.add(jPanel10, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        jPanel4.add(jPanel9, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 5, 0);
+        jPanel4.add(jSeparator4, gridBagConstraints);
+
         jPanel6.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane2.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -1614,10 +1825,10 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.weighty = 2.0;
         jPanel4.add(jPanel6, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -1686,6 +1897,15 @@ public class VerwaltungsPanel extends AbstractWidget implements GeometrySlotProv
     private void btnAddZusatzRolleActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddZusatzRolleActionPerformed
         // TODO add your handling code here:
     } //GEN-LAST:event_btnAddZusatzRolleActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void btnAddStrassenfrontActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnAddStrassenfrontActionPerformed
+        // TODO add your handling code here:
+    } //GEN-LAST:event_btnAddStrassenfrontActionPerformed
 
     /**
      * DOCUMENT ME!

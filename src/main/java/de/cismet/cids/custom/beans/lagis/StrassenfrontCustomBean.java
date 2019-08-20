@@ -25,32 +25,29 @@ import de.cismet.lagisEE.entity.basic.BasicEntity;
  * @author   jruiz
  * @version  $Revision$, $Date$
  */
-public class ZusatzRolleCustomBean extends BasicEntity {
+public class StrassenfrontCustomBean extends BasicEntity {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
-            ZusatzRolleCustomBean.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(StrassenfrontCustomBean.class);
     private static final String[] PROPERTY_NAMES = new String[] {
             "id",
-            "fk_dienststelle",
-            "fk_art",
-            "fk_geom"
+            "laenge",
+            "strassenname",
         };
 
     //~ Instance fields --------------------------------------------------------
 
     private Integer id;
-    private VerwaltendeDienststelleCustomBean fk_dienststelle;
-    private ZusatzRolleArtCustomBean fk_art;
-    private GeomCustomBean fk_geom;
+    private Double laenge;
+    private String strassenname;
 
     //~ Constructors -----------------------------------------------------------
 
     /**
      * Creates a new ZusatzRolleCustomBean object.
      */
-    public ZusatzRolleCustomBean() {
+    public StrassenfrontCustomBean() {
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -60,13 +57,13 @@ public class ZusatzRolleCustomBean extends BasicEntity {
      *
      * @return  DOCUMENT ME!
      */
-    public static ZusatzRolleCustomBean createNew() {
+    public static StrassenfrontCustomBean createNew() {
         try {
-            return (ZusatzRolleCustomBean)CidsBean.createNewCidsBeanFromTableName(
+            return (StrassenfrontCustomBean)CidsBean.createNewCidsBeanFromTableName(
                     LagisConstants.DOMAIN_LAGIS,
-                    LagisMetaclassConstants.ZUSATZ_ROLLE);
+                    LagisMetaclassConstants.STRASSENFRONT);
         } catch (Exception ex) {
-            LOG.error("error creating " + LagisMetaclassConstants.ZUSATZ_ROLLE + " bean", ex);
+            LOG.error("error creating " + LagisMetaclassConstants.STRASSENFRONT + " bean", ex);
             return null;
         }
     }
@@ -96,12 +93,12 @@ public class ZusatzRolleCustomBean extends BasicEntity {
     /**
      * DOCUMENT ME!
      *
-     * @param  fk_dienststelle  DOCUMENT ME!
+     * @param  laenge  DOCUMENT ME!
      */
-    public void setFk_dienststelle(final VerwaltendeDienststelleCustomBean fk_dienststelle) {
-        final Object old = this.fk_dienststelle;
-        this.fk_dienststelle = fk_dienststelle;
-        this.propertyChangeSupport.firePropertyChange("fk_dienststelle", old, this.fk_dienststelle);
+    public void setLaenge(final Double laenge) {
+        final Object old = this.laenge;
+        this.laenge = laenge;
+        this.propertyChangeSupport.firePropertyChange("laenge", old, this.laenge);
     }
 
     /**
@@ -109,39 +106,19 @@ public class ZusatzRolleCustomBean extends BasicEntity {
      *
      * @return  DOCUMENT ME!
      */
-    public VerwaltendeDienststelleCustomBean getFk_dienststelle() {
-        return this.fk_dienststelle;
+    public Double getLaenge() {
+        return this.laenge;
     }
 
     /**
      * DOCUMENT ME!
      *
-     * @param  fk_art  DOCUMENT ME!
+     * @param  strassenname  DOCUMENT ME!
      */
-    public void setFk_art(final ZusatzRolleArtCustomBean fk_art) {
-        final Object old = this.fk_art;
-        this.fk_art = fk_art;
-        this.propertyChangeSupport.firePropertyChange("fk_art", old, this.fk_art);
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public ZusatzRolleArtCustomBean getFk_art() {
-        return this.fk_art;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param  fk_geom  DOCUMENT ME!
-     */
-    public void setFk_geom(final GeomCustomBean fk_geom) {
-        final Object old = this.fk_geom;
-        this.fk_geom = fk_geom;
-        this.propertyChangeSupport.firePropertyChange("fk_geom", old, this.fk_geom);
+    public void setStrassenname(final String strassenname) {
+        final Object old = this.laenge;
+        this.strassenname = strassenname;
+        this.propertyChangeSupport.firePropertyChange("strassenname", old, this.strassenname);
     }
 
     /**
@@ -149,12 +126,12 @@ public class ZusatzRolleCustomBean extends BasicEntity {
      *
      * @return  DOCUMENT ME!
      */
-    public GeomCustomBean getFk_geom() {
-        return this.fk_geom;
+    public String getStrassenname() {
+        return this.strassenname;
     }
 
     @Override
     public String[] getPropertyNames() {
-        return this.PROPERTY_NAMES;
+        return PROPERTY_NAMES;
     }
 }
