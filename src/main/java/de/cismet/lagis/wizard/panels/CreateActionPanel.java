@@ -12,21 +12,32 @@
  */
 package de.cismet.lagis.wizard.panels;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 import org.apache.log4j.Logger;
 
 import org.netbeans.spi.wizard.WizardController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Icon;
+import javax.swing.SwingWorker;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.gui.panels.FlurstueckChooser;
+
+import de.cismet.lagis.interfaces.DoneDelegate;
+
+import de.cismet.lagis.thread.ExtendedSwingWorker;
+import de.cismet.lagis.thread.WFSRetrieverFactory;
 
 import de.cismet.lagis.validation.Validatable;
 import de.cismet.lagis.validation.ValidationStateChangedListener;
@@ -41,12 +52,12 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
 
     //~ Static fields/initializers ---------------------------------------------
 
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(CreateActionPanel.class);
     public static final String KEY_CREATE_CANDIDATE = "createCandidate";
     public static final String KEY_IS_STAEDTISCH = "isStaedtisch";
 
     //~ Instance fields --------------------------------------------------------
 
-    private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
     private final WizardController wizardController;
     private final Map wizardData;
     private boolean isStaedtisch = true;
@@ -62,8 +73,13 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel lblAbteilungIX;
     private javax.swing.JLabel lblStaedtisch;
     private javax.swing.JPanel pKind;
@@ -82,10 +98,12 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
      * @param  wizardData        DOCUMENT ME!
      */
     public CreateActionPanel(final WizardController wizardController, final Map wizardData) {
-        if (log.isDebugEnabled()) {
-            log.debug("Create Action Panel wird angelegt");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Create Action Panel wird angelegt");
         }
         initComponents();
+        jLabel3.setVisible(false);
+        jLabel4.setVisible(false);
         rbGroup.add(rbStaedtisch);
         rbGroup.add(rbAbteilungIX);
         rbStaedtisch.setSelected(true);
@@ -102,19 +120,46 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
     @Override
     public void validationStateChanged(final Object validatedObject) {
         if (panCreate.getStatus() == Validatable.VALID) {
-            final CidsBean sperre = LagisBroker.getInstance().isLocked(panCreate.getCurrentFlurstueckSchluessel());
+            final FlurstueckSchluesselCustomBean flurstueckSchluessel = panCreate.getCurrentFlurstueckSchluessel();
+            final CidsBean sperre = LagisBroker.getInstance().isLocked(flurstueckSchluessel);
             if (sperre != null) {
                 // TODO nicht ganz sichtbar
                 wizardController.setProblem("Ausgewähltes Flurstück ist gesperrt von Benutzer: "
                             + (String)sperre.getProperty("user_string"));
                 return;
             } else {
-                wizardData.put(KEY_CREATE_CANDIDATE, panCreate.getCurrentFlurstueckSchluessel());
-                wizardData.put(KEY_IS_STAEDTISCH, isStaedtisch);
-                wizardController.setProblem(null);
-                wizardController.setForwardNavigationMode(wizardController.MODE_CAN_FINISH);
+                final SwingWorker currentWFSRetriever = WFSRetrieverFactory.getInstance()
+                            .getWFSRetriever(flurstueckSchluessel,
+                                new DoneDelegate<Geometry, Void>() {
+
+                                    @Override
+                                    public void jobDone(final ExtendedSwingWorker<Geometry, Void> worker,
+                                            final HashMap<Integer, Boolean> properties) {
+                                        final Geometry result;
+                                        try {
+                                            result = worker.get();
+                                            jLabel3.setVisible(result == null);
+                                            jLabel4.setVisible(result == null);
+                                            if (result == null) {
+                                                revalidate();
+                                                repaint();
+                                            }
+                                            wizardData.put(KEY_CREATE_CANDIDATE, flurstueckSchluessel);
+                                            wizardData.put(KEY_IS_STAEDTISCH, isStaedtisch);
+                                            wizardController.setProblem(null);
+                                            wizardController.setForwardNavigationMode(wizardController.MODE_CAN_FINISH);
+                                        } catch (final Exception ex) {
+                                            wizardController.setProblem(
+                                                "Suche nach Geometry des ausgewählten Flurstücks gescheitert.");
+                                            LOG.error(ex, ex);
+                                        }
+                                    }
+                                }, null);
+                LagisBroker.getInstance().execute(currentWFSRetriever);
             }
         } else {
+            jLabel3.setVisible(false);
+            jLabel4.setVisible(false);
             wizardController.setProblem(panCreate.getValidationMessage());
         }
     }
@@ -144,182 +189,228 @@ public class CreateActionPanel extends javax.swing.JPanel implements ValidationS
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         rbGroup = new javax.swing.ButtonGroup();
+        jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         panCreate = new FlurstueckChooser(FlurstueckChooser.Mode.CREATION);
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
         pKind = new javax.swing.JPanel();
         rbStaedtisch = new javax.swing.JRadioButton();
         rbAbteilungIX = new javax.swing.JRadioButton();
         lblAbteilungIX = new javax.swing.JLabel();
         lblStaedtisch = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
 
-        final javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        setLayout(new java.awt.GridBagLayout());
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(
-                0,
-                381,
-                Short.MAX_VALUE));
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGap(
-                0,
-                58,
-                Short.MAX_VALUE));
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weighty = 1.0;
+        add(jPanel1, gridBagConstraints);
+
+        jPanel2.setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setText("Neues Flurstück");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+        jPanel2.add(jLabel1, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        jPanel2.add(panCreate, gridBagConstraints);
 
-        final javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                jPanel2Layout.createSequentialGroup().addContainerGap().addGroup(
-                    jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                        jLabel1).addComponent(
-                        panCreate,
-                        javax.swing.GroupLayout.PREFERRED_SIZE,
-                        351,
-                        javax.swing.GroupLayout.PREFERRED_SIZE)).addContainerGap(
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE)));
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                jPanel2Layout.createSequentialGroup().addContainerGap().addComponent(jLabel1).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    panCreate,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addContainerGap(
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE)));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/warn.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+        jPanel2.add(jLabel3, gridBagConstraints);
+
+        jLabel4.setText("<html><b color=\"red\">Achtung: Es konnte keine ALKIS-Geometrie zu diesem Flurstück gefunden werden. Überprüfen Sie bitte Ihre Flurstückseingabe.<br><br>Befindet sich das Flurstück außerhalb von Wuppertal, dann kann diese Warnung ignoriert werden.");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 0, 0);
+        jPanel2.add(jLabel4, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 12);
+        add(jPanel2, gridBagConstraints);
+
+        pKind.setLayout(new java.awt.GridBagLayout());
 
         rbStaedtisch.setText("Städtisch");
         rbStaedtisch.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         rbStaedtisch.addActionListener(new java.awt.event.ActionListener() {
-
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    rbStaedtischActionPerformed(evt);
-                }
-            });
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbStaedtischActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 0);
+        pKind.add(rbStaedtisch, gridBagConstraints);
 
         rbAbteilungIX.setText("Abteilung IX");
         rbAbteilungIX.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         rbAbteilungIX.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                rbAbteilungIXActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 0);
+        pKind.add(rbAbteilungIX, gridBagConstraints);
 
-                @Override
-                public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    rbAbteilungIXActionPerformed(evt);
-                }
-            });
+        lblAbteilungIX.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/historic_abteilungIX.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 0);
+        pKind.add(lblAbteilungIX, gridBagConstraints);
 
-        lblAbteilungIX.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/historic_abteilungIX.png"))); // NOI18N
-
-        lblStaedtisch.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/current.png"))); // NOI18N
+        lblStaedtisch.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/current.png"))); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 12, 0);
+        pKind.add(lblStaedtisch, gridBagConstraints);
 
         jLabel2.setText("Art des Flurstücks:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
+        pKind.add(jLabel2, gridBagConstraints);
 
-        final javax.swing.GroupLayout pKindLayout = new javax.swing.GroupLayout(pKind);
-        pKind.setLayout(pKindLayout);
-        pKindLayout.setHorizontalGroup(
-            pKindLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                pKindLayout.createSequentialGroup().addContainerGap().addGroup(
-                    pKindLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(jLabel2)
-                                .addGroup(
-                                    pKindLayout.createSequentialGroup().addComponent(lblStaedtisch).addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                                        rbStaedtisch,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE,
-                                        70,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                                        lblAbteilungIX).addPreferredGap(
-                                        javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                                        rbAbteilungIX,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE,
-                                        97,
-                                        javax.swing.GroupLayout.PREFERRED_SIZE))).addContainerGap(
-                    138,
-                    Short.MAX_VALUE)));
-        pKindLayout.setVerticalGroup(
-            pKindLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                pKindLayout.createSequentialGroup().addComponent(jLabel2).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addGroup(
-                    pKindLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING).addGroup(
-                        pKindLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                            rbAbteilungIX,
-                            javax.swing.GroupLayout.PREFERRED_SIZE,
-                            22,
-                            javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(lblAbteilungIX)).addComponent(
-                        rbStaedtisch,
-                        javax.swing.GroupLayout.PREFERRED_SIZE,
-                        20,
-                        javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(lblStaedtisch)).addContainerGap(
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    Short.MAX_VALUE)));
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 105, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 57, Short.MAX_VALUE)
+        );
 
-        final javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                layout.createSequentialGroup().addGroup(
-                    layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                        jPanel1,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        javax.swing.GroupLayout.DEFAULT_SIZE,
-                        Short.MAX_VALUE).addGroup(
-                        layout.createSequentialGroup().addContainerGap().addGroup(
-                            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-                                pKind,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                Short.MAX_VALUE).addComponent(
-                                jPanel2,
-                                javax.swing.GroupLayout.PREFERRED_SIZE,
-                                javax.swing.GroupLayout.DEFAULT_SIZE,
-                                javax.swing.GroupLayout.PREFERRED_SIZE)))).addContainerGap()));
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-                layout.createSequentialGroup().addComponent(
-                    jPanel1,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    pKind,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(
-                    javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(
-                    jPanel2,
-                    javax.swing.GroupLayout.PREFERRED_SIZE,
-                    javax.swing.GroupLayout.DEFAULT_SIZE,
-                    javax.swing.GroupLayout.PREFERRED_SIZE).addContainerGap()));
-    } // </editor-fold>//GEN-END:initComponents
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        pKind.add(jPanel4, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 12);
+        add(pKind, gridBagConstraints);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weighty = 1.0;
+        add(jPanel3, gridBagConstraints);
+    }// </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rbStaedtischActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_rbStaedtischActionPerformed
+    private void rbStaedtischActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbStaedtischActionPerformed
         if (rbStaedtisch.isSelected()) {
             isStaedtisch = true;
         }
-    }                                                                                //GEN-LAST:event_rbStaedtischActionPerformed
+    }//GEN-LAST:event_rbStaedtischActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void rbAbteilungIXActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_rbAbteilungIXActionPerformed
+    private void rbAbteilungIXActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rbAbteilungIXActionPerformed
         if (rbAbteilungIX.isSelected()) {
             isStaedtisch = false;
         }
-    }                                                                                 //GEN-LAST:event_rbAbteilungIXActionPerformed
+    }//GEN-LAST:event_rbAbteilungIXActionPerformed
 }
