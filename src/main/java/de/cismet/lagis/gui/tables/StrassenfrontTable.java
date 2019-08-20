@@ -11,9 +11,7 @@ import org.apache.log4j.Logger;
 
 import java.util.Set;
 
-import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
-import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.ZusatzRolleCustomBean;
+import de.cismet.cids.custom.beans.lagis.StrassenfrontCustomBean;
 
 import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
 
@@ -23,15 +21,15 @@ import de.cismet.lagis.models.CidsBeanTableModel_Lagis;
  * @author   gbaatz
  * @version  $Revision$, $Date$
  */
-public class ZusatzRolleTable extends AbstractCidsBeanTable_Lagis {
+public class StrassenfrontTable extends AbstractCidsBeanTable_Lagis {
 
     //~ Static fields/initializers ---------------------------------------------
 
-    private static final Logger LOG = org.apache.log4j.Logger.getLogger(ZusatzRolleTable.class);
-    private static final String[] COLUMN_NAMES = { "Dienststelle", "Rolle" };
+    private static final Logger LOG = org.apache.log4j.Logger.getLogger(StrassenfrontTable.class);
+    private static final String[] COLUMN_NAMES = { "Straße", "Länge (in m)" };
     private static final Class[] COLUMN_CLASSES = {
-            VerwaltendeDienststelleCustomBean.class,
-            ZusatzRolleArtCustomBean.class
+            String.class,
+            Double.class
         };
 
     //~ Methods ----------------------------------------------------------------
@@ -39,11 +37,11 @@ public class ZusatzRolleTable extends AbstractCidsBeanTable_Lagis {
     @Override
     protected void addNewItem() {
         try {
-            final ZusatzRolleCustomBean zusatzRolle = ZusatzRolleCustomBean.createNew();
-            ((Model)getModel()).addCidsBean(zusatzRolle);
+            final StrassenfrontCustomBean strassenfront = StrassenfrontCustomBean.createNew();
+            ((Model)getModel()).addCidsBean(strassenfront);
             fireItemAdded();
         } catch (Exception ex) {
-            LOG.error("error creating bean for zusatzrolle", ex);
+            LOG.error("error creating bean for strassenfront", ex);
         }
     }
 
@@ -64,19 +62,19 @@ public class ZusatzRolleTable extends AbstractCidsBeanTable_Lagis {
         //~ Constructors -------------------------------------------------------
 
         /**
-         * Creates a new ZusatzRolleTableModel object.
+         * Creates a new Model object.
          */
         public Model() {
-            super(COLUMN_NAMES, COLUMN_CLASSES, ZusatzRolleCustomBean.class);
+            super(COLUMN_NAMES, COLUMN_CLASSES, StrassenfrontCustomBean.class);
         }
 
         /**
-         * Creates a new instance of ZusatzRolleTableModel.
+         * Creates a new Model object.
          *
-         * @param  zusatzRollen  DOCUMENT ME!
+         * @param  strassenfronten  DOCUMENT ME!
          */
-        public Model(final Set<ZusatzRolleCustomBean> zusatzRollen) {
-            super(COLUMN_NAMES, COLUMN_CLASSES, zusatzRollen);
+        public Model(final Set<StrassenfrontCustomBean> strassenfronten) {
+            super(COLUMN_NAMES, COLUMN_CLASSES, strassenfronten);
         }
 
         //~ Methods ------------------------------------------------------------
@@ -87,17 +85,14 @@ public class ZusatzRolleTable extends AbstractCidsBeanTable_Lagis {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("ausgewählte zeile/spalte" + rowIndex + "/" + columnIndex);
                 }
-                final ZusatzRolleCustomBean vZusatzRolle = getCidsBeanAtRow(rowIndex);
+                final StrassenfrontCustomBean vStrassenfront = getCidsBeanAtRow(rowIndex);
                 switch (columnIndex) {
                     case 0: {
-                        return vZusatzRolle.getFk_dienststelle();
+                        return vStrassenfront.getStrassenname();
                     }
 
                     case 1: {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("aktueller Gebrauch: " + vZusatzRolle.getFk_art());
-                        }
-                        return vZusatzRolle.getFk_art();
+                        return vStrassenfront.getLaenge();
                     }
 
                     default: {
@@ -114,17 +109,14 @@ public class ZusatzRolleTable extends AbstractCidsBeanTable_Lagis {
         @Override
         public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
             try {
-                final ZusatzRolleCustomBean vZusatzRolle = getCidsBeanAtRow(rowIndex);
+                final StrassenfrontCustomBean vStrassenfront = getCidsBeanAtRow(rowIndex);
                 switch (columnIndex) {
                     case 0: {
-                        vZusatzRolle.setFk_dienststelle((VerwaltendeDienststelleCustomBean)aValue);
+                        vStrassenfront.setStrassenname((String)aValue);
                         break;
                     }
                     case 1: {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("Setze Wert: " + aValue);
-                        }
-                        vZusatzRolle.setFk_art((ZusatzRolleArtCustomBean)aValue);
+                        vStrassenfront.setLaenge((Double)aValue);
                         break;
                     }
                     default: {

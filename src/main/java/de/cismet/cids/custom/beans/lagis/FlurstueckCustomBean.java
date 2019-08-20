@@ -50,7 +50,8 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
             "n_dms_urls",
             "n_nutzungen",
             "n_kassenzeichen",
-            "n_zusatz_rollen"
+            "n_zusatz_rollen",
+            "n_strassenfronten",
         };
 
     //~ Instance fields --------------------------------------------------------
@@ -70,6 +71,7 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
     private Collection<NutzungCustomBean> n_nutzungen;
     private Collection<KassenzeichenCustomBean> n_kassenzeichen;
     private Collection<ZusatzRolleCustomBean> n_zusatz_rollen;
+    private Collection<StrassenfrontCustomBean> n_strassenfronten;
 
     //~ Constructors -----------------------------------------------------------
 
@@ -392,6 +394,26 @@ public class FlurstueckCustomBean extends BasicEntity implements Flurstueck {
         this.propertyChangeSupport.firePropertyChange("n_zusatz_rollen", old, this.n_zusatz_rollen);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Collection<StrassenfrontCustomBean> getN_strassenfronten() {
+        return this.n_strassenfronten;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  n_strassenfronten  DOCUMENT ME!
+     */
+    public void setN_strassenfronten(final Collection<StrassenfrontCustomBean> n_strassenfronten) {
+        final Object old = this.n_strassenfronten;
+        this.n_strassenfronten = n_strassenfronten;
+
+        this.propertyChangeSupport.firePropertyChange("n_strassenfronten", old, this.n_strassenfronten);
+    }
     @Override
     public String[] getPropertyNames() {
         return FlurstueckCustomBean.PROPERTY_NAMES;

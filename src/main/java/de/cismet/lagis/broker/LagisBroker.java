@@ -1532,7 +1532,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
         try {
             processNutzungen(flurstueck.getNutzungen(), flurstueck.getFlurstueckSchluessel().getKeyString());
             checkIfFlurstueckWasStaedtisch(flurstueck.getFlurstueckSchluessel(), null);
-            LOG.fatal(flurstueck.getMOString());
             flurstueck.persist();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Flurstück gespeichert");
@@ -4119,7 +4118,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     // TODO Nachricht an Benutzer
                 }
 
-                // modifyFlurstueck() does also save the current state of the Flurstueck (or throws an exception)
                 modifyFlurstueck(currentFlurstueck);
             }
 

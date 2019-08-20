@@ -487,7 +487,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
                         if (istAbgearbeitet) {
                             final CidsBean fortfuehrungBean = CidsBean.createNewCidsBeanFromTableName(
                                     LagisConstants.DOMAIN_LAGIS,
-                                    LagisMetaclassConstants.MC_FORTFUEHRUNG);
+                                    LagisMetaclassConstants.FORTFUEHRUNG);
                             fortfuehrungBean.setProperty(
                                 FortfuehrungPropertyConstants.PROP__ALKIS_FFN_ID,
                                 selectedFortfuehrungItem.getAnlassId());
@@ -504,7 +504,7 @@ public class LagisFortfuehrungsanlaesseDialog extends FortfuehrungsanlaesseDialo
                             selectedFortfuehrungItem.setFortfuehrungId(persisted.getMetaObject().getId());
                         } else {
                             final MetaClass mc = CidsBroker.getInstance()
-                                        .getLagisMetaClass(LagisMetaclassConstants.MC_FORTFUEHRUNG);
+                                        .getLagisMetaClass(LagisMetaclassConstants.FORTFUEHRUNG);
                             final CidsBean fortfuehrungBean = CidsBroker.getInstance()
                                         .getLagisMetaObject(selectedFortfuehrungItem.getFortfuehrungId(), mc.getId())
                                         .getBean();
