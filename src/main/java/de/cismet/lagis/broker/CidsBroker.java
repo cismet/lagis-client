@@ -16,38 +16,7 @@ import Sirius.server.middleware.types.MetaClass;
 import Sirius.server.middleware.types.MetaObject;
 import Sirius.server.newuser.User;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-
-import de.cismet.cids.custom.beans.lagis.AnlageklasseCustomBean;
-import de.cismet.cids.custom.beans.lagis.BaumCustomBean;
-import de.cismet.cids.custom.beans.lagis.BaumKategorieCustomBean;
-import de.cismet.cids.custom.beans.lagis.BaumMerkmalCustomBean;
-import de.cismet.cids.custom.beans.lagis.BeschlussartCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckHistorieCustomBean;
-import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
-import de.cismet.cids.custom.beans.lagis.GemarkungCustomBean;
-import de.cismet.cids.custom.beans.lagis.KostenartCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaKategorieCustomBean;
-import de.cismet.cids.custom.beans.lagis.MipaMerkmalCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-import de.cismet.cids.custom.beans.lagis.NutzungsartCustomBean;
-import de.cismet.cids.custom.beans.lagis.RebeArtCustomBean;
-import de.cismet.cids.custom.beans.lagis.RebeCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragCustomBean;
-import de.cismet.cids.custom.beans.lagis.VertragsartCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltendeDienststelleCustomBean;
-import de.cismet.cids.custom.beans.lagis.VerwaltungsbereichCustomBean;
-import de.cismet.cids.custom.beans.lagis.ZusatzRolleArtCustomBean;
 
 import de.cismet.cids.dynamics.CidsBean;
 
@@ -59,22 +28,8 @@ import de.cismet.connectioncontext.AbstractConnectionContext;
 import de.cismet.connectioncontext.ConnectionContext;
 import de.cismet.connectioncontext.ConnectionContextProvider;
 
-import de.cismet.lagis.Exception.ActionNotSuccessfulException;
-import de.cismet.lagis.Exception.ErrorInNutzungProcessingException;
 
 import de.cismet.lagis.commons.LagisConstants;
-import de.cismet.lagis.commons.LagisMetaclassConstants;
-
-import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearch;
-import de.cismet.lagis.server.search.FlurstueckHistorieGraphSearchResultItem;
-
-import de.cismet.lagis.wizard.panels.HistoricNoSucessorDialog;
-
-import de.cismet.lagisEE.interfaces.Key;
-
-import de.cismet.lagisEE.util.FlurKey;
-
-import de.cismet.tools.gui.StaticSwingTools;
 
 /**
  * DOCUMENT ME!
@@ -226,7 +181,7 @@ public final class CidsBroker implements ConnectionContextProvider {
      */
     public MetaClass getMetaClass(final String tablename, final String domain) {
         try {
-            return CidsBean.getMetaClassFromTableName(domain, tablename);
+            return CidsBean.getMetaClassFromTableName(domain, tablename, getConnectionContext());
         } catch (Exception exception) {
             LOG.error("couldn't load metaclass for " + tablename, exception);
             return null;
@@ -288,7 +243,7 @@ public final class CidsBroker implements ConnectionContextProvider {
         try {
             final User user = SessionManager.getSession().getUser();
             final ConnectionProxy proxy = getProxy();
-            mos = proxy.getMetaObjectByQuery(user, query, domain);
+            mos = proxy.getMetaObjectByQuery(user, query, domain, getConnectionContext());
         } catch (ConnectionException ex) {
             LOG.error("error retrieving metaobject by query", ex);
         }

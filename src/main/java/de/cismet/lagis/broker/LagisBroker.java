@@ -2499,40 +2499,6 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      *
      * @return  DOCUMENT ME!
      */
-    public Collection<MipaCustomBean> getMiPaForKey(final FlurstueckSchluesselCustomBean key) {
-        final MetaClass mcMipa = CidsBroker.getInstance().getLagisMetaClass("mipa");
-        if (mcMipa == null) {
-            return null;
-        }
-        final String query = "SELECT "
-                    + "   " + mcMipa.getID() + ", "
-                    + "   jt_flurstueck_mipa.fk_mipa "
-                    + "FROM "
-                    + "   flurstueck, "
-                    + "   jt_flurstueck_mipa "
-                    + "WHERE "
-                    + "   jt_flurstueck_mipa.fk_flurstueck = flurstueck.id "
-                    + "   AND flurstueck.fk_flurstueck_schluessel = " + key.getId();
-
-        final MetaObject[] mosMipa = CidsBroker.getInstance().getLagisMetaObject(query);
-        final Collection<MipaCustomBean> mipas = new HashSet<MipaCustomBean>();
-        for (final MetaObject metaObject : mosMipa) {
-            mipas.add((MipaCustomBean)metaObject.getBean());
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Anzahl MiPas ist: " + mipas.size());
-        }
-        return mipas;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   key  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
     public Collection<BaumCustomBean> getBaumForKey(final FlurstueckSchluesselCustomBean key) {
         final MetaClass mcBaum = CidsBroker.getInstance().getLagisMetaClass("baum");
         if (mcBaum == null) {
