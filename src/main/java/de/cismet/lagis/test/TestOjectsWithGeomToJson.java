@@ -243,23 +243,26 @@ select
 	|| flurstueck_schluessel.flur || '-' 
 	|| flurstueck_schluessel.flurstueck_zaehler || '/' 
 	|| flurstueck_schluessel.flurstueck_nenner,
-	sub.anzahl_verwaltungsbereiche
+	sub.anzahl_mipa
 from flurstueck_schluessel
 left join gemarkung on flurstueck_schluessel.fk_gemarkung = gemarkung.id
 left join (
 	select 
 		flurstueck.id as flurstueck_id, 
-		flurstueck.fk_flurstueck_schluessel as flurstueck_schluessel_id, 
-		count(*) as anzahl_verwaltungsbereiche
-	from flurstueck_schluessel 
-	left join flurstueck on flurstueck.fk_flurstueck_schluessel = flurstueck_schluessel.id
-	left join verwaltungsbereiche_eintrag on flurstueck.id = verwaltungsbereiche_eintrag.fk_flurstueck
-	left join verwaltungsbereich on verwaltungsbereiche_eintrag.id = verwaltungsbereich.fk_verwaltungsbereiche_eintrag
-	group by flurstueck.id, flurstueck.fk_flurstueck_schluessel
+		alkis_flurstueck.fk_schluessel as flurstueck_schluessel_id, 
+		count(*) as anzahl_mipa
+	from 
+		flurstueck left join flurstueck_schluessel on flurstueck.fk_flurstueck_schluessel = flurstueck_schluessel.id
+		left join alkis_flurstueck on alkis_flurstueck.fk_schluessel = flurstueck_schluessel.id,		
+		mipa left join geom as mipa_geom on mipa.fk_geom = mipa_geom.id
+	where 
+		st_area(alkis_flurstueck.geometrie) > 100000 AND
+		st_intersects(mipa_geom.geo_field, st_buffer(alkis_flurstueck.geometrie, -1)) 
+	group by flurstueck.id, alkis_flurstueck.fk_schluessel
 	having count(*) > 4
 ) as sub on sub.flurstueck_schluessel_id = flurstueck_schluessel.id
-where sub.anzahl_verwaltungsbereiche > 0
-order by sub.anzahl_verwaltungsbereiche desc;
+where sub.anzahl_mipa > 0
+order by sub.anzahl_mipa desc;
 
 18415;"Beyenburg 13-915/0";13
 21036;"Barmen 9-230/0";9
