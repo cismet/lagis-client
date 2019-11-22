@@ -12,7 +12,6 @@
  */
 package de.cismet.lagis.gui.tools;
 
-import de.cismet.lagis.gui.panels.DMSPanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -255,7 +254,7 @@ public class DmsUrlPanel extends javax.swing.JPanel {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblIconMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblIconMousePressed
+    private void lblIconMousePressed(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblIconMousePressed
         if (LOG.isDebugEnabled()) {
             LOG.debug("mouse pressed");
         }
@@ -264,32 +263,29 @@ public class DmsUrlPanel extends javax.swing.JPanel {
                 LOG.debug("button3 && isDeletable");
             }
             // TODO WARUM NUR EIN PANEL;
-            if (this.getParent() instanceof DMSPanel) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("isDMSPANEL");
-                }
-                if (((DMSPanel)(getParent())).isInEditMode()) {
+            if (this.getParent() instanceof DmsUrlsPanel) {
+                if (((DmsUrlsPanel)(getParent())).isEnabled()) {
                     pmnLink.show(evt.getComponent(), evt.getX(), evt.getY());
                 }
             }
         }
-    }//GEN-LAST:event_lblIconMousePressed
+    } //GEN-LAST:event_lblIconMousePressed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniDeleteActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniDeleteActionPerformed
+    private void mniDeleteActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniDeleteActionPerformed
         fireDeleteActionPerformed();
-    }//GEN-LAST:event_mniDeleteActionPerformed
+    }                                                                             //GEN-LAST:event_mniDeleteActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseClicked
+    private void lblDescrMouseClicked(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseClicked
         final String urlString = getUrlString(dmsUrlBean);
         if (urlString == null) {
             JOptionPane.showMessageDialog(this, "Es wurde keine Url hinterlegt!", "Fehler", JOptionPane.ERROR_MESSAGE);
@@ -315,35 +311,35 @@ public class DmsUrlPanel extends javax.swing.JPanel {
                 }
             }
         }
-    }//GEN-LAST:event_lblDescrMouseClicked
+    } //GEN-LAST:event_lblDescrMouseClicked
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseExited(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseExited
+    private void lblDescrMouseExited(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseExited
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblDescr.setForeground(java.awt.Color.BLACK);
-    }//GEN-LAST:event_lblDescrMouseExited
+    }                                                                       //GEN-LAST:event_lblDescrMouseExited
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseEntered(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseEntered
+    private void lblDescrMouseEntered(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseEntered
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblDescr.setForeground(java.awt.Color.BLUE);
-    }//GEN-LAST:event_lblDescrMouseEntered
+    }                                                                        //GEN-LAST:event_lblDescrMouseEntered
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseMoved(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseMoved
-    }//GEN-LAST:event_lblDescrMouseMoved
+    private void lblDescrMouseMoved(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseMoved
+    }                                                                      //GEN-LAST:event_lblDescrMouseMoved
     /**
      * End of variables declaration.
      *

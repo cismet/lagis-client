@@ -217,8 +217,9 @@ public class DmsUrlPathMapper implements Configurable {
     public void masterConfigure(final Element parent) {
         configure(parent);
     }
-    
-    
+
+    //~ Inner Classes ----------------------------------------------------------
+
     /**
      * DOCUMENT ME!
      *
