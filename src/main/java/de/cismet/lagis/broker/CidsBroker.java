@@ -28,7 +28,6 @@ import de.cismet.connectioncontext.AbstractConnectionContext;
 import de.cismet.connectioncontext.ConnectionContext;
 import de.cismet.connectioncontext.ConnectionContextProvider;
 
-
 import de.cismet.lagis.commons.LagisConstants;
 
 /**

@@ -5,15 +5,11 @@
 *              ... and it just works.
 *
 ****************************************************/
-package de.cismet.lagis.gui.optionspanels;
+package de.cismet.lagis.gui.tools;
 
 import org.jdom.Element;
 
-import org.openide.util.Exceptions;
-
 import java.io.File;
-
-import java.net.MalformedURLException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,14 +27,10 @@ import de.cismet.tools.configuration.Configurable;
  */
 public class DmsUrlPathMapper implements Configurable {
 
-    //~ Static fields/initializers ---------------------------------------------
-
-    private static DmsUrlPathMapper INSTANCE;
-
     //~ Instance fields --------------------------------------------------------
 
-    private final HashMap<String, String> networkToLocalMap = new HashMap<String, String>();
-    private final HashMap<String, String> localToNetworkMap = new HashMap<String, String>();
+    private final HashMap<String, String> networkToLocalMap = new HashMap<>();
+    private final HashMap<String, String> localToNetworkMap = new HashMap<>();
 
     //~ Constructors -----------------------------------------------------------
 
@@ -56,10 +48,7 @@ public class DmsUrlPathMapper implements Configurable {
      * @return  DOCUMENT ME!
      */
     public static DmsUrlPathMapper getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new DmsUrlPathMapper();
-        }
-        return INSTANCE;
+        return LazyInitialiser.INSTANCE;
     }
 
     /**
@@ -227,5 +216,18 @@ public class DmsUrlPathMapper implements Configurable {
     @Override
     public void masterConfigure(final Element parent) {
         configure(parent);
+    }
+    
+    
+    /**
+     * DOCUMENT ME!
+     *
+     * @version  $Revision$, $Date$
+     */
+    private static final class LazyInitialiser {
+
+        //~ Static fields/initializers -----------------------------------------
+
+        private static final DmsUrlPathMapper INSTANCE = new DmsUrlPathMapper();
     }
 }

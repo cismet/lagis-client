@@ -12,6 +12,7 @@
  */
 package de.cismet.lagis.gui.tools;
 
+import de.cismet.lagis.gui.panels.DMSPanel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -23,11 +24,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
-import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
-
-import de.cismet.lagis.gui.optionspanels.DmsUrlOptionsPanel;
-import de.cismet.lagis.gui.optionspanels.DmsUrlPathMapper;
-import de.cismet.lagis.gui.panels.DMSPanel;
+import de.cismet.cids.dynamics.CidsBean;
 
 /**
  * Klasse zum Anzeigen von Links und zugehörigen Icons in einer Anwendung.<br>
@@ -36,19 +33,19 @@ import de.cismet.lagis.gui.panels.DMSPanel;
  * @author   hell
  * @version  $Revision$, $Date$
  */
-public class DocPanel extends javax.swing.JPanel {
+public class DmsUrlPanel extends javax.swing.JPanel {
 
     //~ Static fields/initializers ---------------------------------------------
 
     public static final int MAX_DESCRIPTION_LENGTH = 12;
     public static final String DELETE_ACTION_COMMAND = "DELETE_ACTION";
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DocPanel.class);
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(DmsUrlPanel.class);
 
     //~ Instance fields --------------------------------------------------------
 
-    private final Collection<ActionListener> actionListeners = new ArrayList<ActionListener>();
+    private final Collection<ActionListener> actionListeners = new ArrayList<>();
     private boolean deletable = false;
-    private DmsUrlCustomBean dmsUrlEntity;
+    private CidsBean dmsUrlBean;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel lblDescr;
@@ -60,17 +57,25 @@ public class DocPanel extends javax.swing.JPanel {
     //~ Constructors -----------------------------------------------------------
 
     /**
+     * Creates a new DmsUrlPanel object.
+     */
+    public DmsUrlPanel() {
+        this(null);
+    }
+
+    /**
      * Creates new form DocPanel.
      *
-     * @param  dmsUrlEntity  DOCUMENT ME!
+     * @param  dmsUrlBean  DOCUMENT ME!
      */
-    public DocPanel(final DmsUrlCustomBean dmsUrlEntity) {
+    public DmsUrlPanel(final CidsBean dmsUrlBean) {
         initComponents();
 
-        this.dmsUrlEntity = dmsUrlEntity;
+        this.dmsUrlBean = dmsUrlBean;
 
-        initDescription(dmsUrlEntity.getName());
-        initIcon(makeIcon(dmsUrlEntity), dmsUrlEntity.getUrlString());
+        final String description = (dmsUrlBean != null) ? (String)dmsUrlBean.getProperty("name") : "null";
+        initDescription(description);
+        initIcon(makeIcon(dmsUrlBean), getUrlString(dmsUrlBean));
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -78,49 +83,54 @@ public class DocPanel extends javax.swing.JPanel {
     /**
      * DOCUMENT ME!
      *
-     * @param   dmsUrlEntity  DOCUMENT ME!
+     * @param   dmsUrlBean  dmsUrlEntity DOCUMENT ME!
      *
      * @return  DOCUMENT ME!
      */
-    private static ImageIcon makeIcon(final DmsUrlCustomBean dmsUrlEntity) {
+    private static ImageIcon makeIcon(final CidsBean dmsUrlBean) {
+        final Integer typ = (dmsUrlBean != null) ? (Integer)dmsUrlBean.getProperty("typ") : 0;
         final ImageIcon icon;
-        switch (dmsUrlEntity.getTyp()) {
-            case 0: {
-                // Collectionze WMS Icon und h?nge Kassenzeichen an
-                icon = new javax.swing.ImageIcon(DocPanel.class.getResource(
-                            "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
-            }
-            break;
-            case 1: {
-                if (LOG.isDebugEnabled()) {
-                    // Collectionze das Icon nach der Dateiendung
-                    LOG.debug("suche nach Bild für link");
-                }
-                final String url = dmsUrlEntity.getUrlString();
-                final int pPos = url.lastIndexOf(".");
-                final String type = url.substring(pPos + 1, url.length()).toLowerCase();
-                final String filename = "" + type + ".png";
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Filename für Bild: " + filename);
-                }
-                ImageIcon tryIcon;
-                try {
-                    tryIcon = new javax.swing.ImageIcon(DocPanel.class.getResource(
-                                "/de/cismet/lagis/ressource/icons/filetypes/"
-                                        + filename));
-                } catch (Exception e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Fehler beim Suchen des Icons:" + type);
-                    }
-                    tryIcon = new javax.swing.ImageIcon(DocPanel.class.getResource(
+        if (typ != null) {
+            switch (typ) {
+                case 0: {
+                    // Collectionze WMS Icon und h?nge Kassenzeichen an
+                    icon = new javax.swing.ImageIcon(DmsUrlPanel.class.getResource(
                                 "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
                 }
-                icon = tryIcon;
+                break;
+                case 1: {
+                    if (LOG.isDebugEnabled()) {
+                        // Collectionze das Icon nach der Dateiendung
+                        LOG.debug("suche nach Bild für link");
+                    }
+                    final String url = getUrlString(dmsUrlBean);
+                    final int pPos = url.lastIndexOf(".");
+                    final String type = url.substring(pPos + 1, url.length()).toLowerCase();
+                    final String filename = "" + type + ".png";
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Filename für Bild: " + filename);
+                    }
+                    ImageIcon tryIcon;
+                    try {
+                        tryIcon = new javax.swing.ImageIcon(DmsUrlPanel.class.getResource(
+                                    "/de/cismet/lagis/ressource/icons/filetypes/"
+                                            + filename));
+                    } catch (Exception e) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Fehler beim Suchen des Icons:" + type);
+                        }
+                        tryIcon = new javax.swing.ImageIcon(DmsUrlPanel.class.getResource(
+                                    "/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"));
+                    }
+                    icon = tryIcon;
+                }
+                break;
+                default: {
+                    icon = null;
+                }
             }
-            break;
-            default: {
-                icon = null;
-            }
+        } else {
+            icon = null;
         }
         return icon;
     }
@@ -128,10 +138,10 @@ public class DocPanel extends javax.swing.JPanel {
     /**
      * DOCUMENT ME!
      *
-     * @param  dmsUrlEntity  DOCUMENT ME!
+     * @param  dmsUrlBean  DOCUMENT ME!
      */
-    public void setDMSUrlEntity(final DmsUrlCustomBean dmsUrlEntity) {
-        this.dmsUrlEntity = dmsUrlEntity;
+    public void setDMSUrlEntity(final CidsBean dmsUrlBean) {
+        this.dmsUrlBean = dmsUrlBean;
     }
 
     /**
@@ -140,7 +150,7 @@ public class DocPanel extends javax.swing.JPanel {
      * @return  DOCUMENT ME!
      */
     public Integer getTyp() {
-        return dmsUrlEntity.getTyp();
+        return (Integer)dmsUrlBean.getProperty("typ");
     }
 
     /**
@@ -148,8 +158,8 @@ public class DocPanel extends javax.swing.JPanel {
      *
      * @return  DOCUMENT ME!
      */
-    public DmsUrlCustomBean getDMSUrlEntity() {
-        return dmsUrlEntity;
+    public CidsBean getDMSUrlBean() {
+        return dmsUrlBean;
     }
 
     /**
@@ -169,7 +179,7 @@ public class DocPanel extends javax.swing.JPanel {
      * @param  desc  DOCUMENT ME!
      */
     private void initDescription(final String desc) {
-        if (desc.length() > MAX_DESCRIPTION_LENGTH) {
+        if ((desc != null) && (desc.length() > MAX_DESCRIPTION_LENGTH)) {
             this.lblDescr.setText(desc.substring(0, MAX_DESCRIPTION_LENGTH) + "...");
             this.lblDescr.setToolTipText(desc);
         } else {
@@ -181,7 +191,7 @@ public class DocPanel extends javax.swing.JPanel {
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
      * content of this method is always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         pmnLink = new javax.swing.JPopupMenu();
         mniDelete = new javax.swing.JMenuItem();
@@ -196,15 +206,14 @@ public class DocPanel extends javax.swing.JPanel {
                     mniDeleteActionPerformed(evt);
                 }
             });
-
         pmnLink.add(mniDelete);
 
+        setMaximumSize(new java.awt.Dimension(100, 100));
         setLayout(new java.awt.BorderLayout());
 
-        setMaximumSize(new java.awt.Dimension(100, 100));
         lblIcon.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblIcon.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/filetypes/dms_default.png")));
+                getClass().getResource("/de/cismet/lagis/ressource/icons/filetypes/dms_default.png"))); // NOI18N
         lblIcon.addMouseListener(new java.awt.event.MouseAdapter() {
 
                 @Override
@@ -212,7 +221,6 @@ public class DocPanel extends javax.swing.JPanel {
                     lblIconMousePressed(evt);
                 }
             });
-
         add(lblIcon, java.awt.BorderLayout.CENTER);
 
         lblDescr.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -239,7 +247,6 @@ public class DocPanel extends javax.swing.JPanel {
                     lblDescrMouseExited(evt);
                 }
             });
-
         add(lblDescr, java.awt.BorderLayout.SOUTH);
     } // </editor-fold>//GEN-END:initComponents
 
@@ -248,7 +255,7 @@ public class DocPanel extends javax.swing.JPanel {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblIconMousePressed(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblIconMousePressed
+    private void lblIconMousePressed(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblIconMousePressed
         if (LOG.isDebugEnabled()) {
             LOG.debug("mouse pressed");
         }
@@ -266,24 +273,24 @@ public class DocPanel extends javax.swing.JPanel {
                 }
             }
         }
-    } //GEN-LAST:event_lblIconMousePressed
+    }//GEN-LAST:event_lblIconMousePressed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void mniDeleteActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniDeleteActionPerformed
+    private void mniDeleteActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mniDeleteActionPerformed
         fireDeleteActionPerformed();
-    }                                                                             //GEN-LAST:event_mniDeleteActionPerformed
+    }//GEN-LAST:event_mniDeleteActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseClicked(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseClicked
-        final String urlString = dmsUrlEntity.getUrlString();
+    private void lblDescrMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseClicked
+        final String urlString = getUrlString(dmsUrlBean);
         if (urlString == null) {
             JOptionPane.showMessageDialog(this, "Es wurde keine Url hinterlegt!", "Fehler", JOptionPane.ERROR_MESSAGE);
             return;
@@ -308,35 +315,35 @@ public class DocPanel extends javax.swing.JPanel {
                 }
             }
         }
-    } //GEN-LAST:event_lblDescrMouseClicked
+    }//GEN-LAST:event_lblDescrMouseClicked
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseExited(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseExited
+    private void lblDescrMouseExited(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseExited
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         lblDescr.setForeground(java.awt.Color.BLACK);
-    }                                                                       //GEN-LAST:event_lblDescrMouseExited
+    }//GEN-LAST:event_lblDescrMouseExited
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseEntered(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseEntered
+    private void lblDescrMouseEntered(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseEntered
         this.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         lblDescr.setForeground(java.awt.Color.BLUE);
-    }                                                                        //GEN-LAST:event_lblDescrMouseEntered
+    }//GEN-LAST:event_lblDescrMouseEntered
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void lblDescrMouseMoved(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_lblDescrMouseMoved
-    }                                                                      //GEN-LAST:event_lblDescrMouseMoved
+    private void lblDescrMouseMoved(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblDescrMouseMoved
+    }//GEN-LAST:event_lblDescrMouseMoved
     /**
      * End of variables declaration.
      *
@@ -385,5 +392,26 @@ public class DocPanel extends javax.swing.JPanel {
      */
     public void setDeletable(final boolean deletable) {
         this.deletable = deletable;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   dmsUrlBean  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    private static String getUrlString(final CidsBean dmsUrlBean) {
+        if (dmsUrlBean != null) {
+            final CidsBean urlBean = (CidsBean)dmsUrlBean.getProperty("url");
+            final CidsBean urlBase = (CidsBean)urlBean.getProperty("url_base_id");
+            final String proPrefix = (String)urlBase.getProperty("prot_prefix");
+            final String server = (String)urlBase.getProperty("server");
+            final String path = (String)urlBase.getProperty("path");
+            final String objectName = (String)urlBean.getProperty("object_name");
+            return proPrefix + server + path + objectName;
+        } else {
+            return null;
+        }
     }
 }
