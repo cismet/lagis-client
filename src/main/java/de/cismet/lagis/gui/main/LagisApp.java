@@ -170,6 +170,7 @@ import de.cismet.lagis.gui.copypaste.FlurstueckInfoClipboard;
 import de.cismet.lagis.gui.copypaste.Pasteable;
 import de.cismet.lagis.gui.dialogs.LagisFortfuehrungsanlaesseDialog;
 import de.cismet.lagis.gui.panels.*;
+import de.cismet.lagis.gui.panels.DMSPanel;
 import de.cismet.lagis.gui.tables.NKFTable;
 
 import de.cismet.lagis.interfaces.FeatureSelectionChangedListener;

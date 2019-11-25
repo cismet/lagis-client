@@ -212,15 +212,4 @@ public class DmsUrlCustomBean extends BasicEntity implements DmsUrl {
     public void setUrl(final UrlCustomBean val) {
         setFk_url(val);
     }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    public String getUrlString() {
-        final UrlCustomBean urlEntity = getUrl();
-        final UrlBaseCustomBean urlBase = urlEntity.getUrlBase();
-        return urlBase.getProtPrefix() + urlBase.getServer() + urlBase.getPfad() + urlEntity.getObjektname();
-    }
 }
