@@ -46,7 +46,7 @@ public class FlurstueckAssistentOptionsPanel extends AbstractOptionsPanel {
     //~ Constructors -----------------------------------------------------------
 
     /**
-     * Creates a new DmsUrlOptionsPanel object.
+     * Creates a new FlurstueckAssistentOptionsPanel object.
      */
     public FlurstueckAssistentOptionsPanel() {
         super("Flurstück Assistent", SecurityOptionsCategory.class);

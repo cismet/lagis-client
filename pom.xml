@@ -97,7 +97,7 @@
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp</groupId>
                 <artifactId>cids-custom-wuppertal</artifactId>
-                <version>6.11.3</version>
+                <version>6.16</version>
                 <type>jar</type>
             </dependency>
                                     
