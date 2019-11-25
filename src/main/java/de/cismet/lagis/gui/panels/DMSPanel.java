@@ -47,10 +47,8 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
 
     //~ Instance fields --------------------------------------------------------
 
-    private boolean inEditMode = true;
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private de.cismet.lagis.gui.tools.DmsUrlsPanel dmsUrlsPanel1;
+    private de.cismet.cids.custom.utils.DmsUrlsPanel dmsUrlsPanel1;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -83,7 +81,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
 
     @Override
     public void setComponentEditable(final boolean isEditable) {
-        inEditMode = isEditable;
+        dmsUrlsPanel1.setEnabled(isEditable);
     }
 
     @Override
@@ -98,12 +96,11 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
-        dmsUrlsPanel1 = new de.cismet.lagis.gui.tools.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS);
+        dmsUrlsPanel1 = new de.cismet.cids.custom.utils.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS);
 
         setLayout(new java.awt.BorderLayout());
         add(dmsUrlsPanel1, java.awt.BorderLayout.CENTER);
-    }// </editor-fold>//GEN-END:initComponents
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
@@ -111,7 +108,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
      * @return  DOCUMENT ME!
      */
     public boolean isInEditMode() {
-        return inEditMode;
+        return dmsUrlsPanel1.isEnabled();
     }
 
     @Override

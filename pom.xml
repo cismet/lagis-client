@@ -10,7 +10,7 @@
 
     <groupId>de.cismet.lagis</groupId>
     <artifactId>lagis-client</artifactId>
-    <version>6.8-SNAPSHOT</version>
+    <version>6.9-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -97,7 +97,7 @@
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp</groupId>
                 <artifactId>cids-custom-wuppertal</artifactId>
-                <version>6.11.3</version>
+                <version>6.16</version>
                 <type>jar</type>
             </dependency>
                                     
