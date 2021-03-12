@@ -5,12 +5,12 @@
     <parent>
         <groupId>de.cismet.cids</groupId>
         <artifactId>cids-parent</artifactId>
-        <version>6.0</version>
+        <version>7.0</version>
     </parent>
 
     <groupId>de.cismet.lagis</groupId>
     <artifactId>lagis-client</artifactId>
-    <version>6.9-SNAPSHOT</version>
+    <version>7.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>de.cismet</groupId>
                 <artifactId>cismet-ext-bom</artifactId>
-                <version>6.0</version>
+                <version>7.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>6.5.2</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -60,7 +60,7 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-gui-commons</artifactId>
-                <version>6.2.3</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -68,7 +68,7 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismap-commons</artifactId>
-                <version>6.5.7</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -76,7 +76,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-commons</artifactId>
-                <version>6.0.1</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <!-- lagis-client imports only final CONSTANTS from lagis-commons:
                     -> static final fields will be inlined by the bytecode compiler 
@@ -90,21 +90,21 @@
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp.server</groupId>
                 <artifactId>cids-custom-server-wuppertal</artifactId>
-                <version>6.16</version>
+                <version>7.0</version>
                 <type>jar</type>
             </dependency>
                                     
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp</groupId>
                 <artifactId>cids-custom-wuppertal</artifactId>
-                <version>6.16</version>
+                <version>7.0</version>
                 <type>jar</type>
             </dependency>
                                     
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server</artifactId>
-                <version>6.3.5</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -112,7 +112,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>6.3</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -120,7 +120,7 @@
             <dependency>
                 <groupId>de.cismet.cids.navigator</groupId>
                 <artifactId>cids-navigator</artifactId>
-                <version>6.3</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -128,7 +128,7 @@
             <dependency>
                 <groupId>de.cismet.cismap</groupId>
                 <artifactId>cismap-plugin</artifactId>
-                <version>6.1.7</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -136,7 +136,7 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-application-commons</artifactId>
-                <version>6.0</version>
+                <version>7.0</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -144,7 +144,7 @@
             <dependency>
                 <groupId>de.cismet.custom</groupId>
                 <artifactId>beansbinding</artifactId>
-                <version>6.0</version>
+                <version>7.0</version>
                 <scope>compile</scope>
                 <type>jar</type>
             </dependency>      
@@ -165,7 +165,7 @@
         -->
         <dependency>
             <groupId>de.cismet.custom</groupId>
-            <artifactId>cismet-deegree</artifactId>
+            <artifactId>cismet-deegree2.3</artifactId>
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
@@ -239,9 +239,9 @@
 
         <!-- BEGIN: unknown cids-dependencies -->
         <dependency>
-            <groupId>de.cismet.todo</groupId>
-            <artifactId>wizard</artifactId>
-            <version>unknown</version>
+            <groupId>de.cismet.custom</groupId>
+            <artifactId>cismet-wizard</artifactId>
+            <version>7.0</version>
         </dependency>
         <!-- END: unknown cids-dependencies -->
         <!--<dependency>
@@ -437,7 +437,7 @@
         <dependency>
             <groupId>de.cismet.verdis</groupId>
             <artifactId>verdis-server</artifactId>
-            <version>6.6</version>
+            <version>7.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
