@@ -4087,11 +4087,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 modifyFlurstueck(currentFlurstueck);
             }
 
-            for (final RebeCustomBean rebe : currentRebes) {
-                rebe.persist();
+            if (currentRebes != null) {
+                for (final RebeCustomBean rebe : currentRebes) {
+                    rebe.persist();
+                }
             }
-            for (final MipaCustomBean mipa : currentMipas) {
-                mipa.persist();
+            if (currentMipas != null) {
+                for (final MipaCustomBean mipa : currentMipas) {
+                    mipa.persist();
+                }
             }
         } catch (final Exception ex) {
             showError("Fehler beim speichern", "Das Flurstück konnte nicht gespeichert werden.", ex);

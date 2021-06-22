@@ -1062,7 +1062,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(
                 org.jdesktop.layout.GroupLayout.TRAILING,
-                jPanel1Layout.createSequentialGroup().addContainerGap(753, Short.MAX_VALUE).add(
+                jPanel1Layout.createSequentialGroup().addContainerGap(872, Short.MAX_VALUE).add(
                     cmdAdd,
                     org.jdesktop.layout.GroupLayout.PREFERRED_SIZE,
                     org.jdesktop.layout.GroupLayout.DEFAULT_SIZE,
