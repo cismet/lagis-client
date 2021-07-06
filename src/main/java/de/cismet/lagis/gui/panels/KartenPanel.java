@@ -15,7 +15,6 @@ package de.cismet.lagis.gui.panels;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
-import edu.umd.cs.piccolo.PNode;
 import edu.umd.cs.piccolox.event.PNotification;
 import edu.umd.cs.piccolox.event.PNotificationCenter;
 import edu.umd.cs.piccolox.event.PSelectionEventHandler;
@@ -32,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
@@ -116,24 +117,20 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     private static final String PERM_KEY_BAUM = "Baumdatei";              // NOI18N
     private static final String PERM_KEY_MIPA = "Vermietung/Verpachtung"; // NOI18N
 
+    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(KartenPanel.class);
+
     //~ Instance fields --------------------------------------------------------
 
-    private final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
-    private MappingComponent mappingComponent;
-    private boolean isSnappingEnabled = false;
-    private String gemarkungIdentifier = null;
-    private String flurIdentifier = null;
-    private String flurstueckZaehlerIdentifier = null;
-    private String flurstueckNennerIdentifier = null;
+    private final MappingComponent mappingComponent;
     private boolean isEditable = true;
     private final JButton cmdCopyFlaeche = new JButton();
     private final JButton cmdPasteFlaeche = new JButton();
     private Object clipboard = null;
-    private boolean clipboardPasted = true; // wegen des ersten mals
-    private final ArrayList<Feature> copiedFeatures = new ArrayList<Feature>();
+    private final ArrayList<Feature> copiedFeatures = new ArrayList<>();
     private final Map<String, FeatureGroupActionListener> featureGroupButtonListenerMap;
     private final JLabel lblInfo;
     private Object lastOverFeature;
+
     // Variables declaration - do not modify
     // NOI18N
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -246,7 +243,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
         this.configureCopyPaste();
 
-        this.featureGroupButtonListenerMap = new HashMap<String, FeatureGroupActionListener>();
+        this.featureGroupButtonListenerMap = new HashMap<>();
 
         this.addFeatureGroupButton(
             FlurstueckChooser.FEATURE_GRP,
@@ -331,18 +328,18 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             final String tooltipText,
             final String icon,
             final String invisIcon) {
-        final JButton button = new JButton();
+        final JToggleButton button = new JToggleButton();
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
 
-        button.setIcon(new ImageIcon(getClass().getResource(icon)));
-        button.setPressedIcon(widgetIcon);
+        button.setSelectedIcon(new ImageIcon(getClass().getResource(icon)));
+        button.setIcon(new ImageIcon(getClass().getResource(invisIcon)));
 
         final FeatureGroupActionListener listener = new FeatureGroupActionListener(
                 button,
                 mappingComponent,
                 featureGroup,
-                tooltipText,
-                icon,
-                invisIcon);
+                tooltipText);
 
         button.addActionListener(listener);
         button.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 3, 1, 3));
@@ -416,7 +413,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         if (answer == JOptionPane.YES_OPTION) {
             if (clipboard != null) {
                 final Iterator it = ((Collection)clipboard).iterator();
-                final boolean cutting = false;
 
                 while (it.hasNext()) {
                     final Feature clipboardFlaeche = (Feature)it.next();
@@ -428,9 +424,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 }
             }
 
-            // storeClipboardBackup();
             if (copiedFeatures.size() > 0) {
-                clipboardPasted = false;
                 this.cmdPasteFlaeche.setEnabled(true);
             } else {
                 this.cmdPasteFlaeche.setEnabled(false);
@@ -439,16 +433,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     }
 
     /**
-     * public Object getSelectedGeometries() { if
-     * (LagisBroker.getInstance().getMappingComponent().getFeatureCollection().getSelectedFeatures() != null &&
-     * LagisBroker.getInstance().getMappingComponent().getFeatureCollection().getSelectedFeatures().size() > 0) { //
-     * Vector clipboard = new Vector(); // int[] rows = flOverviewPanel.getJxtOverview().getSelectedRows(); // for (int
-     * i = 0; i < rows.length; ++i) { // int modelIndex =
-     * flOverviewPanel.getJxtOverview().getFilters().convertRowIndexToModel(rows[i]); // Flaeche f =
-     * flOverviewPanel.getTableModel().getFlaechebyIndex(modelIndex); // f.setClipboardStatus(Flaeche.COPIED); //
-     * Flaeche c = (Flaeche) f.clone(); // clipboard.add(c); // } // return clipboard; return new Vector(Vector
-     * clipboard = new Vector()); } else { Flaeche sf = flOverviewPanel.getModel().getSelectedFlaeche();
-     * sf.setClipboardStatus(Flaeche.COPIED); Flaeche c = (Flaeche) sf.clone(); c.setNewFlaeche(true); return c; } }.
+     * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
@@ -456,7 +441,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         if (copiedFeatures.size() > 0) {
             LagisBroker.getInstance().getMappingComponent().getFeatureCollection().unselectAll();
             final Iterator it = copiedFeatures.iterator();
-            final boolean cutting = false;
             while (it.hasNext()) {
                 final Feature clipboardFlaeche = (Feature)it.next();
                 final PureNewFeature newFeature = new PureNewFeature((Geometry)clipboardFlaeche.getGeometry().clone());
@@ -464,7 +448,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 newFeature.setEditable(true);
                 LagisBroker.getInstance().getMappingComponent().getFeatureCollection().addFeature(newFeature);
             }
-            clipboardPasted = true;
         }
     }
 
@@ -475,33 +458,33 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         final String currentInteractionMode = mappingComponent.getInteractionMode();
         if (currentInteractionMode != null) {
             if (currentInteractionMode.equals(MappingComponent.SELECT)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("InteractionMode set to SELECT");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("InteractionMode set to SELECT");
                 }
                 cmdSelectActionPerformed(null);
             } else if (currentInteractionMode.equals(MappingComponent.PAN)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("InteractionMode set to PAN");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("InteractionMode set to PAN");
                 }
                 cmdPanActionPerformed(null);
             } else if (currentInteractionMode.equals(MappingComponent.NEW_POLYGON)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("InteractionMode set to NEW_POLYGON");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("InteractionMode set to NEW_POLYGON");
                 }
                 cmdNewPolygonActionPerformed(null);
             } else if (currentInteractionMode.equals(MappingComponent.ZOOM)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("InteractionMode set to ZOOM");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("InteractionMode set to ZOOM");
                 }
                 cmdZoomActionPerformed(null);
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Unknown Interactionmode: " + currentInteractionMode);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Unknown Interactionmode: " + currentInteractionMode);
                 }
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("InteractionMode == null");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("InteractionMode == null");
             }
         }
     }
@@ -1291,8 +1274,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             return;
         }
         this.isEditable = isEditable;
-        if (log.isDebugEnabled()) {
-            log.debug("MapPanel --> setComponentEditable");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("MapPanel --> setComponentEditable");
         }
         if (EventQueue.isDispatchThread()) {
             mappingComponent.setReadOnly(!isEditable);
@@ -1306,8 +1289,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 mappingComponent.setInteractionMode(MappingComponent.SELECT);
                 cmdMoveHandleActionPerformed(null);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("Anzahl Features in FeatureCollection:"
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Anzahl Features in FeatureCollection:"
                             + mappingComponent.getFeatureCollection().getFeatureCount());
             }
             // ((DefaultFeatureCollection)mappingComponent.getFeatureCollection()).setAllFeaturesEditable(isEditable);
@@ -1346,8 +1329,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             mappingComponent.setInteractionMode(MappingComponent.SELECT);
                             cmdMoveHandleActionPerformed(null);
                         }
-                        if (log.isDebugEnabled()) {
-                            log.debug(
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(
                                 "Anzahl Features in FeatureCollection:"
                                         + mappingComponent.getFeatureCollection().getFeatureCount());
                         }
@@ -1373,8 +1356,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                     }
                 });
         }
-        if (log.isDebugEnabled()) {
-            log.debug("MapPanel --> setComponentEditable finished");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("MapPanel --> setComponentEditable finished");
         }
 
         // Clear the undo/redo memory to seperate the edit sessions
@@ -1403,8 +1386,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  evt  DOCUMENT ME!
      */
     private void cmdSnapActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdSnapActionPerformed
-        if (log.isDebugEnabled()) {
-            log.debug("Set snapping Enabled: " + cmdSnap.isSelected());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Set snapping Enabled: " + cmdSnap.isSelected());
         }
         cmdSnap.setSelected(!cmdSnap.isSelected());
         // TODO CHANGE CONFIG FILE ACTION
@@ -1487,21 +1470,21 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  evt  DOCUMENT ME!
      */
     private void cmdUndoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdUndoActionPerformed
-        log.info("UNDO");
+        LOG.info("UNDO");
         final CustomAction a = mappingComponent.getMemUndo().getLastAction();
-        if (log.isDebugEnabled()) {
-            log.debug("... Aktion ausf\u00FChren: " + a.info());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("... Aktion ausf\u00FChren: " + a.info());
         }
         try {
             a.doAction();
         } catch (Exception e) {
-            log.error("Error beim Ausf\u00FChren der Aktion", e);
+            LOG.error("Error beim Ausf\u00FChren der Aktion", e);
         }
         final CustomAction inverse = a.getInverse();
         mappingComponent.getMemRedo().addAction(inverse);
-        if (log.isDebugEnabled()) {
-            log.debug("... neue Aktion auf REDO-Stack: " + inverse);
-            log.debug("... fertig");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("... neue Aktion auf REDO-Stack: " + inverse);
+            LOG.debug("... fertig");
         }
     }                                                                           //GEN-LAST:event_cmdUndoActionPerformed
 
@@ -1511,21 +1494,21 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  evt  DOCUMENT ME!
      */
     private void cmdRedoActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdRedoActionPerformed
-        log.info("REDO");
+        LOG.info("REDO");
         final CustomAction a = mappingComponent.getMemRedo().getLastAction();
-        if (log.isDebugEnabled()) {
-            log.debug("... Aktion ausf\u00FChren: " + a.info());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("... Aktion ausf\u00FChren: " + a.info());
         }
         try {
             a.doAction();
         } catch (Exception e) {
-            log.error("Error beim Ausf\u00FChren der Aktion", e);
+            LOG.error("Error beim Ausf\u00FChren der Aktion", e);
         }
         final CustomAction inverse = a.getInverse();
         mappingComponent.getMemUndo().addAction(inverse);
-        if (log.isDebugEnabled()) {
-            log.debug("... neue Aktion auf UNDO-Stack: " + inverse);
-            log.debug("... fertig");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("... neue Aktion auf UNDO-Stack: " + inverse);
+            LOG.debug("... fertig");
         }
     }                                                                           //GEN-LAST:event_cmdRedoActionPerformed
 
@@ -1575,13 +1558,13 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 final PFeature pf = dfl.getFeatureRequestedForDeletion();
                 pf.getFeature().setGeometry(null);
                 if (pf.getFeature() instanceof VerwaltungsbereichCustomBean) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Verwaltungsbereichsgeometrie wurde gelöscht setze Flächee = 0");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Verwaltungsbereichsgeometrie wurde gelöscht setze Flächee = 0");
                     }
                 }
             }
         } catch (Exception ex) {
-            log.warn("Fehler beim featuredeleteRequest", ex);
+            LOG.warn("Fehler beim featuredeleteRequest", ex);
         }
     }
 
@@ -1591,12 +1574,11 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      * @param  notification  DOCUMENT ME!
      */
     public void joinPolygons(final PNotification notification) {
-        PFeature one;
+        PFeature one = mappingComponent.getSelectedNode();
         PFeature two;
-        one = mappingComponent.getSelectedNode();
-        two = null;
-        if (log.isDebugEnabled()) {
-            log.debug("");
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("");
         }
         final Object o = notification.getObject();
 
@@ -1616,9 +1598,6 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             one.setSelected(true);
                             two.setSelected(false);
                             mappingComponent.getFeatureCollection().select(one.getFeature());
-                            // tableModel.setSelectedFlaeche((Flaeche)one.getFeature());
-                            // TODO implement or erase
-                            // fireAuswahlChanged(one.getFeature());
                         } else {
                             two = joinCandidate;
                         }
@@ -1644,7 +1623,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                     null);
                                 return;
                             }
-                            if ((one != null) && (two != null) && (one.getFeature() instanceof StyledFeature)
+                            if ((one.getFeature() instanceof StyledFeature)
                                         && (two.getFeature() instanceof StyledFeature)) {
                                 final StyledFeature fOne = (StyledFeature)one.getFeature();
                                 final StyledFeature fTwo = (StyledFeature)two.getFeature();
@@ -1671,40 +1650,10 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                     return;
                                 }
 
-//                            if (fOne.getArt()!=fTwo.getArt()||fOne.getGrad()!=fTwo.getGrad()) {
-//                                JOptionPane.showMessageDialog(StaticSwingTools.getParentFrame(this),"Flächeen können nur zusammengefasst werden, wenn Flächeenart und Anschlussgrad gleich sind.","Zusammenfassung nicht möglich",JOptionPane.WARNING_MESSAGE,null );
-//                                return;
-//                            }
-//                            //Check machen ob eine Flächee eine Teilflächee ist
-//                            if (fOne.getAnteil()!=null || fTwo.getAnteil()!=null) {
-//                                JOptionPane.showMessageDialog(StaticSwingTools.getParentFrame(this),"Flächeen die von Teileigentum betroffen sind können nicht zusammengefasst werden.","Zusammenfassung nicht möglich",JOptionPane.WARNING_MESSAGE,null );
-//                                return;
-//                            }
                                 two.getFeature().setGeometry(null);
-                                // tableModel.removeFlaeche(fTwo);
-                                // TODO größe updaten
-
-                                // TODO make it right
-                                // fOne.setGr_grafik(new Integer((int)(newGeom.getArea())));
-// if (fOne.getBemerkung()!=null && fOne.getBemerkung().trim().length()>0) {
-// fOne.setBemerkung(fOne.getBemerkung()+"\n");
-// }
-// fOne.setBemerkung(fTwo.getJoinBackupString());
-// if (!fOne.isSperre()&&fTwo.isSperre()) {
-// fOne.setSperre(true);
-// fOne.setBem_sperre("JOIN::"+fTwo.getBem_sperre());
-// }
-// fOne.sync();
-// //tableModel.fireSelectionChanged(); TODO
-// fireAuswahlChanged(fOne);
                             }
-                            if (one.getFeature() instanceof VerwaltungsbereichCustomBean) {
-                                // Eine vorhandene Flächee und eine neuangelegt wurden gejoint
-                                // ((Flaeche)(one.getFeature())).sync(); tableModel.fireSelectionChanged(); TODO
-                                // fireAuswahlChanged((Flaeche)(one.getFeature()));
-                            }
-                            if (log.isDebugEnabled()) {
-                                log.debug("newGeom ist vom Typ:" + newGeom.getGeometryType());
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("newGeom ist vom Typ:" + newGeom.getGeometryType());
                             }
                             one.getFeature().setGeometry(newGeom);
                             if (!(one.getFeature().getGeometry().equals(backup))) {
@@ -1713,7 +1662,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             }
                             one.visualize();
                         } catch (Exception e) {
-                            log.error("one: " + one + "\n two: " + two, e);
+                            LOG.error("one: " + one + "\n two: " + two, e);
                         }
                         return;
                     }
@@ -1733,8 +1682,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             // TODO
                             // makeRowVisible(this.jxtOverview,jxtOverview.getFilters().convertRowIndexToView(tableModel.getIndexOfFlaeche((Flaeche)f)));
                         } catch (Exception e) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Fehler beim Scrollen der Tabelle", e);
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Fehler beim Scrollen der Tabelle", e);
                             }
                         }
                     } else {
@@ -1754,7 +1703,7 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      */
     public void attachFeatureRequested(final PNotification notification) {
         final Object o = notification.getObject();
-        log.info("Try to attach Geometry");
+        LOG.info("Try to attach Geometry");
         final AttachFeatureListener afl = (AttachFeatureListener)o;
         final PFeature pf = afl.getFeatureToAttach();
         if (pf.getFeature() instanceof PureNewFeature) {
@@ -1763,8 +1712,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             if (slotInfo != null) {
                 slotInfo.getRefreshable().refresh(null);
                 mappingComponent.getFeatureCollection().removeFeature(pf.getFeature());
-                if (log.isDebugEnabled()) {
-                    log.debug("Geometrie: " + slotInfo.getOpenSlot().getGeometry() + " wird hinzugefügt");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Geometrie: " + slotInfo.getOpenSlot().getGeometry() + " wird hinzugefügt");
                 }
 
                 final String providerName = slotInfo.getProviderName();
@@ -1776,12 +1725,12 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
                 featureWrapper.setEditable(true);
                 mappingComponent.getFeatureCollection().addFeature(featureWrapper);
-                if (log.isDebugEnabled()) {
-                    log.debug("Geometrie wurde an element: " + slotInfo.getSlotIdentifier() + " attached");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Geometrie wurde an element: " + slotInfo.getSlotIdentifier() + " attached");
                 }
             } else {
-                if (log.isDebugEnabled()) {
-                    log.debug("Geometrie wurde nicht attached");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Geometrie wurde nicht attached");
                 }
             }
         }
@@ -1798,8 +1747,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             final SplitPolygonListener l = (SplitPolygonListener)o;
             final PFeature pf = l.getFeatureClickedOn();
             if (pf.isSplittable()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Split");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Split");
                 }
                 final Feature[] f_arr = pf.split();
                 ((StyledFeature)pf.getFeature()).setGeometry(null);
@@ -1855,35 +1804,17 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         final Object o = notfication.getObject();
         if ((o instanceof SelectionListener) || (o instanceof FeatureMoveListener)
                     || (o instanceof SplitPolygonListener)) {
-            final PNode p = null;
-            PFeature pf = null;
             if (o instanceof SelectionListener) {
-                pf = ((SelectionListener)o).getAffectedPFeature();
-                //
-                // if (pf!=null && pf.getFeature() instanceof Flaeche|| pf.getFeature() instanceof PureNewFeature) {
-                // if (((DefaultFeatureCollection)mappingComp.getFeatureCollection()).isSelected(pf.getFeature())) {
-                // if (((DefaultFeatureCollection)mappingComp.getFeatureCollection()).getSelectedFeatures().size()>1) {
-                // int index=sorter.getSortedPosition(getTableModel().getIndexOfFlaeche((Flaeche)pf.getFeature()));
-                // tblOverview.getSelectionModel().addSelectionInterval(index,index);
-                // } else {
-                // int index=sorter.getSortedPosition(getTableModel().getIndexOfFlaeche((Flaeche)pf.getFeature()));
-                // tblOverview.getSelectionModel().setSelectionInterval(index,index);
-                // }
-                // }
-                // else {
-                // int index=sorter.getSortedPosition(getTableModel().getIndexOfFlaeche((Flaeche)pf.getFeature()));
-                // tblOverview.getSelectionModel().removeSelectionInterval(index,index);
-                // }
-                // } else
+                final PFeature pf = ((SelectionListener)o).getAffectedPFeature();
                 if (cmdSelect.isSelected() && (((SelectionListener)o).getClickCount() > 1)
                             && (pf.getFeature() instanceof CidsLayerFeature)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("CidsLayerFeature selected");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("CidsLayerFeature selected");
                     }
                     final CidsLayerFeature clf = ((CidsLayerFeature)pf.getFeature());
                     if (LagisBroker.getInstance().isInEditMode()) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Flurstück kann nicht gewechselt werden --> Editmode");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Flurstück kann nicht gewechselt werden --> Editmode");
                         }
                         JOptionPane.showMessageDialog(LagisApp.getInstance(),
                             "Das Flurstück kann nur gewechselt werden, wenn alle Änderungen gespeichert oder verworfen worden sind.",
@@ -1908,14 +1839,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                                         .getGemarkungForKey(Integer.parseInt(gem));
                             // TODO if this case happens it leads to bug XXX
                             if (resolvedGemarkung == null) {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Gemarkung konnte nicht entschlüsselt werden");
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Gemarkung konnte nicht entschlüsselt werden");
                                 }
                                 resolvedGemarkung = GemarkungCustomBean.createNew();
                                 resolvedGemarkung.setSchluessel(Integer.parseInt(gem));
                             } else {
-                                if (log.isDebugEnabled()) {
-                                    log.debug("Gemarkung konnte entschlüsselt werden");
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("Gemarkung konnte entschlüsselt werden");
                                 }
                             }
                             // GemarkungCustomBean cplGemarkung =
@@ -1930,16 +1861,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                             } else {
                                 key.setFlurstueckNenner(0);
                             }
-                            if (log.isDebugEnabled()) {
-                                log.debug("Schlüssel konnte konstruiert werden");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Schlüssel konnte konstruiert werden");
                             }
                             LagisBroker.getInstance().loadFlurstueck(key);
                         } else {
-                            log.error(
+                            LOG.error(
                                 "Properties == null Flurstueck oder Identifier im Konfigfile nicht richtig gesetzt --> kann nicht ausgewählt werden");
                         }
                     } catch (final Exception ex) {
-                        log.error("Fehler beim laden des ausgewählten Flurstücks", ex);
+                        LOG.error("Fehler beim laden des ausgewählten Flurstücks", ex);
                     }
                 }
             }
@@ -1949,64 +1880,44 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
     @Override
     public void refresh(final Object refreshObject) {
     }
-    // End of variables declaration
 
     @Override
     public String getWidgetName() {
         return WIDGET_NAME;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     */
-    private boolean checkIfIdentifiersAreSetProperly() {
-        return ((gemarkungIdentifier != null) && (flurIdentifier != null) && (flurstueckZaehlerIdentifier != null)
-                        && (flurstueckNennerIdentifier != null));
-    }
-
     @Override
     public void masterConfigure(final Element parent) {
-        if (log.isDebugEnabled()) {
-            log.debug("MasterConfigure: " + this.getClass());
-        }
-        try {
-            final Element identifier = parent.getChild("flurstueckXMLIdentifier");
-            gemarkungIdentifier = identifier.getChildText("gemarkungIdentifier");
-            if (log.isDebugEnabled()) {
-                log.debug("GemarkungsIdentifier: " + gemarkungIdentifier);
-            }
-            flurIdentifier = identifier.getChildText("flurIdentifier");
-            if (log.isDebugEnabled()) {
-                log.debug("FlurIdentifier: " + flurIdentifier);
-            }
-            flurstueckZaehlerIdentifier = identifier.getChildText("flurstueckZaehlerIdentifier");
-            if (log.isDebugEnabled()) {
-                log.debug("FlurstueckZaehlerIdentifier: " + flurstueckZaehlerIdentifier);
-            }
-            flurstueckNennerIdentifier = identifier.getChildText("flurstueckNennerIdentifier");
-            if (log.isDebugEnabled()) {
-                log.debug("FlurstueckNennerIdentifier: " + flurstueckNennerIdentifier);
-                log.debug("MasterConfigure: " + this.getClass() + " erfolgreich");
-            }
-        } catch (Exception ex) {
-            log.error("Fehler beim masterConfigure von: " + this.getClass(), ex);
-        }
     }
 
-    // to
     @Override
     public Element getConfiguration() {
-        return null;
+        final Element mapPanelElement = new Element("mapPanel");
+        final Element featureLlayerTransparencyElement = new Element("featureLayerTransparency");
+        featureLlayerTransparencyElement.setText(Float.toString(
+                CismapBroker.getInstance().getMappingComponent().getFeatureLayer().getTransparency()));
+        mapPanelElement.addContent(featureLlayerTransparencyElement);
+
+        final Element selectedFeatureGroupButtonsElement = new Element("featureGroupButtons");
+        for (final String featureGroupName : featureGroupButtonListenerMap.keySet()) {
+            final JToggleButton button = featureGroupButtonListenerMap.get(featureGroupName).button;
+            if (button != null) {
+                final Element selectedFeatureGroupButtonElement = new Element("featureGroupButton");
+                selectedFeatureGroupButtonElement.setAttribute("name", featureGroupName);
+                selectedFeatureGroupButtonElement.setAttribute("selected", Boolean.toString(button.isSelected()));
+                selectedFeatureGroupButtonsElement.addContent(selectedFeatureGroupButtonElement);
+            }
+        }
+        mapPanelElement.addContent(selectedFeatureGroupButtonsElement);
+        return mapPanelElement;
     }
 
     @Override
     public void update(final Observable o, final Object arg) {
         if (o.equals(mappingComponent.getMemUndo())) {
             if (arg.equals(MementoInterface.ACTIVATE) && !cmdUndo.isEnabled()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("UNDO-Button aktivieren");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("UNDO-Button aktivieren");
                 }
                 EventQueue.invokeLater(new Runnable() {
 
@@ -2016,8 +1927,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                         }
                     });
             } else if (arg.equals(MementoInterface.DEACTIVATE) && cmdUndo.isEnabled()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("UNDO-Button deaktivieren");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("UNDO-Button deaktivieren");
                 }
                 EventQueue.invokeLater(new Runnable() {
 
@@ -2029,8 +1940,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
             }
         } else if (o.equals(mappingComponent.getMemRedo())) {
             if (arg.equals(MementoInterface.ACTIVATE) && !cmdRedo.isEnabled()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("REDO-Button aktivieren");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("REDO-Button aktivieren");
                 }
                 EventQueue.invokeLater(new Runnable() {
 
@@ -2040,8 +1951,8 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                         }
                     });
             } else if (arg.equals(MementoInterface.DEACTIVATE) && cmdRedo.isEnabled()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("REDO-Button deaktivieren");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("REDO-Button deaktivieren");
                 }
                 EventQueue.invokeLater(new Runnable() {
 
@@ -2056,28 +1967,48 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     @Override
     public void configure(final Element parent) {
-//        log.debug("Configure: "+this.getClass());
-//        Element prefs=parent.getChild("cismapMappingPreferences");
-//        try{
-//            try {
-//                isSnappingEnabled=prefs.getAttribute("snapping").getBooleanValue();
-//                if(isSnappingEnabled){
-//                    cmdSnap.setSelected(isSnappingEnabled);
-//                    //TODO CHANGE CONFIG FILE ACTION
-//                    //cismapPrefs.getGlobalPrefs().setSnappingEnabled(cmdSnap.isSelected());
-//                    //cismapPrefs.getGlobalPrefs().setSnappingPreviewEnabled(cmdSnap.isSelected());
-//                    mappingComponent.setSnappingEnabled(!mappingComponent.isReadOnly()&&cmdSnap.isSelected());
-//                    mappingComponent.setVisualizeSnappingEnabled(!mappingComponent.isReadOnly()&&cmdSnap.isSelected());
-//                    mappingComponent.setInGlueIdenticalPointsMode(cmdSnap.isSelected());
-//                }
-//
-//            } catch (Exception ex) {
-//                log.warn("Fehler beim setzen des Snapping",ex);
-//            }
-//
-//        } catch(Exception ex){
-//            log.error("Fehler beim konfigurieren des Kartenpanels: ",ex);
-//        }
+        try {
+            if (parent != null) {
+                final Element mapPanelElement = parent.getChild("mapPanel");
+                if (mapPanelElement != null) {
+                    final Element featureLayerTransparencyElement = mapPanelElement.getChild(
+                            "featureLayerTransparency");
+                    if (featureLayerTransparencyElement != null) {
+                        try {
+                            CismapBroker.getInstance()
+                                    .getMappingComponent()
+                                    .getFeatureLayer()
+                                    .setTransparency(Float.parseFloat(featureLayerTransparencyElement.getText()));
+                        } catch (final Exception ex) {
+                        }
+                    }
+
+                    final Element selectedFeatureGroupButtonsElements = mapPanelElement.getChild("featureGroupButtons");
+                    if (selectedFeatureGroupButtonsElements != null) {
+                        for (final Element selectedFeatureGroupButtonElement
+                                    : (List<Element>)selectedFeatureGroupButtonsElements.getChildren(
+                                        "featureGroupButton")) {
+                            final String featureGroupName = selectedFeatureGroupButtonElement.getAttributeValue("name");
+                            boolean selected = true;
+                            try {
+                                selected = Boolean.parseBoolean(selectedFeatureGroupButtonElement.getAttributeValue(
+                                            "selected"));
+                            } catch (final Exception ex) {
+                            }
+                            final FeatureGroupActionListener listener = featureGroupButtonListenerMap.get(
+                                    featureGroupName);
+                            if (listener != null) {
+                                final JToggleButton button = listener.button;
+                                button.setSelected(selected);
+                                listener.actionPerformed(null);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Fehler beim masterConfigure von: " + this.getClass(), ex);
+        }
     }
 
     @Override
@@ -2086,34 +2017,19 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
 
     @Override
     public void featuresChanged(final FeatureCollectionEvent fce) {
-        if (log.isDebugEnabled()) {
-            // try{
-            log.debug("FeatureChanged");
-        }
-//        Collection<Feature> features =  fce.getEventFeatures();
-//        if(features != null){
-//            for(Feature currentFeature:features){
-//                if(currentFeature instanceof VerwaltungsbereichCustomBean){
-//                    ((VerwaltungsbereichCustomBean)currentFeature).setFlaeche((int)currentFeature.getGeometry().getArea());
-//                }
-//            }
-//        }
-//        }catch(Exception ex){
-//            log.warn("Fehler beim featureChanged");
-//        }
     }
 
     @Override
     public void featuresAdded(final FeatureCollectionEvent fce) {
-        if (log.isDebugEnabled()) {
-            log.debug("Features Added");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Features Added");
         }
 
         final Collection<Feature> features = fce.getEventFeatures();
 
         FeatureGroupMember fgm;
 
-        final HashSet<String> groups = new HashSet<String>();
+        final HashSet<String> groups = new HashSet<>();
         for (final Feature f : features) {
             if (f instanceof FeatureGroupMember) {
                 fgm = (FeatureGroupMember)f;
@@ -2125,41 +2041,15 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
         for (final String group : groups) {
             listener = this.featureGroupButtonListenerMap.get(group);
             if (listener != null) {
-                listener.setVisible(true);
+                listener.actionPerformed(null);
             }
         }
     }
 
-//   public void featureSelectionChanged(final Collection<Feature> features) {
-//        if (LOG.isDebugEnabled()) {
-//            LOG.debug("FeatureSelectionChanged LagisApp: ");
-//        }
-//        if (LagisBroker.getInstance().isInEditMode() && (features != null) && (features.size() > 0)) {
-//            final Iterator<Feature> it = features.iterator();
-//            while (it.hasNext()) {
-//                final Feature curFeature = it.next();
-//                if (curFeature.canBeSelected()
-//                            && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
-//                                curFeature)) {
-//                    if (LOG.isDebugEnabled()) {
-//                        LOG.debug("In edit modus, mindestens ein pFeature selectiert: " + curFeature);
-//                    }
-//                    cmdCopyFlaeche.setEnabled(true);
-//                    return;
-//                }
-//            }
-//            cmdCopyFlaeche.setEnabled(false);
-//        } else {
-//            if (LOG.isDebugEnabled()) {
-//                LOG.debug("disable copy nicht alle vorraussetzungen erfüllt");
-//            }
-//            cmdCopyFlaeche.setEnabled(false);
-//        }
-//    }
     @Override
     public void featureSelectionChanged(final FeatureCollectionEvent fce) {
-        if (log.isDebugEnabled()) {
-            log.debug("FeatureSelection Changed");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("FeatureSelection Changed");
         }
 
         final Collection<Feature> features = fce.getEventFeatures();
@@ -2172,16 +2062,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
                 if (curFeature.canBeSelected()
                             && LagisBroker.getInstance().getMappingComponent().getFeatureCollection().isSelected(
                                 curFeature)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("In edit modus, mindestens ein feature selectiert: " + curFeature);
                     }
                     cmdCopyFlaeche.setEnabled(true);
                     break;
                 }
             }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("disable copy nicht alle vorraussetzungen erfüllt");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("disable copy nicht alle vorraussetzungen erfüllt");
             }
             cmdCopyFlaeche.setEnabled(false);
         }
@@ -2214,18 +2104,15 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
      *
      * @version  $Revision$, $Date$
      */
-    private static final class FeatureGroupActionListener implements ActionListener {
+    private final class FeatureGroupActionListener implements ActionListener {
 
         //~ Instance fields ----------------------------------------------------
 
-        private final JButton button;
+        private final JToggleButton button;
         private final MappingComponent mapComp;
         private final String featureGroup;
         private final String visibleText;
         private final String invisibText;
-        private final Icon visibleIcon;
-        private final Icon invisibleIcon;
-        private boolean isVisible;
 
         //~ Constructors -------------------------------------------------------
 
@@ -2236,24 +2123,16 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
          * @param  mapComp       DOCUMENT ME!
          * @param  featureGroup  DOCUMENT ME!
          * @param  tooltipText   DOCUMENT ME!
-         * @param  icon          DOCUMENT ME!
-         * @param  invisIcon     DOCUMENT ME!
          */
-        public FeatureGroupActionListener(final JButton button,
+        public FeatureGroupActionListener(final JToggleButton button,
                 final MappingComponent mapComp,
                 final String featureGroup,
-                final String tooltipText,
-                final String icon,
-                final String invisIcon) {
+                final String tooltipText) {
             this.button = button;
             this.mapComp = mapComp;
             this.featureGroup = featureGroup;
             this.visibleText = tooltipText + " ausblenden";
             this.invisibText = tooltipText + " einblenden";
-            this.visibleIcon = new ImageIcon(getClass().getResource(icon));
-            this.invisibleIcon = new ImageIcon(getClass().getResource(invisIcon));
-            this.isVisible = true;
-
             this.button.setToolTipText(visibleText);
         }
 
@@ -2264,22 +2143,14 @@ public class KartenPanel extends AbstractWidget implements FlurstueckChangeListe
          *
          * @param  isVisible  DOCUMENT ME!
          */
-        public void setVisible(final boolean isVisible) {
-            if (isVisible) {
-                this.button.setIcon(this.visibleIcon);
-                this.button.setToolTipText(this.visibleText);
-            } else {
-                this.button.setIcon(this.invisibleIcon);
-                this.button.setToolTipText(this.invisibText);
-            }
-
-            this.isVisible = isVisible;
-            this.mapComp.setGroupLayerVisibility(this.featureGroup, this.isVisible);
+        private void setVisible(final boolean isVisible) {
+            button.setToolTipText(isVisible ? visibleText : invisibText);
+            mapComp.setGroupLayerVisibility(featureGroup, isVisible);
         }
 
         @Override
         public void actionPerformed(final ActionEvent ae) {
-            this.setVisible(!this.isVisible);
+            this.setVisible(button.isSelected());
         }
     }
 }
