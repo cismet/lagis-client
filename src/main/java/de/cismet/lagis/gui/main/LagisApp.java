@@ -104,10 +104,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import java.net.URI;
 import java.net.URL;
+
+import java.nio.file.Paths;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,6 +195,10 @@ import de.cismet.lagis.wizard.ContinuationWizard;
 
 import de.cismet.lookupoptions.gui.OptionsClient;
 import de.cismet.lookupoptions.gui.OptionsDialog;
+
+import de.cismet.netutil.Proxy;
+import de.cismet.netutil.ProxyHandler;
+import de.cismet.netutil.ProxyProperties;
 
 import de.cismet.remote.RESTRemoteControlStarter;
 
@@ -949,7 +957,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 LagisBroker.getInstance().getDomain(),
                 LagisBroker.getInstance().getCallserverUrl(),
                 LagisBroker.getInstance().getConnectionClass(),
-                LagisBroker.getInstance().isCompressionEnabled());
+                LagisBroker.getInstance().isCompressionEnabled(),
+                LagisBroker.getInstance().getProxyProperties());
 
         final JXLoginPane login = new JXLoginPane(wa, null, usernames) {
 
@@ -3235,21 +3244,23 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                     try {
                         final Options options = new Options();
                         options.addOption("f", true, "ConfigFile");
+                        options.addOption("p", true, "ProxyFile");
                         options.addOption("u", true, "CallserverUrl");
                         options.addOption("z", true, "CompressionEnabled");
                         options.addOption("c", true, "ConnectionClass");
                         options.addOption("d", true, "Domain");
                         final PosixParser parser = new PosixParser();
                         final CommandLine cmd = parser.parse(options, args);
+                        final String cfgProxy;
                         if (cmd.hasOption("f")) {
-                            final AppProperties appProperties;
                             final String cfgFile = cmd.getOptionValue("f");
-                            if ((cfgFile.indexOf("http://") == 0) || (cfgFile.indexOf("https://") == 0)
-                                        || (cfgFile.indexOf("file:/") == 0)) {
-                                appProperties = new AppProperties(new URL(cfgFile));
-                            } else {
-                                appProperties = new AppProperties(new File(cfgFile));
-                            }
+                            final AppProperties appProperties = new AppProperties(getInputStreamFrom(cfgFile));
+
+                            final String cfgFileName = Paths.get(new URI(cfgFile).getPath()).getFileName().toString();
+                            final String cfgDirname = cfgFile.substring(0, cfgFile.lastIndexOf(cfgFileName));
+                            final String proxyConfig = appProperties.getProxyConfig();
+                            cfgProxy = (proxyConfig != null) ? (cfgDirname + proxyConfig) : null;
+
                             if (appProperties.getCallserverUrl() != null) {
                                 LagisBroker.getInstance().setCallserverUrl(appProperties.getCallserverUrl());
                             } else {
@@ -3275,6 +3286,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                                 System.exit(1);
                             }
                         } else {
+                            cfgProxy = cmd.hasOption("p") ? cmd.getOptionValue("p") : null;
+
                             if (cmd.hasOption("u")) {
                                 LagisBroker.getInstance().setCallserverUrl(cmd.getOptionValue("u"));
                             } else {
@@ -3297,6 +3310,11 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                                 LOG.error("Keine Domain spezifiziert, bitte mit -d setzen.");
                                 System.exit(1);
                             }
+                        }
+                        if ((cfgProxy != null) && !cfgProxy.isEmpty()) {
+                            final ProxyProperties proxyProperties = new ProxyProperties();
+                            proxyProperties.load(getInputStreamFrom(cfgProxy));
+                            LagisBroker.getInstance().setProxyProperties(proxyProperties);
                         }
                     } catch (Exception ex) {
                         LOG.error("Fehler beim auslesen der Kommandozeilen Parameter", ex);
@@ -3324,6 +3342,23 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             });
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   from  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    private static InputStream getInputStreamFrom(final String from) throws Exception {
+        if ((from.indexOf("http://") == 0) || (from.indexOf("https://") == 0)
+                    || (from.indexOf("file:/") == 0)) {
+            return new URL(from).openStream();
+        } else {
+            return new BufferedInputStream(new FileInputStream(from));
+        }
+    }
     /* Implemented methods
      *
      *
@@ -4144,6 +4179,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         private final String callserverUrl;
         private final String connectionClass;
         private final boolean compressionEnabled;
+        private final ProxyProperties proxyProperties;
         private String userString;
 
         //~ Constructors -------------------------------------------------------
@@ -4155,15 +4191,18 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
          * @param  callserverUrl       DOCUMENT ME!
          * @param  connectionClass     DOCUMENT ME!
          * @param  compressionEnabled  DOCUMENT ME!
+         * @param  proxyProperties     DOCUMENT ME!
          */
         public WundaAuthentification(final String standaloneDomain,
                 final String callserverUrl,
                 final String connectionClass,
-                final boolean compressionEnabled) {
+                final boolean compressionEnabled,
+                final ProxyProperties proxyProperties) {
             this.standaloneDomain = standaloneDomain;
             this.callserverUrl = callserverUrl;
             this.connectionClass = connectionClass;
             this.compressionEnabled = compressionEnabled;
+            this.proxyProperties = proxyProperties;
         }
 
         //~ Methods ------------------------------------------------------------
@@ -4182,8 +4221,10 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 log.debug("full qualified username: " + userString + "@" + standaloneDomain);
             }
             try {
+                final Proxy proxy = ProxyHandler.getInstance().init(proxyProperties);
+
                 final Connection connection = ConnectionFactory.getFactory()
-                            .createConnection(connectionClass, callserverUrl, compressionEnabled);
+                            .createConnection(connectionClass, callserverUrl, proxy, compressionEnabled);
 
                 final ConnectionInfo connectionInfo = new ConnectionInfo();
                 connectionInfo.setCallserverURL(callserverUrl);
@@ -4195,9 +4236,9 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
                 final ConnectionSession session = ConnectionFactory.getFactory()
                             .createSession(connection, connectionInfo, true);
-                final ConnectionProxy proxy = ConnectionFactory.getFactory()
+                final ConnectionProxy connectionProxy = ConnectionFactory.getFactory()
                             .createProxy(CONNECTION_PROXY_CLASS, session);
-                SessionManager.init(proxy);
+                SessionManager.init(connectionProxy);
 
                 LagisBroker.getInstance().setSession(session);
 
@@ -4257,23 +4298,12 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         /**
          * Creates a new AppProperties object.
          *
-         * @param   url  DOCUMENT ME!
+         * @param   is  DOCUMENT ME!
          *
          * @throws  Exception  DOCUMENT ME!
          */
-        public AppProperties(final URL url) throws Exception {
-            super(url.openStream());
-        }
-
-        /**
-         * Creates a new AppProperties object.
-         *
-         * @param   file  DOCUMENT ME!
-         *
-         * @throws  Exception  DOCUMENT ME!
-         */
-        public AppProperties(final File file) throws Exception {
-            super(new BufferedInputStream(new FileInputStream(file)));
+        public AppProperties(final InputStream is) throws Exception {
+            super(is);
         }
 
         //~ Methods ------------------------------------------------------------
@@ -4296,6 +4326,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             return Boolean.parseBoolean(getString("compressionEnabled"));
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getProxyConfig() {
+            return getString("proxy.config");
+        }
         /**
          * DOCUMENT ME!
          *
