@@ -13,6 +13,7 @@
 package de.cismet.lagis.gui.main;
 
 import Sirius.navigator.DefaultNavigatorExceptionHandler;
+import Sirius.navigator.ProxyCredentials;
 import Sirius.navigator.connection.Connection;
 import Sirius.navigator.connection.ConnectionFactory;
 import Sirius.navigator.connection.ConnectionInfo;
@@ -4239,6 +4240,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 final ConnectionProxy connectionProxy = ConnectionFactory.getFactory()
                             .createProxy(CONNECTION_PROXY_CLASS, session);
                 SessionManager.init(connectionProxy);
+
+                ProxyCredentials.initFromConfAttr(domain, ConnectionContext.createDeprecated());
 
                 LagisBroker.getInstance().setSession(session);
 
