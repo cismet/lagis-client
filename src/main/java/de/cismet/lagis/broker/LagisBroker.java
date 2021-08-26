@@ -147,6 +147,8 @@ import de.cismet.lagisEE.interfaces.Key;
 
 import de.cismet.lagisEE.util.FlurKey;
 
+import de.cismet.netutil.ProxyProperties;
+
 import de.cismet.tools.CurrentStackTrace;
 
 import de.cismet.tools.configuration.Configurable;
@@ -333,6 +335,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private List<RebeCustomBean> currentRebes = null;
     private List<MipaCustomBean> currentMipas = null;
 
+    private ProxyProperties proxyProperties;
+
     //~ Constructors -----------------------------------------------------------
 
     /**
@@ -390,6 +394,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public void setCompressionEnabled(final boolean compressionEnabled) {
         this.compressionEnabled = compressionEnabled;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public ProxyProperties getProxyProperties() {
+        return proxyProperties;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  proxyProperties  DOCUMENT ME!
+     */
+    public void setProxyProperties(final ProxyProperties proxyProperties) {
+        this.proxyProperties = proxyProperties;
     }
 
     /**
