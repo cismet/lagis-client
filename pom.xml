@@ -52,7 +52,7 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-commons</artifactId>
-                <version>7.1.1-proxyfix-prerelease-10</version>
+                <version>7.2</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -60,7 +60,7 @@
             <dependency>
                 <groupId>de.cismet.commons</groupId>
                 <artifactId>cismet-gui-commons</artifactId>
-                <version>7.1-proxyfix-prerelease-8</version>
+                <version>7.2</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -97,14 +97,14 @@
             <dependency>
                 <groupId>de.cismet.cids.custom.wupp</groupId>
                 <artifactId>cids-custom-wuppertal</artifactId>
-                <version>7.3.7-proxyfix-prerelease-1</version>
+                <version>7.4</version>
                 <type>jar</type>
             </dependency>
                                     
             <dependency>
                 <groupId>de.cismet.cids</groupId>
                 <artifactId>cids-server</artifactId>
-                <version>7.5.7-proxyfix-prerelease-4</version>
+                <version>7.6</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -120,7 +120,7 @@
             <dependency>
                 <groupId>de.cismet.cids.navigator</groupId>
                 <artifactId>cids-navigator</artifactId>
-                <version>7.5.2-proxyfix-prerelease-6</version>
+                <version>7.6</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
