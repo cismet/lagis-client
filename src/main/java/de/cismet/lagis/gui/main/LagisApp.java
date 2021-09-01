@@ -3260,7 +3260,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                             final String cfgFileName = Paths.get(new URI(cfgFile).getPath()).getFileName().toString();
                             final String cfgDirname = cfgFile.substring(0, cfgFile.lastIndexOf(cfgFileName));
                             final String proxyConfig = appProperties.getProxyConfig();
-                            cfgProxy = (proxyConfig != null) ? (cfgDirname + proxyConfig) : null;
+                            cfgProxy = (proxyConfig != null && !proxyConfig.isEmpty()) ? (cfgDirname + proxyConfig) : null;
 
                             if (appProperties.getCallserverUrl() != null) {
                                 LagisBroker.getInstance().setCallserverUrl(appProperties.getCallserverUrl());

@@ -403,27 +403,27 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCloseActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCloseActionPerformed
+    private void btnCloseActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseActionPerformed
         closeDialog();
-    }                                                                            //GEN-LAST:event_btnCloseActionPerformed
+    }//GEN-LAST:event_btnCloseActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnLoadSelectedKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnLoadSelectedKassenzeichenActionPerformed
+    private void btnLoadSelectedKassenzeichenActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadSelectedKassenzeichenActionPerformed
         loadSelectedKassenzeichen();
-    }                                                                                                //GEN-LAST:event_btnLoadSelectedKassenzeichenActionPerformed
+    }//GEN-LAST:event_btnLoadSelectedKassenzeichenActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnLoadSelectedKassenzeichen1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnLoadSelectedKassenzeichen1ActionPerformed
+    private void btnLoadSelectedKassenzeichen1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadSelectedKassenzeichen1ActionPerformed
         addSelectedKassenzeichenToList();
-    }                                                                                                 //GEN-LAST:event_btnLoadSelectedKassenzeichen1ActionPerformed
+    }//GEN-LAST:event_btnLoadSelectedKassenzeichen1ActionPerformed
     /**
      * ToDo ugly.
      */
@@ -741,8 +741,8 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
                     final String query = "SELECT 11, k.id "
                                 + "FROM kassenzeichen k, kassenzeichen_geometrien kgarr, kassenzeichen_geometrie kg, geom "
                                 + "WHERE k.id = kgarr.kassenzeichen_reference AND kg.id = kgarr.kassenzeichen_geometrie AND kg.geometrie = geom.id "
-                                + "AND not isEmpty(geom.geo_field) "
-                                + "AND intersects(geom.geo_field,st_buffer(st_buffer(geometryfromtext('"
+                                + "AND not st_isEmpty(geom.geo_field) "
+                                + "AND st_intersects(geom.geo_field,st_buffer(st_buffer(st_geometryfromtext('"
                                 + flurstueckGeom.toString() + "',25832), "
                                 + buffer + "), 0))";
 
