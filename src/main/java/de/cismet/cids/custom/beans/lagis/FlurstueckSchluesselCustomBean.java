@@ -36,9 +36,10 @@ public class FlurstueckSchluesselCustomBean extends BasicEntity implements Flurs
     private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(
             FlurstueckSchluesselCustomBean.class);
 
+    private static final String BASE_QUERY = String.format(
+            " SELECT (SELECT id FROM cs_class WHERE table_name ILIKE '%1$s'), id FROM %1$s",
+            LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
 
-    private static final String BASE_QUERY = String.format(" SELECT (SELECT id FROM cs_class WHERE table_name ILIKE '%1$s'), id FROM %1$s", LagisMetaclassConstants.FLURSTUECK_SCHLUESSEL);
-    
     private static final String[] PROPERTY_NAMES = new String[] {
             "id",
             "flur",
