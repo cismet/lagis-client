@@ -15,9 +15,9 @@
 
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
   <SubComponents>
-    <Container class="de.cismet.cids.custom.utils.DmsUrlsPanel" name="dmsUrlsPanel1">
+    <Container class="de.cismet.cids.custom.clientutils.DmsUrlsPanel" name="dmsUrlsPanel1">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new de.cismet.cids.custom.utils.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS)"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new de.cismet.cids.custom.clientutils.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS)"/>
       </AuxValues>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">

@@ -48,7 +48,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
     //~ Instance fields --------------------------------------------------------
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private de.cismet.cids.custom.utils.DmsUrlsPanel dmsUrlsPanel1;
+    private de.cismet.cids.custom.clientutils.DmsUrlsPanel dmsUrlsPanel1;
     // End of variables declaration//GEN-END:variables
 
     //~ Constructors -----------------------------------------------------------
@@ -96,7 +96,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        dmsUrlsPanel1 = new de.cismet.cids.custom.utils.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS);
+        dmsUrlsPanel1 = new de.cismet.cids.custom.clientutils.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS);
 
         setLayout(new java.awt.BorderLayout());
         add(dmsUrlsPanel1, java.awt.BorderLayout.CENTER);
