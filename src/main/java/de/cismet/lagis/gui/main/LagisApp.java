@@ -24,6 +24,7 @@ import Sirius.navigator.event.CatalogueSelectionListener;
 import Sirius.navigator.exception.ConnectionException;
 import Sirius.navigator.plugin.interfaces.FloatingPluginUI;
 import Sirius.navigator.resource.PropertyManager;
+import Sirius.navigator.tools.StaticNavigatorTools;
 import Sirius.navigator.types.treenode.RootTreeNode;
 import Sirius.navigator.ui.ComponentRegistry;
 import Sirius.navigator.ui.DescriptionPane;
@@ -100,7 +101,6 @@ import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -110,7 +110,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import java.net.URI;
-import java.net.URL;
 
 import java.nio.file.Paths;
 
@@ -3255,7 +3254,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         final String cfgProxy;
                         if (cmd.hasOption("f")) {
                             final String cfgFile = cmd.getOptionValue("f");
-                            final AppProperties appProperties = new AppProperties(getInputStreamFrom(cfgFile));
+                            final AppProperties appProperties = new AppProperties(
+                                    StaticNavigatorTools.getInputStreamFromFileOrUrl(cfgFile));
 
                             final String cfgFileName = Paths.get(new URI(cfgFile).getPath()).getFileName().toString();
                             final String cfgDirname = cfgFile.substring(0, cfgFile.lastIndexOf(cfgFileName));
@@ -3315,7 +3315,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         }
                         if ((cfgProxy != null) && !cfgProxy.isEmpty()) {
                             final ProxyProperties proxyProperties = new ProxyProperties();
-                            proxyProperties.load(getInputStreamFrom(cfgProxy));
+                            proxyProperties.load(StaticNavigatorTools.getInputStreamFromFileOrUrl(cfgProxy));
                             LagisBroker.getInstance().setProxyProperties(proxyProperties);
                         }
                     } catch (Exception ex) {
@@ -3344,23 +3344,6 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             });
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param   from  DOCUMENT ME!
-     *
-     * @return  DOCUMENT ME!
-     *
-     * @throws  Exception  DOCUMENT ME!
-     */
-    private static InputStream getInputStreamFrom(final String from) throws Exception {
-        if ((from.indexOf("http://") == 0) || (from.indexOf("https://") == 0)
-                    || (from.indexOf("file:/") == 0)) {
-            return new URL(from).openStream();
-        } else {
-            return new BufferedInputStream(new FileInputStream(from));
-        }
-    }
     /* Implemented methods
      *
      *
