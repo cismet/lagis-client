@@ -408,6 +408,20 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mniReBeActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="mniReBe1">
+              <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+7"/>
+                </Property>
+                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+                  <Image iconType="3" name="/de/cismet/lagis/ressource/icons/titlebar/sum.png"/>
+                </Property>
+                <Property name="text" type="java.lang.String" value="Meldungen"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mniReBe1ActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="mniDMS">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
@@ -879,6 +893,27 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdFortfuehrungActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="try {&#xa;    cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(SessionManager.getSession().getUser(), &quot;lagis.fortfuehrungsanlaesse.dialog&quot;) != null);&#xa;} catch (final Exception ex) {&#xa;    LOG.error(&quot;error while checking for grundis.fortfuehrungsanlaesse.dialog&quot;, ex);&#xa;    cmdFortfuehrung.setVisible(false);&#xa;}"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JButton" name="cmdFortfuehrung1">
+          <Properties>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/cancel.png"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Meldung"/>
+            <Property name="borderPainted" type="boolean" value="false"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[23, 23]"/>
+            </Property>
+            <Property name="verticalTextPosition" type="int" value="3"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdFortfuehrung1ActionPerformed"/>
           </Events>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="try {&#xa;    cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(SessionManager.getSession().getUser(), &quot;lagis.fortfuehrungsanlaesse.dialog&quot;) != null);&#xa;} catch (final Exception ex) {&#xa;    LOG.error(&quot;error while checking for grundis.fortfuehrungsanlaesse.dialog&quot;, ex);&#xa;    cmdFortfuehrung.setVisible(false);&#xa;}"/>
