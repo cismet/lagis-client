@@ -1384,6 +1384,15 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
 
     /**
      * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public MeldungenPanel getMeldungenPanel() {
+        return pMeldungen;
+    }
+
+    /**
+     * DOCUMENT ME!
      */
     public void doConfigKeystrokes() {
         final KeyStroke showLayoutKeyStroke = KeyStroke.getKeyStroke('D', InputEvent.CTRL_MASK);
