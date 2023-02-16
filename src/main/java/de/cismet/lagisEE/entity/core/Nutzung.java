@@ -14,7 +14,6 @@ package de.cismet.lagisEE.entity.core;
 import java.io.Serializable;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
