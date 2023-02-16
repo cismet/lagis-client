@@ -258,7 +258,9 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         jLabel11 = new javax.swing.JLabel();
         jXHyperlink1 = new org.jdesktop.swingx.JXHyperlink();
         jSeparator1 = new javax.swing.JSeparator();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0));
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0));
         jLabel10 = new javax.swing.JLabel();
         lblCreator = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -270,21 +272,29 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         jTextArea2 = new javax.swing.JTextArea();
         jPanel12 = new javax.swing.JPanel();
         btnFinishMeldung = new javax.swing.JToggleButton();
-        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(32767, 0));
         panErledigt = new javax.swing.JPanel();
         lblErledigtAm = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         lblErledigtVon = new javax.swing.JLabel();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0));
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0));
         jPanel10 = new javax.swing.JPanel();
         btnCloseMeldungDialog = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jButton4 = new javax.swing.JButton();
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(32767, 0));
         jToggleButton2 = new javax.swing.JToggleButton();
         jToggleButton3 = new javax.swing.JToggleButton();
-        filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(0, 0),
+                new java.awt.Dimension(32767, 0));
         jButton2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -363,18 +373,22 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
 
         jButton1.setText("Abbrechen");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton1ActionPerformed(evt);
+                }
+            });
         jPanel5.add(jButton1);
 
         jButton3.setText("Meldung absetzen");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton3ActionPerformed(evt);
+                }
+            });
         jPanel5.add(jButton3);
 
         dlgCreateMeldung.getContentPane().add(jPanel5, java.awt.BorderLayout.PAGE_END);
@@ -398,10 +412,12 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
 
         jXHyperlink1.setText("...");
         jXHyperlink1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jXHyperlink1ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jXHyperlink1ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -502,10 +518,12 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         btnFinishMeldung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/ok.png"))); // NOI18N
         btnFinishMeldung.setText("erledigt");
         btnFinishMeldung.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnFinishMeldungActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnFinishMeldungActionPerformed(evt);
+                }
+            });
         jPanel12.add(btnFinishMeldung, new java.awt.GridBagConstraints());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
@@ -583,10 +601,12 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
 
         btnCloseMeldungDialog.setText("Dialog schließen");
         btnCloseMeldungDialog.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCloseMeldungDialogActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    btnCloseMeldungDialogActionPerformed(evt);
+                }
+            });
         jPanel10.add(btnCloseMeldungDialog);
 
         dlgShowMeldung.getContentPane().add(jPanel10, java.awt.BorderLayout.PAGE_END);
@@ -604,10 +624,12 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         jButton4.setMinimumSize(new java.awt.Dimension(24, 24));
         jButton4.setPreferredSize(new java.awt.Dimension(24, 24));
         jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton4ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -620,7 +642,8 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.weightx = 1.0;
         jPanel3.add(filler3, gridBagConstraints);
 
-        jToggleButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/filter_flurstueck_disabled.png"))); // NOI18N
+        jToggleButton2.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/res/filter_flurstueck_disabled.png"))); // NOI18N
         jToggleButton2.setToolTipText("nur Meldungen für angezeigtes Flurstück");
         jToggleButton2.setBorderPainted(false);
         jToggleButton2.setContentAreaFilled(false);
@@ -628,21 +651,25 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         jToggleButton2.setMaximumSize(new java.awt.Dimension(24, 24));
         jToggleButton2.setMinimumSize(new java.awt.Dimension(24, 24));
         jToggleButton2.setPreferredSize(new java.awt.Dimension(24, 24));
-        jToggleButton2.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/filter_flurstueck_enabled.png"))); // NOI18N
+        jToggleButton2.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/res/filter_flurstueck_enabled.png")));  // NOI18N
         jToggleButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton2ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jToggleButton2ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         jPanel3.add(jToggleButton2, gridBagConstraints);
-        //jToggleButton1.setVisible(false);
+        // jToggleButton1.setVisible(false);
 
-        jToggleButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/filter_erledigt_disabled.png"))); // NOI18N
+        jToggleButton3.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/res/filter_erledigt_disabled.png"))); // NOI18N
         jToggleButton3.setToolTipText("erledigte Meldungen anzeigen");
         jToggleButton3.setBorderPainted(false);
         jToggleButton3.setContentAreaFilled(false);
@@ -650,19 +677,22 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         jToggleButton3.setMaximumSize(new java.awt.Dimension(24, 24));
         jToggleButton3.setMinimumSize(new java.awt.Dimension(24, 24));
         jToggleButton3.setPreferredSize(new java.awt.Dimension(24, 24));
-        jToggleButton3.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/filter_erledigt_enabled.png"))); // NOI18N
+        jToggleButton3.setSelectedIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/res/filter_erledigt_enabled.png")));  // NOI18N
         jToggleButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton3ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jToggleButton3ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.insets = new java.awt.Insets(0, 3, 0, 3);
         jPanel3.add(jToggleButton3, gridBagConstraints);
-        //jToggleButton1.setVisible(false);
+        // jToggleButton1.setVisible(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 0;
@@ -677,10 +707,12 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         jButton2.setMinimumSize(new java.awt.Dimension(24, 24));
         jButton2.setPreferredSize(new java.awt.Dimension(24, 24));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    jButton2ActionPerformed(evt);
+                }
+            });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 0;
@@ -700,10 +732,12 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
 
         tMeldungen.setModel(new MeldungenTableModel());
         tMeldungen.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tMeldungenMouseClicked(evt);
-            }
-        });
+
+                @Override
+                public void mouseClicked(final java.awt.event.MouseEvent evt) {
+                    tMeldungenMouseClicked(evt);
+                }
+            });
         jScrollPane2.setViewportView(tMeldungen);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -739,51 +773,51 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         add(jPanel4, gridBagConstraints);
         jPanel4.setVisible(false);
-    }// </editor-fold>//GEN-END:initComponents
+    } // </editor-fold>//GEN-END:initComponents
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton4ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void jButton4ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton4ActionPerformed
         reloadMeldungen();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton2ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void jButton2ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton2ActionPerformed
         StaticSwingTools.showDialog(this, dlgCreateMeldung, true);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jToggleButton2ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton2ActionPerformed
+    private void jToggleButton2ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jToggleButton2ActionPerformed
         tableModel.fireTableDataChanged();
-    }//GEN-LAST:event_jToggleButton2ActionPerformed
+    }                                                                                  //GEN-LAST:event_jToggleButton2ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton1ActionPerformed
         dlgCreateMeldung.setVisible(false);
         clearNewMeldungDialog();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }                                                                            //GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jButton3ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void jButton3ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jButton3ActionPerformed
         final java.awt.event.ActionEvent evtFinal = evt;
 
         jLabel4.setVisible(true);
@@ -827,32 +861,32 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
                     }
                 }
             }.execute();
-    }//GEN-LAST:event_jButton3ActionPerformed
+    } //GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jToggleButton3ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton3ActionPerformed
+    private void jToggleButton3ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jToggleButton3ActionPerformed
         tableModel.fireTableDataChanged();
-    }//GEN-LAST:event_jToggleButton3ActionPerformed
+    }                                                                                  //GEN-LAST:event_jToggleButton3ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCloseMeldungDialogActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCloseMeldungDialogActionPerformed
+    private void btnCloseMeldungDialogActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCloseMeldungDialogActionPerformed
         showMeldung(null);
-    }//GEN-LAST:event_btnCloseMeldungDialogActionPerformed
+    }                                                                                         //GEN-LAST:event_btnCloseMeldungDialogActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnFinishMeldungActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinishMeldungActionPerformed
+    private void btnFinishMeldungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnFinishMeldungActionPerformed
         btnFinishMeldung.setEnabled(false);
         final boolean remove = !btnFinishMeldung.isSelected();
         new SwingWorker<CidsBean, Object>() {
@@ -887,39 +921,39 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
                     }
                 }
             }.execute();
-    }//GEN-LAST:event_btnFinishMeldungActionPerformed
+    } //GEN-LAST:event_btnFinishMeldungActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void tMeldungenMouseClicked(final java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tMeldungenMouseClicked
+    private void tMeldungenMouseClicked(final java.awt.event.MouseEvent evt) { //GEN-FIRST:event_tMeldungenMouseClicked
         if (evt.getClickCount() == 2) {
             final int row = tMeldungen.rowAtPoint(evt.getPoint());
             final CidsBean meldungBean = tableModel.getCidsBeanAtRow(tMeldungen.convertRowIndexToModel(row));
             showMeldung(meldungBean);
         }
-    }//GEN-LAST:event_tMeldungenMouseClicked
+    }                                                                          //GEN-LAST:event_tMeldungenMouseClicked
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void jXHyperlink1ActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jXHyperlink1ActionPerformed
+    private void jXHyperlink1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_jXHyperlink1ActionPerformed
         final CidsBean flurstueckSchluesselBean = (CidsBean)shownMeldung.getProperty(
                 "fk_flurstueck.fk_flurstueck_schluessel");
         LagisBroker.getInstance()
                 .loadFlurstueck((FlurstueckSchluesselCustomBean)flurstueckSchluesselBean.getMetaObject().getBean());
-    }//GEN-LAST:event_jXHyperlink1ActionPerformed
+    }                                                                                //GEN-LAST:event_jXHyperlink1ActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  meldungBean  DOCUMENT ME!
      */
-    private void showMeldung(final CidsBean meldungBean) {
+    public void showMeldung(final CidsBean meldungBean) {
         shownMeldung = meldungBean;
 
         final String flurstueck = (meldungBean != null)
