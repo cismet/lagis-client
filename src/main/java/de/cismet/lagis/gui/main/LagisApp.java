@@ -269,6 +269,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     // Panels
     private VerwaltungsPanel pFlurstueck;
     private NKFOverviewPanel pNKFOverview;
+    private MeldungenPanel pMeldungen;
     private DMSPanel pDMS;
     private KartenPanel pKarte;
     private HistoryPanel pHistory;
@@ -282,6 +283,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private View vFlurstueck;
     private View vVertraege;
     private View vNKFOverview;
+    private View vMeldungen;
     private View vDMS;
     private View vKarte;
     private View vNKF;
@@ -363,6 +365,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private javax.swing.JButton btnSwitchInEditmode;
     private javax.swing.JButton btnVerdisCrossover;
     private javax.swing.JButton cmdFortfuehrung;
+    private javax.swing.JButton cmdFortfuehrung1;
     private javax.swing.JButton cmdPrint;
     private javax.swing.JButton cmdSearchBaulasten;
     private javax.swing.JButton cmdSearchRisse;
@@ -414,6 +417,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private javax.swing.JMenuItem mniOptions;
     private javax.swing.JMenuItem mniPrint;
     private javax.swing.JMenuItem mniReBe;
+    private javax.swing.JMenuItem mniReBe1;
     private javax.swing.JMenuItem mniRefresh;
     private javax.swing.JMenuItem mniResetWindowLayout;
     private javax.swing.JMenuItem mniSaveLayout;
@@ -1176,6 +1180,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         pFlurstueck = VerwaltungsPanel.getInstance();
         pVertraege = new VertraegePanel();
         pNKFOverview = NKFOverviewPanel.getInstance();
+        pMeldungen = MeldungenPanel.getInstance();
         pDMS = new DMSPanel();
         pKarte = new KartenPanel();
         pNKF = NKFPanel.getInstance();
@@ -1203,6 +1208,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         widgets.add(pFlurstueck);
         widgets.add(pVertraege);
         widgets.add(pNKFOverview);
+        widgets.add(pMeldungen);
         widgets.add(pDMS);
         widgets.add(pKarte);
         widgets.add(pNKF);
@@ -1221,41 +1227,33 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      * DOCUMENT ME!
      */
     private void initInfoNode() {
-        vFlurstueck = new View("Verwaltungsbereiche", icoVerwaltungsbereich, pFlurstueck);
+        viewMap.addView(
+            "Verwaltungsbereiche",
+            vFlurstueck = new View("Verwaltungsbereiche", icoVerwaltungsbereich, pFlurstueck));
+        viewMap.addView("Vorgänge", vVertraege = new View("Vorgänge", icoDokumente, pVertraege));
+        viewMap.addView("NKF Übersicht", vNKFOverview = new View("NKF Übersicht", icoNKF, pNKFOverview));
+        viewMap.addView("Meldungen", vMeldungen = new View("Meldungen", icoNKF, pMeldungen));
+        viewMap.addView("DMS", vDMS = new View("DMS", icoDMS, pDMS));
+        viewMap.addView("Karte", vKarte = new View("Karte", icoKarte, pKarte));
+        viewMap.addView("Nutzung", vNKF = new View("Nutzung", icoNKF, pNKF));
+        viewMap.addView(
+            "Rechte und Belastungen",
+            vReBe = new View("Rechte und Belastungen", icoRechteDetail, pRechteDetail));
+
         vFlurstueck.getCustomTitleBarComponents().addAll(pFlurstueck.getCustomButtons());
-        viewMap.addView("Verwaltungsbereiche", vFlurstueck);
-
-        vVertraege = new View("Vorgänge", icoDokumente, pVertraege);
-
-        viewMap.addView("Vorgänge", vVertraege);
-        vNKFOverview = new View("NKF Übersicht", icoNKF, pNKFOverview);
-        viewMap.addView("NKF Übersicht", vNKFOverview);
-        vDMS = new View("DMS", icoDMS, pDMS);
-        viewMap.addView("DMS", vDMS);
-
-        vKarte = new View("Karte", icoKarte, pKarte);
-        viewMap.addView("Karte", vKarte);
-
-        vNKF = new View("Nutzung", icoNKF, pNKF);
-        viewMap.addView("Nutzung", vNKF);
-
-        vReBe = new View("Rechte und Belastungen", icoRechteDetail, pRechteDetail);
-        viewMap.addView("Rechte und Belastungen", vReBe);
 
         // TODO ICON
         if (pHistory != null) {
-            vHistory = new View("Historie", icoRessort, pHistory);
+            viewMap.addView("Historie", vHistory = new View("Historie", icoRessort, pHistory));
         } else {
             final JPanel p = new JPanel(new BorderLayout());
             p.add(new JLabel("... no History for you ..."), BorderLayout.CENTER);
-            vHistory = new View("Historie", icoRessort, p);
+            viewMap.addView("Historie", vHistory = new View("Historie", icoRessort, p));
         }
-        viewMap.addView("Historie", vHistory);
-        vBaulasten = new View("Baulasten", icoBaulasten, pBaulasten);
-        viewMap.addView("Baulasten", vBaulasten);
-
-        vKassenzeichen = new View("Kassenzeicheninformation", icoKassenzeichen, pKassenzeichen);
-        viewMap.addView("Kassenzeicheninformation", vKassenzeichen);
+        viewMap.addView("Baulasten", vBaulasten = new View("Baulasten", icoBaulasten, pBaulasten));
+        viewMap.addView(
+            "Kassenzeicheninformation",
+            vKassenzeichen = new View("Kassenzeicheninformation", icoKassenzeichen, pKassenzeichen));
 
         rootWindow = DockingUtil.createRootWindow(viewMap, true);
         LagisBroker.getInstance().setRootWindow(rootWindow);
@@ -1310,7 +1308,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vMeldungen, vBaulasten, vKassenzeichen }))),
                         new SplitWindow(
                             false,
                             0.21391752f,
@@ -1332,7 +1330,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vMeldungen, vBaulasten, vKassenzeichen }))),
                         new TabWindow(
                             new DockingWindow[] { vKarte, vReBe, vVertraege, vNKF, vHistory })));
             }
@@ -1350,7 +1348,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vMeldungen, vBaulasten, vKassenzeichen }))),
                         new SplitWindow(
                             false,
                             0.21391752f,
@@ -1370,7 +1368,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                                 0.4300518f,
                                 vNKFOverview,
                                 new TabWindow(
-                                    new DockingWindow[] { vDMS, vBaulasten, vKassenzeichen }))),
+                                    new DockingWindow[] { vDMS, vMeldungen, vBaulasten, vKassenzeichen }))),
                         new TabWindow(
                             new DockingWindow[] { vKarte, vReBe, vVertraege, vNKF, vHistory })));
             }
@@ -1487,6 +1485,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         btnVerdisCrossover = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
         cmdFortfuehrung = new javax.swing.JButton();
+        cmdFortfuehrung1 = new javax.swing.JButton();
         panAll = new javax.swing.JPanel();
         panMain = new javax.swing.JPanel();
         panStatusbar = new javax.swing.JPanel();
@@ -1530,6 +1529,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         mniNKFOverview = new javax.swing.JMenuItem();
         mniNutzung = new javax.swing.JMenuItem();
         mniReBe = new javax.swing.JMenuItem();
+        mniReBe1 = new javax.swing.JMenuItem();
         mniDMS = new javax.swing.JMenuItem();
         mniHistory = new javax.swing.JMenuItem();
         mniBaulasten = new javax.swing.JMenuItem();
@@ -1795,6 +1795,31 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             cmdFortfuehrung.setVisible(false);
         }
         toolbar.add(cmdFortfuehrung);
+
+        cmdFortfuehrung1.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/cancel.png"))); // NOI18N
+        cmdFortfuehrung1.setToolTipText("Meldung");
+        cmdFortfuehrung1.setBorderPainted(false);
+        cmdFortfuehrung1.setFocusable(false);
+        cmdFortfuehrung1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdFortfuehrung1.setPreferredSize(new java.awt.Dimension(23, 23));
+        cmdFortfuehrung1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdFortfuehrung1.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    cmdFortfuehrung1ActionPerformed(evt);
+                }
+            });
+        try {
+            cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(
+                    SessionManager.getSession().getUser(),
+                    "lagis.fortfuehrungsanlaesse.dialog") != null);
+        } catch (final Exception ex) {
+            LOG.error("error while checking for grundis.fortfuehrungsanlaesse.dialog", ex);
+            cmdFortfuehrung.setVisible(false);
+        }
+        toolbar.add(cmdFortfuehrung1);
 
         getContentPane().add(toolbar, java.awt.BorderLayout.NORTH);
 
@@ -2194,6 +2219,21 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 }
             });
         menWindow.add(mniReBe);
+
+        mniReBe1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_7,
+                java.awt.event.InputEvent.CTRL_MASK));
+        mniReBe1.setIcon(new javax.swing.ImageIcon(
+                getClass().getResource("/de/cismet/lagis/ressource/icons/titlebar/sum.png"))); // NOI18N
+        mniReBe1.setText("Meldungen");
+        mniReBe1.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(final java.awt.event.ActionEvent evt) {
+                    mniReBe1ActionPerformed(evt);
+                }
+            });
+        menWindow.add(mniReBe1);
 
         mniDMS.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
                 java.awt.event.KeyEvent.VK_8,
@@ -3206,6 +3246,24 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             }
         }
     }                                                                                         //GEN-LAST:event_btnAktenzeichenSuche1ActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void cmdFortfuehrung1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFortfuehrung1ActionPerformed
+        // TODO add your handling code here:
+    } //GEN-LAST:event_cmdFortfuehrung1ActionPerformed
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  evt  DOCUMENT ME!
+     */
+    private void mniReBe1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_mniReBe1ActionPerformed
+        showOrHideView(vMeldungen);
+    }                                                                            //GEN-LAST:event_mniReBe1ActionPerformed
 
     /**
      * DOCUMENT ME!

@@ -10,7 +10,7 @@
 
     <groupId>de.cismet.lagis</groupId>
     <artifactId>lagis-client</artifactId>
-    <version>7.4-SNAPSHOT</version>
+    <version>7.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -74,20 +74,6 @@
             </dependency>
             
             <dependency>
-                <groupId>de.cismet.lagis</groupId>
-                <artifactId>lagis-commons</artifactId>
-                <version>7.0</version>
-                <type>jar</type>
-                <!-- lagis-client imports only final CONSTANTS from lagis-commons:
-                    -> static final fields will be inlined by the bytecode compiler 
-                    both in the current classes, and in other classes!
-                    -> maven dependecy-plugin does not find any import to lagis-commons
-                    during bytecode analysis!
-                -->
-                <scope>provided</scope>
-            </dependency>
-            
-            <dependency>
                 <groupId>de.cismet.cids.custom.wupp.server</groupId>
                 <artifactId>cids-custom-server-wuppertal</artifactId>
                 <version>7.7.7</version>
@@ -112,7 +98,7 @@
             <dependency>
                 <groupId>de.cismet.lagis</groupId>
                 <artifactId>lagis-server</artifactId>
-                <version>7.1</version>
+                <version>7.2</version>
                 <type>jar</type>
                 <scope>compile</scope>
             </dependency>
@@ -225,11 +211,6 @@
         </dependency> 
 
         <!-- BEGIN: provided cids-dependencies -->
-        <dependency>
-            <groupId>de.cismet.lagis</groupId>
-            <artifactId>lagis-commons</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

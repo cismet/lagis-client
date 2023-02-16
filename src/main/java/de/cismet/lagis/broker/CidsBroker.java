@@ -22,6 +22,8 @@ import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.cids.navigator.utils.ClassCacheMultiple;
 
+import de.cismet.cids.server.actions.ServerAction;
+import de.cismet.cids.server.actions.ServerActionParameter;
 import de.cismet.cids.server.search.CidsServerSearch;
 
 import de.cismet.connectioncontext.AbstractConnectionContext;
@@ -156,7 +158,23 @@ public final class CidsBroker implements ConnectionContextProvider {
      * @throws  ConnectionException  DOCUMENT ME!
      */
     public Collection executeSearch(final CidsServerSearch search) throws ConnectionException {
-        return proxy.customServerSearch(search);
+        return proxy.customServerSearch(search, getConnectionContext());
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   taskname  DOCUMENT ME!
+     * @param   body      DOCUMENT ME!
+     * @param   params    DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  ConnectionException  DOCUMENT ME!
+     */
+    public Object executeTask(final String taskname, final Object body, final ServerActionParameter... params)
+            throws ConnectionException {
+        return proxy.executeTask(taskname, LagisConstants.DOMAIN_LAGIS, body, getConnectionContext(), params);
     }
 
     /**
