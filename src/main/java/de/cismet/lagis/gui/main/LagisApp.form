@@ -898,12 +898,12 @@
             <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="try {&#xa;    cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(SessionManager.getSession().getUser(), &quot;lagis.fortfuehrungsanlaesse.dialog&quot;) != null);&#xa;} catch (final Exception ex) {&#xa;    LOG.error(&quot;error while checking for grundis.fortfuehrungsanlaesse.dialog&quot;, ex);&#xa;    cmdFortfuehrung.setVisible(false);&#xa;}"/>
           </AuxValues>
         </Component>
-        <Component class="javax.swing.JButton" name="cmdFortfuehrung1">
+        <Component class="javax.swing.JButton" name="cmdMeldung">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/de/cismet/lagis/ressource/icons/toolbar/cancel.png"/>
+              <Image iconType="3" name="/de/cismet/lagis/res/add.png"/>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Meldung"/>
+            <Property name="toolTipText" type="java.lang.String" value="neue Meldung"/>
             <Property name="borderPainted" type="boolean" value="false"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -913,11 +913,8 @@
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdFortfuehrung1ActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmdMeldungActionPerformed"/>
           </Events>
-          <AuxValues>
-            <AuxValue name="JavaCodeGenerator_ListenersCodePost" type="java.lang.String" value="try {&#xa;    cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(SessionManager.getSession().getUser(), &quot;lagis.fortfuehrungsanlaesse.dialog&quot;) != null);&#xa;} catch (final Exception ex) {&#xa;    LOG.error(&quot;error while checking for grundis.fortfuehrungsanlaesse.dialog&quot;, ex);&#xa;    cmdFortfuehrung.setVisible(false);&#xa;}"/>
-          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
@@ -46,6 +47,8 @@ import de.cismet.lagis.action.FinishMeldungServerAction;
 
 import de.cismet.lagis.broker.CidsBroker;
 import de.cismet.lagis.broker.LagisBroker;
+
+import de.cismet.lagis.gui.main.LagisApp;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 
@@ -224,7 +227,13 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
 
     @Override
     public synchronized void flurstueckChanged(final FlurstueckCustomBean newFlurstueck) {
-        reloadMeldungen();
+        try {
+            reloadMeldungen();
+        } catch (Exception e) {
+            LOG.error("Error during flurstueckChanged in MeldungenPanel", e);
+        } finally {
+            LagisBroker.getInstance().flurstueckChangeFinished(MeldungenPanel.this);
+        }
     }
 
     @Override
@@ -951,6 +960,15 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
     /**
      * DOCUMENT ME!
      *
+     * @return  DOCUMENT ME!
+     */
+    public JDialog getDlgCreateMeldung() {
+        return dlgCreateMeldung;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param  meldungBean  DOCUMENT ME!
      */
     public void showMeldung(final CidsBean meldungBean) {
@@ -1052,26 +1070,30 @@ public class MeldungenPanel extends AbstractWidget implements FlurstueckChangeLi
         @Override
         public String getToolTipText(final MouseEvent event) {
             final int row = rowAtPoint(event.getPoint());
-            final CidsBean meldungBean = tableModel.getCidsBeanAtRow(tMeldungen.convertRowIndexToModel(row));
-            if (meldungBean == null) {
-                return null;
-            }
-            final String name = (String)meldungBean.getProperty("name");
-            final String text = (String)meldungBean.getProperty("text");
-            final String creator = (String)meldungBean.getProperty("creator");
-            final Timestamp timestamp = (Timestamp)meldungBean.getProperty("timestamp");
+            if (row > -1) {
+                final CidsBean meldungBean = tableModel.getCidsBeanAtRow(tMeldungen.convertRowIndexToModel(row));
+                if (meldungBean == null) {
+                    return null;
+                }
+                final String name = (String)meldungBean.getProperty("name");
+                final String text = (String)meldungBean.getProperty("text");
+                final String creator = (String)meldungBean.getProperty("creator");
+                final Timestamp timestamp = (Timestamp)meldungBean.getProperty("timestamp");
 
-            final String tooltip = String.format("<html><body>"
-                            + "<u><b>von:</b></u> %s<br/>"
-                            + "<u><b>am:</b></u> %s<br/>"
-                            + "<u><b>Betreff:</b></u> %s<br/>"
-                            + "<u><b>Nachricht:</b></u><div>%s</div>"
-                            + "</body></html>",
-                    (creator != null) ? creator : "unbekannt",
-                    (timestamp != null) ? DF.format(timestamp) : "unbekannt",
-                    (name != null) ? name : "",
-                    (text != null) ? text.replaceAll("\n", "<br/>\n") : "");
-            return tooltip;
+                final String tooltip = String.format("<html><body>"
+                                + "<u><b>von:</b></u> %s<br/>"
+                                + "<u><b>am:</b></u> %s<br/>"
+                                + "<u><b>Betreff:</b></u> %s<br/>"
+                                + "<u><b>Nachricht:</b></u><div>%s</div>"
+                                + "</body></html>",
+                        (creator != null) ? creator : "unbekannt",
+                        (timestamp != null) ? DF.format(timestamp) : "unbekannt",
+                        (name != null) ? name : "",
+                        (text != null) ? text.replaceAll("\n", "<br/>\n") : "");
+                return tooltip;
+            } else {
+                return "";
+            }
         }
     }
 }

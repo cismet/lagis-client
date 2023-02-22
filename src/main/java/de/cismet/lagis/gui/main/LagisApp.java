@@ -365,7 +365,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
     private javax.swing.JButton btnSwitchInEditmode;
     private javax.swing.JButton btnVerdisCrossover;
     private javax.swing.JButton cmdFortfuehrung;
-    private javax.swing.JButton cmdFortfuehrung1;
+    private javax.swing.JButton cmdMeldung;
     private javax.swing.JButton cmdPrint;
     private javax.swing.JButton cmdSearchBaulasten;
     private javax.swing.JButton cmdSearchRisse;
@@ -1494,7 +1494,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         btnVerdisCrossover = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JSeparator();
         cmdFortfuehrung = new javax.swing.JButton();
-        cmdFortfuehrung1 = new javax.swing.JButton();
+        cmdMeldung = new javax.swing.JButton();
         panAll = new javax.swing.JPanel();
         panMain = new javax.swing.JPanel();
         panStatusbar = new javax.swing.JPanel();
@@ -1805,30 +1805,21 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         }
         toolbar.add(cmdFortfuehrung);
 
-        cmdFortfuehrung1.setIcon(new javax.swing.ImageIcon(
-                getClass().getResource("/de/cismet/lagis/ressource/icons/toolbar/cancel.png"))); // NOI18N
-        cmdFortfuehrung1.setToolTipText("Meldung");
-        cmdFortfuehrung1.setBorderPainted(false);
-        cmdFortfuehrung1.setFocusable(false);
-        cmdFortfuehrung1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        cmdFortfuehrung1.setPreferredSize(new java.awt.Dimension(23, 23));
-        cmdFortfuehrung1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        cmdFortfuehrung1.addActionListener(new java.awt.event.ActionListener() {
+        cmdMeldung.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/add.png"))); // NOI18N
+        cmdMeldung.setToolTipText("neue Meldung");
+        cmdMeldung.setBorderPainted(false);
+        cmdMeldung.setFocusable(false);
+        cmdMeldung.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        cmdMeldung.setPreferredSize(new java.awt.Dimension(23, 23));
+        cmdMeldung.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        cmdMeldung.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override
                 public void actionPerformed(final java.awt.event.ActionEvent evt) {
-                    cmdFortfuehrung1ActionPerformed(evt);
+                    cmdMeldungActionPerformed(evt);
                 }
             });
-        try {
-            cmdFortfuehrung.setVisible(SessionManager.getConnection().getConfigAttr(
-                    SessionManager.getSession().getUser(),
-                    "lagis.fortfuehrungsanlaesse.dialog") != null);
-        } catch (final Exception ex) {
-            LOG.error("error while checking for grundis.fortfuehrungsanlaesse.dialog", ex);
-            cmdFortfuehrung.setVisible(false);
-        }
-        toolbar.add(cmdFortfuehrung1);
+        toolbar.add(cmdMeldung);
 
         getContentPane().add(toolbar, java.awt.BorderLayout.NORTH);
 
@@ -3261,9 +3252,9 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void cmdFortfuehrung1ActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdFortfuehrung1ActionPerformed
-        // TODO add your handling code here:
-    } //GEN-LAST:event_cmdFortfuehrung1ActionPerformed
+    private void cmdMeldungActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_cmdMeldungActionPerformed
+        StaticSwingTools.showDialog(this, LagisApp.getInstance().getMeldungenPanel().getDlgCreateMeldung(), true);
+    }                                                                              //GEN-LAST:event_cmdMeldungActionPerformed
 
     /**
      * DOCUMENT ME!
