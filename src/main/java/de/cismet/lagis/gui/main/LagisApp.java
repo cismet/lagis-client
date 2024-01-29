@@ -130,6 +130,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileFilter;
 
+import de.cismet.cids.client.tools.ContinueOrExitHandler;
+
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckSchluesselCustomBean;
 import de.cismet.cids.custom.commons.gui.BaulastSuchDialog;
@@ -460,6 +462,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      */
     private void init() {
         try {
+            ContinueOrExitHandler.getInstance().showFromConfAttr(this);
+
             LOG.info("Starten der LaGIS Applikation");
 
             UIManager.put(
