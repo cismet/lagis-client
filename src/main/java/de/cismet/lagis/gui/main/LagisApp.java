@@ -3592,8 +3592,8 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                         LOG.debug("Crossover: Crossover port: " + crossoverServerPort);
                     }
                     initCrossoverServer(Integer.parseInt(crossoverServerPort));
-                } catch (final Exception ex) {
-                    LOG.warn("Crossover: Error while starting Server", ex);
+                } catch (final Throwable ex) {
+                    LOG.error("Crossover: Error while starting Server", ex);
                 }
                 try {
                     broker.setVerdisCrossoverPort(Integer.parseInt(crossoverPrefs.getChildText("VerdisCrossoverPort")));
