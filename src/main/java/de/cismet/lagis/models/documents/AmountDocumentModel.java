@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 
 import java.text.NumberFormat;
 
-import java.util.Locale;
+import de.cismet.lagis.broker.LagisBroker;
 
 /**
  * DOCUMENT ME!
@@ -35,7 +35,7 @@ public class AmountDocumentModel extends SimpleDocumentModel {
 
     //~ Instance fields --------------------------------------------------------
 
-    NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.GERMANY);
+    NumberFormat nf = LagisBroker.getCurrencyFormatter();
     Double currentAmount;
     private final Logger log = org.apache.log4j.Logger.getLogger(this.getClass());
 
