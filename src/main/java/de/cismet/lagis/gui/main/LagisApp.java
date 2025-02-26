@@ -64,7 +64,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.ConfigurationSource;
+import org.apache.logging.log4j.core.config.xml.XmlConfiguration;
 
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXLoginPane;
@@ -1069,16 +1072,29 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
         try {
             if (StaticDebuggingTools.checkHomeForFile("cismetCustomLog4JConfigurationInDotLagis")) {
                 try {
-                    org.apache.log4j.PropertyConfigurator.configure(DIRECTORYPATH_LAGIS + FILESEPARATOR
-                                + "custom.log4j.properties");
+                    try(final InputStream configStream = new FileInputStream(
+                                        DIRECTORYPATH_LAGIS
+                                        + FILESEPARATOR
+                                        + "custom.log4j.xml")) {
+                        final ConfigurationSource source = new ConfigurationSource(configStream);
+                        final LoggerContext context = (LoggerContext)LogManager.getContext(false);
+                        context.start(new XmlConfiguration(context, source)); // Apply new configuration
+                    }
                     LOG.info("CustomLoggingOn");
                 } catch (Exception ex) {
-                    org.apache.log4j.PropertyConfigurator.configure(ClassLoader.getSystemResource(
-                            "log4j.properties"));
+                    try(final InputStream configStream = ClassLoader.getSystemResourceAsStream("log4j.xml")) {
+                        final ConfigurationSource source = new ConfigurationSource(configStream);
+                        final LoggerContext context = (LoggerContext)LogManager.getContext(false);
+                        context.start(new XmlConfiguration(context, source)); // Apply new configuration
+                    }
                 }
             } else {
-                PropertyConfigurator.configure(LagisApp.class.getResource(
-                        "/de/cismet/lagis/configuration/log4j.properties"));
+                try(final InputStream configStream = LagisApp.class.getResourceAsStream(
+                                    "/de/cismet/lagis/configuration/log4j.xml")) {
+                    final ConfigurationSource source = new ConfigurationSource(configStream);
+                    final LoggerContext context = (LoggerContext)LogManager.getContext(false);
+                    context.start(new XmlConfiguration(context, source));     // Apply new configuration
+                }
                 LOG.info("Log4J System erfolgreich konfiguriert");
             }
         } catch (Exception e) {
