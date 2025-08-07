@@ -207,6 +207,7 @@ import de.cismet.netutil.ProxyProperties;
 
 import de.cismet.remote.RESTRemoteControlStarter;
 
+import de.cismet.tools.BrowserLauncher;
 import de.cismet.tools.Static2DTools;
 import de.cismet.tools.StaticDebuggingTools;
 import de.cismet.tools.StaticDecimalTools;
@@ -214,6 +215,8 @@ import de.cismet.tools.StaticDecimalTools;
 import de.cismet.tools.configuration.Configurable;
 import de.cismet.tools.configuration.ConfigurationManager;
 
+import de.cismet.tools.gui.ContinueOrExitDialogAction;
+import de.cismet.tools.gui.ContinueOrExitDialogActionEvent;
 import de.cismet.tools.gui.StaticSwingTools;
 import de.cismet.tools.gui.historybutton.HistoryModelListener;
 import de.cismet.tools.gui.log4jquickconfig.Log4JQuickConfig;
@@ -465,7 +468,36 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
      */
     private void init() {
         try {
-            ContinueOrExitHandler.getInstance().showFromConfAttr(this);
+            final ContinueOrExitDialogAction action = new ContinueOrExitDialogAction() {
+
+                    @Override
+                    public void actionPerformed(final ContinueOrExitDialogActionEvent e) {
+                        if (e.getAction().equals(ContinueOrExitDialogActionEvent.Action.CONTINUE_ACTION)) {
+                            e.getSource().dispose();
+                        } else {
+                            String url = null;
+
+                            try {
+                                url = SessionManager.getProxy()
+                                            .getConfigAttr(SessionManager.getSession().getUser(),
+                                                    "lagis.desktop.url",
+                                                    ConnectionContext.createDeprecated());
+                                BrowserLauncher.openURL(url);
+                            } catch (Exception ex) {
+                                JOptionPane.showMessageDialog(
+                                    LagisApp.this,
+                                    "Die Seite "
+                                            + String.valueOf(url)
+                                            + " konnte nicht im Browser geöffnet werden.",
+                                    "Fehler beim Öffnen",
+                                    JOptionPane.ERROR_MESSAGE);
+                            }
+                            System.exit(0);
+                        }
+                    }
+                };
+
+            ContinueOrExitHandler.getInstance().showFromConfAttr(this, action);
 
             LOG.info("Starten der LaGIS Applikation");
 
