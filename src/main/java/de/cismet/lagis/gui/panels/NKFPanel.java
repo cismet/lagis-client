@@ -294,6 +294,14 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if (component != null) {
                         if (value instanceof NutzungsartCustomBean) {
                             ((JLabel)component).setText(((NutzungsartCustomBean)value).getBezeichnung());
+                        } else if (value instanceof AnlageklasseCustomBean) {
+                            final JLabel lab = new JLabel();
+                            lab.setText(((JLabel)component).getText());
+                            lab.setBackground(((JLabel)component).getBackground());
+                            lab.setForeground(((JLabel)component).getForeground());
+                            lab.setToolTipText(((AnlageklasseCustomBean)value).getSchluessel());
+                            return lab;
+//                            ((JLabel)component).setToolTipText(((AnlageklasseCustomBean)value).getSchluessel());
                         }
                     }
                     return component;
@@ -344,6 +352,37 @@ public class NKFPanel extends AbstractWidget implements MouseListener,
                     if (component != null) {
                         if (value instanceof NutzungsartCustomBean) {
                             ((JLabel)component).setText(((NutzungsartCustomBean)value).getBezeichnung());
+                        }
+                    }
+                    return component;
+                }
+            });
+        tNutzung.setDefaultRenderer(AnlageklasseCustomBean.class, new DefaultTableCellRenderer() {
+
+                @Override
+                public Component getTableCellRendererComponent(final JTable table,
+                        final Object value,
+                        final boolean isSelected,
+                        final boolean hasFocus,
+                        final int row,
+                        final int column) {
+                    final Component component = super.getTableCellRendererComponent(
+                            table,
+                            value,
+                            isSelected,
+                            hasFocus,
+                            row,
+                            column);
+                    if (component != null) {
+                        if (value instanceof AnlageklasseCustomBean) {
+                            final JLabel lab = new JLabel();
+                            lab.setText(((JLabel)component).getText());
+                            lab.setBackground(((JLabel)component).getBackground());
+                            lab.setForeground(((JLabel)component).getForeground());
+                            lab.setOpaque(((JLabel)component).isOpaque());
+                            lab.setFont(((JLabel)component).getFont());
+                            lab.setToolTipText(((AnlageklasseCustomBean)value).getSchluessel());
+                            return lab;
                         }
                     }
                     return component;

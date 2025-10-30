@@ -1161,8 +1161,8 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     throw new ActionNotSuccessfulException("Es exisitert bereits eine Sperre für das alte Flurstück");
                 }
 //HistoricResult result = ;
-
-                setFlurstueckHistoric(oldFlurstueckSchluessel);
+                // todo therter hier wird auch die nutzung_buchung auf historisch gesetzt. Das soll nicht geschehen, da
+                // die Nutzung vom neuen Flurstueck weiterhin genutzt wird
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Flurstück wurde Historisch gesetzt");
                 }
@@ -1249,10 +1249,15 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                     }
 
                     for (final MetaObject moNutzung
-                                : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) {
-                        moNutzung.getBean().setProperty("fk_flurstueck", newFlurstueck);
-                        moNutzung.getBean().persist();
+                                : SessionManager.getProxy().getMetaObjectByQuery(user, queryNutzung)) { // todo therter make copy
+                        final CidsBean nutzungCopy = cloneNutzung(moNutzung.getBean(), null);
+                        nutzungCopy.setProperty("historisch", false);
+                        nutzungCopy.setProperty("fk_flurstueck", newFlurstueck);
+                        nutzungCopy.persist();
                     }
+
+                    // set old landparcel to historic, after the nutzung object were copied
+                    setFlurstueckHistoric(oldFlurstueckSchluessel);
 
                     for (final MetaObject moVerwaltungsbereichEintrag
                                 : SessionManager.getProxy().getMetaObjectByQuery(
@@ -1299,6 +1304,83 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 "Ein Unbekannter Ausnamefehler ist aufgetreten. Bitte wenden Sie sich an Ihren Systemadministrator",
                 ex);
         }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param   bean          DOCUMENT ME!
+     * @param   parentObject  DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     *
+     * @throws  Exception  DOCUMENT ME!
+     */
+    public static CidsBean cloneNutzung(final CidsBean bean, final CidsBean parentObject) throws Exception {
+        if (bean == null) {
+            return null;
+        }
+        CidsBean clone = bean.getMetaObject().getMetaClass().getEmptyInstance().getBean();
+        clone = clone.persist();
+
+        for (final String propName : bean.getPropertyNames()) {
+            if (!propName.toLowerCase().equals("id")) {
+                final Object o = bean.getProperty(propName);
+
+                if (propName.equalsIgnoreCase("fk_nutzung")) {
+                    clone.setProperty(propName, parentObject);
+                } else if (o instanceof CidsBean) {
+                    if (propName.toLowerCase().equals("fk_flurstueck")
+                                || ((CidsBean)o).getMetaObject().getMetaClass().getTableName().equalsIgnoreCase(
+                                    "nutzungsart")
+                                || ((CidsBean)o).getMetaObject().getMetaClass().getTableName().equalsIgnoreCase(
+                                    "anlageklasse")) {
+                        clone.setProperty(propName, (CidsBean)o);
+                    } else if (((CidsBean)o).getMetaObject().getMetaClass().getTableName().equalsIgnoreCase(
+                                    "nutzung")) {
+                        clone.setProperty(propName, parentObject);
+                    }
+                } else if (o instanceof Collection) {
+                    final List<CidsBean> list = (List<CidsBean>)o;
+                    final List<CidsBean> newList = new ArrayList<CidsBean>();
+
+                    for (final CidsBean tmpBean : list) {
+                        if (tmpBean.getMetaObject().getMetaClass().getTableName().equalsIgnoreCase("bebauung")
+                                    || tmpBean.getMetaObject().getMetaClass().getTableName().equalsIgnoreCase(
+                                        "flaechennutzung")) {
+                            // flat copy
+                            newList.add(tmpBean);
+                        } else {
+                            // deep copy
+                            newList.add(cloneNutzung(tmpBean, clone));
+                        }
+                    }
+                    clone.setProperty(propName, newList);
+                } else if (o instanceof Geometry) {
+                    clone.setProperty(propName, ((Geometry)o).clone());
+                } else if (o instanceof Long) {
+                    clone.setProperty(propName, new Long(o.toString()));
+                } else if (o instanceof Double) {
+                    clone.setProperty(propName, new Double(o.toString()));
+                } else if (o instanceof Integer) {
+                    clone.setProperty(propName, new Integer(o.toString()));
+                } else if (o instanceof Boolean) {
+                    clone.setProperty(propName, new Boolean(o.toString()));
+                } else if (o instanceof String) {
+                    clone.setProperty(propName, o);
+                } else if (o instanceof java.sql.Timestamp) {
+                    clone.setProperty(propName, ((java.sql.Timestamp)o).clone());
+                } else {
+                    if (o != null) {
+                        LOG.error("unknown property type: " + o.getClass().getName());
+                    }
+                    clone.setProperty(propName, o);
+                }
+            }
+        }
+
+        clone.persist();
+        return clone;
     }
 
     /**
@@ -2739,8 +2821,13 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                                             .getDatumLetzterStadtbesitz();
                                 flurstueck.getFlurstueckSchluessel().setGueltigBis(letzterStadtbesitzDate);
                                 for (final NutzungCustomBean nutzung : flurstueck.getNutzungen()) {
+                                    nutzung.setHistorisch(true);
+                                    nutzung.persist();
                                     for (final NutzungBuchungCustomBean buchung : nutzung.getNutzungsBuchungen()) {
-                                        buchung.setGueltigbis(letzterStadtbesitzDate);
+                                        if ((buchung.getGueltig_bis() == null)
+                                                    || buchung.getGueltig_bis().after(letzterStadtbesitzDate)) {
+                                            buchung.setGueltigbis(letzterStadtbesitzDate);
+                                        }
                                     }
                                 }
                             } else {
@@ -2763,8 +2850,12 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                         key.setDatumLetzterStadtbesitz(date);
                         key.setGueltigBis(date);
                         for (final NutzungCustomBean nutzung : flurstueck.getNutzungen()) {
+                            nutzung.setHistorisch(true);
+                            nutzung.persist();
                             for (final NutzungBuchungCustomBean buchung : nutzung.getNutzungsBuchungen()) {
-                                buchung.setGueltigbis(date);
+                                if ((buchung.getGueltig_bis() == null) || buchung.getGueltig_bis().after(date)) {
+                                    buchung.setGueltigbis(date);
+                                }
                             }
                         }
                         flurstueck.persist();
@@ -2774,6 +2865,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Flurstueck war noch nie staedtisch wird historisch gesetzt");
                 }
+                // there are no nutzungen, that should be set to historisch
                 key.setGueltigBis(date);
                 key.persist();
             }
