@@ -42,6 +42,7 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
     private Integer id;
     private FlurstueckCustomBean fk_flurstueck;
     private Collection<NutzungBuchungCustomBean> n_buchungen;
+    private Boolean historisch = null;
 
     private final List<NutzungBuchungCustomBean> sortedBuchungen = new SortedList<NutzungBuchungCustomBean>(
             new Comparator<NutzungBuchungCustomBean>() {
@@ -180,6 +181,28 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
         this.fk_flurstueck = val;
 
         this.propertyChangeSupport.firePropertyChange("fk_flurstueck", null, this.fk_flurstueck);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public Boolean getHistorisch() {
+        return this.historisch;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  val  DOCUMENT ME!
+     */
+    public void setHistorisch(final Boolean val) {
+        final Boolean oldValue = this.historisch;
+
+        this.historisch = val;
+
+        this.propertyChangeSupport.firePropertyChange("historisch", oldValue, this.historisch);
     }
 
     /**
@@ -413,7 +436,8 @@ public class NutzungCustomBean extends BasicEntity implements Nutzung {
                     }
 
                     if ((gueltigVon != null)
-                                && (date.after(gueltigVon))
+                                && (date.after(gueltigVon)
+                                    || getDateWithoutTime(date).equals(getDateWithoutTime(gueltigVon)))
                                 && (date.before(gueltigBis) || date.equals(gueltigBis))) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Passende Nutzung mit gewünschtem Zeitbereich gefunden");

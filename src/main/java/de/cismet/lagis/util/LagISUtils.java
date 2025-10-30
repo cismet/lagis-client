@@ -20,8 +20,6 @@ import org.jdom.output.XMLOutputter;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import de.cismet.cids.custom.beans.lagis.NutzungCustomBean;
-
 import de.cismet.cids.dynamics.CidsBean;
 
 import de.cismet.tools.CurrentStackTrace;
