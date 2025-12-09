@@ -12,24 +12,53 @@
  */
 package de.cismet.lagis.gui.panels;
 
+import Sirius.navigator.connection.SessionManager;
+
+import Sirius.server.middleware.types.MetaClass;
+import Sirius.server.middleware.types.MetaObject;
+
 import org.apache.log4j.Logger;
 
+import org.openide.util.NbBundle;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 
+import de.cismet.cids.custom.beans.lagis.DmsUrlCustomBean;
 import de.cismet.cids.custom.beans.lagis.FlurstueckCustomBean;
+import de.cismet.cids.custom.beans.lagis.UrlBaseCustomBean;
+import de.cismet.cids.custom.beans.lagis.UrlCustomBean;
+import de.cismet.cids.custom.clientutils.DmsUrlPanel;
 
+import de.cismet.cids.dynamics.CidsBean;
+
+import de.cismet.cids.navigator.utils.ClassCacheMultiple;
+
+import de.cismet.connectioncontext.AbstractConnectionContext;
 import de.cismet.connectioncontext.ConnectionContext;
 
 import de.cismet.lagis.broker.LagisBroker;
 
 import de.cismet.lagis.commons.LagisConstants;
+import de.cismet.lagis.commons.LagisMetaclassConstants;
+
+import de.cismet.lagis.gui.dialogs.D3Dialog;
 
 import de.cismet.lagis.interfaces.FlurstueckChangeListener;
 import de.cismet.lagis.interfaces.FlurstueckSaver;
 
 import de.cismet.lagis.widget.AbstractWidget;
+
+import de.cismet.tools.gui.StaticSwingTools;
 
 /**
  * DOCUMENT ME!
@@ -44,8 +73,15 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
     private static final String WIDGET_NAME = "Dokumenten Panel";
 
     private static final Logger LOG = org.apache.log4j.Logger.getLogger(DMSPanel.class);
+    private static final ConnectionContext CC = ConnectionContext.create(
+            AbstractConnectionContext.Category.RENDERER,
+            DMSPanel.class.getName());
 
     //~ Instance fields --------------------------------------------------------
+
+    private FlurstueckCustomBean currentFlurstueck = null;
+
+    private JButton btnAddD3Link;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private de.cismet.cids.custom.clientutils.DmsUrlsPanel dmsUrlsPanel1;
@@ -59,6 +95,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
     public DMSPanel() {
         setIsCoreWidget(true);
         initComponents();
+        configureButtons();
         dmsUrlsPanel1.initWithConnectionContext(ConnectionContext.createDeprecated());
     }
 
@@ -69,6 +106,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
         try {
             clearComponent();
             setCursor(java.awt.Cursor.getDefaultCursor());
+            currentFlurstueck = newFlurstueck;
             dmsUrlsPanel1.setDmsUrls((Collection)newFlurstueck.getDokumente());
             dmsUrlsPanel1.refresh();
             repaint();
@@ -82,6 +120,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
     @Override
     public void setComponentEditable(final boolean isEditable) {
         dmsUrlsPanel1.setEnabled(isEditable);
+        btnAddD3Link.setEnabled(isEditable);
     }
 
     @Override
@@ -96,11 +135,124 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        final java.awt.GridBagConstraints gridBagConstraints;
+
         dmsUrlsPanel1 = new de.cismet.cids.custom.clientutils.DmsUrlsPanel(LagisConstants.DOMAIN_LAGIS);
 
         setLayout(new java.awt.BorderLayout());
         add(dmsUrlsPanel1, java.awt.BorderLayout.CENTER);
     } // </editor-fold>//GEN-END:initComponents
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  DOCUMENT ME!
+     */
+    public ArrayList<JComponent> getCustomButtons() {
+        final ArrayList<JComponent> tmp = new ArrayList<JComponent>();
+        tmp.add(btnAddD3Link);
+
+        return tmp;
+    }
+
+    /**
+     * Inserting in Interface functionalty (also VERDIS).
+     */
+    private void configureButtons() {
+        btnAddD3Link = new JButton(new javax.swing.ImageIcon(getClass().getResource("/de/cismet/lagis/res/add.png")));
+        btnAddD3Link.setBorder(null);
+        btnAddD3Link.setBorderPainted(false);
+        btnAddD3Link.setEnabled(false);
+        btnAddD3Link.setToolTipText(NbBundle.getMessage(
+                DMSPanel.class,
+                "DMSPanel.configureButtons().btnAddD3Link.tooltip"));
+
+        btnAddD3Link.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(final ActionEvent e) {
+//                    final String d3Id = JOptionPane.showInputDialog(
+//                            DMSPanel.this,
+//                            NbBundle.getMessage(DMSPanel.class, "DMSPanel.configureButtons().showInputDialog.message"),
+//                            NbBundle.getMessage(DMSPanel.class, "DMSPanel.configureButtons().showInputDialog.title"),
+//                            JOptionPane.QUESTION_MESSAGE);
+
+                    final D3Dialog dialog = new D3Dialog(StaticSwingTools.getParentFrame(DMSPanel.this), true);
+//                    dialog.setSize(350, 150);
+//                    dialog.setMinimumSize(new Dimension(350, 150));
+//                    dialog.setPreferredSize(new Dimension(350, 150));
+//                    dialog.setMaximumSize(new Dimension(350, 150));
+                    StaticSwingTools.showDialog(dialog);
+
+                    if (dialog.getId() == null) {
+                        return;
+                    }
+
+                    if (LagisBroker.getInstance().getD3Url() == null) {
+                        JOptionPane.showMessageDialog(
+                            DMSPanel.this,
+                            NbBundle.getMessage(
+                                DMSPanel.class,
+                                "DMSPanel.configureButtons().showMessageDialog.message"),
+                            NbBundle.getMessage(DMSPanel.class, "DMSPanel.configureButtons().showMessageDialog.title"),
+                            JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                    if (currentFlurstueck != null) {
+                        try {
+                            final String d3Url = LagisBroker.getInstance().getD3Url();
+                            final UrlCustomBean url = UrlCustomBean.createNew();
+                            final DmsUrlCustomBean dmsUrl = DmsUrlCustomBean.createNew();
+                            final String prot = d3Url.substring(0, d3Url.indexOf("//") + 2);
+                            final String afterProt = d3Url.substring(d3Url.indexOf("//") + 2);
+                            final String server = afterProt.substring(0, afterProt.indexOf("/"));
+                            String path = afterProt.substring(afterProt.indexOf("/"));
+
+                            UrlBaseCustomBean urlBase = null;
+                            final MetaClass mcDmsUrl = ClassCacheMultiple.getMetaClass(
+                                    LagisConstants.DOMAIN_LAGIS,
+                                    LagisMetaclassConstants.URL_BASE,
+                                    CC);
+                            final String queryUrlBase = "SELECT " + mcDmsUrl.getID() + ", " + mcDmsUrl.getPrimaryKey()
+                                        + " FROM " + mcDmsUrl.getTableName() + " WHERE " + " prot_prefix = '" + prot
+                                        + "' and server = '" + server + "' and path = '" + path + "'";
+
+                            final MetaObject[] mos = SessionManager.getProxy()
+                                        .getMetaObjectByQuery(queryUrlBase, 0, CC);
+
+                            if ((mos != null) && (mos.length > 0)) {
+                                urlBase = (UrlBaseCustomBean)mos[0].getBean();
+                            }
+
+                            if (urlBase == null) {
+                                urlBase = UrlBaseCustomBean.createNew();
+
+                                if (!path.endsWith("/")) {
+                                    path = path + "/";
+                                }
+
+                                urlBase.setProtPrefix(prot);
+                                urlBase.setServer(server);
+                                urlBase.setPath(path);
+                            }
+
+                            url.setProperty("object_name", dialog.getId());
+                            url.setProperty("url_base_id", urlBase);
+
+                            dmsUrl.setBeschreibung("D3 Link");
+//                            dmsUrl.setFk_flurstueck(currentFlurstueck);
+                            dmsUrl.setName(dialog.getBezeichnung());
+                            dmsUrl.setTyp(DmsUrlPanel.D3_TYPE); // todo
+                            dmsUrl.setFk_url(url);
+//                            dmsUrl.persist(CC);
+                            dmsUrlsPanel1.addDmsUrl(dmsUrl);
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+            });
+    }
 
     /**
      * DOCUMENT ME!
