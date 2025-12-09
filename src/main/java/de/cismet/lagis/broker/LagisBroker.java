@@ -291,6 +291,7 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
     private FlurstueckSchluesselCustomBean currentFlurstueckSchluessel = null;
     private String callserverUrl;
     private String domain;
+    private String d3Url;
     private String connectionClass;
     private boolean compressionEnabled = false;
     private String account;
@@ -5038,6 +5039,24 @@ public class LagisBroker implements FlurstueckChangeObserver, Configurable {
      */
     public void setDomain(final String domain) {
         this.domain = domain;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @return  the d3Url
+     */
+    public String getD3Url() {
+        return d3Url;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param  d3Url  the d3Url to set
+     */
+    public void setD3Url(final String d3Url) {
+        this.d3Url = d3Url;
     }
 
     /**
