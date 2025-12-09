@@ -1293,6 +1293,7 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
             vReBe = new View("Rechte und Belastungen", icoRechteDetail, pRechteDetail));
 
         vFlurstueck.getCustomTitleBarComponents().addAll(pFlurstueck.getCustomButtons());
+        vDMS.getCustomTitleBarComponents().addAll(pDMS.getCustomButtons());
 
         // TODO ICON
         if (pHistory != null) {
@@ -3632,6 +3633,14 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
                 LOG.warn("Fehler beim lesen der News Url", ex);
             }
             try {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("d3 url: " + urls.getChildText("d3"));
+                }
+                LagisBroker.getInstance().setD3Url(urls.getChildText("d3"));
+            } catch (final Exception ex) {
+                LOG.warn("Fehler beim lesen der News Url", ex);
+            }
+            try {
                 final Element crossoverPrefs = parent.getChild("CrossoverConfiguration");
                 final LagisBroker broker = LagisBroker.getInstance();
                 try {
@@ -4447,6 +4456,15 @@ public class LagisApp extends javax.swing.JFrame implements FloatingPluginUI,
          */
         public String getDomain() {
             return getString("domain");
+        }
+
+        /**
+         * DOCUMENT ME!
+         *
+         * @return  DOCUMENT ME!
+         */
+        public String getD3Url() {
+            return getString("d3url");
         }
     }
 }
