@@ -171,17 +171,7 @@ public class DMSPanel extends AbstractWidget implements FlurstueckChangeListener
 
                 @Override
                 public void actionPerformed(final ActionEvent e) {
-//                    final String d3Id = JOptionPane.showInputDialog(
-//                            DMSPanel.this,
-//                            NbBundle.getMessage(DMSPanel.class, "DMSPanel.configureButtons().showInputDialog.message"),
-//                            NbBundle.getMessage(DMSPanel.class, "DMSPanel.configureButtons().showInputDialog.title"),
-//                            JOptionPane.QUESTION_MESSAGE);
-
                     final D3Dialog dialog = new D3Dialog(StaticSwingTools.getParentFrame(DMSPanel.this), true);
-//                    dialog.setSize(350, 150);
-//                    dialog.setMinimumSize(new Dimension(350, 150));
-//                    dialog.setPreferredSize(new Dimension(350, 150));
-//                    dialog.setMaximumSize(new Dimension(350, 150));
                     StaticSwingTools.showDialog(dialog);
 
                     if (dialog.getId() == null) {

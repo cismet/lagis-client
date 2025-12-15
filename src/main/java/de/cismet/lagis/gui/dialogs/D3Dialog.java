@@ -48,10 +48,6 @@ public class D3Dialog extends javax.swing.JDialog {
     public D3Dialog(final java.awt.Frame parent, final boolean modal) {
         super(parent, modal);
         initComponents();
-        setSize(350, 150);
-        setPreferredSize(new Dimension(350, 140));
-        setMinimumSize(new Dimension(350, 140));
-        setMaximumSize(new Dimension(350, 140));
     }
 
     //~ Methods ----------------------------------------------------------------
@@ -122,12 +118,15 @@ public class D3Dialog extends javax.swing.JDialog {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         getContentPane().add(labId, gridBagConstraints);
+
+        txtId.setMinimumSize(new java.awt.Dimension(200, 25));
+        txtId.setPreferredSize(new java.awt.Dimension(200, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 0, 8, 5);
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 8, 5);
         getContentPane().add(txtId, gridBagConstraints);
 
         org.openide.awt.Mnemonics.setLocalizedText(
@@ -139,11 +138,13 @@ public class D3Dialog extends javax.swing.JDialog {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 5);
         getContentPane().add(labBez, gridBagConstraints);
+
+        txtBez.setMinimumSize(new java.awt.Dimension(200, 25));
+        txtBez.setPreferredSize(new java.awt.Dimension(200, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
         getContentPane().add(txtBez, gridBagConstraints);
 
@@ -196,7 +197,7 @@ public class D3Dialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 3;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.insets = new java.awt.Insets(25, 0, 0, 0);
+        gridBagConstraints.insets = new java.awt.Insets(15, 0, 10, 0);
         getContentPane().add(jPanel1, gridBagConstraints);
 
         pack();
@@ -207,18 +208,18 @@ public class D3Dialog extends javax.swing.JDialog {
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnOkActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnOkActionPerformed
+    private void btnOkActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOkActionPerformed
         id = txtId.getText();
         bezeichnung = txtBez.getText();
         setVisible(false);
-    }                                                                         //GEN-LAST:event_btnOkActionPerformed
+    }//GEN-LAST:event_btnOkActionPerformed
 
     /**
      * DOCUMENT ME!
      *
      * @param  evt  DOCUMENT ME!
      */
-    private void btnCancelActionPerformed(final java.awt.event.ActionEvent evt) { //GEN-FIRST:event_btnCancelActionPerformed
+    private void btnCancelActionPerformed(final java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         setVisible(false);
-    }                                                                             //GEN-LAST:event_btnCancelActionPerformed
+    }//GEN-LAST:event_btnCancelActionPerformed
 }
