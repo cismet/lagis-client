@@ -12,13 +12,12 @@
  */
 package de.cismet.lagis.thread;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+//import org.apache.commons.httpclient.HttpClient;
+//import org.apache.commons.httpclient.HttpStatus;
+//import org.apache.commons.httpclient.methods.PostMethod;
+//import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 import org.deegree.model.feature.GMLFeatureCollectionDocument;
 
@@ -26,11 +25,19 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import java.net.URL;
 
 import java.util.HashMap;
 
+import de.cismet.commons.security.AccessHandler;
+
 import de.cismet.lagis.interfaces.DoneDelegate;
+
+import de.cismet.security.WebAccessManager;
+
 
 /**
  * DOCUMENT ME!
@@ -123,75 +130,56 @@ public abstract class WFSWorkerThread<K, R> extends ExtendedSwingWorker<R, Void>
             if (LOG.isDebugEnabled()) {
                 LOG.debug("PostString für WFS :" + postString);
             }
-            final HttpClient client = new HttpClient();
-            final String proxySet = System.getProperty("proxySet");
-            if ((proxySet != null) && proxySet.equals("true")) {
+//            final HttpClient client = new HttpClient();
+//            final String proxySet = System.getProperty("proxySet");
+//            if ((proxySet != null) && proxySet.equals("true")) {
+//                if (LOG.isDebugEnabled()) {
+//                    LOG.debug("proxyIs Set");
+//                    LOG.debug("ProxyHost:" + System.getProperty("http.proxyHost"));
+//                }
+//                if (LOG.isDebugEnabled()) {
+//                    LOG.debug("ProxyPort:" + System.getProperty("http.proxyPort"));
+//                }
+//                try {
+//                    client.getHostConfiguration()
+//                            .setProxy(System.getProperty("http.proxyHost"),
+//                                Integer.parseInt(System.getProperty("http.proxyPort")));
+//                } catch (final Exception e) {
+//                    LOG.error("Problem while setting proxy", e);
+//                }
+//            }
+//            if (isCancelled()) {
+//                if (LOG.isDebugEnabled()) {
+//                    LOG.debug("doInBackground (WFSRetriever) is canceled");
+//                }
+//                return null;
+//            }
+
+            final WebAccessManager webAccessManager = WebAccessManager.getInstance();
+
+            if (isCancelled()) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("proxyIs Set");
-                    LOG.debug("ProxyHost:" + System.getProperty("http.proxyHost"));
+                    LOG.debug("doInBackground (WFSRetriever) is canceled");
                 }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("ProxyPort:" + System.getProperty("http.proxyPort"));
-                }
+                return null;
+            }
+
+            LOG.info("doInBackground: start communication with host " + getHostname());
+
+            final InputStream is = webAccessManager.doRequest(new URL(getHostname()),
+                    postString,
+                    AccessHandler.ACCESS_METHODS.POST_REQUEST);
+
+            if (is != null) {
                 try {
-                    client.getHostConfiguration()
-                            .setProxy(System.getProperty("http.proxyHost"),
-                                Integer.parseInt(System.getProperty("http.proxyPort")));
-                } catch (final Exception e) {
-                    LOG.error("Problem while setting proxy", e);
+                    return IOUtils.toByteArray(is);
+                } finally {
+                    is.close();
                 }
-            }
-            if (isCancelled()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("doInBackground (WFSRetriever) is canceled");
-                }
-                return null;
-            }
-            final PostMethod httppost = new PostMethod(getHostname());
-            httppost.setRequestEntity(new StringRequestEntity(postString));
-            if (isCancelled()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("doInBackground (WFSRetriever) is canceled");
-                }
-                return null;
-            }
-            final long start = System.currentTimeMillis();
-            if (isCancelled()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("doInBackground (WFSRetriever) is canceled");
-                }
-                return null;
-            }
-
-            LOG.info("doInBackground: start communication with host " + httppost.getHostConfiguration());
-
-            client.executeMethod(httppost);
-
-            if (isCancelled()) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("doInBackground (WFSRetriever) is canceled");
-                }
-                return null;
-            }
-            final long stop = System.currentTimeMillis();
-            if (LOG.isEnabledFor(Priority.INFO)) {
-                LOG.info(((stop - start) / 1000.0) + " Sekunden dauerte das getFeature Request ");
-            }
-            final int code = httppost.getStatusCode();
-            if (code == HttpStatus.SC_OK) {
-                if (isCancelled()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("doInBackground (WFSRetriever) is canceled");
-                    }
-                    httppost.releaseConnection();
-                    return null;
-                }
-                return IOUtils.toByteArray(httppost.getResponseBodyAsStream());
             } else {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("HTTP statuscode != ok: " + code);
+                    LOG.debug("No response from wfs");
                 }
-                httppost.releaseConnection();
             }
         } catch (final Exception ex) {
             LOG.error("Fehler beim abrufen der WFS Geometrie ", ex);

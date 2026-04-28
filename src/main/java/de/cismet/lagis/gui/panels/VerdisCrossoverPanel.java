@@ -20,8 +20,6 @@ import Sirius.server.middleware.types.MetaObject;
 
 import com.vividsolutions.jts.geom.Geometry;
 
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 
 import org.jdesktop.swingx.JXTable;
@@ -71,7 +69,6 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
     // ToDo perhaps place in VerdisCrossover
     // Problem: would be the the only dependency to verdis
     // http://localhost:18000/verdis/gotoKassenzeichen?kassenzeichen=6000442
-    public static final NameValuePair PARAMETER_KASSENZEICHEN = new NameValuePair("kassenzeichen", "");
     private static final String PROGRESS_CARD_NAME = "progress";
     private static final String CONTENT_CARD_NAME = "content";
     private static final String MESSAGE_CARD_NAME = "message";
@@ -558,14 +555,13 @@ public class VerdisCrossoverPanel extends javax.swing.JPanel implements MouseLis
             log.warn("Crossover: verdisCrossoverPort ist ungültig: " + port);
         } else {
             try {
-                // ToDo ugly because is static
-                PARAMETER_KASSENZEICHEN.setValue(String.valueOf(bean.getProperty("kassenzeichennummer8"))); // kz.getId().toString());
-                final GetMethod tmp = new GetMethod(server + port + request);
-                tmp.setQueryString(new NameValuePair[] { PARAMETER_KASSENZEICHEN });
+                final String url = server + port + request + "?kassenzeichen="
+                            + String.valueOf(bean.getProperty("kassenzeichennummer8"));
+
                 if (log.isDebugEnabled()) {
-                    log.debug("Crossover: verdisCrossOverQuery: " + tmp.getURI().toString());
+                    log.debug("Crossover: verdisCrossOverQuery: " + url);
                 }
-                return new URL(tmp.getURI().toString());
+                return new URL(url);
             } catch (Exception ex) {
                 log.error("Crossover: Fehler beim fernsteuern von VerdIS.", ex);
             }
